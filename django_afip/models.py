@@ -35,14 +35,7 @@ class CurrencyType(GenericAfipType):
     pass
 
 
-class SalesPoint(models.Model):
-    number = models.PositiveSmallIntegerField()
-    issuance_type = models.CharField(max_length=8)  # FIXME
-    blocked = models.BooleanField()
-    drop_date = models.DateField()
-
-
-class Credentials(models.Model):
+class TaxPayer(models.Model):
     name = models.CharField(max_length=32)
     key = models.FieldField(
         null=True,
@@ -50,6 +43,16 @@ class Credentials(models.Model):
     certificate = models.FieldField(
         null=True,
     )
+    cuit = models.PositiveSmallIntegerField()
+
+
+class SalesPoint(models.Model):
+    number = models.PositiveSmallIntegerField()
+    issuance_type = models.CharField(max_length=8)  # FIXME
+    blocked = models.BooleanField()
+    drop_date = models.DateField()
+
+    owner = models.ForeignKey(TaxPayer)
 
 
 class ReceiptBatch(models.Model):
@@ -60,6 +63,8 @@ class ReceiptBatch(models.Model):
     amount = models.PositiveSmallIntegerField()
     receipt_type = models.ForeignKey(ReceiptType)
     sales_point = models.ForeignKey(SalesPoint)
+
+    owner = models.ForeignKey(TaxPayer)
 
 
 class Receipt(models.Model):
