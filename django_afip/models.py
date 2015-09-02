@@ -68,7 +68,13 @@ class ReceiptBatch(models.Model):
 
 class Receipt(models.Model):
     """
-    An AFIP-related document (eg: invoice).
+    A receipt, as sent to AFIP.
+
+    Note that AFIP allows sending ranges of receipts, but this isn't generally
+    what you want, so we model invoices individually.
+
+    You'll probably want to relate some `Sale` or `Order` object from your
+    model with each Receipt.
     """
     pack = models.ForeignKey(
         ReceiptBatch,
@@ -84,10 +90,8 @@ class Receipt(models.Model):
         related_name='documents',
     )
     document_number = models.BigIntegerField()
-    from_invoice = models.PositiveIntegerField(
-        null=True,
-    )
-    to_invoice = models.PositiveIntegerField(
+    # NOTE: WS will expect receipt_from and receipt_to.
+    receipt_number = models.PositiveIntegerField(
         null=True,
     )
     date = models.DateField()
