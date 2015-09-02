@@ -60,7 +60,6 @@ class ReceiptBatch(models.Model):
     Receipts are validated sent in batches.
     """
 
-    amount = models.PositiveSmallIntegerField()
     receipt_type = models.ForeignKey(ReceiptType)
     sales_point = models.ForeignKey(SalesPoint)
 
