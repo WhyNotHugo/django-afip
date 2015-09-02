@@ -82,6 +82,21 @@ class PointOfSales(models.Model):
         verbose_name_plural = _('points of sales')
 
 
+class AuthTicket(models.Model):
+    owner = models.ForeignKey(TaxPayer)
+    unique_id = models.IntegerField()
+    generated = models.DateTimeField()
+    expires = models.DateTimeField()
+    service = models.CharField(max_length=6)
+
+    token = models.TextField()
+    signature = models.TextField()
+
+    class Meta:
+        verbose_name = _('authorization ticket')
+        verbose_name = _('authorization tickets')
+
+
 class ReceiptBatch(models.Model):
     """
     Receipts are validated sent in batches.
