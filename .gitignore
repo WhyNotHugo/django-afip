@@ -1,0 +1,5 @@
+*.pyc
+.*.sw?
+/django_afip.egg-info
+/build
+/dist
