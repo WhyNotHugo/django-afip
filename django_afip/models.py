@@ -306,18 +306,24 @@ class Receipt(models.Model):
         help_text=_(
             'Date on which a service started. No applicable for goods.'
         ),
+        null=True,
+        blank=True,
     )
     service_end = models.DateField(
         _('service end date'),
         help_text=_(
             'Date on which a service ended. No applicable for goods.'
         ),
+        null=True,
+        blank=True,
     )
     expiration_date = models.DateField(
         _('receipt expiration date'),
         help_text=_(
             'Date on which this receipt expires. No applicable for goods.'
         ),
+        null=True,
+        blank=True,
     )
     currency = models.ForeignKey(
         CurrencyType,
