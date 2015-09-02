@@ -443,7 +443,7 @@ class Validation(models.Model):
 
     batch = models.ForeignKey(
         ReceiptBatch,
-        related_name='validations',
+        related_name='validation',
         verbose_name=_('receipt batch'),
     )
 
