@@ -127,7 +127,7 @@ msgstr "validación"
 
 #: models.py:239
 msgid "validations"
-msgstr "validaciónes"
+msgstr "validaciones"
 
 #: models.py:247
 msgid "observation"
