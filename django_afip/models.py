@@ -126,7 +126,12 @@ class Receipt(models.Model):
         'Receipt',
     )
 
-    # optionals
+    # Not implemented: optionals
+
+    # These two values are stored in the receipt's batch. However, before the
+    # receipt is assigned into a batch, this value should be used.
+    receipt_type = models.ForeignKey(ReceiptType)
+    sales_point = models.ForeignKey(PointOfSales)
 
     @property
     def total(self):
