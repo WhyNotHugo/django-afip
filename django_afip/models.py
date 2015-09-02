@@ -2,6 +2,20 @@ from django.db import models
 from django.utils.translation import ugettext as _
 
 
+class GenericAfipTypeManager(models.Manager):
+
+    def __init__(self, service_name):
+        super().__init__()
+        self.__service_name = service_name
+
+    def populate(self):
+        """
+        Populates the database with valid types retrieved from AFIP's
+        webservices.
+        """
+        pass  # TODO: Not Implemented!
+
+
 class GenericAfipType(models.Model):
     code = models.CharField(
         _('code'),
@@ -27,12 +41,16 @@ class GenericAfipType(models.Model):
 
 class ReceiptType(GenericAfipType):
 
+    objects = GenericAfipTypeManager('FEParamGetTiposCbte')
+
     class Meta:
         verbose_name = _("receipt type")
         verbose_name_plural = _("receipt types")
 
 
 class ConceptType(GenericAfipType):
+
+    objects = GenericAfipTypeManager('FEParamGetTiposConcepto')
 
     class Meta:
         verbose_name = _("concept type")
@@ -41,12 +59,16 @@ class ConceptType(GenericAfipType):
 
 class DocumentType(GenericAfipType):
 
+    objects = GenericAfipTypeManager('FEParamGetTiposDoc')
+
     class Meta:
         verbose_name = _("document type")
         verbose_name_plural = _("document types")
 
 
 class VatType(GenericAfipType):
+
+    objects = GenericAfipTypeManager('FEParamGetTiposIva')
 
     class Meta:
         verbose_name = _("vat type")
@@ -55,12 +77,16 @@ class VatType(GenericAfipType):
 
 class TaxType(GenericAfipType):
 
+    objects = GenericAfipTypeManager('FEParamGetTiposTributos')
+
     class Meta:
         verbose_name = _("tax type")
         verbose_name_plural = _("tax types")
 
 
 class CurrencyType(GenericAfipType):
+
+    objects = GenericAfipTypeManager('FEParamGetTiposTiposMonedas')
 
     def __str__(self):
         return self.code
