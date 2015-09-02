@@ -3,10 +3,23 @@ from django.utils.translation import ugettext as _
 
 
 class GenericAfipType(models.Model):
-    code = models.CharField(max_length=3)
-    description = models.CharField(max_length=250)
-    valid_from = models.DateField()
-    valid_to = models.DateField()
+    code = models.CharField(
+        _('code'),
+        max_length=3,
+    )
+    description = models.CharField(
+        _('description'),
+        max_length=250,
+    )
+    valid_from = models.DateField(
+        _('valid from'),
+    )
+    valid_to = models.DateField(
+        _('valid until'),
+    )
+
+    def __str__(self):
+        return self.description
 
     class Meta:
         abstract = True
@@ -49,20 +62,31 @@ class TaxType(GenericAfipType):
 
 class CurrencyType(GenericAfipType):
 
+    def __str__(self):
+        return self.code
+
     class Meta:
         verbose_name = _("currency type")
         verbose_name_plural = _("currency types")
 
 
 class TaxPayer(models.Model):
-    name = models.CharField(max_length=32)
+    name = models.CharField(
+        _('name'),
+        max_length=32,
+        help_text=_('A friendly name to recognize this taxpayer.'),
+    )
     key = models.FileField(
+        _('key'),
         null=True,
     )
     certificate = models.FileField(
+        _('certificate'),
         null=True,
     )
-    cuit = models.PositiveSmallIntegerField()
+    cuit = models.PositiveSmallIntegerField(
+        _('cuit'),
+    )
 
     class Meta:
         verbose_name = _("taxpayer")
@@ -70,12 +94,28 @@ class TaxPayer(models.Model):
 
 
 class PointOfSales(models.Model):
-    number = models.PositiveSmallIntegerField()
-    issuance_type = models.CharField(max_length=8)  # FIXME
-    blocked = models.BooleanField()
-    drop_date = models.DateField()
+    number = models.PositiveSmallIntegerField(
+        _('number'),
+    )
+    issuance_type = models.CharField(
+        _('issuance type'),
+        max_length=8,
+        help_text='Indicates if thie POS emits using CAE and CAEA.'
+    )
+    blocked = models.BooleanField(
+        _('blocked'),
+    )
+    drop_date = models.DateField(
+        _('drop date'),
+    )
 
-    owner = models.ForeignKey(TaxPayer)
+    owner = models.ForeignKey(
+        TaxPayer,
+        verbose_name=_('owner'),
+    )
+
+    def __str__(self):
+        return str(self.number)
 
     class Meta:
         verbose_name = _('point of sales')
@@ -83,14 +123,31 @@ class PointOfSales(models.Model):
 
 
 class AuthTicket(models.Model):
-    owner = models.ForeignKey(TaxPayer)
-    unique_id = models.IntegerField()
-    generated = models.DateTimeField()
-    expires = models.DateTimeField()
-    service = models.CharField(max_length=6)
+    owner = models.ForeignKey(
+        TaxPayer,
+        verbose_name=_('owner'),
+    )
+    unique_id = models.IntegerField(
+        _('unique id'),
+    )
+    generated = models.DateTimeField(
+        _('generated'),
+    )
+    expires = models.DateTimeField(
+        _('expires'),
+    )
+    service = models.CharField(
+        _('service'),
+        max_length=6,
+        help_text=_('Service for which this ticket has been authorized'),
+    )
 
-    token = models.TextField()
-    signature = models.TextField()
+    token = models.TextField(
+        _('token'),
+    )
+    signature = models.TextField(
+        _('signature'),
+    )
 
     class Meta:
         verbose_name = _('authorization ticket')
@@ -102,10 +159,14 @@ class ReceiptBatch(models.Model):
     Receipts are validated sent in batches.
     """
 
-    receipt_type = models.ForeignKey(ReceiptType)
-    point_of_sales = models.ForeignKey(PointOfSales)
-
-    owner = models.ForeignKey(TaxPayer)
+    receipt_type = models.ForeignKey(
+        ReceiptType,
+        verbose_name=_('receipt type'),
+    )
+    point_of_sales = models.ForeignKey(
+        PointOfSales,
+        verbose_name=_('point of sales'),
+    )
 
     class Meta:
         verbose_name = _('receipt batch')
@@ -124,82 +185,178 @@ class Receipt(models.Model):
     """
     batch = models.ForeignKey(
         ReceiptBatch,
-        related_name='details',
+        related_name='receipts',
         null=True,
+        blank=True,
+        verbose_name=_('receipt batch'),
+        help_text=_(
+            'Receipts are validated in batches, so it must be assigned one '
+            'before validation is possible.'),
     )
     concept = models.ForeignKey(
         ConceptType,
+        verbose_name=_('concept'),
         related_name='receipts',
     )
     document_type = models.ForeignKey(
         DocumentType,
+        verbose_name=_('document type'),
         related_name='receipts',
+        help_text=_(
+            'The document type of the customer to whom this receipt '
+            'is addressed'
+        ),
     )
-    document_number = models.BigIntegerField()
+    document_number = models.BigIntegerField(
+        _('document number'),
+        help_text=_(
+            'The document number of the customer to whom this receipt '
+            'is addressed'
+        )
+    )
     # NOTE: WS will expect receipt_from and receipt_to.
     receipt_number = models.PositiveIntegerField(
+        _('receipt number'),
         null=True,
     )
-    date = models.DateField()
-    net_untaxed = models.DecimalField(
+    issued_date = models.DateField(
+        verbose_name=_('issued date'),
+        help_text=_('Can diverge up to 5 days for good, or 10 days otherwise'),
+    )
+    total_amount = models.DecimalField(
+        # ImpTotal
+        _('total amount'),
         max_digits=15,
         decimal_places=2,
+        help_text=_(
+            'Must be equal to untaxed amount + exempt amount + taxes + vat.'
+        )
+    )
+    net_untaxed = models.DecimalField(
+        # ImpTotConc
+        _('total untaxable amount'),
+        max_digits=15,
+        decimal_places=2,
+        help_text=_(
+            'The total amount to which taxes do not apply. '
+            'For C-type receipts, this must be zero.'
+        ),
     )
     net_taxed = models.DecimalField(
+        # ImpNeto
+        _('total taxable amount'),
         max_digits=15,
         decimal_places=2,
+        help_text=_(
+            'The total amount to which taxes apply. '
+            'For C-type receipts, this is equal to the subtotal.'
+            ),
     )
     exempt_amount = models.DecimalField(
+        # ImpOpEx
+        # Sólo para emisores que son IVA exento
+        _('exempt amount'),
         max_digits=15,
         decimal_places=2,
+        help_text=_(
+            'Only for categories which are tax-exempt. '
+            'For C-type receipts, this must be zero.'
+        ),
+    )
+    vat_amount = models.DecimalField(
+        _('vat amount'),
+        max_digits=15,
+        decimal_places=2,
+        help_text=_('Must be equal to the sum of all Vat objects.'),
     )
     tax_amount = models.DecimalField(
+        _('tax amount'),
         max_digits=15,
         decimal_places=2,
+        help_text=_('Must be equal to the sum of all Tax objects.'),
     )
-    service_from_date = models.DateField()
-    service_to_date = models.DateField()
-    expiration_date = models.DateField()
+    service_start = models.DateField(
+        _('service start date'),
+        help_text=_(
+            'Date on which a service started. No applicable for goods.'
+        ),
+    )
+    service_end = models.DateField(
+        _('service end date'),
+        help_text=_(
+            'Date on which a service ended. No applicable for goods.'
+        ),
+    )
+    expiration_date = models.DateField(
+        _('receipt expiration date'),
+        help_text=_(
+            'Date on which this receipt expires. No applicable for goods.'
+        ),
+    )
     currency = models.ForeignKey(
         CurrencyType,
+        verbose_name=_('currency'),
         related_name='documents',
+        help_text=_(
+            'Currency in which this receipt is issued.',
+        ),
     )
     currency_quote = models.DecimalField(
+        _('currency quote'),
         max_digits=10,
         decimal_places=6,
+        help_text=_(
+            'Quote of the day for the currency used in the receipt',
+        ),
     )
     related_receipts = models.ManyToManyField(
         'Receipt',
+        _('related receipts'),
+        blank=True,
     )
 
     # Not implemented: optionals
+
+    # TODO: methods to compute total, vat_amount and taxes_amount
 
     # These two values are stored in the receipt's batch. However, before the
     # receipt is assigned into a batch, this value should be used.
     receipt_type = models.ForeignKey(ReceiptType)
     point_of_sales = models.ForeignKey(PointOfSales)
 
-    @property
-    def total(self):
-        pass
+    def __str__(self):
+        return '{} #{}'.format(self.receipt_type, self.receipt_number)
 
     class Meta:
         verbose_name = _('receipt')
         verbose_name_plural = _('receipts')
+        unique_together = (
+            ('receipt_type', 'receipt_number',)
+        )
+        # TODO: index_together...
 
 
 class Tax(models.Model):
-    tax_type = models.ForeignKey(TaxType)
-    description = models.CharField(max_length=80)
+    tax_type = models.ForeignKey(
+        TaxType,
+        verbose_name=_('tax type'),
+    )
+    description = models.CharField(
+        _('description'),
+        max_length=80,
+    )
     base_amount = models.DecimalField(
+        _('base amount'),
         max_digits=15,
         decimal_places=2,
     )
     aliquot = models.DecimalField(
+        _('aliquot'),
         max_digits=5,
         decimal_places=2,
     )
     amount = models.DecimalField(
+        _('amount'),
         max_digits=15,
         decimal_places=2,
     )
@@ -212,12 +369,17 @@ class Tax(models.Model):
 
 
 class Vat(models.Model):
-    vat_type = models.ForeignKey(VatType)
+    vat_type = models.ForeignKey(
+        VatType,
+        verbose_name=_('vat type'),
+    )
     base = models.DecimalField(
+        _('base amount'),
         max_digits=15,
         decimal_places=2,
     )
     amount = models.DecimalField(
+        _('amount'),
         max_digits=15,
         decimal_places=2,
     )
@@ -234,8 +396,11 @@ class Validation(models.Model):
     RESULT_REJECTED = 'R'
     RESULT_PARTIAL = 'P'
 
-    processed_date = models.DateField()
+    processed_date = models.DateField(
+        _('processed date'),
+    )
     result = models.CharField(
+        _('result'),
         max_length=1,
         choices=(
             (RESULT_APPROVED, _('approved')),
@@ -246,7 +411,8 @@ class Validation(models.Model):
 
     batch = models.ForeignKey(
         ReceiptBatch,
-        related_name='validations'
+        related_name='validations',
+        verbose_name=_('receipt batch'),
     )
 
     class Meta:
@@ -255,8 +421,13 @@ class Validation(models.Model):
 
 
 class Observation(models.Model):
-    code = models.PositiveSmallIntegerField()
-    message = models.CharField(max_length=255)
+    code = models.PositiveSmallIntegerField(
+        _('code'),
+    )
+    message = models.CharField(
+        _('message'),
+        max_length=255,
+    )
 
     class Meta:
         verbose_name = _('observation')
@@ -264,8 +435,13 @@ class Observation(models.Model):
 
 
 class ReceiptValidation(models.Model):
-    validation = models.ForeignKey(Validation)
+    validation = models.ForeignKey(
+        Validation,
+        verbose_name=_('validation'),
+        related_name='receipts',
+    )
     result = models.CharField(
+        _('result'),
         max_length=1,
         choices=(
             (Validation.RESULT_APPROVED, _('approved')),
@@ -273,13 +449,22 @@ class ReceiptValidation(models.Model):
             (Validation.RESULT_PARTIAL, _('partial')),
         ),
     )
-    cae = models.CharField(max_length=14)
-    cae_expiration = models.DateTimeField()
-    observations = models.ForeignKey(Observation)
+    cae = models.CharField(
+        _('cae'),
+        max_length=14
+    )
+    cae_expiration = models.DateTimeField(
+        _('cae expiration'),
+    )
+    observations = models.ForeignKey(
+        Observation,
+        verbose_name=_('observations'),
+    )
 
-    receipt = models.ForeignKey(
+    receipt = models.OneToOneField(
         Receipt,
-        related_name='validations',
+        related_name='validation',
+        verbose_name=_('receipt'),
     )
 
     class Meta:
