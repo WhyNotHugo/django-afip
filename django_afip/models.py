@@ -46,7 +46,7 @@ class TaxPayer(models.Model):
     cuit = models.PositiveSmallIntegerField()
 
 
-class SalesPoint(models.Model):
+class PointOfSales(models.Model):
     number = models.PositiveSmallIntegerField()
     issuance_type = models.CharField(max_length=8)  # FIXME
     blocked = models.BooleanField()
@@ -61,7 +61,7 @@ class ReceiptBatch(models.Model):
     """
 
     receipt_type = models.ForeignKey(ReceiptType)
-    sales_point = models.ForeignKey(SalesPoint)
+    point_of_sales = models.ForeignKey(PointOfSales)
 
     owner = models.ForeignKey(TaxPayer)
 
@@ -76,18 +76,18 @@ class Receipt(models.Model):
     You'll probably want to relate some `Sale` or `Order` object from your
     model with each Receipt.
     """
-    pack = models.ForeignKey(
+    batch = models.ForeignKey(
         ReceiptBatch,
         related_name='details',
         null=True,
     )
     concept = models.ForeignKey(
         ConceptType,
-        related_name='documents',
+        related_name='receipts',
     )
     document_type = models.ForeignKey(
         DocumentType,
-        related_name='documents',
+        related_name='receipts',
     )
     document_number = models.BigIntegerField()
     # NOTE: WS will expect receipt_from and receipt_to.
@@ -131,7 +131,7 @@ class Receipt(models.Model):
     # These two values are stored in the receipt's batch. However, before the
     # receipt is assigned into a batch, this value should be used.
     receipt_type = models.ForeignKey(ReceiptType)
-    sales_point = models.ForeignKey(PointOfSales)
+    point_of_sales = models.ForeignKey(PointOfSales)
 
     @property
     def total(self):
