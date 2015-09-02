@@ -1,0 +1,146 @@
+# django-afip
+# Copyright (C) 2015 Hugo Osvaldo Barrera
+# This file is distributed under the same license as the django-afip package.
+# Hugo Osvaldo Barrera <hugo@barrera.io>, 2015.
+msgid ""
+msgstr ""
+"Project-Id-Version: django-afip\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-09-02 04:36-0300\n"
+"PO-Revision-Date: 2015-09-02 04:40-0300\n"
+"Last-Translator: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
+"Language-Team: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 1.8.4\n"
+
+#: models.py:18
+msgid "receipt type"
+msgstr "tipo de comprobante"
+
+#: models.py:19
+msgid "receipt types"
+msgstr "tipos comprobante"
+
+#: models.py:25
+msgid "concept type"
+msgstr "tipo de concepto"
+
+#: models.py:26
+msgid "concept types"
+msgstr "tipos de concepto"
+
+#: models.py:32
+msgid "document type"
+msgstr "tipo de documento"
+
+#: models.py:33
+msgid "document types"
+msgstr "tipos de documento"
+
+#: models.py:39
+msgid "vat type"
+msgstr "tipo de iva"
+
+#: models.py:40
+msgid "vat types"
+msgstr "tipos de iva"
+
+#: models.py:46
+msgid "tax type"
+msgstr "tipo de tributo"
+
+#: models.py:47
+msgid "tax types"
+msgstr "tipos de tributo"
+
+#: models.py:53
+msgid "currency type"
+msgstr "tipo de moneda"
+
+#: models.py:54
+msgid "currency types"
+msgstr "tipos de moneda"
+
+#: models.py:68
+msgid "taxpayer"
+msgstr "contribuyente"
+
+#: models.py:69
+msgid "taxpayers"
+msgstr "contribuyentes"
+
+#: models.py:81
+msgid "point of sales"
+msgstr "punto de ventas"
+
+#: models.py:82
+msgid "points of sales"
+msgstr "puntos de venta"
+
+#: models.py:96
+msgid "receipt batch"
+msgstr "lote de comprobantes"
+
+#: models.py:97
+msgid "receipt batches"
+msgstr "lotes de comprobantes"
+
+#: models.py:172
+msgid "receipt"
+msgstr "comprobante"
+
+#: models.py:173
+msgid "receipts"
+msgstr "comprobantes"
+
+#: models.py:195
+msgid "tax"
+msgstr "tributo"
+
+#: models.py:196
+msgid "taxes"
+msgstr "tributos"
+
+#: models.py:213 models.py:214
+msgid "vat"
+msgstr "iva"
+
+#: models.py:226 models.py:256
+msgid "approved"
+msgstr "aprobado"
+
+#: models.py:227 models.py:257
+msgid "rejected"
+msgstr "rechazado"
+
+#: models.py:228 models.py:258
+msgid "partial"
+msgstr "parcial"
+
+#: models.py:238
+msgid "validation"
+msgstr "validación"
+
+#: models.py:239
+msgid "validations"
+msgstr "validaciónes"
+
+#: models.py:247
+msgid "observation"
+msgstr "observación"
+
+#: models.py:248
+msgid "observations"
+msgstr "observaciones"
+
+#: models.py:271
+msgid "receipt validation"
+msgstr "validación de comprobante"
+
+#: models.py:272
+msgid "receipt validations"
+msgstr "validaciones de comprobante"

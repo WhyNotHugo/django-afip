@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import ugettext as _
 
 
 class GenericAfipType(models.Model):
@@ -12,27 +13,45 @@ class GenericAfipType(models.Model):
 
 
 class ReceiptType(GenericAfipType):
-    pass
+
+    class Meta:
+        verbose_name = _("receipt type")
+        verbose_name_plural = _("receipt types")
 
 
 class ConceptType(GenericAfipType):
-    pass
+
+    class Meta:
+        verbose_name = _("concept type")
+        verbose_name_plural = _("concept types")
 
 
 class DocumentType(GenericAfipType):
-    pass
+
+    class Meta:
+        verbose_name = _("document type")
+        verbose_name_plural = _("document types")
 
 
 class VatType(GenericAfipType):
-    pass
+
+    class Meta:
+        verbose_name = _("vat type")
+        verbose_name_plural = _("vat types")
 
 
 class TaxType(GenericAfipType):
-    pass
+
+    class Meta:
+        verbose_name = _("tax type")
+        verbose_name_plural = _("tax types")
 
 
 class CurrencyType(GenericAfipType):
-    pass
+
+    class Meta:
+        verbose_name = _("currency type")
+        verbose_name_plural = _("currency types")
 
 
 class TaxPayer(models.Model):
@@ -45,6 +64,10 @@ class TaxPayer(models.Model):
     )
     cuit = models.PositiveSmallIntegerField()
 
+    class Meta:
+        verbose_name = _("taxpayer")
+        verbose_name_plural = _("taxpayers")
+
 
 class PointOfSales(models.Model):
     number = models.PositiveSmallIntegerField()
@@ -53,6 +76,10 @@ class PointOfSales(models.Model):
     drop_date = models.DateField()
 
     owner = models.ForeignKey(TaxPayer)
+
+    class Meta:
+        verbose_name = _('point of sales')
+        verbose_name_plural = _('points of sales')
 
 
 class ReceiptBatch(models.Model):
@@ -64,6 +91,10 @@ class ReceiptBatch(models.Model):
     point_of_sales = models.ForeignKey(PointOfSales)
 
     owner = models.ForeignKey(TaxPayer)
+
+    class Meta:
+        verbose_name = _('receipt batch')
+        verbose_name = _('receipt batches')
 
 
 class Receipt(models.Model):
@@ -137,6 +168,10 @@ class Receipt(models.Model):
     def total(self):
         pass
 
+    class Meta:
+        verbose_name = _('receipt')
+        verbose_name_plural = _('receipts')
+
 
 class Tax(models.Model):
     tax_type = models.ForeignKey(TaxType)
@@ -156,6 +191,10 @@ class Tax(models.Model):
 
     receipt = models.ForeignKey(Receipt)
 
+    class Meta:
+        verbose_name = _('tax')
+        verbose_name_plural = _('taxes')
+
 
 class Vat(models.Model):
     vat_type = models.ForeignKey(VatType)
@@ -170,6 +209,10 @@ class Vat(models.Model):
 
     receipt = models.ForeignKey(Receipt)
 
+    class Meta:
+        verbose_name = _('vat')
+        verbose_name_plural = _('vat')
+
 
 class Validation(models.Model):
     RESULT_APPROVED = 'A'
@@ -180,9 +223,9 @@ class Validation(models.Model):
     result = models.CharField(
         max_length=1,
         choices=(
-            (RESULT_APPROVED, 'Aprovado'),
-            (RESULT_REJECTED, 'Rechazado'),
-            (RESULT_PARTIAL, 'Parcial'),
+            (RESULT_APPROVED, _('approved')),
+            (RESULT_REJECTED, _('rejected')),
+            (RESULT_PARTIAL, _('partial')),
         ),
     )
 
@@ -191,10 +234,18 @@ class Validation(models.Model):
         related_name='validations'
     )
 
+    class Meta:
+        verbose_name = _('validation')
+        verbose_name_plural = _('validations')
+
 
 class Observation(models.Model):
     code = models.PositiveSmallIntegerField()
     message = models.CharField(max_length=255)
+
+    class Meta:
+        verbose_name = _('observation')
+        verbose_name_plural = _('observations')
 
 
 class ReceiptValidation(models.Model):
@@ -202,9 +253,9 @@ class ReceiptValidation(models.Model):
     result = models.CharField(
         max_length=1,
         choices=(
-            (Validation.RESULT_APPROVED, 'Aprovado'),
-            (Validation.RESULT_REJECTED, 'Rechazado'),
-            (Validation.RESULT_PARTIAL, 'Parcial'),
+            (Validation.RESULT_APPROVED, _('approved')),
+            (Validation.RESULT_REJECTED, _('rejected')),
+            (Validation.RESULT_PARTIAL, _('partial')),
         ),
     )
     cae = models.CharField(max_length=14)
@@ -215,3 +266,7 @@ class ReceiptValidation(models.Model):
         Receipt,
         related_name='validations',
     )
+
+    class Meta:
+        verbose_name = _('receipt validation')
+        verbose_name_plural = _('receipt validations')
