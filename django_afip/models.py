@@ -37,10 +37,10 @@ class CurrencyType(GenericAfipType):
 
 class TaxPayer(models.Model):
     name = models.CharField(max_length=32)
-    key = models.FieldField(
+    key = models.FileField(
         null=True,
     )
-    certificate = models.FieldField(
+    certificate = models.FileField(
         null=True,
     )
     cuit = models.PositiveSmallIntegerField()
