@@ -168,6 +168,8 @@ class PointOfSales(models.Model):
     )
     drop_date = models.DateField(
         _('drop date'),
+        null=True,
+        blank=True,
     )
 
     owner = models.ForeignKey(
