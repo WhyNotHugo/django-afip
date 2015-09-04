@@ -149,6 +149,9 @@ class TaxPayer(models.Model):
     def create_ticket(self, service):
         return AuthTicket(owner=self, service=service)
 
+    def __str__(self):
+        return str(self.cuit)
+
     class Meta:
         verbose_name = _("taxpayer")
         verbose_name_plural = _("taxpayers")
@@ -265,6 +268,9 @@ class AuthTicket(models.Model):
         if save:
             self.save()
 
+    def __str__(self):
+        return str(self.unique_id)
+
     class Meta:
         verbose_name = _('authorization ticket')
         verbose_name = _('authorization tickets')
@@ -283,6 +289,9 @@ class ReceiptBatch(models.Model):
         PointOfSales,
         verbose_name=_('point of sales'),
     )
+
+    def __str__(self):
+        return str(self.id)
 
     class Meta:
         verbose_name = _('receipt batch')
