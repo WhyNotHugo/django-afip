@@ -4,34 +4,14 @@ from subprocess import Popen, PIPE
 import logging
 import random
 
-from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext as _
 from lxml import etree
 from lxml.builder import E
-from suds import Client
+
+from .utils import format_date, wsaa_client
 
 logger = logging.getLogger(__name__)
-
-
-endpoints = {}
-if settings.AFIP_DEBUG:
-    endpoints['wsaa'] = "https://wsaahomo.afip.gov.ar/ws/services/LoginCms?wsdl"  # NOQA
-    endpoints['wsfe'] = "https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL"
-else:
-    endpoints['wsaa'] = "https://wsaa.afip.gov.ar/ws/services/LoginCms?wsdl"
-    endpoints['wsfe'] = "https://servicios1.afip.gov.ar/wsfev1/service.asmx?WSDL"  # NOQA
-
-
-def format_date(date):
-    """
-    "Another date formatting function?" you're thinking, eh? Well, this
-    actually formats dates in the *exact* format the AFIP's WS expects it,
-    which is almost like ISO8601.
-
-    Note that .isoformat() works fine on PROD, but not on TESTING.
-    """
-    return date.strftime("%Y-%m-%dT%H:%M:%S-00:00")
 
 
 class GenericAfipTypeManager(models.Manager):
@@ -257,10 +237,9 @@ class AuthTicket(models.Model):
         signed_request = self.__sign_request(request)
         return b64encode(signed_request).decode()
 
-    def authenticate(self, save=True):
-        client = Client(endpoints['wsaa'])
+    def authorize(self, save=True):
         request = self.__create_request()
-        raw_response = client.service.loginCms(request)
+        raw_response = wsaa_client.service.loginCms(request)
         response = etree.fromstring(raw_response.encode('utf-8'))
 
         self.token = response.xpath(self.TOKEN_XPATH)[0].text
