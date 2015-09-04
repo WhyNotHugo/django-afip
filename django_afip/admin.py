@@ -122,8 +122,19 @@ class ReceiptBatchAdmin(admin.ModelAdmin):
     receipts_count.admin_order_field = 'receipts__count'
 
 
+class AuthTicketAdmin(admin.ModelAdmin):
+    list_display = (
+        'unique_id',
+        'owner',
+        'service',
+        'generated',
+        'expires',
+    )
+
+
 admin.site.register(models.Receipt, ReceiptAdmin)
 admin.site.register(models.ReceiptBatch, ReceiptBatchAdmin)
+admin.site.register(models.AuthTicket, AuthTicketAdmin)
 
 app = apps.get_app_config('afip')
 for model in app.get_models():
