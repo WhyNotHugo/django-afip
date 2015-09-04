@@ -1,5 +1,37 @@
+from base64 import b64encode
+from datetime import datetime, timedelta
+from subprocess import Popen, PIPE
+import logging
+import random
+
+from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext as _
+from lxml import etree
+from lxml.builder import E
+from suds import Client
+
+logger = logging.getLogger(__name__)
+
+
+endpoints = {}
+if settings.AFIP_DEBUG:
+    endpoints['wsaa'] = "https://wsaahomo.afip.gov.ar/ws/services/LoginCms?wsdl"  # NOQA
+    endpoints['wsfe'] = "https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL"
+else:
+    endpoints['wsaa'] = "https://wsaa.afip.gov.ar/ws/services/LoginCms?wsdl"
+    endpoints['wsfe'] = "https://servicios1.afip.gov.ar/wsfev1/service.asmx?WSDL"  # NOQA
+
+
+def format_date(date):
+    """
+    "Another date formatting function?" you're thinking, eh? Well, this
+    actually formats dates in the *exact* format the AFIP's WS expects it,
+    which is almost like ISO8601.
+
+    Note that .isoformat() works fine on PROD, but not on TESTING.
+    """
+    return date.strftime("%Y-%m-%dT%H:%M:%S-00:00")
 
 
 class GenericAfipTypeManager(models.Manager):
@@ -110,9 +142,12 @@ class TaxPayer(models.Model):
         _('certificate'),
         null=True,
     )
-    cuit = models.PositiveSmallIntegerField(
+    cuit = models.PositiveIntegerField(
         _('cuit'),
     )
+
+    def create_ticket(self, service):
+        return AuthTicket(owner=self, service=service)
 
     class Meta:
         verbose_name = _("taxpayer")
@@ -174,6 +209,59 @@ class AuthTicket(models.Model):
     signature = models.TextField(
         _('signature'),
     )
+
+    TOKEN_XPATH = "/loginTicketResponse/credentials/token"
+    SIGN_XPATH = "/loginTicketResponse/credentials/sign"
+
+    def __create_request_xml(self):
+        request_xml = (
+            E.loginTicketRequest(
+                {'version': '1.0'},
+                E.header(
+                    E.uniqueId(str(self.unique_id)),
+                    E.generationTime(self.generated),
+                    E.expirationTime(self.expires),
+                ),
+                E.service(self.service)
+            )
+        )
+        return etree.tostring(request_xml, pretty_print=True)
+
+    def __sign_request(self, request):
+        cert = self.owner.certificate.file.name
+        key = self.owner.key.file.name
+
+        return Popen(
+            [
+                "openssl", "smime", "-sign", "-signer", cert, "-inkey", key,
+                "-outform", "DER", "-nodetach"
+            ],
+            stdin=PIPE, stdout=PIPE, stderr=PIPE
+        ).communicate(request)[0]
+
+    def __create_request(self):
+        now = datetime.now()  # up to 24h old
+        tomorrow = now + timedelta(hours=10)  # up to 24h in the future
+
+        self.generated = format_date(now)
+        self.expires = format_date(tomorrow)
+        # Can be larger, but let's not waste on this:
+        self.unique_id = random.randint(0, 2147483647)
+
+        request = self.__create_request_xml()
+        signed_request = self.__sign_request(request)
+        return b64encode(signed_request).decode()
+
+    def authenticate(self, save=True):
+        client = Client(endpoints['wsaa'])
+        request = self.__create_request()
+        raw_response = client.service.loginCms(request)
+        response = etree.fromstring(raw_response.encode('utf-8'))
+
+        self.token = response.xpath(self.TOKEN_XPATH)[0].text
+        self.signature = response.xpath(self.SIGN_XPATH)[0].text
+        if save:
+            self.save()
 
     class Meta:
         verbose_name = _('authorization ticket')
