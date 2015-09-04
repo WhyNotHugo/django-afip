@@ -142,7 +142,7 @@ class TaxPayer(models.Model):
         _('certificate'),
         null=True,
     )
-    cuit = models.PositiveIntegerField(
+    cuit = models.BigIntegerField(
         _('cuit'),
     )
 
