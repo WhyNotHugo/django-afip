@@ -179,6 +179,17 @@ class PointOfSales(models.Model):
 
 
 class AuthTicket(models.Model):
+
+    def default_generated():
+        return format_date(datetime.now())
+
+    def default_expires():
+        tomorrow = datetime.now() + timedelta(hours=12)
+        return format_date(tomorrow)
+
+    def default_unique_id():
+        return random.randint(0, 2147483647)
+
     owner = models.ForeignKey(
         TaxPayer,
         verbose_name=_('owner'),
@@ -186,12 +197,15 @@ class AuthTicket(models.Model):
     )
     unique_id = models.IntegerField(
         _('unique id'),
+        default=default_unique_id,
     )
     generated = models.DateTimeField(
         _('generated'),
+        default=default_generated,
     )
     expires = models.DateTimeField(
         _('expires'),
+        default=default_expires,
     )
     service = models.CharField(
         _('service'),
@@ -235,21 +249,11 @@ class AuthTicket(models.Model):
             stdin=PIPE, stdout=PIPE, stderr=PIPE
         ).communicate(request)[0]
 
-    def __create_request(self):
-        now = datetime.now()  # up to 24h old
-        tomorrow = now + timedelta(hours=10)  # up to 24h in the future
-
-        self.generated = format_date(now)
-        self.expires = format_date(tomorrow)
-        # Can be larger, but let's not waste on this:
-        self.unique_id = random.randint(0, 2147483647)
-
-        request = self.__create_request_xml()
-        signed_request = self.__sign_request(request)
-        return b64encode(signed_request).decode()
-
     def authorize(self, save=True):
-        request = self.__create_request()
+        request = self.__create_request_xml()
+        request = self.__sign_request(request)
+        request = b64encode(request).decode()
+
         raw_response = wsaa_client.service.loginCms(request)
         response = etree.fromstring(raw_response.encode('utf-8'))
 
