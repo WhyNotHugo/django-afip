@@ -127,7 +127,17 @@ class TaxPayer(models.Model):
     )
 
     def create_ticket(self, service):
-        return AuthTicket(owner=self, service=service)
+        ticket = AuthTicket(owner=self, service=service)
+        ticket.authorize()
+        return ticket
+
+    def get_ticket(self, service):
+        return self.auth_tickets \
+            .filter(expires__lt=datetime.now(), service=service) \
+            .last()
+
+    def get_or_create_ticket(self, service):
+        return self.get_ticket(service) or self.create_ticket(service)
 
     def __str__(self):
         return str(self.cuit)
@@ -172,6 +182,7 @@ class AuthTicket(models.Model):
     owner = models.ForeignKey(
         TaxPayer,
         verbose_name=_('owner'),
+        related_name='auth_tickets'
     )
     unique_id = models.IntegerField(
         _('unique id'),
