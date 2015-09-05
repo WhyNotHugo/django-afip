@@ -200,11 +200,11 @@ class PointOfSales(models.Model):
 class AuthTicket(models.Model):
 
     def default_generated():
-        return format_date(datetime.now())
+        return datetime.now()
 
     def default_expires():
         tomorrow = datetime.now() + timedelta(hours=12)
-        return format_date(tomorrow)
+        return tomorrow
 
     def default_unique_id():
         return random.randint(0, 2147483647)
@@ -248,8 +248,8 @@ class AuthTicket(models.Model):
                 {'version': '1.0'},
                 E.header(
                     E.uniqueId(str(self.unique_id)),
-                    E.generationTime(self.generated),
-                    E.expirationTime(self.expires),
+                    E.generationTime(format_datetime(self.generated)),
+                    E.expirationTime(format_datetime(self.expires)),
                 ),
                 E.service(self.service)
             )
