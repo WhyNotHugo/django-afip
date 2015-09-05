@@ -74,7 +74,6 @@ class ReceiptAdmin(admin.ModelAdmin):
         batch = models.ReceiptBatch(
             receipt_type_id=first.receipt_type_id,
             point_of_sales_id=first.point_of_sales_id,
-            owner_id=first.point_of_sales.owner_id,
         )
         batch.save()
 
