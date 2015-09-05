@@ -29,8 +29,7 @@ class GenericAfipTypeManager(models.Manager):
 
         If no ticket is provided, the most recent available one will be used.
         """
-        ticket = ticket or \
-            AuthTicket.objects.filter(token__isnull=False).last()
+        ticket = ticket or AuthTicket.objects.get_any_active('wsfe')
         service = getattr(wsfe_client.service, self.__service_name)
         response_xml = service(ticket.xml())
 
@@ -152,7 +151,7 @@ class TaxPayer(models.Model):
 
     def get_ticket(self, service):
         return self.auth_tickets \
-            .filter(expires__lt=datetime.now(), service=service) \
+            .filter(expires__gt=datetime.now(), service=service) \
             .last()
 
     def get_or_create_ticket(self, service):
@@ -197,6 +196,21 @@ class PointOfSales(models.Model):
         verbose_name_plural = _('points of sales')
 
 
+class AuthTicketManager(models.Manager):
+
+    def get_any_active(self, service):
+        ticket = AuthTicket.objects.filter(
+            token__isnull=False,
+            expires__gt=datetime.now(),
+            service=service,
+        ).first()
+        if ticket:
+            return ticket
+
+        taxpayer = TaxPayer.objects.order_by('?').first()
+        return taxpayer.create_ticket('wsfe')
+
+
 class AuthTicket(models.Model):
 
     def default_generated():
@@ -238,6 +252,8 @@ class AuthTicket(models.Model):
     signature = models.TextField(
         _('signature'),
     )
+
+    objects = AuthTicketManager()
 
     TOKEN_XPATH = "/loginTicketResponse/credentials/token"
     SIGN_XPATH = "/loginTicketResponse/credentials/sign"
