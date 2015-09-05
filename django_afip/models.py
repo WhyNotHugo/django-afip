@@ -9,23 +9,38 @@ from django.utils.translation import ugettext as _
 from lxml import etree
 from lxml.builder import E
 
-from .utils import format_date, wsaa_client
+from .utils import format_date, format_datetime, parse_date, wsaa_client, \
+    wsfe_client
 
 logger = logging.getLogger(__name__)
 
 
 class GenericAfipTypeManager(models.Manager):
 
-    def __init__(self, service_name):
+    def __init__(self, service_name, type_name):
         super().__init__()
         self.__service_name = service_name
+        self.__type_name = type_name
 
-    def populate(self):
+    def populate(self, ticket=None):
         """
         Populates the database with valid types retrieved from AFIP's
         webservices.
+
+        If no ticket is provided, the most recent available one will be used.
         """
-        pass  # TODO: Not Implemented!
+        ticket = ticket or \
+            AuthTicket.objects.filter(token__isnull=False).last()
+        service = getattr(wsfe_client.service, self.__service_name)
+        response_xml = service(ticket.xml())
+
+        for result in getattr(response_xml.ResultGet, self.__type_name):
+            self.get_or_create(
+                code=result.Id,
+                description=result.Desc.encode("UTF-8"),
+                valid_from=parse_date(result.FchDesde),
+                valid_to=parse_date(result.FchHasta),
+            )
 
 
 class GenericAfipType(models.Model):
@@ -39,9 +54,13 @@ class GenericAfipType(models.Model):
     )
     valid_from = models.DateField(
         _('valid from'),
+        null=True,
+        blank=True,
     )
     valid_to = models.DateField(
         _('valid until'),
+        null=True,
+        blank=True,
     )
 
     def __str__(self):
@@ -53,7 +72,7 @@ class GenericAfipType(models.Model):
 
 class ReceiptType(GenericAfipType):
 
-    objects = GenericAfipTypeManager('FEParamGetTiposCbte')
+    objects = GenericAfipTypeManager('FEParamGetTiposCbte', 'CbteTipo')
 
     class Meta:
         verbose_name = _("receipt type")
@@ -62,7 +81,7 @@ class ReceiptType(GenericAfipType):
 
 class ConceptType(GenericAfipType):
 
-    objects = GenericAfipTypeManager('FEParamGetTiposConcepto')
+    objects = GenericAfipTypeManager('FEParamGetTiposConcepto', 'ConceptoTipo')
 
     class Meta:
         verbose_name = _("concept type")
@@ -71,7 +90,7 @@ class ConceptType(GenericAfipType):
 
 class DocumentType(GenericAfipType):
 
-    objects = GenericAfipTypeManager('FEParamGetTiposDoc')
+    objects = GenericAfipTypeManager('FEParamGetTiposDoc', 'DocTipo')
 
     class Meta:
         verbose_name = _("document type")
@@ -80,7 +99,7 @@ class DocumentType(GenericAfipType):
 
 class VatType(GenericAfipType):
 
-    objects = GenericAfipTypeManager('FEParamGetTiposIva')
+    objects = GenericAfipTypeManager('FEParamGetTiposIva', 'IvaTipo')
 
     class Meta:
         verbose_name = _("vat type")
@@ -89,7 +108,7 @@ class VatType(GenericAfipType):
 
 class TaxType(GenericAfipType):
 
-    objects = GenericAfipTypeManager('FEParamGetTiposTributos')
+    objects = GenericAfipTypeManager('FEParamGetTiposTributos', 'TributoTipo')
 
     class Meta:
         verbose_name = _("tax type")
@@ -98,7 +117,7 @@ class TaxType(GenericAfipType):
 
 class CurrencyType(GenericAfipType):
 
-    objects = GenericAfipTypeManager('FEParamGetTiposTiposMonedas')
+    objects = GenericAfipTypeManager('FEParamGetTiposMonedas', 'Moneda')
 
     def __str__(self):
         return self.code
