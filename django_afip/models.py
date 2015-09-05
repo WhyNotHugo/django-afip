@@ -1,5 +1,5 @@
 from base64 import b64encode
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from subprocess import Popen, PIPE
 import logging
 import random
@@ -151,7 +151,7 @@ class TaxPayer(models.Model):
 
     def get_ticket(self, service):
         return self.auth_tickets \
-            .filter(expires__gt=datetime.now(), service=service) \
+            .filter(expires__gt=datetime.now(timezone.utc), service=service) \
             .last()
 
     def get_or_create_ticket(self, service):
@@ -201,7 +201,7 @@ class AuthTicketManager(models.Manager):
     def get_any_active(self, service):
         ticket = AuthTicket.objects.filter(
             token__isnull=False,
-            expires__gt=datetime.now(),
+            expires__gt=datetime.now(timezone.utc),
             service=service,
         ).first()
         if ticket:
@@ -214,10 +214,10 @@ class AuthTicketManager(models.Manager):
 class AuthTicket(models.Model):
 
     def default_generated():
-        return datetime.now()
+        return datetime.now(timezone.utc)
 
     def default_expires():
-        tomorrow = datetime.now() + timedelta(hours=12)
+        tomorrow = datetime.now(timezone.utc) + timedelta(hours=12)
         return tomorrow
 
     def default_unique_id():
