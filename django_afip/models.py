@@ -302,7 +302,7 @@ class AuthTicket(models.Model):
 
     class Meta:
         verbose_name = _('authorization ticket')
-        verbose_name = _('authorization tickets')
+        verbose_name_plural = _('authorization tickets')
 
 
 class ReceiptBatch(models.Model):
@@ -324,7 +324,7 @@ class ReceiptBatch(models.Model):
 
     class Meta:
         verbose_name = _('receipt batch')
-        verbose_name = _('receipt batches')
+        verbose_name_plural = _('receipt batches')
 
 
 class Receipt(models.Model):
