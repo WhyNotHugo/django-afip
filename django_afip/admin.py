@@ -42,7 +42,7 @@ class ReceiptAdmin(admin.ModelAdmin):
             .select_related('receipt_type')
 
     def validated(self, obj):
-        return obj.validation.result
+        return obj.validation.result == models.Validation.RESULT_APPROVED
     validated.short_description = _('validated')
     validated.admin_order_field = 'validation__result'
     validated.boolean = True
@@ -99,7 +99,7 @@ class ReceiptBatchAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'receipts_count',
-        'cae',
+        'validated',
     )
 
     def get_queryset(self, request):
@@ -108,12 +108,13 @@ class ReceiptBatchAdmin(admin.ModelAdmin):
             Count('receipts', distinct=True)
         )
 
-    def cae(self, obj):
-        validation = obj.validation.last()
-        if validation:
-            return validation.cae
-    cae.short_description = _('cae')
-    cae.admin_order_field = 'validation__cae'
+    def validated(self, obj):
+        return obj.validation \
+            .filter(result=models.Validation.RESULT_APPROVED) \
+            .count() > 0
+    validated.short_description = _('validated')
+    validated.admin_order_field = 'validation__result'
+    validated.boolean = True
 
     def receipts_count(self, obj):
         return obj.receipts__count
