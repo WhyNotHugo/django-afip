@@ -830,7 +830,7 @@ class ReceiptValidation(models.Model):
     observations = models.ManyToManyField(
         Observation,
         verbose_name=_('observations'),
-        related_name='validations',
+        related_name='valiations',
     )
 
     receipt = models.OneToOneField(
