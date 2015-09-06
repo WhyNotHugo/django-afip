@@ -630,7 +630,7 @@ class Receipt(models.Model):
             wso.Tributos.Tributo.append(tax.ws_object())
 
         for vat in self.vat.all():
-            wso.Iva.Iva.append(vat.ws_object())
+            wso.Iva.AlicIva.append(vat.ws_object())
 
         # XXX: Need to create a CbteAsoc object:
         for receipt in self.related_receipts.all():
@@ -751,7 +751,7 @@ class Vat(models.Model):
         wso = wsfe_client.factory.create('AlicIva')
         wso.Id = self.vat_type.code
         wso.BaseImp = self.base_amount
-        wso.Import = self.amount
+        wso.Importe = self.amount
 
         return wso
 
