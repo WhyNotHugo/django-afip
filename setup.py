@@ -12,7 +12,10 @@ setup(
     license='ISC',
     packages=find_packages(),
     # long_description=open('README.rst').read(),
-    install_requires=open('requirements.txt').read().splitlines(),
+    install_requires=open('requirements.txt').read().splitlines()[:-1],
+    dependency_links=(
+        'git+https://github.com/hobarrera/suds-py3.git#egg=suds-py3-1.0.0.0',
+    ),
     use_scm_version={'version_scheme': 'post-release'},
     setup_requires=['setuptools_scm'],
 )

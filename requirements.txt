@@ -3,3 +3,5 @@ Django==1.8.4
 setuptools-git==1.1
 setuptools-scm==1.7.0
 pytz==2015.4
+lxml==3.4.4
+suds-py3=1.0.0.0  # NOTE: Use git@github.com:hobarrera/suds-py3.git !!!
