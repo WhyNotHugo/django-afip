@@ -467,6 +467,7 @@ class Receipt(models.Model):
     receipt_number = models.PositiveIntegerField(
         _('receipt number'),
         null=True,
+        blank=True,
     )
     issued_date = models.DateField(
         verbose_name=_('issued date'),
