@@ -3,6 +3,7 @@ from datetime import datetime
 from django.conf import settings
 from django.utils.functional import LazyObject
 from suds import Client
+import pytz
 
 
 def format_datetime(datetime):
@@ -20,10 +21,37 @@ def format_date(date):
     return date.strftime("%Y%m%d")
 
 
+def parse_datetime(datestring):
+    if datestring == 'NULL':
+        return None
+    return datetime.strptime(datestring, '%Y%m%d%H%M%S') \
+        .replace(tzinfo=pytz.timezone(pytz.country_timezones['ar'][0]))
+
+
 def parse_date(datestring):
     if datestring == 'NULL':
         return None
-    datetime.strptime(datestring, '%Y%m%d').date()
+    return datetime.strptime(datestring, '%Y%m%d').date()
+
+
+def encode_str(string):
+    """
+    Re-encodes strings from AFIP's weird encoding to unicode.
+    """
+    return string.encode('latin-1').decode()
+
+
+class AfipException(Exception):
+    """
+    Wraps around errors returned by AFIP's WS.
+    """
+
+    def __init__(self, err):
+        Exception.__init__(self, "Error {}: {}".format(
+            err.Code,
+            err.Msg.encode('latin-1').decode()),
+        )
+
 
 endpoints = {}
 if settings.AFIP_DEBUG:
