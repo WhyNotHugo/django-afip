@@ -652,7 +652,15 @@ class Receipt(models.Model):
     point_of_sales = models.ForeignKey(PointOfSales)
 
     def __str__(self):
-        return '{} #{}'.format(self.receipt_type, self.receipt_number)
+        if self.receipt_number:
+            return '<{}> {} #{}'.format(
+                self.pk,
+                self.receipt_type,
+                self.receipt_number,
+            )
+        else:
+            return _('<%(id)s> %(receipt_type)s') \
+                % {'receipt_type': self.receipt_type, 'id': self.pk}
 
     class Meta:
         verbose_name = _('receipt')
