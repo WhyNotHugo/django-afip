@@ -22,14 +22,14 @@ def format_date(date):
 
 
 def parse_datetime(datestring):
-    if datestring == 'NULL':
+    if datestring == 'NULL' or datestring is None:
         return None
     return datetime.strptime(datestring, '%Y%m%d%H%M%S') \
         .replace(tzinfo=pytz.timezone(pytz.country_timezones['ar'][0]))
 
 
 def parse_date(datestring):
-    if datestring == 'NULL':
+    if datestring == 'NULL' or datestring is None:
         return None
     return datetime.strptime(datestring, '%Y%m%d').date()
 
