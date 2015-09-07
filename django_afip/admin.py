@@ -6,7 +6,7 @@ from django.db.models import Count
 from django.utils.translation import ugettext as _
 
 from . import models
-from .utils import AfipException
+from .utils import AfipException, AfipMultiException
 
 # TODO: Add an action to populate generic types.
 
@@ -126,7 +126,7 @@ class ReceiptBatchAdmin(admin.ModelAdmin):
         for batch in queryset:
             try:
                 batch.validate()
-            except AfipException as e:
+            except (AfipException, AfipMultiException) as e:
                 self.message_user(
                     request,
                     _(

@@ -11,7 +11,7 @@ from lxml import etree
 from lxml.builder import E
 
 from .utils import format_date, format_datetime, parse_date, parse_datetime, \
-    wsaa_client, wsfe_client, AfipException
+    wsaa_client, wsfe_client, AfipException, AfipMultiException
 
 logger = logging.getLogger(__name__)
 
@@ -351,19 +351,34 @@ class ReceiptBatch(models.Model):
         return wso
 
     def validate(self, ticket=None):
+        if self.receipts.count() == 0:
+            self.delete()
+            return
+        if self.receipts.filter(validation__isnull=True).count() == 0:
+            return
 
         ticket = ticket or \
             self.point_of_sales.owner.get_or_create_ticket('wsfe')
 
+        next_num = Receipt.objects.fetch_last_receipt_number(
+            self.point_of_sales,
+            self.receipt_type,
+        ) + 1
         for receipt in self.receipts.filter(receipt_number__isnull=True):
-            receipt.auto_set_receipt_number(ticket)
+
+            # Atomically update receipt number
+            Receipt.objects \
+                .filter(pk=receipt.id, receipt_number__isnull=True) \
+                .update(receipt_number=next_num)
+            next_num += 1
+
+        # Purge the internal cache (.update() doesn't maintan it)
+        self.receipts.all()
 
         response = wsfe_client.service.FECAESolicitar(
             ticket.ws_object(),
             self.ws_object(),
         )
-
-        # TODO: In case of error, we should remove the receipt_number(s)
 
         if hasattr(response, 'Errors'):
             raise AfipException(response.Errors.Err[0])
@@ -375,20 +390,35 @@ class ReceiptBatch(models.Model):
         )
         validation.save()
 
+        errs = []
         for cae_data in response.FeDetResp.FECAEDetResponse:
-            rv = validation.receipts.create(
-                result=cae_data.Resultado,
-                cae=cae_data.CAE,
-                cae_expiration=parse_date(cae_data.CAEFchVto),
-                receipt=self.receipts.get(receipt_number=cae_data.CbteDesde),
-            )
-            if hasattr(cae_data, 'Observaciones'):
-                for obs in cae_data.Observaciones.Obs:
-                    observation = Observation.objects.get_or_create(
-                        code=obs.Code,
-                        message=obs.Msg,
-                    )
-                rv.observations.add(observation)
+            if validation.result == Validation.RESULT_APPROVED:
+                rv = validation.receipts.create(
+                    result=cae_data.Resultado,
+                    cae=cae_data.CAE,
+                    cae_expiration=parse_date(cae_data.CAEFchVto),
+                    receipt=self.receipts.get(
+                        receipt_number=cae_data.CbteDesde
+                    ),
+                )
+                if hasattr(cae_data, 'Observaciones'):
+                    for obs in cae_data.Observaciones.Obs:
+                        observation = Observation.objects.get_or_create(
+                            code=obs.Code,
+                            message=obs.Msg,
+                        )
+                    rv.observations.add(observation)
+            elif hasattr(cae_data, 'Observaciones'):
+                errs.append(cae_data.Observaciones.Obs[0])
+
+        # Remove failed receipts from the batch
+        self.receipts.filter(validation__isnull=True) \
+            .update(batch=None, receipt_number=None)
+
+        if self.receipts.count() == 0:
+            self.delete()
+
+        raise AfipMultiException(errs)
 
     class Meta:
         verbose_name = _('receipt batch')
@@ -620,9 +650,10 @@ class Receipt(models.Model):
         wso.ImpOpEx = self.exempt_amount
         wso.ImpIVA = subtotals['vat'] or 0
         wso.ImpTrib = subtotals['taxes'] or 0
-        wso.FchServDesde = format_date(self.service_start)
-        wso.FchServHasta = format_date(self.service_end)
-        wso.FchVtoPago = format_date(self.expiration_date)
+        if self.concept.code in (2, 3,):
+            wso.FchServDesde = format_date(self.service_start)
+            wso.FchServHasta = format_date(self.service_end)
+            wso.FchVtoPago = format_date(self.expiration_date)
         wso.MonId = self.currency.code
         wso.MonCotiz = self.currency_quote
 
