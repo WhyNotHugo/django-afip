@@ -77,8 +77,10 @@ class MonkeyPatchedHTTPSConnection(HTTPConnection):
         if context is None:
             if host == "wswhomo.afip.gov.ar":
                 context = create_afip_compatible_context()
-            else:
+            elif hasattr(ssl, '_create_default_https_context'):  # py 3.4.3
                 context = ssl._create_default_https_context()
+            else:  # py 3.4.2
+                context = ssl._create_stdlib_context()
         will_verify = context.verify_mode != ssl.CERT_NONE
         if check_hostname is None:
             check_hostname = context.check_hostname
