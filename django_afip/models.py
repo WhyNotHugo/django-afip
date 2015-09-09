@@ -418,7 +418,8 @@ class ReceiptBatch(models.Model):
         if self.receipts.count() == 0:
             self.delete()
 
-        raise AfipMultiException(errs)
+        if errs:
+            raise AfipMultiException(errs)
 
     class Meta:
         verbose_name = _('receipt batch')
