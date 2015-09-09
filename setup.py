@@ -12,7 +12,7 @@ setup(
     license='ISC',
     packages=find_packages(),
     include_package_data=True,
-    # long_description=open('README.rst').read(),
+    long_description=open('README.rst').read(),
     install_requires=open('requirements.txt').read().splitlines()[:-1] +
         ['suds-py3==1.0.0.0'],
     dependency_links=(
