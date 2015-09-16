@@ -3,5 +3,6 @@
 /django_afip.egg-info
 /build
 /dist
+/.eggs
 *.sqlite3
 /testapp/media/*
