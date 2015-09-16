@@ -209,7 +209,11 @@ class AuthTicketManager(models.Manager):
             return ticket
 
         taxpayer = TaxPayer.objects.order_by('?').first()
-        return taxpayer.create_ticket('wsfe')
+
+        if taxpayer:
+            return taxpayer.create_ticket('wsfe')
+
+        raise Exception('There are no taxpayer to generate a ticket.')
 
 
 class AuthTicket(models.Model):
