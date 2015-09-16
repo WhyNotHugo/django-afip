@@ -1,3 +1,6 @@
+import os
+
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files import File
 from django.test import TestCase, Client
@@ -12,9 +15,11 @@ class AfipTestCase(TestCase):
             name='test taxpayer',
             cuit=20329642330,
         )
-        with open('test.key') as key:
+        basepath = settings.BASE_DIR
+
+        with open(os.path.join(basepath, 'test.key')) as key:
             taxpayer.key.save('test.key', File(key))
-        with open('test.crt') as crt:
+        with open(os.path.join(basepath, 'test.crt')) as crt:
             taxpayer.certificate.save('test.crt', File(crt))
 
         taxpayer.save()

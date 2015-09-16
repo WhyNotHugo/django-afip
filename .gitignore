@@ -1,8 +1,15 @@
+# Development files
 *.pyc
 .*.sw?
+
+# Build-related files
 /django_afip.egg-info
 /build
 /dist
 /.eggs
+
+# Test-related files
 *.sqlite3
-/testapp/media/*
+/testapp/media
+.tox
+.coverage
