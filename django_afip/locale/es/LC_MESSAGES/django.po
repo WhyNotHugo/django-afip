@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-afip\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-06 17:06-0300\n"
-"PO-Revision-Date: 2015-09-06 17:07-0300\n"
+"POT-Creation-Date: 2015-09-18 01:14-0300\n"
+"PO-Revision-Date: 2015-09-18 01:14-0300\n"
 "Last-Translator: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
 "Language-Team: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
 "Language: es\n"
@@ -17,15 +17,12 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 1.8.4\n"
 
-#: admin.py:47 admin.py:116
 msgid "validated"
 msgstr "validado"
 
-#: admin.py:53 models.py:824
 msgid "cae"
 msgstr "cae"
 
-#: admin.py:67
 msgid ""
 "The selected receipts are not all of the same type and from the same point "
 "of sales."
@@ -33,192 +30,152 @@ msgstr ""
 "Los comprobantes seleccionados no son todos del mismo tipo y del mismo punto "
 "de ventas."
 
-#: admin.py:84
 msgid "Create receipt batch"
 msgstr "Crear lote de comprobantes"
 
-#: admin.py:94
 msgid "batch"
 msgstr "lote"
 
-#: admin.py:122 models.py:667
 msgid "receipts"
 msgstr "comprobantes"
 
-#: admin.py:133
 #, python-format
 msgid "Batch #%(num)s failed: %(err)s"
 msgstr "Lote #%(num)s falló: %(err)s"
 
-#: admin.py:137
 msgid "Validate"
 msgstr "Validar"
 
-#: models.py:48 models.py:796
+#, python-format
+msgid "%d points of sales created"
+msgstr "%d puntos de venta creatos"
+
+msgid "Fetch points of sales"
+msgstr "Obtener puntos de venta"
+
 msgid "code"
 msgstr "código"
 
-#: models.py:52 models.py:680
 msgid "description"
 msgstr "descripción"
 
-#: models.py:56
 msgid "valid from"
 msgstr "válido desde"
 
-#: models.py:61
 msgid "valid until"
 msgstr "válido hasta"
 
-#: models.py:78 models.py:327
 msgid "receipt type"
 msgstr "tipo de comprobante"
 
-#: models.py:79
 msgid "receipt types"
 msgstr "tipos de comprobante"
 
-#: models.py:87
 msgid "concept type"
 msgstr "tipo de concepto"
 
-#: models.py:88
 msgid "concept types"
 msgstr "tipos de concepto"
 
-#: models.py:96 models.py:452
 msgid "document type"
 msgstr "tipo de documento"
 
-#: models.py:97
 msgid "document types"
 msgstr "tipos de documento"
 
-#: models.py:105 models.py:729
 msgid "vat type"
 msgstr "tipo de iva"
 
-#: models.py:106
 msgid "vat types"
 msgstr "tipos de iva"
 
-#: models.py:114 models.py:677
 msgid "tax type"
 msgstr "tipo de tributo"
 
-#: models.py:115
 msgid "tax types"
 msgstr "tipos de tributo"
 
-#: models.py:126
 msgid "currency type"
 msgstr "tipo de moneda"
 
-#: models.py:127
 msgid "currency types"
 msgstr "tipos de moneda"
 
-#: models.py:132
 msgid "name"
 msgstr "nombre"
 
-#: models.py:134
 msgid "A friendly name to recognize this taxpayer."
 msgstr "Un nombre amigable para reconocer a este contribuyente."
 
-#: models.py:137
 msgid "key"
 msgstr "clave"
 
-#: models.py:141
 msgid "certificate"
 msgstr "certificado"
 
-#: models.py:145
 msgid "cuit"
 msgstr "cuit"
 
-#: models.py:165
 msgid "taxpayer"
 msgstr "contribuyente"
 
-#: models.py:166
 msgid "taxpayers"
 msgstr "contribuyentes"
 
-#: models.py:171
 msgid "number"
 msgstr "número"
 
-#: models.py:174
 msgid "issuance type"
 msgstr "tipo de emisión"
 
-#: models.py:179
 msgid "blocked"
 msgstr "bloqueado"
 
-#: models.py:182
 msgid "drop date"
 msgstr "fecha de baja"
 
-#: models.py:189 models.py:229
 msgid "owner"
 msgstr "dueño"
 
-#: models.py:196 models.py:331
 msgid "point of sales"
 msgstr "punto de ventas"
 
-#: models.py:197
 msgid "points of sales"
 msgstr "puntos de venta"
 
-#: models.py:233
 msgid "unique id"
 msgstr "id único"
 
-#: models.py:237
 msgid "generated"
 msgstr "generado"
 
-#: models.py:241
 msgid "expires"
 msgstr "vence"
 
-#: models.py:245
 msgid "service"
 msgstr "servicio"
 
-#: models.py:247
 msgid "Service for which this ticket has been authorized"
 msgstr "Servicio para el cual este ticket ha sido autorizado."
 
-#: models.py:251
 msgid "token"
 msgstr "token"
 
-#: models.py:254
 msgid "signature"
 msgstr "firma"
 
-#: models.py:316
 msgid "authorization ticket"
 msgstr "ticket de autorización"
 
-#: models.py:317
 msgid "authorization tickets"
 msgstr "tickets de autorización"
 
-#: models.py:394 models.py:440 models.py:786
 msgid "receipt batch"
 msgstr "lote de comprobantes"
 
-#: models.py:395
 msgid "receipt batches"
 msgstr "lotes de comprobantes"
 
-#: models.py:442
 msgid ""
 "Receipts are validated in batches, so it must be assigned one before "
 "validation is possible."
@@ -226,48 +183,37 @@ msgstr ""
 "Los comprobantes son validados en lotes, así que debe ser asignado a unou "
 "antes de que sea posible validarlo."
 
-#: models.py:447
 msgid "concept"
 msgstr "concepto"
 
-#: models.py:455
 msgid "The document type of the customer to whom this receipt is addressed"
 msgstr "El tipo de documento del client para el cual este recibo es emitido."
 
-#: models.py:460
 msgid "document number"
 msgstr "número de documento"
 
-#: models.py:462
 msgid "The document number of the customer to whom this receipt is addressed"
 msgstr ""
 "El número de documento del cliente para el cual este comprobante es emitido."
 
-#: models.py:468
 msgid "receipt number"
 msgstr "número de comprobante"
 
-#: models.py:473
 msgid "issued date"
 msgstr "fecha de emisión"
 
-#: models.py:474
 msgid "Can diverge up to 5 days for good, or 10 days otherwise"
 msgstr "Puede diverger hasta 5 días para bienes, o 10 en otros casos."
 
-#: models.py:478
 msgid "total amount"
 msgstr "monto total"
 
-#: models.py:482
 msgid "Must be equal to untaxed amount + exempt amount + taxes + vat."
 msgstr "Debe ser igual al monto no gravado + monto gravado + tributos + iva."
 
-#: models.py:487
 msgid "total untaxable amount"
 msgstr "monto total no gravado"
 
-#: models.py:491
 msgid ""
 "The total amount to which taxes do not apply. For C-type receipts, this must "
 "be zero."
@@ -275,11 +221,9 @@ msgstr ""
 "El total para el cual impuestos no aplican. Para comprobantes tipo C, debe "
 "ser cero."
 
-#: models.py:497
 msgid "total taxable amount"
 msgstr "monto total gravado"
 
-#: models.py:501
 msgid ""
 "The total amount to which taxes apply. For C-type receipts, this is equal to "
 "the subtotal."
@@ -287,11 +231,9 @@ msgstr ""
 "EL total para el cual impuestos  aplican. Para comprobantes tipo C, esto es "
 "igual al subtotal."
 
-#: models.py:508
 msgid "exempt amount"
 msgstr "monto exento"
 
-#: models.py:512
 msgid ""
 "Only for categories which are tax-exempt. For C-type receipts, this must be "
 "zero."
@@ -299,132 +241,100 @@ msgstr ""
 "Sólo para rubros que son exentos de impuestos. Para comprobantes tipo C, "
 "debe ser cero."
 
-#: models.py:530
 msgid "service start date"
 msgstr "fecha de comienzo de servicio"
 
-#: models.py:532
 msgid "Date on which a service started. No applicable for goods."
 msgstr "Fecha en la cual el servicio comenzó. No aplica a bienes."
 
-#: models.py:538
 msgid "service end date"
 msgstr "fecha de fin de servicio"
 
-#: models.py:540
 msgid "Date on which a service ended. No applicable for goods."
 msgstr "Fecha en la cual el servicio finalizó. No aplica a bienes."
 
-#: models.py:546
 msgid "receipt expiration date"
 msgstr "fecha de vencimiento del comprobante"
 
-#: models.py:548
 msgid "Date on which this receipt expires. No applicable for goods."
 msgstr "Fecha en la cual este comprobante expira. No aplica a bienes."
 
-#: models.py:555
 msgid "currency"
 msgstr "moneda"
 
-#: models.py:558
 msgid "Currency in which this receipt is issued."
 msgstr "Moneda en la cual el comprobante es emitido."
 
-#: models.py:562
 msgid "currency quote"
 msgstr "cotización de moneda"
 
-#: models.py:566
 msgid "Quote of the day for the currency used in the receipt"
 msgstr "Cotizacón del día para la moneda usada en el comprobante."
 
-#: models.py:572
 msgid "related receipts"
 msgstr "comprobantes relacionados"
 
-#: models.py:662
 #, python-format
 msgid "<%(id)s> %(receipt_type)s"
 msgstr "<%(id)s> %(receipt_type)s"
 
-#: models.py:666 models.py:839
 msgid "receipt"
 msgstr "comprobante"
 
-#: models.py:684 models.py:732
 msgid "base amount"
 msgstr "monto base"
 
-#: models.py:689
 msgid "aliquot"
 msgstr "alicuota"
 
-#: models.py:694 models.py:737
 msgid "amount"
 msgstr "monto"
 
-#: models.py:722
 msgid "tax"
 msgstr "tributo"
 
-#: models.py:723
 msgid "taxes"
 msgstr "tributos"
 
-#: models.py:759 models.py:760
 msgid "vat"
 msgstr "iva"
 
-#: models.py:769
 msgid "processed date"
 msgstr "fecha procesado"
 
-#: models.py:772 models.py:815
 msgid "result"
 msgstr "resultado"
 
-#: models.py:775 models.py:818
 msgid "approved"
 msgstr "aprobado"
 
-#: models.py:776 models.py:819
 msgid "rejected"
 msgstr "rechazado"
 
-#: models.py:777 models.py:820
 msgid "partial"
 msgstr "parcial"
 
-#: models.py:790 models.py:811
 msgid "validation"
 msgstr "validación"
 
-#: models.py:791
 msgid "validations"
 msgstr "validaciones"
 
-#: models.py:799
 msgid "message"
 msgstr "mensaje"
 
-#: models.py:804
 msgid "observation"
 msgstr "observación"
 
-#: models.py:805 models.py:832
 msgid "observations"
 msgstr "observaciones"
 
-#: models.py:828
 msgid "cae expiration"
 msgstr "expiración de cae"
 
-#: models.py:843
 msgid "receipt validation"
 msgstr "validación de comprobante"
 
-#: models.py:844
 msgid "receipt validations"
 msgstr "validaciones de comprobante"
 
