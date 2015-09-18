@@ -11,6 +11,28 @@ from .utils import AfipException, AfipMultiException
 # TODO: Add an action to populate generic types.
 
 
+class VatInline(admin.TabularInline):
+    model = models.Vat
+    fields = (
+        'vat_type',
+        'base_amount',
+        'amount',
+    )
+    extra = 1
+
+
+class TaxInline(admin.TabularInline):
+    model = models.Tax
+    fields = (
+        'tax_type',
+        'description',
+        'base_amount',
+        'aliquot',
+        'amount',
+    )
+    extra = 1
+
+
 class ReceiptAdmin(admin.ModelAdmin):
 
     list_display = (
@@ -31,6 +53,11 @@ class ReceiptAdmin(admin.ModelAdmin):
         'validated',
         'cae',
     ]
+
+    inlines = (
+        VatInline,
+        TaxInline,
+    )
 
     def get_fields(self, request, obj=None):
         return super().get_fields(request, obj)
