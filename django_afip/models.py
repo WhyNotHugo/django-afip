@@ -158,6 +158,32 @@ class TaxPayer(models.Model):
     def get_or_create_ticket(self, service):
         return self.get_ticket(service) or self.create_ticket(service)
 
+    def fetch_points_of_sales(self, ticket=None):
+        """
+        Fetches all point of sales objects from the WS and stores them locally.
+        """
+        ticket = ticket or self.get_or_create_ticket('wsfe')
+
+        response = wsfe_client.service.FEParamGetPtosVenta(
+            ticket.ws_object(),
+        )
+        if hasattr(response, 'Errors'):
+            raise AfipException(response.Errors.Err[0])
+
+        points_of_sales = []
+        for pos_data in response.ResultGet.PtoVenta:
+            point_of_sales = PointOfSales(
+                number=pos_data.Nro,
+                issuance_type=pos_data.EmisionTipo,
+                blocked=pos_data.Bloqueado == 'N',
+                drop_date=parse_date(pos_data.FchBaja),
+                owner=self,
+            )
+            point_of_sales.save()
+            points_of_sales.append(point_of_sales)
+
+        return points_of_sales
+
     def __str__(self):
         return str(self.cuit)
 

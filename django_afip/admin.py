@@ -176,9 +176,34 @@ class AuthTicketAdmin(admin.ModelAdmin):
     )
 
 
+class TaxPayerAdmin(admin.ModelAdmin):
+    list_display = (
+        'name',
+        'cuit',
+    )
+
+    def fetch_points_of_sales(self, request, queryset):
+        total = sum(
+            len(taxpayer.fetch_points_of_sales())
+            for taxpayer in queryset.all()
+        )
+        self.message_user(
+            request,
+            message=_('%d points of sales created') % total,
+            level=messages.SUCCESS,
+        )
+
+    fetch_points_of_sales.short_description = _('Fetch points of sales')
+
+    actions = (
+        fetch_points_of_sales,
+    )
+
+
 admin.site.register(models.Receipt, ReceiptAdmin)
 admin.site.register(models.ReceiptBatch, ReceiptBatchAdmin)
 admin.site.register(models.AuthTicket, AuthTicketAdmin)
+admin.site.register(models.TaxPayer, TaxPayerAdmin)
 
 app = apps.get_app_config('afip')
 for model in app.get_models():
