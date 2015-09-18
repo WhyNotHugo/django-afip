@@ -219,6 +219,9 @@ class PointOfSales(models.Model):
         return str(self.number)
 
     class Meta:
+        unique_together = (
+            ('number', 'owner'),
+        )
         verbose_name = _('point of sales')
         verbose_name_plural = _('points of sales')
 
@@ -630,7 +633,7 @@ class Receipt(models.Model):
     )
     related_receipts = models.ManyToManyField(
         'Receipt',
-        _('related receipts'),
+        verbose_name=_('related receipts'),
         blank=True,
     )
 
@@ -710,8 +713,16 @@ class Receipt(models.Model):
 
     # These two values are stored in the receipt's batch. However, before the
     # receipt is assigned into a batch, this value should be used.
-    receipt_type = models.ForeignKey(ReceiptType)
-    point_of_sales = models.ForeignKey(PointOfSales)
+    receipt_type = models.ForeignKey(
+        ReceiptType,
+        related_name='receipts',
+        verbose_name=_('receipt type'),
+    )
+    point_of_sales = models.ForeignKey(
+        PointOfSales,
+        related_name='receipts',
+        verbose_name=_('point of sales'),
+    )
 
     def __str__(self):
         if self.receipt_number:
