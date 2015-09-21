@@ -11,7 +11,7 @@ from lxml import etree
 from lxml.builder import E
 
 from .utils import format_date, format_datetime, parse_date, parse_datetime, \
-    wsaa_client, wsfe_client, AfipException, AfipMultiException
+    wsaa_client, wsfe_client, AfipException, AfipMultiException, TZ_AR
 
 logger = logging.getLogger(__name__)
 
@@ -248,10 +248,10 @@ class AuthTicketManager(models.Manager):
 class AuthTicket(models.Model):
 
     def default_generated():
-        return datetime.now(timezone.utc)
+        return datetime.now(TZ_AR)
 
     def default_expires():
-        tomorrow = datetime.now(timezone.utc) + timedelta(hours=12)
+        tomorrow = datetime.now(TZ_AR) + timedelta(hours=12)
         return tomorrow
 
     def default_unique_id():

@@ -6,6 +6,9 @@ from suds import Client
 import pytz
 
 
+TZ_AR = pytz.timezone(pytz.country_timezones['ar'][0])
+
+
 def format_datetime(datetime):
     """
     "Another date formatting function?" you're thinking, eh? Well, this
@@ -25,7 +28,7 @@ def parse_datetime(datestring):
     if datestring == 'NULL' or datestring is None:
         return None
     return datetime.strptime(datestring, '%Y%m%d%H%M%S') \
-        .replace(tzinfo=pytz.timezone(pytz.country_timezones['ar'][0]))
+        .replace(tzinfo=TZ_AR)
 
 
 def parse_date(datestring):
