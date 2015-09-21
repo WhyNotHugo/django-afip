@@ -26,7 +26,7 @@ class AfipTestCase(TestCase):
 
 
 class PopulationTest(AfipTestCase):
-    """f
+    """
     Tests models population view.
 
     As a side effect, also test valid ticket generation.
