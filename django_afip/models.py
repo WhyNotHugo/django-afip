@@ -170,6 +170,8 @@ class TaxPayer(models.Model):
         if hasattr(response, 'Errors'):
             raise AfipException(response.Errors.Err[0])
 
+        # TODO: Make this function idempotent so that we don't get an
+        # duplication error if we run it twice.
         points_of_sales = []
         for pos_data in response.ResultGet.PtoVenta:
             point_of_sales = PointOfSales(

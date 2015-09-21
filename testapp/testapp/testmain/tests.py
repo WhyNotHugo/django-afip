@@ -87,3 +87,16 @@ class PopulationTest(AfipTestCase):
         self.assertGreater(vat, 0)
         self.assertGreater(tax, 0)
         self.assertGreater(currencies, 0)
+
+
+class TaxPayerTest(AfipTestCase):
+
+    def test_fetch_points_of_sale(self):
+        """
+        Test the ``fetch_points_of_sales`` method.
+        """
+        taxpayer = models.TaxPayer.objects.first()
+        taxpayer.fetch_points_of_sales()
+
+        points_of_sales = models.PointOfSales.objects.count()
+        self.assertGreater(points_of_sales, 0)
