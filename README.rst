@@ -5,6 +5,10 @@ django-afip
 web-services (and models all related data). For the moment only WSFE and WSAA
 are implemented.
 
+.. image:: https://ci.gitlab.com/projects/7545/status.png?ref=master
+    :target: https://ci.gitlab.com/projects/7545?ref=master
+    :alt: build status
+
 Instalation
 -----------
 
@@ -56,6 +60,16 @@ Again, only a user with superuser priviledges may trigger this download.
 You are now ready to start creating and validating receipts. While you may do
 this via the admin as well, you probably want to do this programatically or via
 some custom view.
+
+Contributing
+------------
+
+Unit tests are run via ``tox``. Any code contributions must pass all tests. New
+features must include corresponding unit tests. Any bugfixes must include tests
+that fail without it, and pass with it.
+
+Note that tests use AFIP's testing servers and a specific key that's know to
+contain at least one point of sale.
 
 Licence
 -------
