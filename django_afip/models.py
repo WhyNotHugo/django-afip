@@ -352,6 +352,25 @@ class AuthTicket(models.Model):
         verbose_name_plural = _('authorization tickets')
 
 
+class ReceiptBatchManager(models.Manager):
+
+    def create(self, queryset):
+        """
+        Creates a batch with all receipts returned by ``queryset``.
+        """
+        first = queryset.select_related('point_of_sales').first()
+        batch = ReceiptBatch(
+            receipt_type_id=first.receipt_type_id,
+            point_of_sales_id=first.point_of_sales_id,
+        )
+        batch.save()
+
+        # Exclude any receipts that are already batched (either pre-selection,
+        # or due to concurrency):
+        queryset.filter(batch__isnull=True).update(batch=batch)
+        return batch
+
+
 class ReceiptBatch(models.Model):
     """
     Receipts are validated sent in batches.
@@ -459,6 +478,8 @@ class ReceiptBatch(models.Model):
     class Meta:
         verbose_name = _('receipt batch')
         verbose_name_plural = _('receipt batches')
+
+    objects = ReceiptBatchManager()
 
 
 class ReceiptManager(models.Manager):

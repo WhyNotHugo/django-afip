@@ -98,16 +98,7 @@ class ReceiptAdmin(admin.ModelAdmin):
             )
             return
 
-        first = queryset.select_related('point_of_sales').first()
-        batch = models.ReceiptBatch(
-            receipt_type_id=first.receipt_type_id,
-            point_of_sales_id=first.point_of_sales_id,
-        )
-        batch.save()
-
-        # Exclude any receipts that are already batched (either pre-selection,
-        # or due to concurrency):
-        queryset.filter(batch__isnull=True).update(batch=batch)
+        models.ReceiptBatch.objects.create(queryset)
     create_batch.short_description = _('Create receipt batch')
 
     def batch_link(self, obj):
