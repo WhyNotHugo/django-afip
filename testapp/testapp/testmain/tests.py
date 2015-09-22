@@ -1,3 +1,4 @@
+from datetime import date
 import os
 
 from django.conf import settings
@@ -100,3 +101,42 @@ class TaxPayerTest(AfipTestCase):
 
         points_of_sales = models.PointOfSales.objects.count()
         self.assertGreater(points_of_sales, 0)
+
+
+class ReceiptsTest(AfipTestCase):
+
+    def setUp(self):
+        super().setUp()
+        models.populate_all()
+        taxpayer = models.TaxPayer.objects.first()
+        taxpayer.fetch_points_of_sales()
+
+    def test_invoice_validation(self):
+        receipt = models.Receipt(
+            concept=models.ConceptType.objects.get(code=1),
+            document_type=models.DocumentType.objects.get(code=96),
+            document_number="30123456",
+            issued_date=date.today(),
+            total_amount=121,
+            net_untaxed=0,
+            net_taxed=100,
+            exempt_amount=0,
+            currency=models.CurrencyType.objects.get(code='PES'),
+            currency_quote=1,
+
+            receipt_type=models.ReceiptType.objects.get(code=6),
+            point_of_sales=models.PointOfSales.objects.first(),
+        )
+        receipt.save()
+        models.Vat(
+            vat_type=models.VatType.objects.get(code=5),
+            base_amount=100,
+            amount=21,
+            receipt=receipt,
+        ).save()
+
+        batch = models.ReceiptBatch.objects \
+            .create(models.Receipt.objects.all())
+        batch.validate()
+
+    # TODO: Test all failure scenarios for validations
