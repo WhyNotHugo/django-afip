@@ -16,6 +16,15 @@ from .utils import format_date, format_datetime, parse_date, parse_datetime, \
 logger = logging.getLogger(__name__)
 
 
+def populate_all():
+    ReceiptType.objects.populate()
+    ConceptType.objects.populate()
+    DocumentType.objects.populate()
+    VatType.objects.populate()
+    TaxType.objects.populate()
+    CurrencyType.objects.populate()
+
+
 class GenericAfipTypeManager(models.Manager):
 
     def __init__(self, service_name, type_name):

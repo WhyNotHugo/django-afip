@@ -1,8 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 
-from .models import ReceiptType, ConceptType, DocumentType, VatType, TaxType, \
-    CurrencyType
+from . import models
 
 
 @login_required
@@ -16,11 +15,6 @@ def populate_models(request):
             status=403,
         )
 
-    ReceiptType.objects.populate()
-    ConceptType.objects.populate()
-    DocumentType.objects.populate()
-    VatType.objects.populate()
-    TaxType.objects.populate()
-    CurrencyType.objects.populate()
+    models.populate_all()
 
     return HttpResponse('Success')
