@@ -6,8 +6,15 @@ web-services (and models all related data). For the moment only WSFE and WSAA
 are implemented.
 
 .. image:: https://ci.gitlab.com/projects/7545/status.png?ref=master
-    :target: https://ci.gitlab.com/projects/7545?ref=master
-    :alt: build status
+  :target: https://ci.gitlab.com/projects/7545?ref=master
+  :alt: build status
+
+.. images:: https://img.shields.io/pypi/v/django-afip.svg
+  :target: https://pypi.python.org/pypi/django-afip
+  :alt: version on pypi
+
+.. images:: https://img.shields.io/pypi/l/django-afip.svg
+  :alt: licence
 
 Instalation
 -----------
