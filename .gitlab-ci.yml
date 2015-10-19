@@ -1,10 +1,10 @@
-image: python:3.4.3
+image: python:3.5
 before_script:
   - pip install tox
 
 test:
   script:
-    - tox -e py34
+    - tox -e py35
 
 style:
   script:
