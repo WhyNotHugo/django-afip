@@ -191,6 +191,17 @@ class TaxPayerAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(models.PointOfSales)
+class PointOfSalesAdmin(admin.ModelAdmin):
+    list_display = (
+        'owner',
+        'number',
+        'issuance_type',
+        'blocked',
+        'drop_date',
+    )
+
+
 admin.site.register(models.Receipt, ReceiptAdmin)
 admin.site.register(models.ReceiptBatch, ReceiptBatchAdmin)
 admin.site.register(models.AuthTicket, AuthTicketAdmin)
