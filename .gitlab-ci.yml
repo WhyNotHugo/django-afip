@@ -4,4 +4,8 @@ before_script:
 
 test:
   script:
-    - tox
+    - tox -e py34
+
+style:
+  script:
+    - tox -e style
