@@ -99,6 +99,7 @@ class ReceiptAdmin(admin.ModelAdmin):
             )
             return
 
+        queryset = queryset.filter(batch__isnull=False)
         models.ReceiptBatch.objects.create(queryset)
     create_batch.short_description = _('Create receipt batch')
 
