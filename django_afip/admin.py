@@ -47,6 +47,7 @@ class ReceiptAdmin(admin.ModelAdmin):
     )
     list_filter = (
         'validation__result',
+        'batch',
     )
 
     __related_fields = [
