@@ -536,7 +536,9 @@ class Receipt(models.Model):
         verbose_name=_('receipt batch'),
         help_text=_(
             'Receipts are validated in batches, so it must be assigned one '
-            'before validation is possible.'),
+            'before validation is possible.'
+        ),
+        on_delete=models.PROTECT,
     )
     concept = models.ForeignKey(
         ConceptType,
