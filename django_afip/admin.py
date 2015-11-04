@@ -33,6 +33,30 @@ class TaxInline(admin.TabularInline):
     extra = 1
 
 
+class ReceiptStatusFilter(admin.SimpleListFilter):
+    title = _('status')
+    parameter_name = 'status'
+
+    VALIDATED = 'validated'
+    NOT_VALIDATED = 'not_validated'
+
+    def lookups(self, request, model_admin):
+        return (
+            (self.VALIDATED, _('Validated')),
+            (self.NOT_VALIDATED, _('Not validated')),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == self.VALIDATED:
+            return queryset.filter(
+                validation__result=models.Validation.RESULT_APPROVED
+            )
+        if self.value() == self.NOT_VALIDATED:
+            return queryset.exclude(
+                validation__result=models.Validation.RESULT_APPROVED
+            )
+
+
 class ReceiptAdmin(admin.ModelAdmin):
 
     list_display = (
@@ -46,7 +70,7 @@ class ReceiptAdmin(admin.ModelAdmin):
         'validated',
     )
     list_filter = (
-        'validation__result',
+        ReceiptStatusFilter,
         'batch',
     )
 
@@ -58,6 +82,9 @@ class ReceiptAdmin(admin.ModelAdmin):
     inlines = (
         VatInline,
         TaxInline,
+    )
+    ordering = (
+        'id',
     )
 
     def get_fields(self, request, obj=None):
