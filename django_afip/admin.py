@@ -110,6 +110,7 @@ class ReceiptAdmin(admin.ModelAdmin):
             reverse("admin:afip_receiptbatch_change", args=(obj.batch.id,)),
             obj.batch.id
         )
+    batch_link.admin_order_field = 'batch'
     batch_link.allow_tags = True
     batch_link.short_description = _('batch')
 
