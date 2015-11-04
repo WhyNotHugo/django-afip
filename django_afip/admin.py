@@ -99,8 +99,9 @@ class ReceiptAdmin(admin.ModelAdmin):
             )
             return
 
-        queryset = queryset.filter(batch__isnull=False)
+        queryset = queryset.filter(batch__isnull=True)
         models.ReceiptBatch.objects.create(queryset)
+        # TODO: Maybe redirect to batch screen?
     create_batch.short_description = _('Create receipt batch')
 
     def batch_link(self, obj):
