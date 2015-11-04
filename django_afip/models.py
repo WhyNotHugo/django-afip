@@ -401,7 +401,7 @@ class ReceiptBatch(models.Model):
         """
         Returns this object as an object compatible with AFIP's web services.
         """
-        receipts = self.receipts.all()
+        receipts = self.receipts.all().order_by('receipt_number')
 
         wso = wsfe_client.factory.create('FECAERequest')
         wso.FeCabReq.CantReg = len(receipts)
