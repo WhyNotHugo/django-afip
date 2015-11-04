@@ -57,6 +57,30 @@ class ReceiptStatusFilter(admin.SimpleListFilter):
             )
 
 
+class ReceiptBatchedFilter(admin.SimpleListFilter):
+    title = _('batched')
+    parameter_name = 'batched'
+
+    BATCHED = 'batched'
+    NOT_BATCHED = 'not_batched'
+
+    def lookups(self, request, model_admin):
+        return (
+            (self.BATCHED, _('Batched')),
+            (self.NOT_BATCHED, _('Not batched')),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == self.BATCHED:
+            return queryset.filter(
+                batch__isnull=True,
+            )
+        if self.value() == self.NOT_BATCHED:
+            return queryset.filter(
+                batch__isnull=False
+            )
+
+
 class ReceiptAdmin(admin.ModelAdmin):
 
     list_display = (
@@ -70,6 +94,7 @@ class ReceiptAdmin(admin.ModelAdmin):
         'validated',
     )
     list_filter = (
+        ReceiptBatchedFilter,
         ReceiptStatusFilter,
         'batch',
     )
