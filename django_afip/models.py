@@ -368,6 +368,9 @@ class ReceiptBatchManager(models.Manager):
         Creates a batch with all receipts returned by ``queryset``.
         """
         first = queryset.select_related('point_of_sales').first()
+        if not first:
+            # Queryset is empty, nothing to create
+            return
         batch = ReceiptBatch(
             receipt_type_id=first.receipt_type_id,
             point_of_sales_id=first.point_of_sales_id,

@@ -152,6 +152,14 @@ class ReceiptAdmin(admin.ModelAdmin):
             return
 
         queryset = queryset.filter(batch__isnull=True)
+        if not queryset.count():
+            self.message_user(
+                request,
+                _('All the selected invoices have already been batched'),
+                messages.ERROR,
+            )
+            return
+
         models.ReceiptBatch.objects.create(queryset)
         # TODO: Maybe redirect to batch screen?
     create_batch.short_description = _('Create receipt batch')
