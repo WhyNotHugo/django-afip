@@ -238,13 +238,28 @@ class TaxPayerAdmin(admin.ModelAdmin):
     )
 
     def fetch_points_of_sales(self, request, queryset):
-        total = sum(
-            len(taxpayer.fetch_points_of_sales())
-            for taxpayer in queryset.all()
-        )
+        poses = [
+            pos
+            for taxpayer_poses in [
+                taxpayer.fetch_points_of_sales()
+                for taxpayer in queryset.all()
+            ]
+            for pos in taxpayer_poses
+        ]
+
+        created = sum([pos for pos in poses if pos[1]])
+        total = len(poses)
+
         self.message_user(
             request,
-            message=_('%d points of sales created') % total,
+            message=(
+                _(
+                    '%(total)d points of sales fetched. %(created)d created.'
+                ) % dict(
+                    total=total,
+                    created=created,
+                )
+            ),
             level=messages.SUCCESS,
         )
 

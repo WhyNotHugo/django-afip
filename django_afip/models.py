@@ -169,7 +169,10 @@ class TaxPayer(models.Model):
 
     def fetch_points_of_sales(self, ticket=None):
         """
-        Fetches all point of sales objects from the WS and stores them locally.
+        Fetches all point of sales objects from the WS and stores (or updated)
+        them locally.
+
+        Returns a list of tuples with the format (pos, created,).
         """
         ticket = ticket or self.get_or_create_ticket('wsfe')
 
@@ -179,21 +182,19 @@ class TaxPayer(models.Model):
         if hasattr(response, 'Errors'):
             raise AfipException(response.Errors.Err[0])
 
-        # TODO: Make this function idempotent so that we don't get an
-        # duplication error if we run it twice.
-        points_of_sales = []
+        results = []
         for pos_data in response.ResultGet.PtoVenta:
-            point_of_sales = PointOfSales(
+            results.append(PointOfSales.objects.update_or_create(
                 number=pos_data.Nro,
                 issuance_type=pos_data.EmisionTipo,
-                blocked=pos_data.Bloqueado == 'N',
-                drop_date=parse_date(pos_data.FchBaja),
                 owner=self,
-            )
-            point_of_sales.save()
-            points_of_sales.append(point_of_sales)
+                defaults=dict(
+                    blocked=pos_data.Bloqueado == 'N',
+                    drop_date=parse_date(pos_data.FchBaja),
+                )
+            ))
 
-        return points_of_sales
+        return results
 
     def __str__(self):
         return str(self.cuit)
