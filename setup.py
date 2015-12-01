@@ -4,7 +4,6 @@ from setuptools import setup, find_packages
 
 setup(
     name='django-afip',
-    version='0.8.0',
     description='AFIP integration for django',
     author='Hugo Osvaldo Barrera',
     author_email='hugo@barrera.io',
