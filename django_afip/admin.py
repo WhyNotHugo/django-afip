@@ -206,7 +206,12 @@ class ReceiptBatchAdmin(admin.ModelAdmin):
     validated.boolean = True
 
     def receipts_count(self, obj):
-        return obj.receipts__count
+        return '<a href="{}?batch__id__exact={}">{}</a>'.format(
+            reverse(self.admin_site.name + ":afip_receipt_changelist"),
+            obj.id,
+            obj.receipts__count,
+        )
+    receipts_count.allow_tags = True
     receipts_count.short_description = _('receipts')
     receipts_count.admin_order_field = 'receipts__count'
 
