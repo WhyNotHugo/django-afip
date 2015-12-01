@@ -521,6 +521,11 @@ class ReceiptManager(models.Manager):
 
         return response_xml.CbteNro
 
+    def get_queryset(self):
+        return super().get_queryset().select_related(
+            'receipt_type',
+        )
+
 
 class Receipt(models.Model):
     """
