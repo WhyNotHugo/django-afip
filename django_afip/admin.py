@@ -104,6 +104,8 @@ class ReceiptAdmin(admin.ModelAdmin):
         'cae',
     ]
 
+    filter_horizontal = ('related_receipts',)
+
     inlines = (
         VatInline,
         TaxInline,
