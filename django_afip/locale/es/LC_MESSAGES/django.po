@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-afip\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-11-18 00:12-0300\n"
-"PO-Revision-Date: 2015-11-18 00:13-0300\n"
+"POT-Creation-Date: 2015-12-01 15:22-0300\n"
+"PO-Revision-Date: 2015-12-01 15:23-0300\n"
 "Last-Translator: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
 "Language-Team: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
 "Language: es\n"
@@ -15,7 +15,26 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.8.5\n"
+"X-Generator: Poedit 1.8.6\n"
+
+msgid "status"
+msgstr "estado"
+
+msgid "Validated"
+msgstr "Validados"
+
+msgid "Not validated"
+msgstr "No validados"
+
+msgid "batched"
+msgstr "loteado"
+
+msgid "Batched"
+msgstr "Loteados"
+
+msgid "Not batched"
+msgstr "No loteados"
+
 msgid "validated"
 msgstr "validado"
 
@@ -28,6 +47,9 @@ msgid ""
 msgstr ""
 "Los comprobantes seleccionados no son todos del mismo tipo y del mismo punto "
 "de ventas."
+
+msgid "All the selected invoices have already been batched"
+msgstr "Todos los comprobantes seleccionados ya han sido loteados"
 
 msgid "Create receipt batch"
 msgstr "Crear lote de comprobantes"
