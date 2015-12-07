@@ -9,11 +9,11 @@ are implemented.
   :target: https://ci.gitlab.com/projects/7545?ref=master
   :alt: build status
 
-.. images:: https://img.shields.io/pypi/v/django-afip.svg
+.. image:: https://img.shields.io/pypi/v/django-afip.svg
   :target: https://pypi.python.org/pypi/django-afip
   :alt: version on pypi
 
-.. images:: https://img.shields.io/pypi/l/django-afip.svg
+.. image:: https://img.shields.io/pypi/l/django-afip.svg
   :alt: licence
 
 Instalation
