@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-afip\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-12-01 15:22-0300\n"
-"PO-Revision-Date: 2015-12-01 15:23-0300\n"
+"POT-Creation-Date: 2015-12-12 13:19-0300\n"
+"PO-Revision-Date: 2015-12-12 13:20-0300\n"
 "Last-Translator: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
 "Language-Team: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
 "Language: es\n"
@@ -41,12 +41,11 @@ msgstr "validado"
 msgid "cae"
 msgstr "cae"
 
-msgid ""
-"The selected receipts are not all of the same type and from the same point "
-"of sales."
-msgstr ""
-"Los comprobantes seleccionados no son todos del mismo tipo y del mismo punto "
-"de ventas."
+msgid "The selected receipts are not all of the same type."
+msgstr "Los comprobantes seleccionados no son todos del mismo tipo."
+
+msgid "The selected receipts are not all from the same point of sales."
+msgstr "Los comprobantes seleccionados no son todos del mismo punto de ventas."
 
 msgid "All the selected invoices have already been batched"
 msgstr "Todos los comprobantes seleccionados ya han sido loteados"
@@ -137,11 +136,33 @@ msgstr "certificado"
 msgid "cuit"
 msgstr "cuit"
 
+msgid "active since"
+msgstr "inicio de actividades"
+
+msgid ""
+"Date since which this taxpayer has been legally active. This field is only "
+"required to generate receipt PDFs"
+msgstr ""
+"Fecha desde la cual el contribuyente está legalmente activo. Este campo sólo "
+"es requerido para generar PDFs."
+
 msgid "taxpayer"
 msgstr "contribuyente"
 
 msgid "taxpayers"
 msgstr "contribuyentes"
+
+msgid "issuing name"
+msgstr "nombre del emisor"
+
+msgid "issuing address"
+msgstr "domicilio del emisor"
+
+msgid "vat condition"
+msgstr "condición de IVA"
+
+msgid "gross income condition"
+msgstr "condición ingresos brutos"
 
 msgid "number"
 msgstr "número"
@@ -302,14 +323,44 @@ msgstr "<%(id)s> %(receipt_type)s"
 msgid "receipt"
 msgstr "comprobante"
 
+msgid "pdf file"
+msgstr "archivo pdf"
+
+msgid "issuing email"
+msgstr "email del emisor"
+
+msgid "client name"
+msgstr "nombre del cliente"
+
+msgid "client address"
+msgstr "domicilio del cliente"
+
+msgid "sales terms"
+msgstr "condición de venta"
+
+msgid "receipt pdf"
+msgstr "pdf del comprobante"
+
+msgid "receipt pdfs"
+msgstr "comprobantes del pdf"
+
+msgid "amount"
+msgstr "monto"
+
+msgid "unit price"
+msgstr "precio unitario"
+
+msgid "receipt entry"
+msgstr "entrada de comprobante"
+
+msgid "receipt entries"
+msgstr "entradas de comprobantes"
+
 msgid "base amount"
 msgstr "monto base"
 
 msgid "aliquot"
 msgstr "alicuota"
-
-msgid "amount"
-msgstr "monto"
 
 msgid "tax"
 msgstr "tributo"
@@ -358,6 +409,10 @@ msgstr "validación de comprobante"
 
 msgid "receipt validations"
 msgstr "validaciones de comprobante"
+
+#, python-format
+msgid "receipt %s.pdf"
+msgstr "comprobantes %s.pdf"
 
 #~ msgid "vat amount"
 #~ msgstr "monto de iva"
