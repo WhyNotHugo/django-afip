@@ -924,13 +924,12 @@ class ReceiptPDF(models.Model):
             self.pdf_file = File(file_)
             self.save()
 
-    def save_pdf_to(self, path):
+    def save_pdf_to(self, file_):
         """
         Saves the receipt as an actual PDF file into a custom location.
         """
         from . import pdf
-        with open(path, 'wb') as file_:
-            pdf.generate_receipt_pdf(self.receipt_id, file_)
+        pdf.generate_receipt_pdf(self.receipt_id, file_)
 
     class Meta:
         verbose_name = _('receipt pdf')
