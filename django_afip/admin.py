@@ -140,18 +140,27 @@ class ReceiptAdmin(admin.ModelAdmin):
     cae.admin_order_field = 'validation__cae'
 
     def create_batch(self, request, queryset):
-        # TODO: use agregate
         variations = queryset \
-            .order_by('receipt_type', 'point_of_sales') \
-            .distinct('receipt_type', 'point_of_sales') \
-            .count()
+            .aggregate(
+                receipt_types=Count('receipt_type', distinct=True),
+                points_of_sales=Count('point_of_sales', distinct=True),
+            )
 
-        if variations > 1:
+        if variations['receipt_types'] > 1:
             self.message_user(
                 request,
                 _(
-                    'The selected receipts are not all of the same type '
-                    'and from the same point of sales.'
+                    'The selected receipts are not all of the same type.'
+                ),
+                messages.ERROR,
+            )
+            return
+        if variations['points_of_sales'] > 1:
+            self.message_user(
+                request,
+                _(
+                    'The selected receipts are not all from the same point '
+                    'of sales.'
                 ),
                 messages.ERROR,
             )
