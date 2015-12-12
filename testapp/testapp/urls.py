@@ -13,10 +13,29 @@ Including another URLconf
     1. Add an import:  from blog import urls as blog_urls
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
+from django.conf import settings
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.views.static import serve
+
+from django_afip import views
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^__afip__/', include('django_afip.urls')),
+    url(
+        r'^invoices/pdf/(?P<pk>\d+)?$',
+        views.ReceiptPDFView.as_view(),
+        name='receipt_view',
+    ),
+    url(
+        r'^invoices/html/(?P<pk>\d+)?$',
+        views.ReceiptHTMLView.as_view(),
+        name='receipt_view',
+    ),
+    url(
+        r'^media/(?P<path>.*)$',
+        serve,
+        {'document_root': settings.MEDIA_ROOT},
+    ),
 ]
