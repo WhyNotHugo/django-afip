@@ -866,7 +866,7 @@ class ReceiptPDFManager(models.Manager):
 
 
 class ReceiptPDF(models.Model):
-    receipt = models.ForeignKey(
+    receipt = models.OneToOneField(
         Receipt,
         verbose_name=_('receipt'),
     )
