@@ -153,6 +153,14 @@ class TaxPayer(models.Model):
     cuit = models.BigIntegerField(
         _('cuit'),
     )
+    active_since = models.DateField(
+        _('active since'),
+        null=True,
+        help_text=_(
+            'Date since which this taxpayer has been legally active. '
+            'This field is only required to generate receipt PDFs'
+        ),
+    )
 
     def create_ticket(self, service):
         ticket = AuthTicket(owner=self, service=service)
@@ -204,6 +212,28 @@ class TaxPayer(models.Model):
         verbose_name_plural = _("taxpayers")
 
 
+class TaxPayerProfile(models.Model):
+    taxpayer = models.ForeignKey(
+        TaxPayer,
+        related_name='profile',
+        verbose_name=_('taxpayer'),
+    )
+    issuing_name = models.TextField(
+        _('issuing name'),
+    )
+    issuing_address = models.TextField(
+        _('issuing address'),
+    )
+    vat_condition = models.CharField(
+        max_length=48,
+        verbose_name=_('vat condition'),
+    )
+    gross_income_condition = models.CharField(
+        max_length=48,
+        verbose_name=_('gross income condition'),
+    )
+
+
 class PointOfSales(models.Model):
     number = models.PositiveSmallIntegerField(
         _('number'),
@@ -224,6 +254,7 @@ class PointOfSales(models.Model):
 
     owner = models.ForeignKey(
         TaxPayer,
+        related_name='points_of_sales',
         verbose_name=_('owner'),
     )
 
@@ -785,6 +816,86 @@ class Receipt(models.Model):
             ('point_of_sales', 'receipt_type', 'receipt_number',)
         )
         # TODO: index_together...
+
+
+class ReceiptPDF(models.Model):
+    receipt = models.ForeignKey(
+        Receipt,
+        verbose_name=_('receipt'),
+    )
+    pdf_file = models.FileField(
+        verbose_name=_('pdf file'),
+        blank=True,
+        null=True,
+    )
+    issuing_name = models.CharField(
+        max_length=128,
+        verbose_name=_('issuing name'),
+    )
+    issuing_address = models.TextField(
+        _('issuing address'),
+    )
+    issuing_email = models.CharField(
+        max_length=128,
+        verbose_name=_('issuing email'),
+        null=True,
+    )
+    vat_condition = models.CharField(
+        max_length=48,
+        verbose_name=_('vat condition'),
+        # IVA Responsable Inscripto
+        # No responsable IVA
+        # IVA Exento
+        # A consumidor Final
+    )
+    gross_income_condition = models.CharField(
+        max_length=48,
+        verbose_name=_('gross income condition'),
+    )
+    client_name = models.CharField(
+        max_length=128,
+        verbose_name=_('client name'),
+    )
+    client_address = models.TextField(
+        _('client address'),
+    )
+    sales_terms = models.CharField(
+        max_length=48,
+        verbose_name=_('sales terms'),
+        # Contado, Cta corriente, etc...
+    )
+
+    class Meta:
+        verbose_name = _('receipt pdf')
+        verbose_name_plural = _('receipt pdfs')
+
+
+class ReceiptEntry(models.Model):
+    receipt = models.ForeignKey(
+        Receipt,
+        related_name='entries',
+        verbose_name=_('receipt'),
+    )
+    description = models.CharField(
+        max_length=128,
+        verbose_name=_('description'),
+    )
+    amount = models.PositiveSmallIntegerField(
+        _('amount'),
+    )
+    unit_price = models.DecimalField(
+        _('unit price'),
+        max_digits=15,
+        decimal_places=2,
+    )
+
+    @property
+    def total_price(self):
+        return self.amount * self.unit_price
+
+    class Meta:
+        verbose_name = _('receipt entry')
+        verbose_name_plural = _('receipt entries')
 
 
 class Tax(models.Model):
