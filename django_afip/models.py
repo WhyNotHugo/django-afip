@@ -843,6 +843,28 @@ class Receipt(models.Model):
         # TODO: index_together...
 
 
+class ReceiptPDFManager(models.Manager):
+
+    def create_for_receipt(self, receipt, profile=None):
+        """
+        Creates a ReceiptPDF object for a given receipt. Does not actually
+        generate the related PDF file.
+        """
+        profile = profile or TaxPayerProfile.objects.get(
+            taxpayer__points_of_sales__receipts=receipt,
+        )
+        pdf = ReceiptPDF.objects.create(
+            receipt=receipt,
+            issuing_name=profile.issuing_name,
+            issuing_address=profile.issuing_address,
+            issuing_email=profile.issuing_email,
+            vat_condition=profile.vat_condition,
+            gross_income_condition=profile.gross_income_condition,
+            sales_terms=profile.sales_terms,
+        )
+        return pdf
+
+
 class ReceiptPDF(models.Model):
     receipt = models.ForeignKey(
         Receipt,
@@ -889,6 +911,8 @@ class ReceiptPDF(models.Model):
         verbose_name=_('sales terms'),
         # Contado, Cta corriente, etc...
     )
+
+    objects = ReceiptPDFManager()
 
     def save_pdf(self):
         """
