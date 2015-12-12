@@ -4,4 +4,5 @@ setuptools-git>=1.1
 setuptools-scm>=1.7.0
 pytz>=2015.4
 lxml>=3.4.4
+WeasyPrint>=0.24
 git+https://github.com/hobarrera/suds-py3.git
