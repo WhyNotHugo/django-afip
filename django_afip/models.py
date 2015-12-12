@@ -1,9 +1,11 @@
 from base64 import b64encode
 from datetime import datetime, timedelta, timezone
 from subprocess import Popen, PIPE
+from tempfile import NamedTemporaryFile
 import logging
 import random
 
+from django.core.files.base import File
 from django.db import models
 from django.db.models import Sum
 from django.utils.translation import ugettext as _
@@ -864,6 +866,24 @@ class ReceiptPDF(models.Model):
         verbose_name=_('sales terms'),
         # Contado, Cta corriente, etc...
     )
+
+    def save_pdf(self):
+        """
+        Saves the receipt as a PDF related to this model.
+        """
+        from . import pdf
+        with NamedTemporaryFile(suffix='.pdf') as file_:
+            pdf.generate_receipt_pdf(self.receipt_id, file_)
+            self.pdf_file = File(file_)
+            self.save()
+
+    def save_pdf_to(self, path):
+        """
+        Saves the receipt as an actual PDF file into a custom location.
+        """
+        from . import pdf
+        with open(path, 'wb') as file_:
+            pdf.generate_receipt_pdf(self.receipt_id, file_)
 
     class Meta:
         verbose_name = _('receipt pdf')

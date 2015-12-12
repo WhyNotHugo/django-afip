@@ -1,0 +1,114 @@
+html, body {
+  margin: 0;
+  padding: 0;
+
+  font-family: "Open Sans",sans-serif;
+}
+
+div.invoice {
+  margin-top: 20px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 960px;
+  position: relative;
+}
+
+div.group:after {
+  content: '';
+  display: block;
+  clear: both;
+}
+
+header {
+  /* border: 1px solid #DDD; */
+  /* border-radius: 5px; */
+  /* padding: 10px; */
+}
+
+div.my-details > address {
+  width: 50%;
+  float: left;
+}
+
+div.my-details > .invoice-details {
+  width: 50%;
+  float: right;
+  text-align: right;
+}
+
+div.invoice-type {
+  position: absolute;
+  text-align: center;
+  width: 100%;
+  font-size: 28px;
+  left: 50%;
+  margin-left: -100px;
+  width: 200px;
+}
+
+div.invoice-type .code {
+  font-size: 0.3em;
+}
+
+div.invoice-number {
+  text-align: right;
+}
+
+div.my-name {
+  font-size: 32px;
+  text-align: center;
+}
+
+address {
+  font-style: normal;
+  float: left;
+}
+
+div.tax-status {
+  float: right;
+  width: 50%;
+  text-align: right;
+}
+
+table {
+  width: 100%;
+  border-spacing: 0px;
+  border-collapse: collapse;
+  margin-bottom: 30px;
+}
+
+th {
+  text-align: left;
+}
+
+th, td {
+  padding: 8px;
+  text-align: center;
+}
+
+th {
+  border-bottom: 2px solid #DDD;
+}
+
+tbody > tr:nth-of-type(2n+1) {
+  background-color: #F9F9F9;
+}
+
+td {
+  border-bottom: 1px solid #DDD;
+}
+
+tfoot {
+  font-weight: bold;
+}
+
+hr {
+  border: 0;
+  height: 1px;
+  background-color: #DDD;
+}
+
+a {
+  color: #00E;
+}
