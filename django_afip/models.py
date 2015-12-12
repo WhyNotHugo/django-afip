@@ -760,7 +760,7 @@ class Receipt(models.Model):
         wso.ImpOpEx = self.exempt_amount
         wso.ImpIVA = subtotals['vat'] or 0
         wso.ImpTrib = subtotals['taxes'] or 0
-        if self.concept.code in (2, 3,):
+        if int(self.concept.code) in (2, 3,):
             wso.FchServDesde = format_date(self.service_start)
             wso.FchServHasta = format_date(self.service_end)
             wso.FchVtoPago = format_date(self.expiration_date)
