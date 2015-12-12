@@ -76,8 +76,33 @@ some custom view.
 PDF Receipts
 ------------
 
-Version 1.2.0 introduces PDF-generation for validated receipts. These may be
-exposed both as pdf or html with an existing view, for example, using::
+Version 1.2.0 introduces PDF-generation for validated receipts. These PDFs are
+backed by the ``ReceiptPDF`` model.
+
+There are two ways of creating these objects; you can do this manually, or via
+these steps:
+
+ * Creating a ``TaxPayerProfile`` object for your ``TaxPayer``, with the right
+   default values.
+ * Create the PDFs via ``ReceiptPDF.objects.create_for_receipt()``.
+ * Add the proper ``ReceiptEntry`` objects to the ``Receipt``. Each
+   ``ReceiptEntry`` represents a line in the resulting PDF file.
+
+The PDF file itself can then be generated via::
+
+    # Save the file as a model field into your MEDIA_ROOT directory:
+    receipt_pdf.save_pdf()
+    # Save to some custom file-like-object:
+    receipt_pdf.save_pdf_to(file_object)
+
+The former is usually recomended since it allows simpler interaction via
+standard django patterns.
+
+Exposing receipts
+~~~~~~~~~~~~~~~~~
+
+Generated PDF files may be exposed both as pdf or html with an existing view,
+for example, using::
 
     url(
         r'^invoices/pdf/(?P<pk>\d+)?$',
