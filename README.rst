@@ -73,6 +73,32 @@ You are now ready to start creating and validating receipts. While you may do
 this via the admin as well, you probably want to do this programatically or via
 some custom view.
 
+PDF Receipts
+------------
+
+Version 1.2.0 introduces PDF-generation for validated receipts. These may be
+exposed both as pdf or html with an existing view, for example, using::
+
+    url(
+        r'^invoices/pdf/(?P<pk>\d+)?$',
+        views.ReceiptPDFView.as_view(),
+        name='receipt_view',
+    ),
+    url(
+        r'^invoices/html/(?P<pk>\d+)?$',
+        views.ReceiptHTMLView.as_view(),
+        name='receipt_view',
+    ),
+
+You'll generally want to subclass this view, and add some authorization checks
+to it. If you want some other, more complex generation (like sending via
+email), these views should serve as a reference to the PDF API.
+
+The template used for the HTML and PDF receipts is found in
+``templates/django_afip/invoice.html``. If you want to override the default (you
+probably do), simply place a template with the same path/name inside your own
+app, and make sure it's listed *before* ``django_afip`` in ``INSTALLED_APPS``.
+
 Contributing
 ------------
 
