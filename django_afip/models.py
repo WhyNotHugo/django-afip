@@ -155,14 +155,6 @@ class TaxPayer(models.Model):
     cuit = models.BigIntegerField(
         _('cuit'),
     )
-    active_since = models.DateField(
-        _('active since'),
-        null=True,
-        help_text=_(
-            'Date since which this taxpayer has been legally active. '
-            'This field is only required to generate receipt PDFs'
-        ),
-    )
 
     def create_ticket(self, service):
         ticket = AuthTicket(owner=self, service=service)
@@ -215,6 +207,14 @@ class TaxPayer(models.Model):
 
 
 class TaxPayerProfile(models.Model):
+    """
+    Custom information about a taxpayer, used in printed receipts.
+
+    Most of these can be overriden per-invoice, and are usually just defaults.
+
+    None of these are required or sent to the AFIP when notifying about receipt
+    generation.
+    """
     taxpayer = models.ForeignKey(
         TaxPayer,
         related_name='profile',
@@ -226,6 +226,11 @@ class TaxPayerProfile(models.Model):
     issuing_address = models.TextField(
         _('issuing address'),
     )
+    issuing_email = models.TextField(
+        _('issuing email'),
+        blank=True,
+        null=True,
+    )
     vat_condition = models.CharField(
         max_length=48,
         verbose_name=_('vat condition'),
@@ -234,6 +239,24 @@ class TaxPayerProfile(models.Model):
         max_length=48,
         verbose_name=_('gross income condition'),
     )
+    sales_terms = models.CharField(
+        max_length=48,
+        verbose_name=_('sales terms'),
+        help_text=_(
+            'The terms of the sale printed onto receipts by default '
+            '(eg: single payment, checking account, etc).'
+        ),
+    )
+    active_since = models.DateField(
+        _('active since'),
+        help_text=_(
+            'Date since which this taxpayer has been legally active.'
+        ),
+    )
+
+    class Meta:
+        verbose_name = _('taxpayer profile')
+        verbose_name_plural = _('taxpayer profiles')
 
 
 class PointOfSales(models.Model):
