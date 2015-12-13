@@ -6,7 +6,6 @@ from django.db.models import Count
 from django.utils.translation import ugettext as _
 
 from . import models
-from .utils import AfipException
 
 # TODO: Add an action to populate generic types.
 
