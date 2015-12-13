@@ -127,7 +127,7 @@ class ReceiptsTest(AfipTestCase):
         taxpayer = models.TaxPayer.objects.first()
         taxpayer.fetch_points_of_sales()
 
-    def test_invoice_validation(self):
+    def _good_receipt(self):
         receipt = models.Receipt(
             concept=models.ConceptType.objects.get(code=1),
             document_type=models.DocumentType.objects.get(code=96),
@@ -151,8 +151,82 @@ class ReceiptsTest(AfipTestCase):
             receipt=receipt,
         ).save()
 
+        return receipt
+
+    def _bad_receipt(self):
+        receipt = models.Receipt(
+            concept=models.ConceptType.objects.get(code=1),
+            document_type=models.DocumentType.objects.get(code=80),
+            document_number="203012345",
+            issued_date=date.today(),
+            total_amount=121,
+            net_untaxed=0,
+            net_taxed=100,
+            exempt_amount=0,
+            currency=models.CurrencyType.objects.get(code='PES'),
+            currency_quote=1,
+
+            receipt_type=models.ReceiptType.objects.get(code=6),
+            point_of_sales=models.PointOfSales.objects.first(),
+        )
+        receipt.save()
+        models.Vat(
+            vat_type=models.VatType.objects.get(code=5),
+            base_amount=100,
+            amount=21,
+            receipt=receipt,
+        ).save()
+
+        return receipt
+
+    def test_invoice_validation_good(self):
+        self._good_receipt()
+        self._good_receipt()
+        self._good_receipt()
+
         batch = models.ReceiptBatch.objects \
             .create(models.Receipt.objects.all())
-        batch.validate()
+        errs = batch.validate()
 
-    # TODO: Test all failure scenarios for validations
+        self.assertEqual(len(errs), 0)
+        self.assertEqual(
+            batch.validation.last().result,
+            models.Validation.RESULT_APPROVED,
+        )
+        self.assertEqual(batch.receipts.count(), 3)
+
+    def test_invoice_validation_bad(self):
+        self._bad_receipt()
+        self._bad_receipt()
+        self._bad_receipt()
+
+        batch = models.ReceiptBatch.objects \
+            .create(models.Receipt.objects.all())
+        errs = batch.validate()
+
+        self.assertEqual(len(errs), 1)
+        self.assertEqual(
+            errs[0],
+            'Error 10015: Factura B (CbteDesde igual a CbteHasta), DocTipo: '
+            '80, DocNro 203012345 no se encuentra registrado en los padrones '
+            'de AFIP y no corresponde a una cuit pais.'
+        )
+        self.assertEqual(batch.receipts.count(), 0)
+
+    def test_invoice_validation_mixed(self):
+        self._good_receipt()
+        self._bad_receipt()
+        self._good_receipt()
+
+        batch = models.ReceiptBatch.objects \
+            .create(models.Receipt.objects.all())
+        errs = batch.validate()
+
+        self.assertEqual(len(errs), 1)
+        self.assertEqual(
+            errs[0],
+            'Error 10015: Factura B (CbteDesde igual a CbteHasta), DocTipo: '
+            '80, DocNro 203012345 no se encuentra registrado en los padrones '
+            'de AFIP y no corresponde a una cuit pais.'
+        )
+        self.assertEqual(batch.receipts.count(), 1)
