@@ -136,39 +136,15 @@ class ReceiptBatchTest(AfipTestCase):
         taxpayer = models.TaxPayer.objects.first()
         taxpayer.fetch_points_of_sales()
 
-    def _good_receipt(self):
-        receipt = models.Receipt(
+    def _receipt(self, document_type):
+        receipt = models.Receipt.objects.create(
             concept=models.ConceptType.objects.get(code=1),
-            document_type=models.DocumentType.objects.get(code=96),
-            document_number="30123456",
-            issued_date=date.today(),
-            total_amount=121,
-            net_untaxed=0,
-            net_taxed=100,
-            exempt_amount=0,
-            currency=models.CurrencyType.objects.get(code='PES'),
-            currency_quote=1,
-
-            receipt_type=models.ReceiptType.objects.get(code=6),
-            point_of_sales=models.PointOfSales.objects.first(),
-        )
-        receipt.save()
-        models.Vat(
-            vat_type=models.VatType.objects.get(code=5),
-            base_amount=100,
-            amount=21,
-            receipt=receipt,
-        ).save()
-
-        return receipt
-
-    def _bad_receipt(self):
-        receipt = models.Receipt(
-            concept=models.ConceptType.objects.get(code=1),
-            document_type=models.DocumentType.objects.get(code=80),
+            document_type=models.DocumentType.objects.get(
+                code=document_type,
+            ),
             document_number="203012345",
             issued_date=date.today(),
-            total_amount=121,
+            total_amount=130,
             net_untaxed=0,
             net_taxed=100,
             exempt_amount=0,
@@ -178,15 +154,26 @@ class ReceiptBatchTest(AfipTestCase):
             receipt_type=models.ReceiptType.objects.get(code=6),
             point_of_sales=models.PointOfSales.objects.first(),
         )
-        receipt.save()
-        models.Vat(
+        models.Vat.objects.create(
             vat_type=models.VatType.objects.get(code=5),
             base_amount=100,
             amount=21,
             receipt=receipt,
-        ).save()
-
+        )
+        models.Tax.objects.create(
+            tax_type=models.TaxType.objects.get(code=3),
+            base_amount=100,
+            aliquot=9,
+            amount=9,
+            receipt=receipt,
+        )
         return receipt
+
+    def _good_receipt(self):
+        return self._receipt(96)
+
+    def _bad_receipt(self):
+        return self._receipt(80)
 
     def test_creation_empty(self):
         batch = models.ReceiptBatch.objects.create(
