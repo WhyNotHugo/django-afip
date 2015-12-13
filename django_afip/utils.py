@@ -56,22 +56,6 @@ class AfipException(Exception):
         ))
 
 
-class AfipMultiException(Exception):
-    """
-    Wraps around multiple errors returned by AFIP's WS.
-    """
-
-    def __init__(self, errs):
-        msg = "".join([
-            "Error {}: {}".format(
-                err.Code,
-                encode_str(err.Msg),
-            ) for err in errs
-        ])
-
-        Exception.__init__(self, msg)
-
-
 endpoints = {}
 if settings.AFIP_DEBUG:
     endpoints['wsaa'] = "https://wsaahomo.afip.gov.ar/ws/services/LoginCms?wsdl"  # NOQA

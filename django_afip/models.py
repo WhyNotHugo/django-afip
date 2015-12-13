@@ -13,7 +13,7 @@ from lxml import etree
 from lxml.builder import E
 
 from .utils import format_date, format_datetime, parse_date, parse_datetime, \
-    wsaa_client, wsfe_client, AfipException, AfipMultiException, TZ_AR
+    wsaa_client, wsfe_client, AfipException, TZ_AR, encode_str
 
 logger = logging.getLogger(__name__)
 
@@ -475,9 +475,10 @@ class ReceiptBatch(models.Model):
 
     def validate(self, ticket=None):
         if self.receipts.count() == 0:
-            self.delete()
+            logger.debug("Refusing to validate empty Batch")
             return
         if self.receipts.filter(validation__isnull=True).count() == 0:
+            logger.debug("Refusing to Batch with no non-validated Receipts")
             return
 
         ticket = ticket or \
@@ -506,16 +507,15 @@ class ReceiptBatch(models.Model):
         if hasattr(response, 'Errors'):
             raise AfipException(response.Errors.Err[0])
 
-        validation = Validation(
+        validation = Validation.objects.create(
             processed_date=parse_datetime(response.FeCabResp.FchProceso),
             result=response.FeCabResp.Resultado,
             batch=self,
         )
-        validation.save()
 
         errs = []
         for cae_data in response.FeDetResp.FECAEDetResponse:
-            if validation.result == Validation.RESULT_APPROVED:
+            if cae_data.Resultado == Validation.RESULT_APPROVED:
                 rv = validation.receipts.create(
                     result=cae_data.Resultado,
                     cae=cae_data.CAE,
@@ -532,17 +532,19 @@ class ReceiptBatch(models.Model):
                         )
                     rv.observations.add(observation)
             elif hasattr(cae_data, 'Observaciones'):
-                errs.append(cae_data.Observaciones.Obs[0])
+                for obs in cae_data.Observaciones.Obs:
+                    errs.append(
+                        "Error {}: {}".format(
+                            obs.Code,
+                            encode_str(obs.Msg),
+                        )
+                    )
 
         # Remove failed receipts from the batch
         self.receipts.filter(validation__isnull=True) \
             .update(batch=None, receipt_number=None)
 
-        if self.receipts.count() == 0:
-            self.delete()
-
-        if errs:
-            raise AfipMultiException(errs)
+        return errs
 
     class Meta:
         verbose_name = _('receipt batch')
