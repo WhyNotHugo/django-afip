@@ -41,6 +41,16 @@ class AfipTestCase(TestCase):
         AfipTestCase.ticket.save()
 
 
+class AuthTicketTest(TestCase):
+
+    def test_no_active_taxpayer(self):
+        with self.assertRaisesMessage(
+            Exception,
+            'There are no taxpayers to generate a ticket.',
+        ):
+            models.AuthTicket.objects.get_any_active('wsfe')
+
+
 class PopulationTest(AfipTestCase):
     """
     Tests models population view.

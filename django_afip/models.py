@@ -310,7 +310,7 @@ class AuthTicketManager(models.Manager):
         if taxpayer:
             return taxpayer.create_ticket(service)
 
-        raise Exception('There are no taxpayer to generate a ticket.')
+        raise Exception('There are no taxpayers to generate a ticket.')
 
 
 class AuthTicket(models.Model):
