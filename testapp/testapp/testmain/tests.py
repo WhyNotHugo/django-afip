@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime, timedelta
 import os
 
 from django.conf import settings
@@ -271,5 +271,24 @@ class ReceiptBatchTest(AfipTestCase):
             'Error 10015: Factura B (CbteDesde igual a CbteHasta), DocTipo: '
             '80, DocNro 203012345 no se encuentra registrado en los padrones '
             'de AFIP y no corresponde a una cuit pais.'
+        )
+        self.assertEqual(batch.receipts.count(), 1)
+
+    def test_validation_good_service(self):
+        receipt = self._good_receipt()
+        receipt.concept_id = 2
+        receipt.service_start = datetime.now() - timedelta(days=10)
+        receipt.service_end = datetime.now()
+        receipt.expiration_date = datetime.now() + timedelta(days=10)
+        receipt.save()
+
+        batch = models.ReceiptBatch.objects \
+            .create(models.Receipt.objects.all())
+        errs = batch.validate()
+
+        self.assertEqual(len(errs), 0)
+        self.assertEqual(
+            batch.validation.last().result,
+            models.Validation.RESULT_APPROVED,
         )
         self.assertEqual(batch.receipts.count(), 1)
