@@ -128,7 +128,7 @@ class TaxPayerTest(AfipTestCase):
         self.assertGreater(points_of_sales, 0)
 
 
-class ReceiptsTest(AfipTestCase):
+class ReceiptBatchTest(AfipTestCase):
 
     def setUp(self):
         super().setUp()
@@ -187,6 +187,40 @@ class ReceiptsTest(AfipTestCase):
         ).save()
 
         return receipt
+
+    def test_creation_empty(self):
+        batch = models.ReceiptBatch.objects.create(
+            models.Receipt.objects.none(),
+        )
+        self.assertIsNone(batch)
+
+    def test_creation_exclusion(self):
+        """
+        Test that batch creation excludes already batched receipts.
+        """
+        self._good_receipt()
+        self._good_receipt()
+        self._good_receipt()
+
+        models.ReceiptBatch.objects.create(
+            models.Receipt.objects.filter(pk=1),
+        )
+        batch = models.ReceiptBatch.objects.create(
+            models.Receipt.objects.filter(batch_id__isnull=True),
+        )
+
+        self.assertEquals(batch.receipts.count(), 2)
+
+    def test_validate_empty(self):
+        # Hack to easily create an empty batch:
+        self._good_receipt()
+        batch = models.ReceiptBatch.objects.create(
+            models.Receipt.objects.all(),
+        )
+        models.Receipt.objects.all().delete()
+
+        errs = batch.validate()
+        self.assertIsNone(errs)
 
     def test_invoice_validation_good(self):
         self._good_receipt()
