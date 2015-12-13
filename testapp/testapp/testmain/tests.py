@@ -222,7 +222,7 @@ class ReceiptBatchTest(AfipTestCase):
         errs = batch.validate()
         self.assertIsNone(errs)
 
-    def test_invoice_validation_good(self):
+    def test_validation_good(self):
         self._good_receipt()
         self._good_receipt()
         self._good_receipt()
@@ -238,7 +238,7 @@ class ReceiptBatchTest(AfipTestCase):
         )
         self.assertEqual(batch.receipts.count(), 3)
 
-    def test_invoice_validation_bad(self):
+    def test_validation_bad(self):
         self._bad_receipt()
         self._bad_receipt()
         self._bad_receipt()
@@ -256,7 +256,7 @@ class ReceiptBatchTest(AfipTestCase):
         )
         self.assertEqual(batch.receipts.count(), 0)
 
-    def test_invoice_validation_mixed(self):
+    def test_validation_mixed(self):
         self._good_receipt()
         self._bad_receipt()
         self._good_receipt()
