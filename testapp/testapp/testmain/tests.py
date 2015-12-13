@@ -11,26 +11,6 @@ from django_afip import models
 # We keep the taxpayer and it's ticket in-memory, since the webservice does not
 # allow too frequent requests, and each unit test needs a ticket to work.
 
-cached_models = []
-
-taxpayer = models.TaxPayer(
-    name='test taxpayer',
-    cuit=20329642330,
-)
-basepath = settings.BASE_DIR
-
-with open(os.path.join(basepath, 'test.key')) as key:
-    taxpayer.key.save('test.key', File(key))
-with open(os.path.join(basepath, 'test.crt')) as crt:
-    taxpayer.certificate.save('test.crt', File(crt))
-
-taxpayer.save()
-
-ticket = taxpayer.get_or_create_ticket('wsfe')
-
-cached_models.append(taxpayer)
-cached_models.append(ticket)
-
 
 class AfipTestCase(TestCase):
 
@@ -38,8 +18,27 @@ class AfipTestCase(TestCase):
     ticket = None
 
     def setUp(self):
-        for model in cached_models:
-            model.save()
+        if not AfipTestCase.taxpayer:
+            taxpayer = models.TaxPayer(
+                pk=1,
+                name='test taxpayer',
+                cuit=20329642330,
+            )
+
+            basepath = settings.BASE_DIR
+            with open(os.path.join(basepath, 'test.key')) as key:
+                taxpayer.key.save('test.key', File(key))
+            with open(os.path.join(basepath, 'test.crt')) as crt:
+                taxpayer.certificate.save('test.crt', File(crt))
+
+            AfipTestCase.taxpayer = taxpayer
+
+        if not AfipTestCase.ticket:
+            ticket = models.AuthTicket.objects.get_any_active('wsfe')
+            AfipTestCase.ticket = ticket
+
+        AfipTestCase.taxpayer.save()
+        AfipTestCase.ticket.save()
 
 
 class PopulationTest(AfipTestCase):
