@@ -740,27 +740,6 @@ class Receipt(models.Model):
 
     objects = ReceiptManager()
 
-    def auto_set_receipt_number(self, ticket=None):
-        """
-        Automatically sets this receipts number.
-        It is recomended that you let ``validate`` do this, rather than handle
-        it manually.
-        """
-        ticket = ticket or \
-            self.point_of_sales.owner.get_or_create_ticket('wsfe')
-
-        next_num = Receipt.objects.fetch_last_receipt_number(
-            self.point_of_sales,
-            self.receipt_type,
-        ) + 1
-
-        # Atomically update receipt number
-        # XXX: ¿Use select for update?
-        Receipt.objects.filter(pk=self.id, receipt_number__isnull=True) \
-            .update(receipt_number=next_num)
-        self.receipt_number = next_num
-        # TODO: handle error.
-
     def ws_object(self):
         """
         Returns this object as an object compatible with AFIP's web services.
