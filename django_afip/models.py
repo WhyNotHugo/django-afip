@@ -220,14 +220,16 @@ class TaxPayerProfile(models.Model):
         related_name='profile',
         verbose_name=_('taxpayer'),
     )
-    issuing_name = models.TextField(
-        _('issuing name'),
+    issuing_name = models.CharField(
+        max_length=128,
+        verbose_name=_('issuing name'),
     )
     issuing_address = models.TextField(
         _('issuing address'),
     )
-    issuing_email = models.TextField(
-        _('issuing email'),
+    issuing_email = models.CharField(
+        max_length=128,
+        verbose_name=_('issuing email'),
         blank=True,
         null=True,
     )
@@ -866,6 +868,7 @@ class ReceiptPDF(models.Model):
     issuing_email = models.CharField(
         max_length=128,
         verbose_name=_('issuing email'),
+        blank=True,
         null=True,
     )
     vat_condition = models.CharField(
