@@ -828,7 +828,7 @@ class Receipt(models.Model):
 
 class ReceiptPDFManager(models.Manager):
 
-    def create_for_receipt(self, receipt, profile=None):
+    def create_for_receipt(self, receipt, profile=None, **kwargs):
         """
         Creates a ReceiptPDF object for a given receipt. Does not actually
         generate the related PDF file.
@@ -844,6 +844,7 @@ class ReceiptPDFManager(models.Manager):
             vat_condition=profile.vat_condition,
             gross_income_condition=profile.gross_income_condition,
             sales_terms=profile.sales_terms,
+            **kwargs
         )
         return pdf
 
