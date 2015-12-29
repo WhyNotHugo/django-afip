@@ -279,3 +279,58 @@ class ReceiptBatchTest(AfipTestCase):
             models.Validation.RESULT_APPROVED,
         )
         self.assertEqual(batch.receipts.count(), 1)
+
+
+class ReceiptPDFTest(AfipTestCase):
+    """
+    For the moment, this test case mostly verifies that pdf generation *works*,
+    but does not actually validate the pdf file itself.
+
+    Running this locally *will* yield the file itself, which is useful for
+    manual inspection.
+    """
+    # TODO: Test generation via ReceiptHTMLView
+
+    def setUp(self):
+        super().setUp()
+        models.populate_all()
+        taxpayer = models.TaxPayer.objects.first()
+        taxpayer.fetch_points_of_sales()
+        models.TaxPayerProfile.objects.create(
+            taxpayer=taxpayer,
+            issuing_name='Red Company Inc.',
+            issuing_address='100 Red Av\nRedsville\nUK',
+            issuing_email='billing@example.com',
+            vat_condition='Exempt',
+            gross_income_condition='Exempt',
+            sales_terms='Credit Card',
+            active_since=datetime(2011, 10, 3),
+        )
+
+        models.Receipt.objects.create(
+            concept=models.ConceptType.objects.get(code=1),
+            document_type=models.DocumentType.objects.get(code=96),
+            document_number="203012345",
+            issued_date=date.today(),
+            total_amount=100,
+            net_untaxed=0,
+            net_taxed=100,
+            exempt_amount=0,
+            currency=models.CurrencyType.objects.get(code='PES'),
+            currency_quote=1,
+
+            receipt_number=4236,
+            receipt_type=models.ReceiptType.objects.get(code=11),
+            point_of_sales=models.PointOfSales.objects.first(),
+        )
+
+        # TODO: Add a ReceiptEntry
+
+    def test_pdf_generation(self):
+        receipt = models.Receipt.objects.first()
+        pdf = models.ReceiptPDF.objects.create_for_receipt(
+            receipt=receipt,
+            client_name="John Doe",
+            client_address="12 Green Road\nGreenville\nUK",
+        )
+        pdf.save_pdf()
