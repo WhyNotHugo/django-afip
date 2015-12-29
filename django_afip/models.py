@@ -833,9 +833,14 @@ class ReceiptPDFManager(models.Manager):
         Creates a ReceiptPDF object for a given receipt. Does not actually
         generate the related PDF file.
         """
-        profile = profile or TaxPayerProfile.objects.get(
-            taxpayer__points_of_sales__receipts=receipt,
-        )
+        try:
+            profile = profile or TaxPayerProfile.objects.get(
+                taxpayer__points_of_sales__receipts=receipt,
+            )
+        except TaxPayerProfile.DoesNotExist:
+            raise Exception(
+                'Cannot generate a PDF for taxpayer with no profile',
+            )
         pdf = ReceiptPDF.objects.create(
             receipt=receipt,
             issuing_name=profile.issuing_name,
