@@ -1,8 +1,35 @@
+import logging
+import mimetypes
+
 from django.contrib.staticfiles.finders import find
+from django.contrib.staticfiles.storage import staticfiles_storage
 from django.template.loader import get_template
-from weasyprint import HTML, CSS
+from weasyprint import HTML, default_url_fetcher
 
 from . import models
+
+
+logger = logging.getLogger(__name__)
+
+
+def staticfile_url_fetcher(url):
+    """
+    Returns files when the staticfiles app does not returns a relative path to
+    a file.
+    """
+    if url.startswith('/'):
+        base_url = staticfiles_storage.base_url
+        filename = url.replace(base_url, '', 1)
+
+        filepath = find(filename)
+        with open(filepath, 'rb') as file_:
+            data = file_.read()
+        return dict(
+            string=data,
+            mime_type=mimetypes.guess_type(url)[0],
+        )
+    else:
+        return default_url_fetcher(url)
 
 
 def generate_receipt_pdf(pk, target, force_html=False):
@@ -20,22 +47,20 @@ def generate_receipt_pdf(pk, target, force_html=False):
         receipt__pk=pk
     )
 
-    html = get_template('django_afip/invoice.html').render(dict(
+    html = get_template('receipts/code_{}.html'.format(
+        pdf.receipt.receipt_type.code,
+    )).render(dict(
         pdf=pdf,
         taxpayer=pdf.receipt.point_of_sales.owner,
     ))
-
-    css = CSS(
-        find('django_afip/invoice.css')
-    )
 
     if force_html:
         return html
     else:
         return HTML(
             string=html,
-            # url_fetcher=url_fetcher,
+            base_url='not-used://',
+            url_fetcher=staticfile_url_fetcher,
         ).write_pdf(
             target=target,
-            stylesheets=(css,),
         )
