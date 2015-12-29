@@ -309,10 +309,10 @@ class AuthTicketManager(models.Manager):
 
         taxpayer = TaxPayer.objects.order_by('?').first()
 
-        if taxpayer:
-            return taxpayer.create_ticket(service)
+        if not taxpayer:
+            raise Exception('There are no taxpayers to generate a ticket.')
 
-        raise Exception('There are no taxpayers to generate a ticket.')
+        return taxpayer.create_ticket(service)
 
 
 class AuthTicket(models.Model):
