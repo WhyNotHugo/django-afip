@@ -215,7 +215,7 @@ class TaxPayerProfile(models.Model):
     None of these are required or sent to the AFIP when notifying about receipt
     generation.
     """
-    taxpayer = models.ForeignKey(
+    taxpayer = models.OneToOneField(
         TaxPayer,
         related_name='profile',
         verbose_name=_('taxpayer'),
