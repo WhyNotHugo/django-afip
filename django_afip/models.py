@@ -861,6 +861,7 @@ class ReceiptPDF(models.Model):
     )
     pdf_file = models.FileField(
         verbose_name=_('pdf file'),
+        upload_to='receipts',
         blank=True,
         null=True,
     )
