@@ -945,6 +945,12 @@ class ReceiptEntry(models.Model):
         max_digits=15,
         decimal_places=2,
     )
+    vat = models.ForeignKey(
+        VatType,
+        related_name='receipt_entries',
+        verbose_name=_('vat'),
+        null=True,
+    )
 
     @property
     def total_price(self):
