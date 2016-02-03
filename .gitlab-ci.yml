@@ -1,11 +1,21 @@
 image: python:3.5
 before_script:
   - pip install tox
+stages:
+  - style
+  - test
 
-test:
+flake8:
+  stage: style
+  script:
+    - tox -e flake8
+
+imports:
+  stage: style
+  script:
+    - tox -e isort
+
+py35:
+  stage: test
   script:
     - tox -e py35
-
-style:
-  script:
-    - tox -e style
