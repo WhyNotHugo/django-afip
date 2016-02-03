@@ -1,10 +1,9 @@
 from datetime import datetime
 
+import pytz
 from django.conf import settings
 from django.utils.functional import LazyObject
 from suds import Client
-import pytz
-
 
 TZ_AR = pytz.timezone(pytz.country_timezones['ar'][0])
 

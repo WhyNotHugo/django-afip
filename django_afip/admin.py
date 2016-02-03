@@ -7,6 +7,7 @@ from django.utils.translation import ugettext as _
 
 from . import models
 
+
 # TODO: Add an action to populate generic types.
 
 

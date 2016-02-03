@@ -1,12 +1,12 @@
-from datetime import date, datetime, timedelta
 import os
+from datetime import date, datetime, timedelta
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files import File
-from django.test import TestCase, Client
-
+from django.test import Client, TestCase
 from django_afip import models
+
 
 # We keep the taxpayer and it's ticket in-memory, since the webservice does not
 # allow too frequent requests, and each unit test needs a ticket to work.

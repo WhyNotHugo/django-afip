@@ -1,9 +1,9 @@
-from base64 import b64encode
-from datetime import datetime, timedelta, timezone
-from subprocess import Popen, PIPE
-from tempfile import NamedTemporaryFile
 import logging
 import random
+from base64 import b64encode
+from datetime import datetime, timedelta, timezone
+from subprocess import PIPE, Popen
+from tempfile import NamedTemporaryFile
 
 from django.core.files.base import File
 from django.db import models
@@ -12,8 +12,9 @@ from django.utils.translation import ugettext as _
 from lxml import etree
 from lxml.builder import E
 
-from .utils import format_date, format_datetime, parse_date, parse_datetime, \
-    wsaa_client, wsfe_client, AfipException, TZ_AR, encode_str
+from .utils import (TZ_AR, AfipException, encode_str, format_date,
+                    format_datetime, parse_date, parse_datetime, wsaa_client,
+                    wsfe_client)
 
 logger = logging.getLogger(__name__)
 

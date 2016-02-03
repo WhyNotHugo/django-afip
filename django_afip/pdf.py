@@ -8,7 +8,6 @@ from weasyprint import HTML, default_url_fetcher
 
 from . import models
 
-
 logger = logging.getLogger(__name__)
 
 
