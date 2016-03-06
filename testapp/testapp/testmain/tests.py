@@ -371,3 +371,6 @@ class ReceiptAdminTest(AfipTestCase):
             'type="checkbox">'.format(not_validated_receipt.pk),
             html=True,
         )
+
+
+# TODO: Test receipts with related_receipts
