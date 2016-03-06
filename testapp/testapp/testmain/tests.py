@@ -23,6 +23,7 @@ class AfipTestCase(TestCase):
                 pk=1,
                 name='test taxpayer',
                 cuit=20329642330,
+                is_sandboxed=True,
             )
 
             basepath = settings.BASE_DIR

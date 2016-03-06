@@ -31,11 +31,6 @@ And then configure your project to use it by adding it to settings.py::
         ...
     )
 
-If you want to use AFIP's testing servers, then you'll need to configure the
-app to do so::
-
-    AFIP_DEBUG = True
-
 Getting started
 ---------------
 
@@ -133,6 +128,15 @@ that fail without it, and pass with it.
 
 Note that tests use AFIP's testing servers and a specific key that's know to
 contain at least one point of sale.
+
+Caveats
+-------
+
+While the app can have production and sandbox users co-exist, metadata models
+(tax types, receipt types, etc) will be shared between both. In theory, these
+should never diverge upstream. If they do, we are not prepared to handle it
+(though it is expected that an update will be available when this change is
+announced upstream).
 
 Licence
 -------
