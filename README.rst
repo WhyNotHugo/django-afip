@@ -36,31 +36,23 @@ Getting started
 
 First of all, you'll need to create a TaxPayer instance, and upload the related
 ssl key and certificate (for authorization).
+
 django-afip includes admin views for every model included, and it's the
-recommended way to create one.
+recommended way to create TaxPayer objects.
 
 Once you have created a TaxPayer, you'll need its points of sales. This, again,
 can be done via the admin by selecting "fetch points of sales'. You may also
 do this programmatically via `TaxPayer.fetch_points_of_sales`.
 
-Finally, you'll need to pre-populate certain models with AFIP-defined metadata.
+Finally, you'll need to pre-populate certain models with AFIP-defined metadata
+(ReceiptTypes, DocumentTypes and a few others).
 
-Rather than include fixtures which require updating over time, a special view
-has been included for importing them from the WS with live data. Only a
-superuser can activate this population. This view is idempotent, and running it
-more than once will not create any duplicate data.
+Rather than include fixtures which require updating over time, we fetch this
+information from AFIP's web services via an included django management command.
+This command is idempotent, and running it more than once will not create any
+duplicate data. To fetch all metadata, simply run::
 
-To access this view, add something like this to your views.py::
-
-    urlpatterns = [
-        ...
-        url(r'^__afip__/', include('django_afip.urls')),
-        ...
-    ]
-
-Then visit http://example.com/__afip__/populate_models. This will retrieve
-Receipt Types, Document Types, and a few other data types from AFIP's WS.
-Again, only a user with superuser privileges may trigger this download.
+    python manage.py afipmetadata
 
 This metadata can also be downloaded programmatically, via
 ``models.populate_all()``.

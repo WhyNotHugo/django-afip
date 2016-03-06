@@ -21,7 +21,6 @@ from django_afip import views
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^__afip__/', include('django_afip.urls')),
     url(
         r'^invoices/pdf/(?P<pk>\d+)?$',
         views.ReceiptPDFView.as_view(),

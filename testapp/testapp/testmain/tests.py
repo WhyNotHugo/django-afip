@@ -2,9 +2,9 @@ import os
 from datetime import date, datetime, timedelta
 
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.core import management
 from django.core.files import File
-from django.test import Client, TestCase
+from django.test import TestCase
 from django_afip import models
 
 
@@ -61,45 +61,9 @@ class PopulationTest(AfipTestCase):
 
     def setUp(self):
         super().setUp()
-        User.objects._create_user(
-            username='normal_user',
-            email='normal_user@example.com',
-            password='123',
-            is_staff=False,
-            is_superuser=False,
-        )
-        User.objects._create_user(
-            username='staff_user',
-            email='staff_user@example.com',
-            password='123',
-            is_staff=True,
-            is_superuser=False,
-        )
-        User.objects._create_user(
-            username='superuser',
-            email='superuser@email.com',
-            password='123',
-            is_staff=True,
-            is_superuser=True,
-        )
 
-    def test_normal_user(self):
-        c = Client()
-        c.login(username='normal_user', password='123')
-        r = c.get('/__afip__/populate_models')
-        self.assertEqual(r.status_code, 403)
-
-    def test_staff_user(self):
-        c = Client()
-        c.login(username='staff_user', password='123')
-        r = c.get('/__afip__/populate_models')
-        self.assertEqual(r.status_code, 403)
-
-    def test_superuser(self):
-        c = Client()
-        c.login(username='superuser', password='123')
-        r = c.get('/__afip__/populate_models')
-        self.assertEqual(r.status_code, 200)
+    def test_population_command(self):
+        management.call_command("afipmetadata")
 
         receipts = models.ReceiptType.objects.count()
         concepts = models.ConceptType.objects.count()
