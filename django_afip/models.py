@@ -12,8 +12,7 @@ from django.utils.translation import ugettext as _
 from lxml import etree
 from lxml.builder import E
 
-from . import exceptions, parsers, serializers
-from . import clients
+from . import clients, exceptions, parsers, serializers
 
 logger = logging.getLogger(__name__)
 TZ_AR = pytz.timezone(pytz.country_timezones['ar'][0])
