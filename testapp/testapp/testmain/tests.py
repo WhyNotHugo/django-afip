@@ -2,14 +2,49 @@ import os
 from datetime import date, datetime, timedelta
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core import management
 from django.core.files import File
-from django.test import TestCase
+from django.test import TestCase, Client
+from django.utils.timezone import now
 from django_afip import models
 
 
 # We keep the taxpayer and it's ticket in-memory, since the webservice does not
 # allow too frequent requests, and each unit test needs a ticket to work.
+
+def mock_receipt(document_type=96):
+    receipt = models.Receipt.objects.create(
+        concept=models.ConceptType.objects.get(code=1),
+        document_type=models.DocumentType.objects.get(
+            code=document_type,
+        ),
+        document_number="203012345",
+        issued_date=date.today(),
+        total_amount=130,
+        net_untaxed=0,
+        net_taxed=100,
+        exempt_amount=0,
+        currency=models.CurrencyType.objects.get(code='PES'),
+        currency_quote=1,
+
+        receipt_type=models.ReceiptType.objects.get(code=6),
+        point_of_sales=models.PointOfSales.objects.first(),
+    )
+    models.Vat.objects.create(
+        vat_type=models.VatType.objects.get(code=5),
+        base_amount=100,
+        amount=21,
+        receipt=receipt,
+    )
+    models.Tax.objects.create(
+        tax_type=models.TaxType.objects.get(code=3),
+        base_amount=100,
+        aliquot=9,
+        amount=9,
+        receipt=receipt,
+    )
+    return receipt
 
 
 class AfipTestCase(TestCase):
@@ -101,44 +136,11 @@ class ReceiptBatchTest(AfipTestCase):
         taxpayer = models.TaxPayer.objects.first()
         taxpayer.fetch_points_of_sales()
 
-    def _receipt(self, document_type):
-        receipt = models.Receipt.objects.create(
-            concept=models.ConceptType.objects.get(code=1),
-            document_type=models.DocumentType.objects.get(
-                code=document_type,
-            ),
-            document_number="203012345",
-            issued_date=date.today(),
-            total_amount=130,
-            net_untaxed=0,
-            net_taxed=100,
-            exempt_amount=0,
-            currency=models.CurrencyType.objects.get(code='PES'),
-            currency_quote=1,
-
-            receipt_type=models.ReceiptType.objects.get(code=6),
-            point_of_sales=models.PointOfSales.objects.first(),
-        )
-        models.Vat.objects.create(
-            vat_type=models.VatType.objects.get(code=5),
-            base_amount=100,
-            amount=21,
-            receipt=receipt,
-        )
-        models.Tax.objects.create(
-            tax_type=models.TaxType.objects.get(code=3),
-            base_amount=100,
-            aliquot=9,
-            amount=9,
-            receipt=receipt,
-        )
-        return receipt
-
     def _good_receipt(self):
-        return self._receipt(96)
+        return mock_receipt()
 
     def _bad_receipt(self):
-        return self._receipt(80)
+        return mock_receipt(80)
 
     def test_creation_empty(self):
         batch = models.ReceiptBatch.objects.create(
@@ -299,3 +301,72 @@ class ReceiptPDFTest(AfipTestCase):
             client_address="12 Green Road\nGreenville\nUK",
         )
         pdf.save_pdf()
+
+
+class ReceiptAdminTest(AfipTestCase):
+
+    def setUp(self):
+        super().setUp()
+        models.populate_all()
+        taxpayer = models.TaxPayer.objects.first()
+        taxpayer.fetch_points_of_sales()
+
+        User.objects._create_user(
+           username='superuser',
+           email='superuser@email.com',
+           password='123',
+           is_staff=True,
+           is_superuser=True,
+        )
+
+    def test_validation_filters(self):
+        validated_receipt = mock_receipt()
+        not_validated_receipt = mock_receipt()
+        # XXX: Receipt with failed validation?
+
+        batch = models.ReceiptBatch.objects.create(
+            models.Receipt.objects.filter(pk=validated_receipt.pk)
+        )
+        validation = models.Validation.objects.create(
+            processed_date=now(),
+            result=models.Validation.RESULT_APPROVED,
+            batch=batch,
+        )
+        models.ReceiptValidation.objects.create(
+            validation=validation,
+            result=models.Validation.RESULT_APPROVED,
+            cae='123',
+            cae_expiration=now(),
+            receipt=validated_receipt,
+        )
+
+        client = Client()
+        client.force_login(User.objects.first())
+
+        response = client.get('/admin/afip/receipt/?status=validated')
+        self.assertContains(
+            response,
+            '<input class="action-select" name="_selected_action" value="{}" '
+            'type="checkbox">'.format(validated_receipt.pk),
+            html=True,
+        )
+        self.assertNotContains(
+            response,
+            '<input class="action-select" name="_selected_action" value="{}" '
+            'type="checkbox">'.format(not_validated_receipt.pk),
+            html=True,
+        )
+
+        response = client.get('/admin/afip/receipt/?status=not_validated')
+        self.assertNotContains(
+            response,
+            '<input class="action-select" name="_selected_action" value="{}" '
+            'type="checkbox">'.format(validated_receipt.pk),
+            html=True,
+        )
+        self.assertContains(
+            response,
+            '<input class="action-select" name="_selected_action" value="{}" '
+            'type="checkbox">'.format(not_validated_receipt.pk),
+            html=True,
+        )
