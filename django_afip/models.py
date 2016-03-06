@@ -1121,7 +1121,6 @@ class ReceiptValidation(models.Model):
         choices=(
             (Validation.RESULT_APPROVED, _('approved')),
             (Validation.RESULT_REJECTED, _('rejected')),
-            (Validation.RESULT_PARTIAL, _('partial')),
         ),
     )
     cae = models.CharField(
