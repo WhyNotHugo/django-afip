@@ -34,13 +34,14 @@ And then configure your project to use it by adding it to settings.py::
 Getting started
 ---------------
 
-First of all, you'll need to create a taxpayer, and upload the related ssl key and
-certificate (for authorization). django-afip includes admin views for every
-model included, and it's the recomended way to create one.
+First of all, you'll need to create a TaxPayer instance, and upload the related
+ssl key and certificate (for authorization).
+django-afip includes admin views for every model included, and it's the
+recommended way to create one.
 
-Once you have created a taxpayer, you'll need its points of sales. This, again,
-should be done via the admin by selecting "fetch points of sales'. You may also
-do this programatically via `TaxPayer.fetch_points_of_sales`.
+Once you have created a TaxPayer, you'll need its points of sales. This, again,
+can be done via the admin by selecting "fetch points of sales'. You may also
+do this programmatically via `TaxPayer.fetch_points_of_sales`.
 
 Finally, you'll need to pre-populate certain models with AFIP-defined metadata.
 
@@ -59,13 +60,13 @@ To access this view, add something like this to your views.py::
 
 Then visit http://example.com/__afip__/populate_models. This will retrieve
 Receipt Types, Document Types, and a few other data types from AFIP's WS.
-Again, only a user with superuser priviledges may trigger this download.
+Again, only a user with superuser privileges may trigger this download.
 
-This metadata can also be downloaded programatically, via
+This metadata can also be downloaded programmatically, via
 ``models.populate_all()``.
 
 You are now ready to start creating and validating receipts. While you may do
-this via the admin as well, you probably want to do this programatically or via
+this via the admin as well, you probably want to do this programmatically or via
 some custom view.
 
 PDF Receipts
@@ -90,7 +91,7 @@ The PDF file itself can then be generated via::
     # Save to some custom file-like-object:
     receipt_pdf.save_pdf_to(file_object)
 
-The former is usually recomended since it allows simpler interaction via
+The former is usually recommended since it allows simpler interaction via
 standard django patterns.
 
 Exposing receipts
