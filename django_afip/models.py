@@ -192,7 +192,7 @@ class TaxPayer(models.Model):
             serializers.serialize_ticket(ticket),
         )
         if hasattr(response, 'Errors'):
-            raise exceptions.AfipException(response.Errors.Err[0])
+            raise exceptions.AfipException(response)
 
         results = []
         for pos_data in response.ResultGet.PtoVenta:
@@ -498,7 +498,7 @@ class ReceiptBatch(models.Model):
         )
 
         if hasattr(response, 'Errors'):
-            raise exceptions.AfipException(response.Errors.Err[0])
+            raise exceptions.AfipException(response)
 
         validation = Validation.objects.create(
             processed_date=parsers.parse_datetime(
