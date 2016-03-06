@@ -5,17 +5,18 @@ from datetime import datetime, timedelta, timezone
 from subprocess import PIPE, Popen
 from tempfile import NamedTemporaryFile
 
+import pytz
 from django.core.files.base import File
 from django.db import models
-from django.db.models import Sum
 from django.utils.translation import ugettext as _
 from lxml import etree
 from lxml.builder import E
 
-from .utils import (TZ_AR, AfipException, encode_str, format_date,
-                    format_datetime, parse_date, parse_datetime, get_client)
+from . import exceptions, parsers, serializers
+from . import clients
 
 logger = logging.getLogger(__name__)
+TZ_AR = pytz.timezone(pytz.country_timezones['ar'][0])
 
 
 def populate_all():
@@ -42,16 +43,16 @@ class GenericAfipTypeManager(models.Manager):
         If no ticket is provided, the most recent available one will be used.
         """
         ticket = ticket or AuthTicket.objects.get_any_active('wsfe')
-        client = get_client('wsfe', ticket.owner.is_sandboxed)
+        client = clients.get_client('wsfe', ticket.owner.is_sandboxed)
         service = getattr(client.service, self.__service_name)
-        response_xml = service(ticket.ws_object())
+        response_xml = service(serializers.serialize_ticket(ticket))
 
         for result in getattr(response_xml.ResultGet, self.__type_name):
             self.get_or_create(
                 code=result.Id,
                 description=result.Desc.encode("UTF-8"),
-                valid_from=parse_date(result.FchDesde),
-                valid_to=parse_date(result.FchHasta),
+                valid_from=parsers.parse_date(result.FchDesde),
+                valid_to=parsers.parse_date(result.FchHasta),
             )
 
 
@@ -186,12 +187,12 @@ class TaxPayer(models.Model):
         """
         ticket = ticket or self.get_or_create_ticket('wsfe')
 
-        client = get_client('wsfe', self.is_sandboxed)
+        client = clients.get_client('wsfe', self.is_sandboxed)
         response = client.service.FEParamGetPtosVenta(
-            ticket.ws_object(),
+            serializers.serialize_ticket(ticket),
         )
         if hasattr(response, 'Errors'):
-            raise AfipException(response.Errors.Err[0])
+            raise exceptions.AfipException(response.Errors.Err[0])
 
         results = []
         for pos_data in response.ResultGet.PtoVenta:
@@ -201,7 +202,7 @@ class TaxPayer(models.Model):
                 owner=self,
                 defaults=dict(
                     blocked=pos_data.Bloqueado == 'N',
-                    drop_date=parse_date(pos_data.FchBaja),
+                    drop_date=parsers.parse_date(pos_data.FchBaja),
                 )
             ))
 
@@ -377,8 +378,12 @@ class AuthTicket(models.Model):
                 {'version': '1.0'},
                 E.header(
                     E.uniqueId(str(self.unique_id)),
-                    E.generationTime(format_datetime(self.generated)),
-                    E.expirationTime(format_datetime(self.expires)),
+                    E.generationTime(
+                        serializers.serialize_datetime(self.generated)
+                    ),
+                    E.expirationTime(
+                        serializers.serialize_datetime(self.expires)
+                    ),
                 ),
                 E.service(self.service)
             )
@@ -402,7 +407,7 @@ class AuthTicket(models.Model):
         request = self.__sign_request(request)
         request = b64encode(request).decode()
 
-        client = get_client('wsaa', self.owner.is_sandboxed)
+        client = clients.get_client('wsaa', self.owner.is_sandboxed)
         raw_response = client.service.loginCms(request)
         response = etree.fromstring(raw_response.encode('utf-8'))
 
@@ -410,17 +415,6 @@ class AuthTicket(models.Model):
         self.signature = response.xpath(self.SIGN_XPATH)[0].text
         if save:
             self.save()
-
-    def ws_object(self):
-        """
-        Returns this object as an object compatible with AFIP's web services.
-        """
-        wso = get_client('wsfe').factory.create('FEAuthRequest')
-        wso.Token = self.token
-        wso.Sign = self.signature
-        wso.Cuit = self.owner.cuit
-
-        return wso
 
     def __str__(self):
         return str(self.unique_id)
@@ -469,23 +463,6 @@ class ReceiptBatch(models.Model):
     def __str__(self):
         return str(self.id)
 
-    def ws_object(self):
-        """
-        Returns this object as an object compatible with AFIP's web services.
-        """
-        receipts = self.receipts.all().order_by('receipt_number')
-
-        client = get_client('wsfe')
-        wso = client.factory.create('FECAERequest')
-        wso.FeCabReq.CantReg = len(receipts)
-        wso.FeCabReq.PtoVta = self.point_of_sales.number
-        wso.FeCabReq.CbteTipo = self.receipt_type.code
-
-        for receipt in receipts:
-            wso.FeDetReq.FECAEDetRequest.append(receipt.ws_object())
-
-        return wso
-
     def validate(self, ticket=None):
         if self.receipts.count() == 0:
             logger.debug("Refusing to validate empty Batch")
@@ -512,17 +489,21 @@ class ReceiptBatch(models.Model):
         # Purge the internal cache (.update() doesn't maintan it)
         self.receipts.all()
 
-        client = get_client('wsfe', self.point_of_sales.owner.is_sandboxed)
+        client = clients.get_client(
+            'wsfe', self.point_of_sales.owner.is_sandboxed
+        )
         response = client.service.FECAESolicitar(
-            ticket.ws_object(),
-            self.ws_object(),
+            serializers.serialize_ticket(ticket),
+            serializers.serialize_receipt_batch(self),
         )
 
         if hasattr(response, 'Errors'):
-            raise AfipException(response.Errors.Err[0])
+            raise exceptions.AfipException(response.Errors.Err[0])
 
         validation = Validation.objects.create(
-            processed_date=parse_datetime(response.FeCabResp.FchProceso),
+            processed_date=parsers.parse_datetime(
+                response.FeCabResp.FchProceso
+            ),
             result=response.FeCabResp.Resultado,
             batch=self,
         )
@@ -533,7 +514,7 @@ class ReceiptBatch(models.Model):
                 rv = validation.receipts.create(
                     result=cae_data.Resultado,
                     cae=cae_data.CAE,
-                    cae_expiration=parse_date(cae_data.CAEFchVto),
+                    cae_expiration=parsers.parse_date(cae_data.CAEFchVto),
                     receipt=self.receipts.get(
                         receipt_number=cae_data.CbteDesde
                     ),
@@ -550,7 +531,7 @@ class ReceiptBatch(models.Model):
                     errs.append(
                         "Error {}: {}".format(
                             obs.Code,
-                            encode_str(obs.Msg),
+                            parsers.parse_string(obs.Msg),
                         )
                     )
 
@@ -570,9 +551,11 @@ class ReceiptBatch(models.Model):
 class ReceiptManager(models.Manager):
 
     def fetch_last_receipt_number(self, point_of_sales, receipt_type):
-        client = get_client('wsfe', point_of_sales.owner.is_sandboxed)
+        client = clients.get_client('wsfe', point_of_sales.owner.is_sandboxed)
         response_xml = client.service.FECompUltimoAutorizado(
-            point_of_sales.owner.get_or_create_ticket('wsfe').ws_object(),
+            serializers.serialize_ticket(
+                point_of_sales.owner.get_or_create_ticket('wsfe')
+            ),
             point_of_sales.number,
             receipt_type.code,
         )
@@ -755,57 +738,8 @@ class Receipt(models.Model):
 
     objects = ReceiptManager()
 
-    def ws_object(self):
-        """
-        Returns this object as an object compatible with AFIP's web services.
-        """
-
-        subtotals = Receipt.objects.filter(pk=self.pk).aggregate(
-            vat=Sum('vat__amount', distinct=True),
-            taxes=Sum('taxes__amount', distinct=True),
-        )
-
-        client = get_client('wsfe')
-        wso = client.factory.create('FECAEDetRequest')
-        wso.Concepto = self.concept.code
-        wso.DocTipo = self.document_type.code
-        wso.DocNro = self.document_number
-        # TODO: Check that this is not None!
-        wso.CbteDesde = self.receipt_number
-        wso.CbteHasta = self.receipt_number
-        wso.CbteFch = format_date(self.issued_date)
-        wso.ImpTotal = self.total_amount
-        wso.ImpTotConc = self.net_untaxed
-        wso.ImpNeto = self.net_taxed
-        wso.ImpOpEx = self.exempt_amount
-        wso.ImpIVA = subtotals['vat'] or 0
-        wso.ImpTrib = subtotals['taxes'] or 0
-        if int(self.concept.code) in (2, 3,):
-            wso.FchServDesde = format_date(self.service_start)
-            wso.FchServHasta = format_date(self.service_end)
-            wso.FchVtoPago = format_date(self.expiration_date)
-        wso.MonId = self.currency.code
-        wso.MonCotiz = self.currency_quote
-
-        for tax in self.taxes.all():
-            wso.Tributos.Tributo.append(tax.ws_object())
-
-        for vat in self.vat.all():
-            wso.Iva.AlicIva.append(vat.ws_object())
-
-        # XXX: Need to create a CbteAsoc object:
-        for receipt in self.related_receipts.all():
-            receipt_wso = client.factory.create('CbteAsoc')
-            receipt_wso.receipt.receipt_type.code
-            receipt_wso.receipt.point_of_sales.number
-            receipt_wso.receipt.receipt_number
-            wso.CbtesAsoc.append(receipt_wso)
-
-        return wso
-
-    # Not implemented: optionals
-
-    # TODO: methods to validate total
+    # TODO: Not implemented: optionals
+    # TODO: methods to validate totals
 
     # These two values are stored in the receipt's batch. However, before the
     # receipt is assigned into a batch, this value should be used.
@@ -1009,19 +943,6 @@ class Tax(models.Model):
         self.amount = self.base_amount * self.aliquot / 100
         return self.amount
 
-    def ws_object(self):
-        """
-        Returns this object as an object compatible with AFIP's web services.
-        """
-        wso = get_client('wsfe').factory.create('Tributo')
-        wso.Id = self.tax_type.code
-        wso.Desc = self.description
-        wso.BaseImp = self.base_amount
-        wso.Alic = self.aliquot
-        wso.Importe = self.amount
-
-        return wso
-
     class Meta:
         verbose_name = _('tax')
         verbose_name_plural = _('taxes')
@@ -1047,17 +968,6 @@ class Vat(models.Model):
         Receipt,
         related_name='vat',
     )
-
-    def ws_object(self):
-        """
-        Returns this object as an object compatible with AFIP's web services.
-        """
-        wso = get_client('wsfe').factory.create('AlicIva')
-        wso.Id = self.vat_type.code
-        wso.BaseImp = self.base_amount
-        wso.Importe = self.amount
-
-        return wso
 
     class Meta:
         verbose_name = _('vat')
