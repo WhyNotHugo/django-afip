@@ -1,61 +1,35 @@
+"""
+This file monkey-patches HTTPSConnection so that it works with AFIP's sandbox
+servers, which advertises capabilities it does not have.
+
+It attempts to be as compatible as possible, and as little invasible as
+possible.
+
+Alternate solutions to the underlying issue are very much welcome.
+"""
 import http.client
 import logging
 import socket
 import ssl
 from http.client import HTTPS_PORT, HTTPConnection
-from ssl import (_RESTRICTED_SERVER_CIPHERS, CERT_NONE, CERT_REQUIRED,
-                 OP_NO_SSLv2, OP_NO_SSLv3, PROTOCOL_TLSv1, Purpose, SSLContext,
-                 _ASN1Object, _ssl)
+from ssl import CERT_REQUIRED, OP_NO_SSLv2, OP_NO_SSLv3, PROTOCOL_TLSv1, \
+    Purpose, SSLContext, _ssl
 
 logger = logging.getLogger(__name__)
 
 
 def create_afip_compatible_context(purpose=Purpose.SERVER_AUTH, *, cafile=None,
                                    capath=None, cadata=None):
-    """Create a SSLContext object with default settings.
-
-    NOTE: The protocol and settings may change anytime without prior
-          deprecation. The values represent a fair balance between maximum
-          compatibility and security.
-    """
-    if not isinstance(purpose, _ASN1Object):
-        raise TypeError(purpose)
-
+    """Monkeys and dragons be here!"""
     context = SSLContext(PROTOCOL_TLSv1)
-
-    # SSLv2 considered harmful.
     context.options |= OP_NO_SSLv2
-
-    # SSLv3 has problematic security and is only required for really old
-    # clients such as IE6 on Windows XP
     context.options |= OP_NO_SSLv3
-
-    # disable compression to prevent CRIME attacks (OpenSSL 1.0+)
     context.options |= getattr(_ssl, "OP_NO_COMPRESSION", 0)
 
-    if purpose == Purpose.SERVER_AUTH:
-        # verify certs and host name in client mode
-        context.verify_mode = CERT_REQUIRED
-        context.check_hostname = True
-    elif purpose == Purpose.CLIENT_AUTH:
-        # Prefer the server's ciphers by default so that we get stronger
-        # encryption
-        context.options |= getattr(_ssl, "OP_CIPHER_SERVER_PREFERENCE", 0)
+    context.verify_mode = CERT_REQUIRED
+    context.check_hostname = True
 
-        # Use single use keys in order to improve forward secrecy
-        context.options |= getattr(_ssl, "OP_SINGLE_DH_USE", 0)
-        context.options |= getattr(_ssl, "OP_SINGLE_ECDH_USE", 0)
-
-        # disallow ciphers with known vulnerabilities
-        context.set_ciphers(_RESTRICTED_SERVER_CIPHERS)
-
-    if cafile or capath or cadata:
-        context.load_verify_locations(cafile, capath, cadata)
-    elif context.verify_mode != CERT_NONE:
-        # no explicit cafile, capath or cadata but the verify mode is
-        # CERT_OPTIONAL or CERT_REQUIRED. Let's try to load default system
-        # root CA certificates for the given purpose. This may fail silently.
-        context.load_default_certs(purpose)
+    context.load_default_certs(purpose)
     return context
 
 
