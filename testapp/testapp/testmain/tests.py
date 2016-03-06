@@ -190,6 +190,7 @@ class ReceiptBatchTest(AfipTestCase):
             batch.validation.last().result,
             models.Validation.RESULT_APPROVED,
         )
+        self.assertEqual(batch.validation.count(), 1)
         self.assertEqual(batch.receipts.count(), 3)
 
     def test_validation_bad(self):
