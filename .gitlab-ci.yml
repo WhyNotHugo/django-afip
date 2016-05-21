@@ -18,4 +18,6 @@ imports:
 py35:
   stage: test
   script:
+    - echo -e $AFIP_TEST_KEY > testapp/test.key
+    - echo -e $AFIP_TEST_CRT > testapp/test.crt
     - tox -e py35

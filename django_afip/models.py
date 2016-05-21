@@ -393,13 +393,18 @@ class AuthTicket(models.Model):
         cert = self.owner.certificate.file.name
         key = self.owner.key.file.name
 
-        return Popen(
+        stdout, stderr = Popen(
             [
                 "openssl", "smime", "-sign", "-signer", cert, "-inkey", key,
                 "-outform", "DER", "-nodetach"
             ],
             stdin=PIPE, stdout=PIPE, stderr=PIPE
-        ).communicate(request)[0]
+        ).communicate(request)
+
+        if not stdout:
+            raise Exception('openssl error: ' + stderr.decode())
+
+        return stdout
 
     def authorize(self, save=True):
         request = self.__create_request_xml()
