@@ -80,6 +80,24 @@ class AfipTestCase(TestCase):
 
 class AuthTicketTest(TestCase):
 
+    def test_bad_certificate_exception(self):
+        taxpayer = models.TaxPayer(
+            pk=1,
+            name='test taxpayer',
+            cuit=20329642330,
+            is_sandboxed=True,
+        )
+        # Note that we swap key and crt so that it's bogus input:
+        basepath = settings.BASE_DIR
+        with open(os.path.join(basepath, 'test.crt')) as key:
+            taxpayer.key.save('test.key', File(key))
+        with open(os.path.join(basepath, 'test.key')) as crt:
+            taxpayer.certificate.save('test.crt', File(crt))
+        taxpayer.save()
+
+        with self.assertRaisesMessage(Exception, 'openssl error'):
+            taxpayer.create_ticket('wsfe')
+
     def test_no_active_taxpayer(self):
         with self.assertRaisesMessage(
             Exception,
