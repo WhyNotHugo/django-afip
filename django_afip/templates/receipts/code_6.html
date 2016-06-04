@@ -37,8 +37,7 @@
             Nº {{ pdf.receipt|receiptnumber }}
             <br>
             Fecha: <time>{{ pdf.receipt.issued_date }}</time><br>
-            {# TODO: A tag to format CUITs? #}
-            CUIT {{ taxpayer.cuit }}<br>
+            CUIT {{ taxpayer.cuit|format_cuit }}<br>
             Ingresos Brutos: {{ pdf.gross_income_condition }}<br>
             Inicio de Actividades: 
             {{ taxpayer.profile.active_since }}
