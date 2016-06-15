@@ -23,11 +23,12 @@ py35:
     - echo -e $AFIP_TEST_CRT > testapp/test.crt
     - tox -e py35
 
+
 pypi:
   stage: deploy
   script:
     - pip install -r requirements.txt twine
     - python setup.py sdist bdist_wheel
-    - twine upload -u $PYPI_USER -p $PYPI_PASSWORD dist/*
+    - twine upload --config-file .pypirc -u $PYPI_USER -p $PYPI_PASSWORD dist/*
   only:
     - tags@hobarrera/django-afip
