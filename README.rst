@@ -42,7 +42,7 @@ recommended way to create TaxPayer objects.
 
 Once you have created a TaxPayer, you'll need its points of sales. This, again,
 can be done via the admin by selecting "fetch points of sales'. You may also
-do this programmatically via `TaxPayer.fetch_points_of_sales`.
+do this programmatically via ``TaxPayer.fetch_points_of_sales``.
 
 Finally, you'll need to pre-populate certain models with AFIP-defined metadata
 (ReceiptTypes, DocumentTypes and a few others).
@@ -70,11 +70,11 @@ backed by the ``ReceiptPDF`` model.
 There are two ways of creating these objects; you can do this manually, or via
 these steps:
 
- * Creating a ``TaxPayerProfile`` object for your ``TaxPayer``, with the right
-   default values.
- * Create the PDFs via ``ReceiptPDF.objects.create_for_receipt()``.
- * Add the proper ``ReceiptEntry`` objects to the ``Receipt``. Each
-   ``ReceiptEntry`` represents a line in the resulting PDF file.
+* Creating a ``TaxPayerProfile`` object for your ``TaxPayer``, with the right
+  default values.
+* Create the PDFs via ``ReceiptPDF.objects.create_for_receipt()``.
+* Add the proper ``ReceiptEntry`` objects to the ``Receipt``. Each
+  ``ReceiptEntry`` represents a line in the resulting PDF file.
 
 The PDF file itself can then be generated via::
 
