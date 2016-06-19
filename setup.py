@@ -17,7 +17,10 @@ setup(
     dependency_links=(
         'git+https://github.com/hobarrera/suds-py3.git#egg=suds-py3-1.0.0.0',
     ),
-    use_scm_version={'version_scheme': 'post-release'},
+    use_scm_version={
+        'version_scheme': 'post-release',
+        'write_to': 'django_afip/version.py',
+    },
     setup_requires=['setuptools_scm'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
