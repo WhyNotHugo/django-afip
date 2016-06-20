@@ -5,6 +5,10 @@ django-afip
   :target: https://ci.gitlab.com/projects/7545?ref=master
   :alt: build status
 
+.. image:: https://readthedocs.org/projects/django-afip/badge/?version=latest
+  :target: http://django-afip.readthedocs.io/en/latest/?badge=latest
+  :alt: Documentation Status
+
 .. image:: https://img.shields.io/pypi/v/django-afip.svg
   :target: https://pypi.python.org/pypi/django-afip
   :alt: version on pypi
