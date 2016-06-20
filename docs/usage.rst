@@ -20,21 +20,27 @@ settings.py::
         ...
     )
 
+Make sure to run all migrations after you've added the app (eg: ``python
+manage.py migrate``).
+
 Getting started
 ---------------
 
-First of all, you'll need to create a TaxPayer instance, and upload the related
-ssl key and certificate (for authorization).
+First of all, you'll need to create a ``TaxPayer`` instance, and upload the
+related SSL key and certificate (for authorization).
 
 django-afip includes admin views for every model included, and it's the
-recommended way to create TaxPayer objects.
+recommended way to create ``TaxPayer`` objects.
 
-Once you have created a TaxPayer, you'll need its points of sales. This, again,
-can be done via the admin by selecting "fetch points of sales'. You may also
-do this programmatically via ``TaxPayer.fetch_points_of_sales``.
+Once you have created a ``TaxPayer``, you'll need its points of sales. This,
+again, can be done via the admin by selecting "fetch points of sales'. You may
+also do this programmatically via ``TaxPayer.fetch_points_of_sales``.
 
-Finally, you'll need to pre-populate certain models with AFIP-defined metadata
-(ReceiptTypes, DocumentTypes and a few others).
+Metadata populuation
+~~~~~~~~~~~~~~~~~~~~
+
+You'll also need to pre-populate certain models with AFIP-defined metadata
+(``ReceiptTypes``, ``DocumentTypes`` and a few others).
 
 Rather than include fixtures which require updating over time, we fetch this
 information from AFIP's web services via an included django management command.
@@ -49,6 +55,36 @@ This metadata can also be downloaded programmatically, via
 You are now ready to start creating and validating receipts. While you may do
 this via the admin as well, you probably want to do this programmatically or via
 some custom view.
+
+Example
+~~~~~~~
+
+This brief example shows how to achieve the above::
+
+    from django.core.files import File
+    from django_afip import models
+
+    # Create a TaxPayer object:
+    taxpayer = models.TaxPayer(
+        pk=1,
+        name='test taxpayer',
+        cuit=20329642330,
+        is_sandboxed=True,
+    )
+
+    # Add the key and certificate files to the TaxPayer:
+    with open('/path/to/your.key') as key:
+        taxpayer.key.save('test.key', File(key))
+    with open('/path/to/your.crt') as crt:
+        taxpayer.certificate.save('test.crt', File(crt))
+
+    taxpayer.save()
+
+    # Load all metadata:
+    models.populate_all()
+
+    # Get the TaxPayer's Point of Sales:
+    taxpayer.fetch_points_of_sales()
 
 PDF Receipts
 ------------
@@ -78,8 +114,8 @@ standard django patterns.
 Exposing receipts
 ~~~~~~~~~~~~~~~~~
 
-Generated PDF files may be exposed both as pdf or html with an existing view,
-for example, using::
+Generated receipt files may be exposed both as PDF or html with an existing
+view, for example, using::
 
     url(
         r'^invoices/pdf/(?P<pk>\d+)?$',
