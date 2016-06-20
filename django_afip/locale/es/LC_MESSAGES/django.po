@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-afip\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-12-12 13:19-0300\n"
-"PO-Revision-Date: 2015-12-29 09:36-0300\n"
+"POT-Creation-Date: 2016-06-20 20:07-0300\n"
+"PO-Revision-Date: 2016-06-20 20:06-0300\n"
 "Last-Translator: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
 "Language-Team: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
 "Language: es\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.8.6\n"
+"X-Generator: Poedit 1.8.7.1\n"
 
 msgid "status"
 msgstr "estado"
@@ -72,6 +72,9 @@ msgstr "%(total)d puntos de ventas obtenidos. %(created)d creados."
 
 msgid "Fetch points of sales"
 msgstr "Obtener puntos de venta"
+
+msgid "Fetches required AFIP metadata and stores it locally"
+msgstr "Obtiene metadatos necesarios del AFIP y los almacena localmente."
 
 msgid "code"
 msgstr "código"
@@ -136,15 +139,15 @@ msgstr "certificado"
 msgid "cuit"
 msgstr "cuit"
 
-msgid "active since"
-msgstr "inicio de actividades"
+msgid "is sandboxed"
+msgstr "modo prueba"
 
 msgid ""
-"Date since which this taxpayer has been legally active. This field is only "
-"required to generate receipt PDFs"
+"Indicates if this taxpayer interacts with the sandbox servers rather than "
+"the production servers"
 msgstr ""
-"Fecha desde la cual el contribuyente está legalmente activo. Este campo sólo "
-"es requerido para generar PDFs."
+"Indica si el contribuyente interactúa con los servidores de prueba en vez de "
+"los servidores productivos."
 
 msgid "taxpayer"
 msgstr "contribuyente"
@@ -158,11 +161,36 @@ msgstr "nombre del emisor"
 msgid "issuing address"
 msgstr "domicilio del emisor"
 
+msgid "issuing email"
+msgstr "email del emisor"
+
 msgid "vat condition"
 msgstr "condición de IVA"
 
 msgid "gross income condition"
 msgstr "condición ingresos brutos"
+
+msgid "sales terms"
+msgstr "condición de venta"
+
+msgid ""
+"The terms of the sale printed onto receipts by default (eg: single payment, "
+"checking account, etc)."
+msgstr ""
+"Los términos de venta impresos en los comprobantes por defecto (eg: un pago, "
+"cuenta corriente, etc)."
+
+msgid "active since"
+msgstr "inicio de actividades"
+
+msgid "Date since which this taxpayer has been legally active."
+msgstr "Fecha desde la cual el contribuyente está legalmente activo."
+
+msgid "taxpayer profile"
+msgstr "perfil de contribuyente"
+
+msgid "taxpayer profiles"
+msgstr "perfiles de contribuyentes"
 
 msgid "number"
 msgstr "número"
@@ -326,17 +354,11 @@ msgstr "comprobante"
 msgid "pdf file"
 msgstr "archivo pdf"
 
-msgid "issuing email"
-msgstr "email del emisor"
-
 msgid "client name"
 msgstr "nombre del cliente"
 
 msgid "client address"
 msgstr "domicilio del cliente"
-
-msgid "sales terms"
-msgstr "condición de venta"
 
 msgid "receipt pdf"
 msgstr "pdf del comprobante"
@@ -349,6 +371,9 @@ msgstr "monto"
 
 msgid "unit price"
 msgstr "precio unitario"
+
+msgid "vat"
+msgstr "iva"
 
 msgid "receipt entry"
 msgstr "entrada de comprobante"
@@ -367,9 +392,6 @@ msgstr "tributo"
 
 msgid "taxes"
 msgstr "tributos"
-
-msgid "vat"
-msgstr "iva"
 
 msgid "processed date"
 msgstr "fecha procesado"
