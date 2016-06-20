@@ -65,7 +65,7 @@ class MonkeyPatchedHTTPSConnection(HTTPConnection):
         self._check_hostname = check_hostname
 
     def connect(self):
-        "Connect to a host on a given (SSL) port."
+        """Connect to a host on a given (SSL) port."""
 
         super().connect()
 
