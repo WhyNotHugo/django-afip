@@ -25,7 +25,7 @@ Documentation
 
 For detailed configuration, have a look at the latest docs at readthedocs_.
 
-.. _readthedocs: https://django-afip.rtfd.org/
+.. _readthedocs: https://django-afip.readthedocs.io/
 
 Licence
 -------
