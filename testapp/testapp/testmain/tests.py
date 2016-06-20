@@ -1,3 +1,4 @@
+"""Tests for AFIP-WS related classes."""
 import os
 from datetime import date, datetime, timedelta
 
@@ -15,6 +16,12 @@ from django_afip import models
 # allow too frequent requests, and each unit test needs a ticket to work.
 
 def mock_receipt(document_type=96):
+    """
+    Return a dummy mocked-receipt.
+
+    This function is here for convenience only and has no special magic other
+    than creating a receipt with valid Vat and Tax attributes.
+    """
     receipt = models.Receipt.objects.create(
         concept=models.ConceptType.objects.get(code=1),
         document_type=models.DocumentType.objects.get(
@@ -49,11 +56,20 @@ def mock_receipt(document_type=96):
 
 
 class AfipTestCase(TestCase):
+    """
+    Base class for AFIP-WS related tests.
+
+    Since AFIP rate-limits how often authentication tokens can be fetched, we
+    need to keep one between tests.
+    This class is a simple hack to keep that ticket in-memory and saves it into
+    the DB every time a new class is ``setUp``.
+    """
 
     taxpayer = None
     ticket = None
 
     def setUp(self):
+        """Save a TaxPayer and Ticket into the database."""
         if not AfipTestCase.taxpayer:
             taxpayer = models.TaxPayer(
                 pk=1,
@@ -79,8 +95,10 @@ class AfipTestCase(TestCase):
 
 
 class AuthTicketTest(TestCase):
+    """Test AuthTicket methods."""
 
     def test_bad_certificate_exception(self):
+        """Test that using bad ceritificates raises as expected."""
         taxpayer = models.TaxPayer(
             pk=1,
             name='test taxpayer',
@@ -99,6 +117,7 @@ class AuthTicketTest(TestCase):
             taxpayer.create_ticket('wsfe')
 
     def test_no_active_taxpayer(self):
+        """Test that no TaxPayers raises an understandable error."""
         with self.assertRaisesMessage(
             Exception,
             'There are no taxpayers to generate a ticket.',
@@ -117,6 +136,7 @@ class PopulationTest(AfipTestCase):
         super().setUp()
 
     def test_population_command(self):
+        """Test the afipmetadata command."""
         management.call_command("afipmetadata")
 
         receipts = models.ReceiptType.objects.count()
@@ -135,11 +155,10 @@ class PopulationTest(AfipTestCase):
 
 
 class TaxPayerTest(AfipTestCase):
+    """Test TaxPayer methods."""
 
     def test_fetch_points_of_sale(self):
-        """
-        Test the ``fetch_points_of_sales`` method.
-        """
+        """Test the ``fetch_points_of_sales`` method."""
         taxpayer = models.TaxPayer.objects.first()
         taxpayer.fetch_points_of_sales()
 
@@ -148,8 +167,10 @@ class TaxPayerTest(AfipTestCase):
 
 
 class ReceiptBatchTest(AfipTestCase):
+    """Test ReceiptBatch methods."""
 
     def setUp(self):
+        """Populate AFIP metadata and create a TaxPayer and PointOfSales."""
         super().setUp()
         models.populate_all()
         taxpayer = models.TaxPayer.objects.first()
@@ -162,15 +183,18 @@ class ReceiptBatchTest(AfipTestCase):
         return mock_receipt(80)
 
     def test_creation_empty(self):
+        """
+        Test creation of an empty batch.
+
+        An empty batch has no sense, and None should be returned.
+        """
         batch = models.ReceiptBatch.objects.create(
             models.Receipt.objects.none(),
         )
         self.assertIsNone(batch)
 
     def test_creation_exclusion(self):
-        """
-        Test that batch creation excludes already batched receipts.
-        """
+        """Test that batch creation excludes already batched receipts."""
         self._good_receipt()
         self._good_receipt()
         self._good_receipt()
@@ -185,6 +209,7 @@ class ReceiptBatchTest(AfipTestCase):
         self.assertEquals(batch.receipts.count(), 2)
 
     def test_validate_empty(self):
+        """Test that validating an empty batch does not crash."""
         # Hack to easily create an empty batch:
         self._good_receipt()
         batch = models.ReceiptBatch.objects.create(
@@ -196,6 +221,7 @@ class ReceiptBatchTest(AfipTestCase):
         self.assertIsNone(errs)
 
     def test_validation_good(self):
+        """Test validating valid receipts."""
         self._good_receipt()
         self._good_receipt()
         self._good_receipt()
@@ -213,6 +239,7 @@ class ReceiptBatchTest(AfipTestCase):
         self.assertEqual(batch.receipts.count(), 3)
 
     def test_validation_bad(self):
+        """Test validating invalid receipts."""
         self._bad_receipt()
         self._bad_receipt()
         self._bad_receipt()
@@ -231,6 +258,13 @@ class ReceiptBatchTest(AfipTestCase):
         self.assertEqual(batch.receipts.count(), 0)
 
     def test_validation_mixed(self):
+        """
+        Test validating a mixture of valid and invalid receipts.
+
+        Receipts are validated by AFIP in-order, so all receipts previous to
+        the bad one are validated, and nothing else is even parsed after the
+        invalid one.
+        """
         self._good_receipt()
         self._bad_receipt()
         self._good_receipt()
@@ -249,6 +283,7 @@ class ReceiptBatchTest(AfipTestCase):
         self.assertEqual(batch.receipts.count(), 1)
 
     def test_validation_good_service(self):
+        """Test validating a receipt for a service (rather than product)."""
         receipt = self._good_receipt()
         receipt.concept_id = 2
         receipt.service_start = datetime.now() - timedelta(days=10)
@@ -269,16 +304,12 @@ class ReceiptBatchTest(AfipTestCase):
 
 
 class ReceiptPDFTest(AfipTestCase):
-    """
-    For the moment, this test case mostly verifies that pdf generation *works*,
-    but does not actually validate the pdf file itself.
+    """Test ReceiptPDF methods."""
 
-    Running this locally *will* yield the file itself, which is useful for
-    manual inspection.
-    """
     # TODO: Test generation via ReceiptHTMLView
 
     def setUp(self):
+        """Generate a valid receipt for later PDF generation."""
         super().setUp()
         models.populate_all()
         taxpayer = models.TaxPayer.objects.first()
@@ -314,6 +345,15 @@ class ReceiptPDFTest(AfipTestCase):
         # TODO: Add a ReceiptEntry
 
     def test_pdf_generation(self):
+        """
+        Test PDF file generation.
+
+        For the moment, this test case mostly verifies that pdf generation
+        *works*, but does not actually validate the pdf file itself.
+
+        Running this locally *will* yield the file itself, which is useful for
+        manual inspection.
+        """
         receipt = models.Receipt.objects.first()
         pdf = models.ReceiptPDF.objects.create_for_receipt(
             receipt=receipt,
@@ -324,8 +364,10 @@ class ReceiptPDFTest(AfipTestCase):
 
 
 class ReceiptAdminTest(AfipTestCase):
+    """Test ReceiptAdmin methods."""
 
     def setUp(self):
+        """Initialized AFIP metadata and a single django superuser."""
         super().setUp()
         models.populate_all()
         taxpayer = models.TaxPayer.objects.first()
@@ -340,6 +382,11 @@ class ReceiptAdminTest(AfipTestCase):
         )
 
     def test_validation_filters(self):
+        """
+        Test the admin validation filters.
+
+        This filters receipts by the validation status.
+        """
         validated_receipt = mock_receipt()
         not_validated_receipt = mock_receipt()
         # XXX: Receipt with failed validation?
