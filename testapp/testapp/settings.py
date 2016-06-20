@@ -106,5 +106,3 @@ STATIC_ROOT = '/tmp/static/'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
-
-AFIP_DEBUG = True
