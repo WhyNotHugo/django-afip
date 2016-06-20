@@ -49,7 +49,7 @@ class GenericAfipTypeManager(models.Manager):
         for result in getattr(response_xml.ResultGet, self.__type_name):
             self.get_or_create(
                 code=result.Id,
-                description=result.Desc.encode("UTF-8"),
+                description=result.Desc.encode('UTF-8'),
                 valid_from=parsers.parse_date(result.FchDesde),
                 valid_to=parsers.parse_date(result.FchHasta),
             )
@@ -87,8 +87,8 @@ class ReceiptType(GenericAfipType):
     objects = GenericAfipTypeManager('FEParamGetTiposCbte', 'CbteTipo')
 
     class Meta:
-        verbose_name = _("receipt type")
-        verbose_name_plural = _("receipt types")
+        verbose_name = _('receipt type')
+        verbose_name_plural = _('receipt types')
 
 
 class ConceptType(GenericAfipType):
@@ -96,8 +96,8 @@ class ConceptType(GenericAfipType):
     objects = GenericAfipTypeManager('FEParamGetTiposConcepto', 'ConceptoTipo')
 
     class Meta:
-        verbose_name = _("concept type")
-        verbose_name_plural = _("concept types")
+        verbose_name = _('concept type')
+        verbose_name_plural = _('concept types')
 
 
 class DocumentType(GenericAfipType):
@@ -105,8 +105,8 @@ class DocumentType(GenericAfipType):
     objects = GenericAfipTypeManager('FEParamGetTiposDoc', 'DocTipo')
 
     class Meta:
-        verbose_name = _("document type")
-        verbose_name_plural = _("document types")
+        verbose_name = _('document type')
+        verbose_name_plural = _('document types')
 
 
 class VatType(GenericAfipType):
@@ -114,8 +114,8 @@ class VatType(GenericAfipType):
     objects = GenericAfipTypeManager('FEParamGetTiposIva', 'IvaTipo')
 
     class Meta:
-        verbose_name = _("vat type")
-        verbose_name_plural = _("vat types")
+        verbose_name = _('vat type')
+        verbose_name_plural = _('vat types')
 
 
 class TaxType(GenericAfipType):
@@ -123,8 +123,8 @@ class TaxType(GenericAfipType):
     objects = GenericAfipTypeManager('FEParamGetTiposTributos', 'TributoTipo')
 
     class Meta:
-        verbose_name = _("tax type")
-        verbose_name_plural = _("tax types")
+        verbose_name = _('tax type')
+        verbose_name_plural = _('tax types')
 
 
 class CurrencyType(GenericAfipType):
@@ -135,8 +135,8 @@ class CurrencyType(GenericAfipType):
         return self.code
 
     class Meta:
-        verbose_name = _("currency type")
-        verbose_name_plural = _("currency types")
+        verbose_name = _('currency type')
+        verbose_name_plural = _('currency types')
 
 
 class TaxPayer(models.Model):
@@ -211,8 +211,8 @@ class TaxPayer(models.Model):
         return str(self.cuit)
 
     class Meta:
-        verbose_name = _("taxpayer")
-        verbose_name_plural = _("taxpayers")
+        verbose_name = _('taxpayer')
+        verbose_name_plural = _('taxpayers')
 
 
 class TaxPayerProfile(models.Model):
@@ -368,8 +368,8 @@ class AuthTicket(models.Model):
 
     objects = AuthTicketManager()
 
-    TOKEN_XPATH = "/loginTicketResponse/credentials/token"
-    SIGN_XPATH = "/loginTicketResponse/credentials/sign"
+    TOKEN_XPATH = '/loginTicketResponse/credentials/token'
+    SIGN_XPATH = '/loginTicketResponse/credentials/sign'
 
     def __create_request_xml(self):
         request_xml = (
@@ -395,8 +395,8 @@ class AuthTicket(models.Model):
 
         stdout, stderr = Popen(
             [
-                "openssl", "smime", "-sign", "-signer", cert, "-inkey", key,
-                "-outform", "DER", "-nodetach"
+                'openssl', 'smime', '-sign', '-signer', cert, '-inkey', key,
+                '-outform', 'DER', '-nodetach'
             ],
             stdin=PIPE, stdout=PIPE, stderr=PIPE
         ).communicate(request)
@@ -469,10 +469,10 @@ class ReceiptBatch(models.Model):
 
     def validate(self, ticket=None):
         if self.receipts.count() == 0:
-            logger.debug("Refusing to validate empty Batch")
+            logger.debug('Refusing to validate empty Batch')
             return
         if self.receipts.filter(validation__isnull=True).count() == 0:
-            logger.debug("Refusing to Batch with no non-validated Receipts")
+            logger.debug('Refusing to Batch with no non-validated Receipts')
             return
 
         ticket = ticket or \
@@ -533,7 +533,7 @@ class ReceiptBatch(models.Model):
             elif hasattr(cae_data, 'Observaciones'):
                 for obs in cae_data.Observaciones.Obs:
                     errs.append(
-                        "Error {}: {}".format(
+                        'Error {}: {}'.format(
                             obs.Code,
                             parsers.parse_string(obs.Msg),
                         )

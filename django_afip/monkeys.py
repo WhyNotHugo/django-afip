@@ -24,7 +24,7 @@ def create_afip_compatible_context(purpose=Purpose.SERVER_AUTH, *, cafile=None,
     context = SSLContext(PROTOCOL_TLSv1)
     context.options |= OP_NO_SSLv2
     context.options |= OP_NO_SSLv3
-    context.options |= getattr(_ssl, "OP_NO_COMPRESSION", 0)
+    context.options |= getattr(_ssl, 'OP_NO_COMPRESSION', 0)
 
     context.verify_mode = CERT_REQUIRED
     context.check_hostname = True
@@ -47,7 +47,7 @@ class MonkeyPatchedHTTPSConnection(HTTPConnection):
         self.key_file = key_file
         self.cert_file = cert_file
         if context is None:
-            if host == "wswhomo.afip.gov.ar":
+            if host == 'wswhomo.afip.gov.ar':
                 context = create_afip_compatible_context()
             elif hasattr(ssl, '_create_default_https_context'):  # py 3.4.3
                 context = ssl._create_default_https_context()
@@ -57,8 +57,8 @@ class MonkeyPatchedHTTPSConnection(HTTPConnection):
         if check_hostname is None:
             check_hostname = context.check_hostname
         if check_hostname and not will_verify:
-            raise ValueError("check_hostname needs a SSL context with "
-                             "either CERT_OPTIONAL or CERT_REQUIRED")
+            raise ValueError('check_hostname needs a SSL context with '
+                             'either CERT_OPTIONAL or CERT_REQUIRED')
         if key_file or cert_file:
             context.load_cert_chain(cert_file, key_file)
         self._context = context

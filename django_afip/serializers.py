@@ -12,11 +12,11 @@ def serialize_datetime(datetime):
     Note that .isoformat() works fine on production servers, but not on the
     sandbox ones.
     """
-    return datetime.strftime("%Y-%m-%dT%H:%M:%S-00:00")
+    return datetime.strftime('%Y-%m-%dT%H:%M:%S-00:00')
 
 
 def serialize_date(date):
-    return date.strftime("%Y%m%d")
+    return date.strftime('%Y%m%d')
 
 
 def serialize_ticket(ticket):

@@ -27,7 +27,7 @@ def mock_receipt(document_type=96):
         document_type=models.DocumentType.objects.get(
             code=document_type,
         ),
-        document_number="203012345",
+        document_number='203012345',
         issued_date=date.today(),
         total_amount=130,
         net_untaxed=0,
@@ -134,7 +134,7 @@ class PopulationTest(AfipTestCase):
 
     def test_population_command(self):
         """Test the afipmetadata command."""
-        management.call_command("afipmetadata")
+        management.call_command('afipmetadata')
 
         receipts = models.ReceiptType.objects.count()
         concepts = models.ConceptType.objects.count()
@@ -325,7 +325,7 @@ class ReceiptPDFTest(AfipTestCase):
         models.Receipt.objects.create(
             concept=models.ConceptType.objects.get(code=1),
             document_type=models.DocumentType.objects.get(code=96),
-            document_number="203012345",
+            document_number='203012345',
             issued_date=date.today(),
             total_amount=100,
             net_untaxed=0,
@@ -354,8 +354,8 @@ class ReceiptPDFTest(AfipTestCase):
         receipt = models.Receipt.objects.first()
         pdf = models.ReceiptPDF.objects.create_for_receipt(
             receipt=receipt,
-            client_name="John Doe",
-            client_address="12 Green Road\nGreenville\nUK",
+            client_name='John Doe',
+            client_address='12 Green Road\nGreenville\nUK',
         )
         pdf.save_pdf()
 

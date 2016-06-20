@@ -183,7 +183,7 @@ class ReceiptAdmin(admin.ModelAdmin):
         if not obj.batch:
             return None
         return '<a href="{}">{}</a>'.format(
-            reverse("admin:afip_receiptbatch_change", args=(obj.batch.id,)),
+            reverse('admin:afip_receiptbatch_change', args=(obj.batch.id,)),
             obj.batch.id
         )
     batch_link.admin_order_field = 'batch'
@@ -216,7 +216,7 @@ class ReceiptBatchAdmin(admin.ModelAdmin):
 
     def receipts_count(self, obj):
         return '<a href="{}?batch__id__exact={}">{}</a>'.format(
-            reverse(self.admin_site.name + ":afip_receipt_changelist"),
+            reverse(self.admin_site.name + ':afip_receipt_changelist'),
             obj.id,
             obj.receipts__count,
         )

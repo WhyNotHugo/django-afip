@@ -16,7 +16,7 @@ class WsaaProductionClient(LazyObject):
 
     def _setup(self):
         self._wrapped = Client(
-            "https://wsaa.afip.gov.ar/ws/services/LoginCms?wsdl"
+            'https://wsaa.afip.gov.ar/ws/services/LoginCms?wsdl'
         )
 
 
@@ -24,7 +24,7 @@ class WsaaSandboxClient(LazyObject):
 
     def _setup(self):
         self._wrapped = Client(
-            "https://wsaahomo.afip.gov.ar/ws/services/LoginCms?wsdl"
+            'https://wsaahomo.afip.gov.ar/ws/services/LoginCms?wsdl'
         )
 
 
@@ -32,7 +32,7 @@ class WsfeProductionClient(LazyObject):
 
     def _setup(self):
         self._wrapped = Client(
-            "https://servicios1.afip.gov.ar/wsfev1/service.asmx?WSDL"
+            'https://servicios1.afip.gov.ar/wsfev1/service.asmx?WSDL'
         )
 
 
@@ -40,7 +40,7 @@ class WsfeSandboxClient(LazyObject):
 
     def _setup(self):
         self._wrapped = Client(
-            "https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL"
+            'https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL'
         )
 
 production_clients = dict(
