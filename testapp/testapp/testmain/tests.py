@@ -132,9 +132,6 @@ class PopulationTest(AfipTestCase):
     As a side effect, also test valid ticket generation.
     """
 
-    def setUp(self):
-        super().setUp()
-
     def test_population_command(self):
         """Test the afipmetadata command."""
         management.call_command("afipmetadata")
