@@ -23,6 +23,10 @@ py35:
     - echo -e $AFIP_TEST_CRT > testapp/test.crt
     - tox -e py35
 
+docs:
+  stage: test
+  script:
+    - tox -e docs
 
 pypi:
   stage: deploy
