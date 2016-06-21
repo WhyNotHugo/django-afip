@@ -28,6 +28,23 @@ def populate_all():
     CurrencyType.objects.populate()
 
 
+def check_response(response):
+    """
+    Check that a response is not an error.
+
+    AFIP allows us to create valid tickets with invalid key/CUIT pairs, so we
+    can end up with tickets that fail on any service.
+
+    Due to how suds works, we can't quite catch these sort of errors on some
+    middleware level (well, honestly, we need to do a large refactor).
+
+    This method checks if responses have an error, and raise a readable
+    message.
+    """
+    if hasattr(response, 'Errors'):
+        raise exceptions.AfipException(response)
+
+
 class GenericAfipTypeManager(models.Manager):
     """Default Manager for GenericAfipType."""
 
@@ -52,6 +69,8 @@ class GenericAfipTypeManager(models.Manager):
         client = clients.get_client('wsfe', ticket.owner.is_sandboxed)
         service = getattr(client.service, self.__service_name)
         response_xml = service(serializers.serialize_ticket(ticket))
+
+        check_response(response_xml)
 
         for result in getattr(response_xml.ResultGet, self.__type_name):
             self.get_or_create(
@@ -251,8 +270,7 @@ class TaxPayer(models.Model):
         response = client.service.FEParamGetPtosVenta(
             serializers.serialize_ticket(ticket),
         )
-        if hasattr(response, 'Errors'):
-            raise exceptions.AfipException(response)
+        check_response(response)
 
         results = []
         for pos_data in response.ResultGet.PtoVenta:
@@ -571,6 +589,7 @@ class ReceiptBatch(models.Model):
             serializers.serialize_ticket(ticket),
             serializers.serialize_receipt_batch(self),
         )
+        check_response(response)
 
         if hasattr(response, 'Errors'):
             raise exceptions.AfipException(response)
@@ -634,6 +653,7 @@ class ReceiptManager(models.Manager):
             point_of_sales.number,
             receipt_type.code,
         )
+        check_response(response_xml)
 
         # TODO XXX: Error handling
         # (FERecuperaLastCbteResponse){

@@ -97,6 +97,30 @@ class AfipTestCase(TestCase):
 class AuthTicketTest(TestCase):
     """Test AuthTicket methods."""
 
+    def test_bad_cuit(self):
+        """Test using the wrong cuit for a key pair."""
+
+        taxpayer = models.TaxPayer(
+            pk=1,
+            name='test taxpayer',
+            # This is the wrong CUIT for our keypair:
+            cuit=20329642339,
+            is_sandboxed=True,
+        )
+        basepath = settings.BASE_DIR
+        with open(os.path.join(basepath, 'test.key')) as key:
+            taxpayer.key.save('test.key', File(key))
+        with open(os.path.join(basepath, 'test.crt')) as crt:
+            taxpayer.certificate.save('test.crt', File(crt))
+        taxpayer.save()
+
+        taxpayer.create_ticket('wsfe')
+        with self.assertRaisesMessage(
+            Exception,
+            'ValidacionDeToken',
+        ):
+            models.populate_all()
+
     def test_bad_certificate_exception(self):
         """Test that using bad ceritificates raises as expected."""
         taxpayer = models.TaxPayer(

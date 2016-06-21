@@ -22,4 +22,8 @@ def parse_string(string):
     """
     Re-encodes strings from AFIP's weird encoding to UTF-8.
     """
-    return string.encode('latin-1').decode()
+    try:
+        return string.encode('latin-1').decode()
+    except UnicodeDecodeError:
+        # It looks like SOME errors are plain UTF-8 text.
+        return string
