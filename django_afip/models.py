@@ -19,6 +19,7 @@ TZ_AR = pytz.timezone(pytz.country_timezones['ar'][0])
 
 
 def populate_all():
+    """Fetch and store all metadata from the AFIP."""
     ReceiptType.objects.populate()
     ConceptType.objects.populate()
     DocumentType.objects.populate()
@@ -28,16 +29,22 @@ def populate_all():
 
 
 class GenericAfipTypeManager(models.Manager):
+    """Default Manager for GenericAfipType."""
 
     def __init__(self, service_name, type_name):
+        """
+        Create a new Manager instance for a GenericAfipType.
+
+        This should generally only be required to manually populate a single
+        type with upstream data.
+        """
         super().__init__()
         self.__service_name = service_name
         self.__type_name = type_name
 
     def populate(self, ticket=None):
         """
-        Populates the database with valid types retrieved from AFIP's
-        webservices.
+        Populate the database with types retrieved from the AFIP.
 
         If no ticket is provided, the most recent available one will be used.
         """
@@ -56,6 +63,8 @@ class GenericAfipTypeManager(models.Manager):
 
 
 class GenericAfipType(models.Model):
+    """An abstract class for several of AFIP's metadata types."""
+
     code = models.CharField(
         _('code'),
         max_length=3,
@@ -83,6 +92,11 @@ class GenericAfipType(models.Model):
 
 
 class ReceiptType(GenericAfipType):
+    """
+    An AFIP receipt type.
+
+    See the AFIP's documentation for details on each receipt type.
+    """
 
     objects = GenericAfipTypeManager('FEParamGetTiposCbte', 'CbteTipo')
 
@@ -92,6 +106,11 @@ class ReceiptType(GenericAfipType):
 
 
 class ConceptType(GenericAfipType):
+    """
+    An AFIP concept type.
+
+    See the AFIP's documentation for details on each concept type.
+    """
 
     objects = GenericAfipTypeManager('FEParamGetTiposConcepto', 'ConceptoTipo')
 
@@ -101,6 +120,11 @@ class ConceptType(GenericAfipType):
 
 
 class DocumentType(GenericAfipType):
+    """
+    An AFIP document type.
+
+    See the AFIP's documentation for details on each document type.
+    """
 
     objects = GenericAfipTypeManager('FEParamGetTiposDoc', 'DocTipo')
 
@@ -110,6 +134,11 @@ class DocumentType(GenericAfipType):
 
 
 class VatType(GenericAfipType):
+    """
+    An AFIP VAT type.
+
+    See the AFIP's documentation for details on each VAT type.
+    """
 
     objects = GenericAfipTypeManager('FEParamGetTiposIva', 'IvaTipo')
 
@@ -119,6 +148,11 @@ class VatType(GenericAfipType):
 
 
 class TaxType(GenericAfipType):
+    """
+    An AFIP tax type.
+
+    See the AFIP's documentation for details on each tax type.
+    """
 
     objects = GenericAfipTypeManager('FEParamGetTiposTributos', 'TributoTipo')
 
@@ -128,6 +162,11 @@ class TaxType(GenericAfipType):
 
 
 class CurrencyType(GenericAfipType):
+    """
+    An AFIP curreny type.
+
+    See the AFIP's documentation for details on each currency type.
+    """
 
     objects = GenericAfipTypeManager('FEParamGetTiposMonedas', 'Moneda')
 
@@ -140,6 +179,15 @@ class CurrencyType(GenericAfipType):
 
 
 class TaxPayer(models.Model):
+    """
+    Represents an AFIP TaxPayer.
+
+    This class has the bare minimum required for most AFIP services.
+
+    Note that multiple instances of this object can actually represent the same
+    taxpayer, each using a different key.
+    """
+
     name = models.CharField(
         _('name'),
         max_length=32,
@@ -165,22 +213,35 @@ class TaxPayer(models.Model):
     )
 
     def create_ticket(self, service):
+        """Create an AuthTicket for a given service."""
         ticket = AuthTicket(owner=self, service=service)
         ticket.authorize()
         return ticket
 
     def get_ticket(self, service):
+        """Return an existing AuthTicket for a given service."""
         return self.auth_tickets \
             .filter(expires__gt=datetime.now(timezone.utc), service=service) \
             .last()
 
     def get_or_create_ticket(self, service):
+        """
+        Return or create a new AuthTicket for a given serivce.
+
+        Return an existing ticket for a service if one is available, otherwise,
+        create a new one and return that.
+
+        This is generally the preferred method of obtaining tickets for any
+        service.
+        """
         return self.get_ticket(service) or self.create_ticket(service)
 
     def fetch_points_of_sales(self, ticket=None):
         """
-        Fetches all point of sales objects from the WS and stores (or updated)
-        them locally.
+        Fetch all point of sales objects.
+
+        Fetch all point of sales from the WS and store (or update) them
+        locally.
 
         Returns a list of tuples with the format (pos, created,).
         """
@@ -219,11 +280,12 @@ class TaxPayerProfile(models.Model):
     """
     Custom information about a taxpayer, used in printed receipts.
 
-    Most of these can be overriden per-invoice, and are usually just defaults.
+    Most of these can be overriden per-receipt, and are usually just defaults.
 
     None of these are required or sent to the AFIP when notifying about receipt
-    generation.
+    generation. They are used *only* for PDF generation.
     """
+
     taxpayer = models.OneToOneField(
         TaxPayer,
         related_name='profile',
@@ -325,6 +387,14 @@ class AuthTicketManager(models.Manager):
 
 
 class AuthTicket(models.Model):
+    """
+    An AFIP Authorization ticket.
+
+    This is a signed ticket used to communicate with AFIP's webservices.
+
+    Applications should not generally have to deal with these tickets
+    themselves; most services will find or create one as necessary.
+    """
 
     def default_generated():
         return datetime.now(TZ_AR)
@@ -407,6 +477,7 @@ class AuthTicket(models.Model):
         return stdout
 
     def authorize(self, save=True):
+        """Send this ticket to AFIP for authorization."""
         request = self.__create_request_xml()
         request = self.__sign_request(request)
         request = b64encode(request).decode()
@@ -807,6 +878,12 @@ class ReceiptPDFManager(models.Manager):
 
 
 class ReceiptPDF(models.Model):
+    """
+    Printable version of a receipt.
+
+    Models all print-related data of a receipt and references generated PDF
+    files.
+    """
     receipt = models.OneToOneField(
         Receipt,
         verbose_name=_('receipt'),
@@ -858,9 +935,7 @@ class ReceiptPDF(models.Model):
     objects = ReceiptPDFManager()
 
     def save_pdf(self):
-        """
-        Saves the receipt as a PDF related to this model.
-        """
+        """Save the receipt as a PDF related to this model."""
         from . import pdf
         with NamedTemporaryFile(suffix='.pdf') as file_:
             pdf.generate_receipt_pdf(self.receipt_id, file_)
@@ -868,9 +943,7 @@ class ReceiptPDF(models.Model):
             self.save()
 
     def save_pdf_to(self, file_):
-        """
-        Saves the receipt as an actual PDF file into a custom location.
-        """
+        """Save the receipt as an actual PDF file into a custom location."""
         from . import pdf
         pdf.generate_receipt_pdf(self.receipt_id, file_)
 
@@ -880,6 +953,12 @@ class ReceiptPDF(models.Model):
 
 
 class ReceiptEntry(models.Model):
+    """
+    An entry in a receipt.
+
+    Each ReceiptEntry represents a line in printable version of a Receipt.
+    """
+
     receipt = models.ForeignKey(
         Receipt,
         related_name='entries',
@@ -906,6 +985,7 @@ class ReceiptEntry(models.Model):
 
     @property
     def total_price(self):
+        """The total price for this line (amount * price)."""
         return self.amount * self.unit_price
 
     class Meta:
@@ -914,6 +994,8 @@ class ReceiptEntry(models.Model):
 
 
 class Tax(models.Model):
+    """A tax (type+amount) for a specific Receipt."""
+
     tax_type = models.ForeignKey(
         TaxType,
         verbose_name=_('tax type'),
@@ -944,6 +1026,7 @@ class Tax(models.Model):
     )
 
     def compute_amount(self):
+        """Auto-assign and return the total amount for this tax."""
         self.amount = self.base_amount * self.aliquot / 100
         return self.amount
 
@@ -953,6 +1036,8 @@ class Tax(models.Model):
 
 
 class Vat(models.Model):
+    """A VAT (type+amount) for a specific Receipt."""
+
     vat_type = models.ForeignKey(
         VatType,
         verbose_name=_('vat type'),
@@ -979,6 +1064,12 @@ class Vat(models.Model):
 
 
 class Validation(models.Model):
+    """
+    The validation result for a batch.
+
+    The validation result for an attempt to validate a batch. Note that each
+    Receipt inside the batch will have its own :class:`~.ReceiptValidation`.
+    """
     RESULT_APPROVED = 'A'
     RESULT_REJECTED = 'R'
     RESULT_PARTIAL = 'P'
@@ -1010,6 +1101,12 @@ class Validation(models.Model):
 
 
 class Observation(models.Model):
+    """
+    An observation returned by AFIP.
+
+    AFIP seems to assign re-used codes to Observation, so we actually store
+    them as separate objects, and link to them from failed validations.
+    """
     code = models.PositiveSmallIntegerField(
         _('code'),
     )
@@ -1024,6 +1121,16 @@ class Observation(models.Model):
 
 
 class ReceiptValidation(models.Model):
+    """
+    The validation for a single receipt.
+
+    This contains all validation-related data for a receipt, including its CAE
+    and the CAE expiration, unless validation ahs failed.
+
+    The ``observation`` field may contain any data returned by AFIP regarding
+    validation failure.
+    """
+
     validation = models.ForeignKey(
         Validation,
         verbose_name=_('validation'),
