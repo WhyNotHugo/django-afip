@@ -13,6 +13,12 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
+import os
+import sys
+from os.path import abspath, dirname, join
+
+import django
+
 import django_afip
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -22,6 +28,16 @@ import django_afip
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
+
+
+BASE_DIR = dirname(dirname(abspath(__file__)))
+
+sys.path.insert(0, abspath(join(dirname(__file__), '_ext')))
+sys.path.insert(0, abspath(join(BASE_DIR, 'testapp')))
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'testapp.settings')
+
+django.setup()
 
 # -- General configuration ------------------------------------------------
 
@@ -35,6 +51,7 @@ import django_afip
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
+    'django_models',
 ]
 
 # Add any paths that contain templates here, relative to this directory.

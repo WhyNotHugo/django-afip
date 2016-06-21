@@ -31,8 +31,8 @@ Table of Contents
    :maxdepth: 2
 
    usage
+   api
    contributing
-
 
 Indices and tables
 ==================
