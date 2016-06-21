@@ -26,21 +26,21 @@ manage.py migrate``).
 Getting started
 ---------------
 
-First of all, you'll need to create a ``TaxPayer`` instance, and upload the
-related SSL key and certificate (for authorization).
+First of all, you'll need to create a :class:`~.TaxPayer`
+instance, and upload the related SSL key and certificate (for authorization).
 
 django-afip includes admin views for every model included, and it's the
-recommended way to create ``TaxPayer`` objects.
+recommended way to create :class:`~.TaxPayer` objects.
 
-Once you have created a ``TaxPayer``, you'll need its points of sales. This,
+Once you have created a :class:`~.TaxPayer`, you'll need its points of sales. This,
 again, can be done via the admin by selecting "fetch points of sales'. You may
-also do this programmatically via ``TaxPayer.fetch_points_of_sales``.
+also do this programmatically via :meth:`~.TaxPayer.fetch_points_of_sales`.
 
 Metadata populuation
 ~~~~~~~~~~~~~~~~~~~~
 
 You'll also need to pre-populate certain models with AFIP-defined metadata
-(``ReceiptTypes``, ``DocumentTypes`` and a few others).
+(:class:`~.ReceiptType`, :class:`~.DocumentType` and a few others).
 
 Rather than include fixtures which require updating over time, we fetch this
 information from AFIP's web services via an included django management command.
@@ -50,7 +50,7 @@ duplicate data. To fetch all metadata, simply run::
     python manage.py afipmetadata
 
 This metadata can also be downloaded programmatically, via
-``models.populate_all()``.
+:func:`.models.populate_all`.
 
 You are now ready to start creating and validating receipts. While you may do
 this via the admin as well, you probably want to do this programmatically or via
@@ -90,16 +90,16 @@ PDF Receipts
 ------------
 
 Version 1.2.0 introduced PDF-generation for validated receipts. These PDFs are
-backed by the ``ReceiptPDF`` model.
+backed by the :class:`~.ReceiptPDF` model.
 
 There are two ways of creating these objects; you can do this manually, or via
 these steps:
 
-* Creating a ``TaxPayerProfile`` object for your ``TaxPayer``, with the right
-  default values.
+* Creating a :class:`~.TaxPayerProfile` object for your :class:`~.TaxPayer`,
+  with the right default values.
 * Create the PDFs via ``ReceiptPDF.objects.create_for_receipt()``.
-* Add the proper ``ReceiptEntry`` objects to the ``Receipt``. Each
-  ``ReceiptEntry`` represents a line in the resulting PDF file.
+* Add the proper :class:`~.ReceiptEntry` objects to the :class:`~.Receipt`.
+  Each :class:`~.ReceiptEntry` represents a line in the resulting PDF file.
 
 The PDF file itself can then be generated via::
 
