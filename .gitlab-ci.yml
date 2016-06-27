@@ -16,12 +16,12 @@ imports:
   script:
     - tox -e isort
 
-py35:
+py35-django1.9:
   stage: test
   script:
     - echo -e $AFIP_TEST_KEY > testapp/test.key
     - echo -e $AFIP_TEST_CRT > testapp/test.crt
-    - tox -e py35
+    - tox -e py35-django1.9
 
 docs:
   stage: test

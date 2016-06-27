@@ -1,5 +1,6 @@
 import logging
 import random
+import uuid
 from base64 import b64encode
 from datetime import datetime, timedelta, timezone
 from subprocess import PIPE, Popen
@@ -959,7 +960,7 @@ class ReceiptPDF(models.Model):
         from . import pdf
         with NamedTemporaryFile(suffix='.pdf') as file_:
             pdf.generate_receipt_pdf(self.receipt_id, file_)
-            self.pdf_file = File(file_)
+            self.pdf_file = File(file_, name='{}.pdf'.format(uuid.uuid4().hex))
             self.save()
 
     def save_pdf_to(self, file_):
