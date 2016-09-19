@@ -383,6 +383,27 @@ class ReceiptPDFTest(AfipTestCase):
         )
         pdf.save_pdf()
 
+    def test_unauthorized_receipt_generation(self):
+        """
+        Test PDF file generation for unauthorized receipts.
+
+        Confirm that attempting to generate a PDF for an unauthorized receipt
+        raises.
+        """
+        receipt = models.Receipt.objects.first()
+        receipt.receipt_number = None
+        receipt.save()
+        pdf = models.ReceiptPDF.objects.create_for_receipt(
+            receipt=receipt,
+            client_name='John Doe',
+            client_address='12 Green Road\nGreenville\nUK',
+        )
+        with self.assertRaisesMessage(
+            Exception,
+            'Attempting to generate pdf for non-authorized receipt'
+        ):
+            pdf.save_pdf()
+
 
 class ReceiptAdminTest(AfipTestCase):
     """Test ReceiptAdmin methods."""

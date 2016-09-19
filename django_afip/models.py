@@ -955,8 +955,16 @@ class ReceiptPDF(models.Model):
 
     objects = ReceiptPDFManager()
 
+    def _check_authorized(self):
+        if not self.receipt.receipt_number:
+            raise Exception(
+                'Attempting to generate pdf for non-authorized receipt'
+            )
+
     def save_pdf(self):
         """Save the receipt as a PDF related to this model."""
+        self._check_authorized()
+
         from . import pdf
         with NamedTemporaryFile(suffix='.pdf') as file_:
             pdf.generate_receipt_pdf(self.receipt_id, file_)
@@ -965,6 +973,8 @@ class ReceiptPDF(models.Model):
 
     def save_pdf_to(self, file_):
         """Save the receipt as an actual PDF file into a custom location."""
+        self._check_authorized()
+
         from . import pdf
         pdf.generate_receipt_pdf(self.receipt_id, file_)
 
