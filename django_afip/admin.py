@@ -266,6 +266,7 @@ class TaxPayerAdmin(admin.ModelAdmin):
             for pos in taxpayer_poses
         ]
 
+        # XXX: This seems to crash when none exist?
         created = sum([pos for pos in poses if pos[1]])
         total = len(poses)
 
