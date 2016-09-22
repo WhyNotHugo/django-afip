@@ -27,7 +27,8 @@ PDF-related models
 ------------------
 
 These models are used only for PDF generation, or can be used for storing
-additional non-validated metadata.
+additional non-validated metadata. You DO NOT need any of these classes
+unless you intend to generate PDFs for receipts.
 
 .. autoclass:: django_afip.models.ReceiptEntry
     :members:

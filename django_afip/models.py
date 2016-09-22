@@ -352,6 +352,13 @@ class TaxPayerProfile(models.Model):
 
 
 class PointOfSales(models.Model):
+    """
+    Represents an existing AFIP point of sale.
+
+    Points of sales need to be created via AFIP's web interface and it is
+    recommended that you use :meth:`~.TaxPayer.fetch_points_of_sales` to fetch
+    these programatically.
+    """
     number = models.PositiveSmallIntegerField(
         _('number'),
     )
@@ -543,6 +550,10 @@ class ReceiptBatchManager(models.Manager):
 class ReceiptBatch(models.Model):
     """
     Receipts are validated sent in batches.
+
+    AFIP's webservice validates receipts in batches. Many users will want to
+    validate receipts individually, so it's okay to create a batch with a
+    single receipt.
     """
 
     receipt_type = models.ForeignKey(
@@ -558,6 +569,17 @@ class ReceiptBatch(models.Model):
         return str(self.id)
 
     def validate(self, ticket=None):
+        """
+        Validates all receipts assigned to this batch.
+
+        Attempting to validate an empty batch will do nothing.
+
+        Any receipts that fail validation are removed from the batch, so you
+        should never need to modify a batch after validation.
+
+        Returns a list of errors as returned from AFIP's webservices. An
+        exception is not raised because partial failures are possible.
+        """
         if self.receipts.count() == 0:
             logger.debug('Refusing to validate empty Batch')
             return
@@ -688,6 +710,8 @@ class Receipt(models.Model):
 
     You'll probably want to relate some `Sale` or `Order` object from your
     model with each Receipt.
+
+    All ``document_`` fields contain the recipient's data.
     """
     batch = models.ForeignKey(
         ReceiptBatch,
@@ -906,6 +930,9 @@ class ReceiptPDF(models.Model):
 
     Models all print-related data of a receipt and references generated PDF
     files.
+
+    You will never need to ever use this model if you do not intend to generate
+    receipt PDFs, or intend to use your own logic to generate them.
     """
     receipt = models.OneToOneField(
         Receipt,
