@@ -872,13 +872,15 @@ class Receipt(models.Model):
 
 class ReceiptPDFManager(models.Manager):
 
-    def create_for_receipt(self, receipt, profile=None, **kwargs):
+    def create_for_receipt(self, receipt, **kwargs):
         """
         Creates a ReceiptPDF object for a given receipt. Does not actually
         generate the related PDF file.
+
+        :param Receipt receipt: The receipt for the PDF will be generated.
         """
         try:
-            profile = profile or TaxPayerProfile.objects.get(
+            profile = TaxPayerProfile.objects.get(
                 taxpayer__points_of_sales__receipts=receipt,
             )
         except TaxPayerProfile.DoesNotExist:
