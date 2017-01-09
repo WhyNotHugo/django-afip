@@ -1,4 +1,4 @@
-image: python:3.5
+image: python:3.6
 before_script:
   - pip install tox
 stages:
@@ -16,12 +16,14 @@ imports:
   script:
     - tox -e isort
 
-py35-django1.9:
+# We only run with one because AFIP doesn't like us logging in too fast and
+# that breaks concurrent tests.
+py36-django1.10:
   stage: test
   script:
     - echo -e $AFIP_TEST_KEY > testapp/test.key
     - echo -e $AFIP_TEST_CRT > testapp/test.crt
-    - tox -e py35-django1.9
+    - tox -e django1.10
 
 docs:
   stage: test
