@@ -137,7 +137,7 @@ class AuthTicketTest(TestCase):
             taxpayer.certificate.save('test.crt', File(crt))
         taxpayer.save()
 
-        with self.assertRaisesMessage(Exception, 'openssl error'):
+        with self.assertRaises(Exception):
             taxpayer.create_ticket('wsfe')
 
     def test_no_active_taxpayer(self):
