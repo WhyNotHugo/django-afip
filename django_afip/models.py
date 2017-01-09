@@ -3,7 +3,6 @@ import random
 import uuid
 from base64 import b64encode
 from datetime import datetime, timedelta, timezone
-from subprocess import PIPE, Popen
 from tempfile import NamedTemporaryFile
 
 import pytz
@@ -13,7 +12,7 @@ from django.utils.translation import ugettext as _
 from lxml import etree
 from lxml.builder import E
 
-from . import clients, exceptions, parsers, serializers
+from . import clients, crypto, exceptions, parsers, serializers
 
 logger = logging.getLogger(__name__)
 TZ_AR = pytz.timezone(pytz.country_timezones['ar'][0])
@@ -486,21 +485,13 @@ class AuthTicket(models.Model):
         return etree.tostring(request_xml, pretty_print=True)
 
     def __sign_request(self, request):
-        cert = self.owner.certificate.file.name
-        key = self.owner.key.file.name
+        with open(self.owner.certificate.file.name) as cert_file:
+            cert = cert_file.read()
 
-        stdout, stderr = Popen(
-            [
-                'openssl', 'smime', '-sign', '-signer', cert, '-inkey', key,
-                '-outform', 'DER', '-nodetach'
-            ],
-            stdin=PIPE, stdout=PIPE, stderr=PIPE
-        ).communicate(request)
+        with open(self.owner.key.file.name) as key_file:
+            key = key_file.read()
 
-        if not stdout:
-            raise Exception('openssl error: ' + stderr.decode())
-
-        return stdout
+        return crypto.create_embeded_pkcs7_signature(request, cert, key)
 
     def authorize(self, save=True):
         """Send this ticket to AFIP for authorization."""
