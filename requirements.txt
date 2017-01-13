@@ -5,4 +5,4 @@ pyOpenSSL==16.2.0
 pytz>=2015.4
 lxml>=3.4.4
 WeasyPrint>=0.24
-git+https://github.com/hobarrera/suds-py3.git
+suds-redux>=1.0.0
