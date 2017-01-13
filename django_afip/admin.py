@@ -263,8 +263,7 @@ class TaxPayerAdmin(admin.ModelAdmin):
             for pos in taxpayer.fetch_points_of_sales()
         ]
 
-        # XXX: This seems to crash when none exist?
-        created = sum([pos for pos in poses if pos[1]])
+        created = len([pos for pos in poses if pos[1]])
         total = len(poses)
 
         self.message_user(
