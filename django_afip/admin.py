@@ -259,11 +259,8 @@ class TaxPayerAdmin(admin.ModelAdmin):
     def fetch_points_of_sales(self, request, queryset):
         poses = [
             pos
-            for taxpayer_poses in [
-                taxpayer.fetch_points_of_sales()
-                for taxpayer in queryset.all()
-            ]
-            for pos in taxpayer_poses
+            for taxpayer in queryset.all()
+            for pos in taxpayer.fetch_points_of_sales()
         ]
 
         # XXX: This seems to crash when none exist?
