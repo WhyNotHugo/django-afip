@@ -1,9 +1,13 @@
 django-afip
 ===========
 
-.. image:: https://ci.gitlab.com/projects/7545/status.png?ref=master
-  :target: https://ci.gitlab.com/projects/7545?ref=master
+.. image:: https://gitlab.com/hobarrera/django-afip/badges/master/build.svg
+  :target: https://gitlab.com/hobarrera/django-afip/commits/master
   :alt: build status
+
+.. image:: https://gitlab.com/hobarrera/django-afip/badges/master/coverage.svg
+  :target: https://gitlab.com/hobarrera/django-afip/commits/master
+  :alt: coverage report
 
 .. image:: https://readthedocs.org/projects/django-afip/badge/?version=latest
   :target: http://django-afip.readthedocs.io/en/latest/?badge=latest
