@@ -72,7 +72,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'django-afip'
-copyright = '2015-2016, Hugo Osvaldo Barrera'
+copyright = '2015-2017, Hugo Osvaldo Barrera'
 author = 'Hugo Osvaldo Barrera'
 
 # The version info for the project you're documenting, acts as replacement for

@@ -540,11 +540,15 @@ class ReceiptBatchManager(models.Manager):
 
 class ReceiptBatch(models.Model):
     """
-    Receipts are validated sent in batches.
+    Receipts are validated in batches.
 
-    AFIP's webservice validates receipts in batches. Many users will want to
-    validate receipts individually, so it's okay to create a batch with a
-    single receipt.
+    AFIP's webservice validates receipts in batches, and this class models
+    them. A batch of receipts is simply a set of consecutive-numbered
+    :class:`~.Receipt` instances, with the same :class:`~.ReceiptType` and
+    :class:`~.PointOfSales`.
+
+    If you need to validate a single Receipt, it's okay to create a batch with
+    just one.
     """
 
     receipt_type = models.ForeignKey(
@@ -566,7 +570,9 @@ class ReceiptBatch(models.Model):
         Attempting to validate an empty batch will do nothing.
 
         Any receipts that fail validation are removed from the batch, so you
-        should never need to modify a batch after validation.
+        should never modify a batch after validation. Receipts that succesfully
+        validae will have a :class:`~.ReceiptValidation` object attatched to
+        them with a validation date and CAE information.
 
         Returns a list of errors as returned from AFIP's webservices. An
         exception is not raised because partial failures are possible.
@@ -699,10 +705,15 @@ class Receipt(models.Model):
     Note that AFIP allows sending ranges of receipts, but this isn't generally
     what you want, so we model invoices individually.
 
+    To validate a Receipt, you need to create a :class:`~.ReceiptBatch` first.
+
     You'll probably want to relate some `Sale` or `Order` object from your
     model with each Receipt.
 
     All ``document_`` fields contain the recipient's data.
+
+    If the taxpayer has taxes or pays VAT, you need to attach :class:`~.Tax`
+    and/or :class:`~.Vat` instances to the Receipt.
     """
     batch = models.ForeignKey(
         ReceiptBatch,
@@ -922,8 +933,9 @@ class ReceiptPDF(models.Model):
     Models all print-related data of a receipt and references generated PDF
     files.
 
-    You will never need to ever use this model if you do not intend to generate
-    receipt PDFs, or intend to use your own logic to generate them.
+    All `issuing`` fields contain data for the entity issuing the Receipt
+    (these may change from one receipt to the next if, for example, the entity
+    moved).
     """
     receipt = models.OneToOneField(
         Receipt,
@@ -970,7 +982,9 @@ class ReceiptPDF(models.Model):
     sales_terms = models.CharField(
         max_length=48,
         verbose_name=_('sales terms'),
-        # Contado, Cta corriente, etc...
+        help_text=_(
+            'Should be something like "Cash", "Payable in 30 days", etc'
+        ),
     )
 
     objects = ReceiptPDFManager()
@@ -982,7 +996,11 @@ class ReceiptPDF(models.Model):
             )
 
     def save_pdf(self):
-        """Save the receipt as a PDF related to this model."""
+        """
+        Save the receipt as a PDF related to this model.
+
+        The related :class:`~.Receipt` should be validated first, of course.
+        """
         self._check_authorized()
 
         from . import pdf
@@ -992,7 +1010,11 @@ class ReceiptPDF(models.Model):
             self.save()
 
     def save_pdf_to(self, file_):
-        """Save the receipt as an actual PDF file into a custom location."""
+        """
+        Save the receipt as an actual PDF file into a custom location.
+
+        The related :class:`~.Receipt` should be validated first, of course.
+        """
         self._check_authorized()
 
         from . import pdf
@@ -1007,7 +1029,11 @@ class ReceiptEntry(models.Model):
     """
     An entry in a receipt.
 
-    Each ReceiptEntry represents a line in printable version of a Receipt.
+    Each ReceiptEntry represents a line in printable version of a Receipt. You
+    should generally have one instance per product or service.
+
+    Note that each entry has a :class:`~.Vat` because a single Receipt can have
+    multiple products with different :class:`~.VatType`.
     """
 
     receipt = models.ForeignKey(
@@ -1173,10 +1199,10 @@ class Observation(models.Model):
 
 class ReceiptValidation(models.Model):
     """
-    The validation for a single receipt.
+    The validation for a single :class:`~.Receipt`.
 
     This contains all validation-related data for a receipt, including its CAE
-    and the CAE expiration, unless validation ahs failed.
+    and the CAE expiration, unless validation has failed.
 
     The ``observation`` field may contain any data returned by AFIP regarding
     validation failure.
@@ -1186,7 +1212,11 @@ class ReceiptValidation(models.Model):
         Validation,
         verbose_name=_('validation'),
         related_name='receipts',
+        help_text=_(
+            'The validation for the batch that produced this instance.'
+        ),
     )
+    # TODO: replace this with a `successful` boolean field.
     result = models.CharField(
         _('result'),
         max_length=1,
@@ -1194,24 +1224,32 @@ class ReceiptValidation(models.Model):
             (Validation.RESULT_APPROVED, _('approved')),
             (Validation.RESULT_REJECTED, _('rejected')),
         ),
+        help_text=_('Indicates whether the validation was succesful or not'),
     )
     cae = models.CharField(
         _('cae'),
-        max_length=14
+        max_length=14,
+        help_text=_('The CAE as returned by the AFIP'),
     )
     cae_expiration = models.DateField(
         _('cae expiration'),
+        help_text=_('The CAE expiration as returned by the AFIP'),
     )
     observations = models.ManyToManyField(
         Observation,
         verbose_name=_('observations'),
-        related_name='valiations',
+        related_name='validations',
+        help_text=_(
+            'The observations as returned by the AFIP. These are generally '
+            'present for failed validations.'
+        ),
     )
 
     receipt = models.OneToOneField(
         Receipt,
         related_name='validation',
         verbose_name=_('receipt'),
+        help_text=_('The Receipt for which this validation applies'),
     )
 
     class Meta:
