@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import management
 from django.core.files import File
+from django.core.urlresolvers import reverse
 from django.test import Client, TestCase
 from django.utils.timezone import now
 
@@ -365,6 +366,17 @@ class ReceiptPDFTest(AfipTestCase):
 
         # TODO: Add a ReceiptEntry
 
+    def _create_valid_receipt(self):
+        receipt = models.Receipt.objects.first()
+        pdf = models.ReceiptPDF.objects.create_for_receipt(
+            receipt=receipt,
+            client_name='John Doe',
+            client_address='12 Green Road\nGreenville\nUK',
+        )
+        pdf.save_pdf()
+
+        return pdf
+
     def test_pdf_generation(self):
         """
         Test PDF file generation.
@@ -375,13 +387,52 @@ class ReceiptPDFTest(AfipTestCase):
         Running this locally *will* yield the file itself, which is useful for
         manual inspection.
         """
-        receipt = models.Receipt.objects.first()
-        pdf = models.ReceiptPDF.objects.create_for_receipt(
-            receipt=receipt,
-            client_name='John Doe',
-            client_address='12 Green Road\nGreenville\nUK',
+        pdf = self._create_valid_receipt()
+        self.assertTrue(pdf.pdf_file.name.startswith('receipts/'))
+        self.assertTrue(pdf.pdf_file.name.endswith('.pdf'))
+
+    def test_html_view(self):
+        """
+        Test the PDF generation view.
+        """
+        pdf = self._create_valid_receipt()
+
+        client = Client()
+        response = client.get(
+            reverse('receipt_html_view', args=(pdf.receipt.pk,))
         )
-        pdf.save_pdf()
+        self.assertContains(
+            response,
+            '<div class="client">\n<strong>Facturado a:</strong><br>\n John '
+            'Doe,\nDNI\n203012345\n<!-- linkbreaks adds a br here -->\n<p>12 '
+            'Green Road<br />Greenville<br />UK</p>\n Exempt<br>\nCredit '
+            'Card\n</div>',
+            html=True,
+        )
+
+    def test_pdf_view(self):
+        """
+        Test the PDF generation view.
+        """
+        pdf = self._create_valid_receipt()
+
+        client = Client()
+        response = client.get(
+            reverse('receipt_pdf_view', args=(pdf.receipt.pk,))
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content[:10], b'%PDF-1.5\n%')
+
+        headers = sorted(response.serialize_headers().decode().splitlines())
+        expected_headers = sorted([
+            'Content-Type: application/pdf',
+            'X-Frame-Options: SAMEORIGIN',
+            'Content-Disposition: attachment; filename=receipt {}.pdf'.format(
+                pdf.receipt.pk
+            ),
+        ])
+        self.assertEqual(headers, expected_headers)
 
     def test_unauthorized_receipt_generation(self):
         """
