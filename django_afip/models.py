@@ -579,10 +579,10 @@ class ReceiptBatch(models.Model):
         """
         if self.receipts.count() == 0:
             logger.debug('Refusing to validate empty Batch')
-            return
+            return []
         if self.receipts.filter(validation__isnull=True).count() == 0:
             logger.debug('Refusing to Batch with no non-validated Receipts')
-            return
+            return []
 
         ticket = ticket or \
             self.point_of_sales.owner.get_or_create_ticket('wsfe')

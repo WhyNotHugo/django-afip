@@ -240,7 +240,7 @@ class ReceiptBatchTest(AfipTestCase):
         models.Receipt.objects.all().delete()
 
         errs = batch.validate()
-        self.assertIsNone(errs)
+        self.assertEqual(errs, [])
 
     def test_validation_good(self):
         """Test validating valid receipts."""
