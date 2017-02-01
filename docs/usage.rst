@@ -86,6 +86,23 @@ This brief example shows how to achieve the above::
     # Get the TaxPayer's Point of Sales:
     taxpayer.fetch_points_of_sales()
 
+Validating receipts
+-------------------
+
+After getting started, you should be ready to emit/validate receipts.
+
+The first step is, naturally, to create a :class:`~.Receipt` instance. Receipts
+are then sent to AFIP's web services in batches (this can be one, or many
+receipts). You can create a :class:`~.ReceiptBatch` by using
+:meth:`~.ReceiptBatchManager.create`.
+
+To validate the receipts, you'll need to use :meth:`~.ReceiptBatch.validate`.
+Authorization is handled transparently (consult the API documentation if you'd
+prefer to do this manually).
+
+All of these actions can be completed via the ``Receipt`` and ``ReceiptBatch``
+admins.
+
 PDF Receipts
 ------------
 

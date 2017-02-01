@@ -23,6 +23,15 @@ These are the code models which will normally be used for  ``Receipt`` validatio
 .. autoclass:: django_afip.models.Vat
     :members:
 
+Managers
+~~~~~~~~
+
+Managers should be accessed via models. For example, ``ReceiptBatchManager``
+should be accessed using ``ReceiptBatch.objects``.
+
+.. autoclass:: django_afip.models.ReceiptBatchManager
+    :members:
+
 PDF-related models
 ------------------
 

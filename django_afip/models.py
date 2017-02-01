@@ -521,6 +521,11 @@ class ReceiptBatchManager(models.Manager):
     def create(self, queryset):
         """
         Creates a batch with all receipts returned by ``queryset``.
+
+        If you need to create a ReceiptBatch with a single receipt, just
+        pass a query that returns that one::
+
+            Receipt.objects.filter(pk=pk)
         """
         first = queryset.select_related('point_of_sales').first()
         if not first:
