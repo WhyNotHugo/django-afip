@@ -1003,9 +1003,8 @@ class ReceiptPDF(models.Model):
         """
         self._check_authorized()
 
-        from . import pdf
         with NamedTemporaryFile(suffix='.pdf') as file_:
-            pdf.generate_receipt_pdf(self.receipt_id, file_)
+            self.save_pdf_to(file_)
             self.pdf_file = File(file_, name='{}.pdf'.format(uuid.uuid4().hex))
             self.save()
 
