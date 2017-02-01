@@ -459,7 +459,7 @@ msgstr "validaciones de comprobante"
 
 #, python-format
 msgid "receipt %s.pdf"
-msgstr "comprobantes %s.pdf"
+msgstr "comprobante %s.pdf"
 
 #~ msgid "vat amount"
 #~ msgstr "monto de iva"

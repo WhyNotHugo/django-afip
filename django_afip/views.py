@@ -19,7 +19,7 @@ class ReceiptPDFView(View):
     def get(self, request, pk):
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename=' + \
-            _('receipt %s.pdf').format(pk)
+            _('receipt %s.pdf' % pk)
 
         generate_receipt_pdf(pk, response)
         return response
