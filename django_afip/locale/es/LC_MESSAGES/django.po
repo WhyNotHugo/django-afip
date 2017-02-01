@@ -1,13 +1,13 @@
 # django-afip
-# Copyright (C) 2015 Hugo Osvaldo Barrera
+# Copyright (C) 2015-2017 Hugo Osvaldo Barrera
 # This file is distributed under the same license as the django-afip package.
-# Hugo Osvaldo Barrera <hugo@barrera.io>, 2015.
+# Hugo Osvaldo Barrera <hugo@barrera.io>, 2015-2017.
 msgid ""
 msgstr ""
 "Project-Id-Version: django-afip\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-20 20:07-0300\n"
-"PO-Revision-Date: 2016-06-20 20:06-0300\n"
+"POT-Creation-Date: 2017-02-01 00:06+0000\n"
+"PO-Revision-Date: 2017-01-31 21:08-0300\n"
 "Last-Translator: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
 "Language-Team: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
 "Language: es\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.8.7.1\n"
+"X-Generator: Poedit 1.8.11\n"
 
 msgid "status"
 msgstr "estado"
@@ -360,6 +360,9 @@ msgstr "nombre del cliente"
 msgid "client address"
 msgstr "domicilio del cliente"
 
+msgid "Should be something like \"Cash\", \"Payable in 30 days\", etc"
+msgstr "Debería ser algo como \"Efectivo\" o \"Pagable a 30 días\", etc"
+
 msgid "receipt pdf"
 msgstr "pdf del comprobante"
 
@@ -423,8 +426,30 @@ msgstr "observación"
 msgid "observations"
 msgstr "observaciones"
 
+msgid "The validation for the batch that produced this instance."
+msgstr "La validación del lote que produjo esta instancia."
+
+msgid "Indicates whether the validation was succesful or not"
+msgstr "Indica si la validación fue exitosa o no."
+
+msgid "The CAE as returned by the AFIP"
+msgstr "El CAE, tal como fue devuelto por el AFIP."
+
 msgid "cae expiration"
 msgstr "expiración de cae"
+
+msgid "The CAE expiration as returned by the AFIP"
+msgstr "El vencimiento de CAE, tal como fue devuelto por el AFIP."
+
+msgid ""
+"The observations as returned by the AFIP. These are generally present for "
+"failed validations."
+msgstr ""
+"Las observaciones devueltas por el AFIP. Generalmente están presentes para "
+"validaciones fallidas."
+
+msgid "The Receipt for which this validation applies"
+msgstr "El comprobante para el cual esta  validación aplica."
 
 msgid "receipt validation"
 msgstr "validación de comprobante"
