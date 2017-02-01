@@ -304,6 +304,36 @@ class ReceiptBatchTest(AfipTestCase):
         )
         self.assertEqual(batch.receipts.count(), 1)
 
+    def test_validation_validated(self):
+        """Test validating invalid receipts."""
+        receipt = self._good_receipt()
+        batch = models.ReceiptBatch.objects.create(
+            models.Receipt.objects.all()
+        )
+        validation = models.Validation.objects.create(
+            processed_date=now(),
+            result=models.Validation.RESULT_APPROVED,
+            batch=batch,
+        )
+        models.ReceiptValidation.objects.create(
+            validation=validation,
+            result=models.Validation.RESULT_APPROVED,
+            cae='123',
+            cae_expiration=now(),
+            receipt=receipt,
+        )
+
+        receipt.batch = None
+        receipt.save()
+
+        batch = models.ReceiptBatch.objects.create(
+            models.Receipt.objects.all()
+        )
+        self.assertIsNotNone(batch)
+        errs = batch.validate()
+
+        self.assertEqual(errs, [])
+
     def test_validation_good_service(self):
         """Test validating a receipt for a service (rather than product)."""
         receipt = self._good_receipt()
