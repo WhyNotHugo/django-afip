@@ -4,7 +4,7 @@ import mimetypes
 from django.contrib.staticfiles.finders import find
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.template.loader import get_template
-from weasyprint import HTML, default_url_fetcher
+from weasyprint import default_url_fetcher, HTML
 
 from . import models
 

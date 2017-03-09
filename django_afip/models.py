@@ -5,8 +5,8 @@ from base64 import b64encode
 from datetime import datetime, timedelta, timezone
 from tempfile import NamedTemporaryFile
 
-import suds
 import pytz
+import suds
 from django.core.files.base import File
 from django.db import models
 from django.utils.translation import ugettext as _

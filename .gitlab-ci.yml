@@ -11,11 +11,6 @@ flake8:
   script:
     - tox -e flake8
 
-imports:
-  stage: style
-  script:
-    - tox -e isort
-
 # We only run with one because AFIP doesn't like us logging in too fast and
 # that breaks concurrent tests.
 py36-django1.10:

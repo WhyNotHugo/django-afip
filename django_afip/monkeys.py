@@ -11,9 +11,9 @@ import http.client
 import logging
 import socket
 import ssl
-from http.client import HTTPS_PORT, HTTPConnection
-from ssl import CERT_REQUIRED, OP_NO_SSLv2, OP_NO_SSLv3, PROTOCOL_TLSv1, \
-    Purpose, SSLContext, _ssl
+from http.client import HTTPConnection, HTTPS_PORT
+from ssl import _ssl, CERT_REQUIRED, OP_NO_SSLv2, OP_NO_SSLv3, \
+    PROTOCOL_TLSv1, Purpose, SSLContext
 
 logger = logging.getLogger(__name__)
 
