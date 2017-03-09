@@ -159,7 +159,6 @@ class AuthTicketTest(TestCase):
             cuit=20329642330,
             is_sandboxed=True,
         )
-        # Note that we swap key and crt so that it's bogus input:
         basepath = settings.BASE_DIR
         with open(os.path.join(basepath, 'test_expired.key')) as key:
             taxpayer.key.save('test.key', File(key))
