@@ -5,6 +5,7 @@ from base64 import b64encode
 from datetime import datetime, timedelta, timezone
 from tempfile import NamedTemporaryFile
 
+import suds
 import pytz
 from django.core.files.base import File
 from django.db import models
@@ -500,7 +501,11 @@ class AuthTicket(models.Model):
         request = b64encode(request).decode()
 
         client = clients.get_client('wsaa', self.owner.is_sandboxed)
-        raw_response = client.service.loginCms(request)
+        try:
+            raw_response = client.service.loginCms(request)
+        except suds.WebFault as e:
+            if b'Certificado expirado' in e.args[0]:
+                raise exceptions.CertificateExpiredException from e
         response = etree.fromstring(raw_response.encode('utf-8'))
 
         self.token = response.xpath(self.TOKEN_XPATH)[0].text

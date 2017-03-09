@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse
 from django.test import Client, TestCase
 from django.utils.timezone import now
 
-from django_afip import models
+from django_afip import exceptions, models
 
 
 # We keep the taxpayer and it's ticket in-memory, since the webservice does not
@@ -138,8 +138,10 @@ class AuthTicketTest(TestCase):
             taxpayer.certificate.save('test.crt', File(crt))
         taxpayer.save()
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(Exception) as e:
             taxpayer.create_ticket('wsfe')
+
+        self.assertNotIsInstance(e, exceptions.AfipException)
 
     def test_no_active_taxpayer(self):
         """Test that no TaxPayers raises an understandable error."""
@@ -148,6 +150,25 @@ class AuthTicketTest(TestCase):
             'There are no taxpayers to generate a ticket.',
         ):
             models.AuthTicket.objects.get_any_active('wsfe')
+
+    def test_expired_certificate_exception(self):
+        """Test that using an expired ceritificate raises as expected."""
+        taxpayer = models.TaxPayer(
+            pk=1,
+            name='test taxpayer',
+            cuit=20329642330,
+            is_sandboxed=True,
+        )
+        # Note that we swap key and crt so that it's bogus input:
+        basepath = settings.BASE_DIR
+        with open(os.path.join(basepath, 'test_expired.key')) as key:
+            taxpayer.key.save('test.key', File(key))
+        with open(os.path.join(basepath, 'test_expired.crt')) as crt:
+            taxpayer.certificate.save('test.crt', File(crt))
+        taxpayer.save()
+
+        with self.assertRaises(exceptions.CertificateExpiredException):
+            taxpayer.create_ticket('wsfe')
 
 
 class PopulationTest(AfipTestCase):
