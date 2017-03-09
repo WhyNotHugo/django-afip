@@ -297,6 +297,16 @@ class PointOfSalesAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(models.CurrencyType)
+class CurrencyTypeAdmin(admin.ModelAdmin):
+    list_display = (
+        'code',
+        'description',
+        'valid_from',
+        'valid_to',
+    )
+
+
 admin.site.register(models.Receipt, ReceiptAdmin)
 admin.site.register(models.ReceiptBatch, ReceiptBatchAdmin)
 admin.site.register(models.AuthTicket, AuthTicketAdmin)
