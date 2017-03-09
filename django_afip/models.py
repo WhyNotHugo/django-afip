@@ -1049,8 +1049,8 @@ class ReceiptEntry(models.Model):
         max_length=128,
         verbose_name=_('description'),
     )
-    amount = models.PositiveSmallIntegerField(
-        _('amount'),
+    quantity = models.PositiveSmallIntegerField(
+        _('quantity'),
     )
     unit_price = models.DecimalField(
         _('unit price'),
@@ -1066,8 +1066,8 @@ class ReceiptEntry(models.Model):
 
     @property
     def total_price(self):
-        """The total price for this line (amount * price)."""
-        return self.amount * self.unit_price
+        """The total price for this line (quantity * price)."""
+        return self.quantity * self.unit_price
 
     class Meta:
         verbose_name = _('receipt entry')
