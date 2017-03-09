@@ -33,6 +33,7 @@ Table of Contents
    usage
    api
    contributing
+   changelog
 
 Indices and tables
 ==================
