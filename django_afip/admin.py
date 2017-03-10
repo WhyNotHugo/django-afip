@@ -38,7 +38,7 @@ def catch_errors(f):
                 _('The AFIP Taxpayer certificate is untrusted.'),
                 messages.ERROR,
             )
-        except exceptions.AuthenticationException as e:
+        except exceptions.AuthenticationError as e:
             logger.exception('AFIP auth failed')
             self.message_user(
                 request,

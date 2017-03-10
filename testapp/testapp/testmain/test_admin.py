@@ -47,7 +47,7 @@ class TestCatchErrors(TestCase):
         ))
 
     def test_certificate_auth_error(self):
-        obj = self._get_test_instance(exceptions.AuthenticationException)
+        obj = self._get_test_instance(exceptions.AuthenticationError)
 
         request = HttpRequest()
         obj.action(request)
