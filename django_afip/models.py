@@ -6,12 +6,12 @@ from datetime import datetime, timedelta, timezone
 from tempfile import NamedTemporaryFile
 
 import pytz
-import suds
 from django.core.files.base import File
 from django.db import models
 from django.utils.translation import ugettext as _
 from lxml import etree
 from lxml.builder import E
+from zeep.exceptions import Fault
 
 from . import clients, crypto, exceptions, parsers, serializers
 
@@ -36,13 +36,13 @@ def check_response(response):
     AFIP allows us to create valid tickets with invalid key/CUIT pairs, so we
     can end up with tickets that fail on any service.
 
-    Due to how suds works, we can't quite catch these sort of errors on some
+    Due to how zeep works, we can't quite catch these sort of errors on some
     middleware level (well, honestly, we need to do a large refactor).
 
     This method checks if responses have an error, and raise a readable
     message.
     """
-    if hasattr(response, 'Errors'):
+    if response.Errors:
         raise exceptions.AfipException(response)
 
 
@@ -503,10 +503,10 @@ class AuthTicket(models.Model):
         client = clients.get_client('wsaa', self.owner.is_sandboxed)
         try:
             raw_response = client.service.loginCms(request)
-        except suds.WebFault as e:
-            if b'Certificado expirado' in e.args[0]:
+        except Fault as e:
+            if e.message == 'Certificado expirado':
                 raise exceptions.CertificateExpired() from e
-            if b'Certificado no emitido por AC de confianza' in e.args[0]:
+            if e.message == 'Certificado no emitido por AC de confianza':
                 raise exceptions.UntrustedCertificate() from e
             raise exceptions.AuthenticationError from e
         response = etree.fromstring(raw_response.encode('utf-8'))
@@ -624,7 +624,7 @@ class ReceiptBatch(models.Model):
         )
         check_response(response)
 
-        if hasattr(response, 'Errors'):
+        if response.Errors:
             raise exceptions.AfipException(response)
 
         validation = Validation.objects.create(
@@ -646,14 +646,14 @@ class ReceiptBatch(models.Model):
                         receipt_number=cae_data.CbteDesde
                     ),
                 )
-                if hasattr(cae_data, 'Observaciones'):
+                if cae_data.Observaciones:
                     for obs in cae_data.Observaciones.Obs:
                         observation = Observation.objects.get_or_create(
                             code=obs.Code,
                             message=obs.Msg,
                         )
                     rv.observations.add(observation)
-            elif hasattr(cae_data, 'Observaciones'):
+            elif cae_data.Observaciones:
                 for obs in cae_data.Observaciones.Obs:
                     errs.append(
                         'Error {}: {}'.format(

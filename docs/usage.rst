@@ -8,9 +8,6 @@ Installation is quite simple and can be done via pip::
 
     pip install django-afip
 
-Do keep in mind that requirements.txt points to a fork of ``suds-py``, since
-upstream is broken and *will fail*.
-
 You'll then need to configure your project to use it by adding it to
 settings.py::
 

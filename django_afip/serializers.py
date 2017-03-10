@@ -3,6 +3,10 @@ from django.db.models import Sum
 from . import clients
 
 
+def _wsfe_factory():
+    return clients.get_client('wsfe').type_factory('ns0')
+
+
 def serialize_datetime(datetime):
     """
     "Another date formatting function?" you're thinking, eh? Well, this
@@ -20,88 +24,96 @@ def serialize_date(date):
 
 
 def serialize_ticket(ticket):
-    wso = clients.get_client('wsfe').factory.create('FEAuthRequest')
-    wso.Token = ticket.token
-    wso.Sign = ticket.signature
-    wso.Cuit = ticket.owner.cuit
-    return wso
+    return _wsfe_factory().FEAuthRequest(
+        Token=ticket.token,
+        Sign=ticket.signature,
+        Cuit=ticket.owner.cuit,
+    )
 
 
 def serialize_receipt_batch(batch):
     receipts = batch.receipts.all().order_by('receipt_number')
+    f = _wsfe_factory()
 
-    client = clients.get_client('wsfe')
-    wso = client.factory.create('FECAERequest')
-    wso.FeCabReq.CantReg = len(receipts)
-    wso.FeCabReq.PtoVta = batch.point_of_sales.number
-    wso.FeCabReq.CbteTipo = batch.receipt_type.code
+    receipts = [serialize_receipt(receipt) for receipt in receipts]
 
-    for receipt in receipts:
-        wso.FeDetReq.FECAEDetRequest.append(serialize_receipt(receipt))
+    wso = f.FECAERequest(
+        FeCabReq=f.FECAECabRequest(
+            CantReg=len(receipts),
+            PtoVta=batch.point_of_sales.number,
+            CbteTipo=batch.receipt_type.code,
+        ),
+        FeDetReq=f.ArrayOfFECAEDetRequest(receipts),
+    )
+
+    # for receipt in receipts:
+    #     wso.FeDetReq.FECAEDetRequest.append(receipt)
 
     return wso
 
 
 def serialize_receipt(receipt):
-    subtotals = receipt._meta.model.objects.filter(pk=receipt.pk).aggregate(
+    from django_afip import models
+    f = _wsfe_factory()
+    subtotals = models.Receipt.objects.filter(pk=receipt.pk).aggregate(
         vat=Sum('vat__amount', distinct=True),
         taxes=Sum('taxes__amount', distinct=True),
     )
 
-    client = clients.get_client('wsfe')
-    wso = client.factory.create('FECAEDetRequest')
-    wso.Concepto = receipt.concept.code
-    wso.DocTipo = receipt.document_type.code
-    wso.DocNro = receipt.document_number
-    # TODO: Check that this is not None!
-    wso.CbteDesde = receipt.receipt_number
-    wso.CbteHasta = receipt.receipt_number
-    wso.CbteFch = serialize_date(receipt.issued_date)
-    wso.ImpTotal = receipt.total_amount
-    wso.ImpTotConc = receipt.net_untaxed
-    wso.ImpNeto = receipt.net_taxed
-    wso.ImpOpEx = receipt.exempt_amount
-    wso.ImpIVA = subtotals['vat'] or 0
-    wso.ImpTrib = subtotals['taxes'] or 0
+    serialized = f.FECAEDetRequest(
+        Concepto=receipt.concept.code,
+        DocTipo=receipt.document_type.code,
+        DocNro=receipt.document_number,
+        # TODO: Check that this is not None!,
+        CbteDesde=receipt.receipt_number,
+        CbteHasta=receipt.receipt_number,
+        CbteFch=serialize_date(receipt.issued_date),
+        ImpTotal=receipt.total_amount,
+        ImpTotConc=receipt.net_untaxed,
+        ImpNeto=receipt.net_taxed,
+        ImpOpEx=receipt.exempt_amount,
+        ImpIVA=subtotals['vat'] or 0,
+        ImpTrib=subtotals['taxes'] or 0,
+        MonId=receipt.currency.code,
+        MonCotiz=receipt.currency_quote,
+    )
     if int(receipt.concept.code) in (2, 3,):
-        wso.FchServDesde = serialize_date(receipt.service_start)
-        wso.FchServHasta = serialize_date(receipt.service_end)
-        wso.FchVtoPago = serialize_date(receipt.expiration_date)
-    wso.MonId = receipt.currency.code
-    wso.MonCotiz = receipt.currency_quote
+        serialized.FchServDesde = serialize_date(receipt.service_start)
+        serialized.FchServHasta = serialize_date(receipt.service_end)
+        serialized.FchVtoPago = serialize_date(receipt.expiration_date)
 
-    for tax in receipt.taxes.all():
-        wso.Tributos.Tributo.append(serialize_tax(tax))
+    serialized.Tributos = f.ArrayOfTributo([
+        serialize_tax(tax) for tax in receipt.taxes.all()
+    ])
+    serialized.Iva = f.ArrayOfAlicIva([
+        serialize_vat(vat) for vat in receipt.vat.all()
+    ])
 
-    for vat in receipt.vat.all():
-        wso.Iva.AlicIva.append(serialize_vat(vat))
+    # XXX: This was never finished!
+    # serialized.CbtesAsoc = f.ArrayOfCbteAsoc([
+    #     f.CbteAsoc(
+    #         receipt.receipt_type.code,
+    #         receipt.point_of_sales.number,
+    #         receipt.receipt_number,
+    #     ) for r in receipt.related_receipts.all()
+    # ])
 
-    # XXX: Need to create a CbteAsoc object:
-    for receipt in receipt.related_receipts.all():
-        receipt_wso = client.factory.create('CbteAsoc')
-        receipt_wso.receipt.receipt_type.code
-        receipt_wso.receipt.point_of_sales.number
-        receipt_wso.receipt.receipt_number
-        wso.CbtesAsoc.append(receipt_wso)
-
-    return wso
+    return serialized
 
 
 def serialize_tax(tax):
-    wso = clients.get_client('wsfe').factory.create('Tributo')
-    wso.Id = tax.tax_type.code
-    wso.Desc = tax.description
-    wso.BaseImp = tax.base_amount
-    wso.Alic = tax.aliquot
-    wso.Importe = tax.amount
-
-    return wso
+    return _wsfe_factory().Tributo(
+        Id=tax.tax_type.code,
+        Desc=tax.description,
+        BaseImp=tax.base_amount,
+        Alic=tax.aliquot,
+        Importe=tax.amount,
+    )
 
 
 def serialize_vat(vat):
-    wso = clients.get_client('wsfe').factory.create('AlicIva')
-    wso.Id = vat.vat_type.code
-    wso.BaseImp = vat.base_amount
-    wso.Importe = vat.amount
-
-    return wso
+    return _wsfe_factory().AlicIva(
+        Id=vat.vat_type.code,
+        BaseImp=vat.base_amount,
+        Importe=vat.amount,
+    )

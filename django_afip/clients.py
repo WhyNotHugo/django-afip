@@ -1,6 +1,6 @@
 import pytz
 from django.utils.functional import LazyObject
-from suds import Client
+from zeep import Client
 
 TZ_AR = pytz.timezone(pytz.country_timezones['ar'][0])
 
