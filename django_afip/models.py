@@ -505,7 +505,10 @@ class AuthTicket(models.Model):
             raw_response = client.service.loginCms(request)
         except suds.WebFault as e:
             if b'Certificado expirado' in e.args[0]:
-                raise exceptions.CertificateExpiredException from e
+                raise exceptions.CertificateExpired() from e
+            if b'Certificado no emitido por AC de confianza' in e.args[0]:
+                raise exceptions.UntrustedCertificate() from e
+            raise exceptions.AuthenticationException from e
         response = etree.fromstring(raw_response.encode('utf-8'))
 
         self.token = response.xpath(self.TOKEN_XPATH)[0].text

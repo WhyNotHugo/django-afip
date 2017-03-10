@@ -122,8 +122,8 @@ class AuthTicketTest(TestCase):
         ):
             models.populate_all()
 
-    def test_bad_certificate_exception(self):
-        """Test that using bad ceritificates raises as expected."""
+    def test_bogus_certificate_exception(self):
+        """Test that using a bogus ceritificates raises as expected."""
         taxpayer = models.TaxPayer(
             pk=1,
             name='test taxpayer',
@@ -166,7 +166,28 @@ class AuthTicketTest(TestCase):
             taxpayer.certificate.save('test.crt', File(crt))
         taxpayer.save()
 
-        with self.assertRaises(exceptions.CertificateExpiredException):
+        with self.assertRaises(exceptions.CertificateExpired):
+            taxpayer.create_ticket('wsfe')
+
+    def test_untrusted_certificate_exception(self):
+        """
+        Test that using an untrusted ceritificate raises as expected.
+        """
+        taxpayer = models.TaxPayer(
+            pk=1,
+            name='test taxpayer',
+            cuit=20329642330,
+            # Note that we hit production with a sandbox cert here:
+            is_sandboxed=False,
+        )
+        basepath = settings.BASE_DIR
+        with open(os.path.join(basepath, 'test.key')) as key:
+            taxpayer.key.save('test.key', File(key))
+        with open(os.path.join(basepath, 'test.crt')) as crt:
+            taxpayer.certificate.save('test.crt', File(crt))
+        taxpayer.save()
+
+        with self.assertRaises(exceptions.UntrustedCertificate):
             taxpayer.create_ticket('wsfe')
 
 

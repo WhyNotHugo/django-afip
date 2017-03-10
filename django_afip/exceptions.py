@@ -13,9 +13,22 @@ class AfipException(Exception):
         ))
 
 
-class CertificateExpiredException(Exception):
+class AuthenticationException(Exception):
     """
-    Raised when an authentication was attempted with an expired
-    certificate.
+    Raised when there is a non-specific error during an authentication attempt.
+    """
+    pass
+
+
+class CertificateExpired(AuthenticationException):
+    """
+    Raised when an authentication was attempted with an expired certificate.
+    """
+    pass
+
+
+class UntrustedCertificate(AuthenticationException):
+    """
+    Raise when an untrusted certificate is used in an authentication attempt.
     """
     pass
