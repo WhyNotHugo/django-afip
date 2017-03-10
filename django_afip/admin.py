@@ -1,3 +1,6 @@
+import functools
+import logging
+
 from django.apps import apps
 from django.contrib import admin, messages
 from django.contrib.admin.sites import AlreadyRegistered
@@ -5,10 +8,45 @@ from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.utils.translation import ugettext as _
 
-from . import models
+from django_afip import exceptions, models
+
+
+logger = logging.getLogger(__name__)
 
 
 # TODO: Add an action to populate generic types.
+
+
+def catch_errors(f):
+    """
+    Catches specific errors in admin actions and shows a friendly error.
+    """
+
+    @functools.wraps(f)
+    def wrapper(self, request, *args, **kwargs):
+        try:
+            return f(self, request, *args, **kwargs)
+        except exceptions.CertificateExpired as e:
+            self.message_user(
+                request,
+                _('The AFIP Taxpayer certificate has expired.'),
+                messages.ERROR,
+            )
+        except exceptions.UntrustedCertificate as e:
+            self.message_user(
+                request,
+                _('The AFIP Taxpayer certificate is untrusted.'),
+                messages.ERROR,
+            )
+        except exceptions.AuthenticationException as e:
+            logger.exception('AFIP auth failed')
+            self.message_user(
+                request,
+                _('An unknown authentication error has ocurred.'),
+                messages.ERROR,
+            )
+
+    return wrapper
 
 
 class VatInline(admin.TabularInline):
@@ -139,6 +177,7 @@ class ReceiptAdmin(admin.ModelAdmin):
     cae.short_description = _('cae')
     cae.admin_order_field = 'validation__cae'
 
+    @catch_errors
     def create_batch(self, request, queryset):
         variations = queryset \
             .aggregate(
@@ -224,6 +263,7 @@ class ReceiptBatchAdmin(admin.ModelAdmin):
     receipts_count.short_description = _('receipts')
     receipts_count.admin_order_field = 'receipts__count'
 
+    @catch_errors
     def validate(self, request, queryset):
         for batch in queryset:
             errs = batch.validate()
@@ -256,6 +296,7 @@ class TaxPayerAdmin(admin.ModelAdmin):
         'cuit',
     )
 
+    @catch_errors
     def fetch_points_of_sales(self, request, queryset):
         poses = [
             pos

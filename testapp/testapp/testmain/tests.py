@@ -123,7 +123,7 @@ class AuthTicketTest(TestCase):
             models.populate_all()
 
     def test_bogus_certificate_exception(self):
-        """Test that using a bogus ceritificates raises as expected."""
+        """Test that using a junk ceritificates raises as expected."""
         taxpayer = models.TaxPayer(
             pk=1,
             name='test taxpayer',
