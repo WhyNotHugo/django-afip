@@ -27,8 +27,8 @@ First of all, you'll need to create a :class:`~.TaxPayer`
 instance, and upload the related SSL key and certificate (for authorization).
 
 Official documentation for obtaining the certificate is available
-[here](http://www.afip.gov.ar/ws/WSAA/WSAA.ObtenerCertificado.pdf), and for
-delegation [here](http://www.afip.gov.ar/ws/WSAA/ADMINREL.DelegarWS.pdf).
+`here <http://www.afip.gov.ar/ws/WSAA/WSAA.ObtenerCertificado.pdf>`_, and for
+delegation `here <http://www.afip.gov.ar/ws/WSAA/ADMINREL.DelegarWS.pdf>`_.
 
 django-afip includes admin views for every model included, and it's the
 recommended way to create :class:`~.TaxPayer` objects.
