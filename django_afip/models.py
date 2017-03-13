@@ -407,7 +407,9 @@ class AuthTicketManager(models.Manager):
         taxpayer = TaxPayer.objects.order_by('?').first()
 
         if not taxpayer:
-            raise Exception('There are no taxpayers to generate a ticket.')
+            raise exceptions.AuthenticationError(
+                _('There are no taxpayers to generate a ticket.'),
+            )
 
         return taxpayer.create_ticket(service)
 
@@ -505,10 +507,10 @@ class AuthTicket(models.Model):
             raw_response = client.service.loginCms(request)
         except Fault as e:
             if e.message == 'Certificado expirado':
-                raise exceptions.CertificateExpired() from e
+                raise exceptions.CertificateExpired(e.message) from e
             if e.message == 'Certificado no emitido por AC de confianza':
-                raise exceptions.UntrustedCertificate() from e
-            raise exceptions.AuthenticationError from e
+                raise exceptions.UntrustedCertificate(e.message) from e
+            raise exceptions.AuthenticationError(e.message) from e
         response = etree.fromstring(raw_response.encode('utf-8'))
 
         self.token = response.xpath(self.TOKEN_XPATH)[0].text
@@ -1005,7 +1007,7 @@ class ReceiptPDF(models.Model):
     def _check_authorized(self):
         if not self.receipt.receipt_number:
             raise Exception(
-                'Attempting to generate pdf for non-authorized receipt'
+                _('Cannot generate pdf for non-authorized receipt')
             )
 
     def save_pdf(self):

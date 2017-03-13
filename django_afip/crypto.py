@@ -1,5 +1,7 @@
 from OpenSSL import crypto
 
+from django_afip import exceptions
+
 PKCS7_NOSIGS = 0x4  # defined in pkcs7.h
 
 
@@ -17,9 +19,13 @@ def create_embeded_pkcs7_signature(data, cert, key):
     """  # noqa
 
     assert isinstance(data, bytes)
+    assert isinstance(cert, str)
 
-    pkey = crypto.load_privatekey(crypto.FILETYPE_PEM, key)
-    signcert = crypto.load_certificate(crypto.FILETYPE_PEM, cert)
+    try:
+        pkey = crypto.load_privatekey(crypto.FILETYPE_PEM, key)
+        signcert = crypto.load_certificate(crypto.FILETYPE_PEM, cert)
+    except crypto.Error as e:
+        raise exceptions.CorruptCertificate from e
 
     bio_in = crypto._new_mem_buf(data)
     pkcs7 = crypto._lib.PKCS7_sign(

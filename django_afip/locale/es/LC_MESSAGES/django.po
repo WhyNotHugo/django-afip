@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-afip\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-10 22:36+0000\n"
-"PO-Revision-Date: 2017-03-10 19:37-0300\n"
+"POT-Creation-Date: 2017-03-13 14:11+0000\n"
+"PO-Revision-Date: 2017-03-13 11:11-0300\n"
 "Last-Translator: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
 "Language-Team: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
 "Language: es\n"
@@ -23,8 +23,12 @@ msgstr "El certificado de contribuyente del AFIP venció."
 msgid "The AFIP Taxpayer certificate is untrusted."
 msgstr "El certificado de contribuyente del AFIP no es de confianza."
 
-msgid "An unknown authentication error has ocurred."
-msgstr "Error desconocido en la autenticación."
+msgid "The AFIP Taxpayer certificate is corrupt."
+msgstr "El certificado de contribuyente del AFIP no está corrupto."
+
+#, python-format
+msgid "An unknown authentication error has ocurred: %s"
+msgstr "Error desconocido en la autenticación: %s"
 
 msgid "status"
 msgstr "estado"
@@ -222,6 +226,9 @@ msgstr "punto de ventas"
 msgid "points of sales"
 msgstr "puntos de venta"
 
+msgid "There are no taxpayers to generate a ticket."
+msgstr "No hay contribuyentes para generar un certificado"
+
 msgid "unique id"
 msgstr "id único"
 
@@ -371,6 +378,9 @@ msgstr "domicilio del cliente"
 
 msgid "Should be something like \"Cash\", \"Payable in 30 days\", etc"
 msgstr "Debería ser algo como \"Efectivo\" o \"Pagable a 30 días\", etc"
+
+msgid "Cannot generate pdf for non-authorized receipt"
+msgstr "No se puede generar un PDF para un comprobante no-autorizado."
 
 msgid "receipt pdf"
 msgstr "pdf del comprobante"

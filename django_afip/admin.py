@@ -38,11 +38,17 @@ def catch_errors(f):
                 _('The AFIP Taxpayer certificate is untrusted.'),
                 messages.ERROR,
             )
+        except exceptions.CorruptCertificate as e:
+            self.message_user(
+                request,
+                _('The AFIP Taxpayer certificate is corrupt.'),
+                messages.ERROR,
+            )
         except exceptions.AuthenticationError as e:
             logger.exception('AFIP auth failed')
             self.message_user(
                 request,
-                _('An unknown authentication error has ocurred.'),
+                _('An unknown authentication error has ocurred: %s') % e,
                 messages.ERROR,
             )
 

@@ -29,3 +29,11 @@ class UntrustedCertificate(AuthenticationError):
     Raise when an untrusted certificate is used in an authentication attempt.
     """
     pass
+
+
+class CorruptCertificate(AuthenticationError):
+    """
+    Raised when a corrupt ceritificate file is used in an authenticaiton
+    attempt.
+    """
+    pass

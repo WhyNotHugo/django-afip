@@ -1,5 +1,6 @@
 """Tests for provided template tags."""
 from django.test import TestCase
+
 from django_afip.templatetags.django_afip import format_cuit
 
 

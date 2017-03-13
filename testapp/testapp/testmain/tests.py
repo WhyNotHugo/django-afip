@@ -151,7 +151,7 @@ class AuthTicketTest(TestCase):
             taxpayer.certificate.save('test.crt', File(crt))
         taxpayer.save()
 
-        with self.assertRaises(Exception) as e:
+        with self.assertRaises(exceptions.CorruptCertificate) as e:
             taxpayer.create_ticket('wsfe')
 
         self.assertNotIsInstance(e, exceptions.AfipException)
@@ -159,7 +159,7 @@ class AuthTicketTest(TestCase):
     def test_no_active_taxpayer(self):
         """Test that no TaxPayers raises an understandable error."""
         with self.assertRaisesMessage(
-            Exception,
+            exceptions.AuthenticationError,
             'There are no taxpayers to generate a ticket.',
         ):
             models.AuthTicket.objects.get_any_active('wsfe')
@@ -567,7 +567,7 @@ class ReceiptPDFTest(AfipTestCase):
         )
         with self.assertRaisesMessage(
             Exception,
-            'Attempting to generate pdf for non-authorized receipt'
+            'Cannot generate pdf for non-authorized receipt'
         ):
             pdf.save_pdf()
 
