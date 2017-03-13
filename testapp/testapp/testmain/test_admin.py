@@ -55,6 +55,6 @@ class TestCatchErrors(TestCase):
         self.assertEqual(obj.message_user.call_count, 1)
         self.assertEqual(obj.message_user.call_args, mock.call(
             request,
-            _('An unknown authentication error has ocurred.'),
+            _('An unknown authentication error has ocurred: '),
             messages.ERROR,
         ))
