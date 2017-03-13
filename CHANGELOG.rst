@@ -4,6 +4,11 @@ Changelog
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
+2.5.1
+-----
+
+* Fix an error validating receipts with not VAT or Tax.
+
 2.5.0
 -----
 
