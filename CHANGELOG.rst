@@ -4,6 +4,12 @@ Changelog
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
+2.6.0
+-----
+
+* It is now possible to generate keys and CSRs for taxpayers, both
+  programmatically, and via the admin.
+
 2.5.1
 -----
 
