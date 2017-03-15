@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-afip\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-13 14:11+0000\n"
-"PO-Revision-Date: 2017-03-13 11:11-0300\n"
+"POT-Creation-Date: 2017-03-15 02:50+0000\n"
+"PO-Revision-Date: 2017-03-14 23:50-0300\n"
 "Last-Translator: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
 "Language-Team: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
 "Language: es\n"
@@ -85,6 +85,25 @@ msgstr "%(total)d puntos de ventas obtenidos. %(created)d creados."
 
 msgid "Fetch points of sales"
 msgstr "Obtener puntos de venta"
+
+msgid "Key generated successfully."
+msgstr "Clave generada con éxito."
+
+#, python-format
+msgid "%d keys generated successfully."
+msgstr "%d claves generadas con éxito."
+
+msgid "No keys generated; Taxpayers already had keys."
+msgstr "Claves no generadas; todos los contribuyentes tenían claves."
+
+msgid "Generate key"
+msgstr "Generar clave"
+
+msgid "Can only generate CSR for one taxpayer at a time"
+msgstr "Sólo se pueden generar CSR para un contribuyente por vez."
+
+msgid "Generate CSR"
+msgstr "Generar CSR"
 
 msgid "Fetches required AFIP metadata and stores it locally"
 msgstr "Obtiene metadatos necesarios del AFIP y los almacena localmente."

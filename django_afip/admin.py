@@ -348,6 +348,7 @@ class TaxPayerAdmin(admin.ModelAdmin):
             message=message,
             level=level,
         )
+    generate_key.short_description = _('Generate key')
 
     def generate_csr(self, request, queryset):
         if queryset.count() > 1:
@@ -375,6 +376,7 @@ class TaxPayerAdmin(admin.ModelAdmin):
 
         response.write(csr.read())
         return response
+    generate_csr.short_description = _('Generate CSR')
 
     actions = (
         fetch_points_of_sales,

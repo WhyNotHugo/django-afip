@@ -244,7 +244,7 @@ class TaxPayer(models.Model):
         """
         if self.key and not force:
             logger.warning(
-                _('Tried to generate key for a taxpayer that already had one')
+                'Tried to generate key for a taxpayer that already had one'
             )
             return False
 
