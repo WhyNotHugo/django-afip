@@ -36,3 +36,33 @@ def create_embeded_pkcs7_signature(data, cert, key):
     signed_data = crypto._bio_to_string(bio_out)
 
     return signed_data
+
+
+def create_key(file_):
+    """
+    Create a key and save it into ``file_``.
+
+    Note that ``file`` must be opened in binary mode.
+    """
+    pkey = crypto.PKey()
+    pkey.generate_key(crypto.TYPE_RSA, 2048)
+
+    file_.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, pkey))
+    file_.flush()
+
+
+def create_csr(key_file, organization_name, common_name, serial_number, file_):
+    """Create a CSR for a key, and save it into ``file``."""
+    key = crypto.load_privatekey(crypto.FILETYPE_PEM, key_file.read())
+
+    req = crypto.X509Req()
+    subj = req.get_subject()
+
+    subj.O = organization_name
+    subj.CN = common_name
+    subj.serialNumber = serial_number
+
+    req.set_pubkey(key)
+    req.sign(key, 'md5')
+
+    file_.write(crypto.dump_certificate_request(crypto.FILETYPE_PEM, req))

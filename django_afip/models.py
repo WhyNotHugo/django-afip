@@ -1,3 +1,4 @@
+import io
 import logging
 import random
 import uuid
@@ -231,6 +232,42 @@ class TaxPayer(models.Model):
             'rather than the production servers'
         )
     )
+
+    def generate_key(self, force=False):
+        """
+        Creates a key file for this TaxPayer
+
+        Creates a key file for this TaxPayer if it does not have one, and
+        immediately saves it.
+        """
+        if self.key and not force:
+            logger.warning(
+                _('Tried to generate key for a taxpayer that already had one')
+            )
+            return
+
+        with NamedTemporaryFile(suffix='.key') as file_:
+            crypto.create_key(file_)
+            self.key = File(file_, name='{}.key'.format(uuid.uuid4().hex))
+            self.save()
+
+    def generate_csr(self, basename='djangoafip'):
+        """
+        Creates a CSR for this TaxPayer's key
+
+        Creates a file-like object that contains the CSR which can be used to
+        request a new certificate from AFIP.
+        """
+        csr = io.BytesIO()
+        crypto.create_csr(
+            self.key.file,
+            self.name,
+            '{}{}'.format(basename, int(datetime.now().timestamp())),
+            'CUIT {}'.format(self.cuit),
+            csr,
+        )
+        csr.seek(0)
+        return csr
 
     def create_ticket(self, service):
         """Create an AuthTicket for a given service."""
