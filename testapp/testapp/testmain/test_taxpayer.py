@@ -1,7 +1,5 @@
 from datetime import datetime
-from tempfile import NamedTemporaryFile
 
-from django.core.files.base import File
 from django.test import TestCase
 from freezegun import freeze_time
 from OpenSSL import crypto
@@ -23,13 +21,8 @@ class TestTaxPayerKeyManagement(TestCase):
         self.assertIsInstance(loaded_key, crypto.PKey)
 
     def test_dont_overwrite_keys(self):
-        taxpayer = mocks.taxpayer()
         text = "Hello! I'm not really a key :D".encode()
-
-        with NamedTemporaryFile(suffix='.key') as file_:
-            file_.write(text)
-            taxpayer.key = File(file_, name='test.key')
-            taxpayer.save()
+        taxpayer = mocks.taxpayer(key=text)
 
         taxpayer.generate_key()
         key = taxpayer.key.read()
@@ -37,13 +30,8 @@ class TestTaxPayerKeyManagement(TestCase):
         self.assertEqual(text, key)
 
     def test_overwrite_keys_force(self):
-        taxpayer = mocks.taxpayer()
         text = "Hello! I'm not really a key :D".encode()
-
-        with NamedTemporaryFile(suffix='.key') as file_:
-            file_.write(text)
-            taxpayer.key = File(file_, name='test.key')
-            taxpayer.save()
+        taxpayer = mocks.taxpayer(key=text)
 
         taxpayer.generate_key(force=True)
         key = taxpayer.key.file.read().decode()

@@ -239,17 +239,21 @@ class TaxPayer(models.Model):
 
         Creates a key file for this TaxPayer if it does not have one, and
         immediately saves it.
+
+        Returns True if and only if a key was created.
         """
         if self.key and not force:
             logger.warning(
                 _('Tried to generate key for a taxpayer that already had one')
             )
-            return
+            return False
 
         with NamedTemporaryFile(suffix='.key') as file_:
             crypto.create_key(file_)
             self.key = File(file_, name='{}.key'.format(uuid.uuid4().hex))
             self.save()
+
+        return True
 
     def generate_csr(self, basename='djangoafip'):
         """

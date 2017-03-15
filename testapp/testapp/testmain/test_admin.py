@@ -2,11 +2,12 @@ from unittest import mock
 
 from django.contrib import messages
 from django.http import HttpRequest
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.utils.translation import ugettext as _
 
 from django_afip import exceptions
 from django_afip.admin import catch_errors
+from testapp.testmain import mocks
 
 
 class TestCatchErrors(TestCase):
@@ -58,3 +59,112 @@ class TestCatchErrors(TestCase):
             _('An unknown authentication error has ocurred: '),
             messages.ERROR,
         ))
+
+
+class TestTaxPayerAdminKeyGeneration(TestCase):
+
+    def setUp(self):
+        self.user = mocks.superuser()
+
+    def test_without_key(self):
+        taxpayer = mocks.taxpayer()
+        client = Client()
+        client.force_login(self.user)
+
+        response = client.post('/admin/afip/taxpayer/', data=dict(
+            _selected_action=[taxpayer.id],
+            action='generate_key',
+        ), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Key generated successfully.')
+
+        taxpayer.refresh_from_db()
+        self.assertIn(
+            '-----BEGIN PRIVATE KEY-----',
+            taxpayer.key.file.read().decode(),
+        )
+
+    def test_with_key(self):
+        taxpayer = mocks.taxpayer(key='Blah'.encode())
+        client = Client()
+        client.force_login(self.user)
+
+        response = client.post('/admin/afip/taxpayer/', data=dict(
+            _selected_action=[taxpayer.id],
+            action='generate_key',
+        ), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'No keys generated; Taxpayers already had keys.',
+        )
+
+        taxpayer.refresh_from_db()
+        self.assertEqual('Blah', taxpayer.key.file.read().decode())
+
+
+class TestTaxPayerAdminRequestGeneration(TestCase):
+
+    def setUp(self):
+        self.user = mocks.superuser()
+
+    def test_with_csr(self):
+        taxpayer = mocks.taxpayer()
+        taxpayer.generate_key()
+        client = Client()
+        client.force_login(self.user)
+
+        response = client.post('/admin/afip/taxpayer/', data=dict(
+            _selected_action=[taxpayer.id],
+            action='generate_csr',
+        ), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            b'Content-Type: application/pkcs10',
+            response.serialize_headers().splitlines()
+        )
+        self.assertContains(
+            response,
+            '-----BEGIN CERTIFICATE REQUEST-----',
+        )
+
+    def test_without_key(self):
+        taxpayer = mocks.taxpayer()
+        taxpayer.generate_key()
+        client = Client()
+        client.force_login(self.user)
+
+        response = client.post('/admin/afip/taxpayer/', data=dict(
+            _selected_action=[taxpayer.id],
+            action='generate_csr',
+        ), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            b'Content-Type: application/pkcs10',
+            response.serialize_headers().splitlines()
+        )
+        self.assertContains(
+            response,
+            '-----BEGIN CERTIFICATE REQUEST-----',
+        )
+
+    def test_multiple_taxpayers(self):
+        taxpayer1 = mocks.taxpayer(key='Blah'.encode())
+        taxpayer2 = mocks.taxpayer(key='Blah'.encode())
+        client = Client()
+        client.force_login(self.user)
+
+        response = client.post('/admin/afip/taxpayer/', data=dict(
+            _selected_action=[taxpayer1.id, taxpayer2.id],
+            action='generate_csr',
+        ), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'Can only generate CSR for one taxpayer at a time',
+        )

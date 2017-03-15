@@ -1,11 +1,13 @@
 import functools
 import logging
+from datetime import datetime
 
 from django.apps import apps
 from django.contrib import admin, messages
 from django.contrib.admin.sites import AlreadyRegistered
 from django.core.urlresolvers import reverse
 from django.db.models import Count
+from django.http import HttpResponse
 from django.utils.translation import ugettext as _
 
 from django_afip import exceptions, models
@@ -328,8 +330,56 @@ class TaxPayerAdmin(admin.ModelAdmin):
 
     fetch_points_of_sales.short_description = _('Fetch points of sales')
 
+    def generate_key(self, request, queryset):
+        key_count = sum([t.generate_key() for t in queryset.all()])
+
+        if key_count is 1:
+            message = _('Key generated successfully.')
+            level = messages.SUCCESS
+        elif key_count is 1:
+            message = _('%d keys generated successfully.') % key_count
+            level = messages.SUCCESS
+        else:
+            message = _('No keys generated; Taxpayers already had keys.')
+            level = messages.ERROR
+
+        self.message_user(
+            request,
+            message=message,
+            level=level,
+        )
+
+    def generate_csr(self, request, queryset):
+        if queryset.count() > 1:
+            self.message_user(
+                request,
+                message=_('Can only generate CSR for one taxpayer at a time'),
+                level=messages.ERROR,
+            )
+            return
+
+        taxpayer = queryset.first()
+        if not taxpayer.key:
+            taxpayer.generate_key()
+
+        csr = taxpayer.generate_csr()
+        filename = 'cuit-{}-{}.csr'.format(
+            taxpayer.cuit,
+            int(datetime.now().timestamp()),
+        )
+
+        response = HttpResponse(content_type='application/pkcs10')
+        response['Content-Disposition'] = 'attachment; filename={}'.format(
+            filename
+        )
+
+        response.write(csr.read())
+        return response
+
     actions = (
         fetch_points_of_sales,
+        generate_key,
+        generate_csr,
     )
 
 
