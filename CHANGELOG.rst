@@ -9,6 +9,8 @@ releases, in reverse chronological order.
 
 * It is now possible to generate keys and CSRs for taxpayers, both
   programmatically, and via the admin.
+* The ``AuthTicket.authorize`` method no longer takes a ``save`` argument.
+  Authorized tickets are now always immediately saved.
 
 2.5.1
 -----
