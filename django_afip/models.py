@@ -537,7 +537,7 @@ class AuthTicket(models.Model):
 
         return crypto.create_embeded_pkcs7_signature(request, cert, key)
 
-    def authorize(self, save=True):
+    def authorize(self):
         """Send this ticket to AFIP for authorization."""
         request = self.__create_request_xml()
         request = self.__sign_request(request)
@@ -556,8 +556,8 @@ class AuthTicket(models.Model):
 
         self.token = response.xpath(self.TOKEN_XPATH)[0].text
         self.signature = response.xpath(self.SIGN_XPATH)[0].text
-        if save:
-            self.save()
+
+        self.save()
 
     def __str__(self):
         return str(self.unique_id)
