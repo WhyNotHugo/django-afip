@@ -718,7 +718,31 @@ class ReceiptBatch(models.Model):
     objects = ReceiptBatchManager()
 
 
+class ReceiptQuerySet(models.QuerySet):
+    """
+    The default queryset obtains when querying via :class:`~.ReceiptManager`.
+    """
+
+    def validate(self, ticket=None):
+        """
+        Validates all receipts matching this queryset.
+
+        Note that, due to how AFIP implements its numbering, this method is not
+        thread-safe, or even multiprocess-safe.
+
+        Because of this, it is possible that not all instances matching this
+        queryset are validates properly; however, consistency *is* and receipts
+        will be updated if and only if they have been validated by the AFIP.
+        """
+        return ReceiptBatch.objects.create(self).validate(ticket)
+
+
 class ReceiptManager(models.Manager):
+    """
+    The default manager for the :class:`~.Receipt` class.
+
+    You should generally access this using ``Receipt.objects``.
+    """
 
     def fetch_last_receipt_number(self, point_of_sales, receipt_type):
         client = clients.get_client('wsfe', point_of_sales.owner.is_sandboxed)
@@ -749,7 +773,7 @@ class ReceiptManager(models.Manager):
         return response_xml.CbteNro
 
     def get_queryset(self):
-        return super().get_queryset().select_related(
+        return ReceiptQuerySet(self.model, using=self._db).select_related(
             'receipt_type',
         )
 
@@ -931,6 +955,19 @@ class Receipt(models.Model):
         related_name='receipts',
         verbose_name=_('point of sales'),
     )
+
+    def validate(self, ticket=None):
+        """
+        Validates this receipt.
+
+        This is a shortcut to :class:`~.ReceiptQuerySet`'s method of the same
+        name. Calling this validates only this instance.
+        """
+        rv = Receipt.objects.filter(pk=self.pk).validate(ticket)
+        # Since we're operating via a queryset, this instance isn't properly
+        # updated:
+        self.refresh_from_db()
+        return rv
 
     def __str__(self):
         if self.receipt_number:

@@ -32,6 +32,18 @@ should be accessed using ``ReceiptBatch.objects``.
 .. autoclass:: django_afip.models.ReceiptBatchManager
     :members:
 
+.. autoclass:: django_afip.models.ReceiptManager
+    :members:
+
+QuerySets
+---------
+
+QuerySets are generally accessed via their models. For example,
+``Receipt.objects.filter()`` will return a ``ReceiptQuerySet``.
+
+.. autoclass:: django_afip.models.ReceiptQuerySet
+    :members:
+
 PDF-related models
 ------------------
 
