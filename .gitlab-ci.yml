@@ -19,6 +19,9 @@ py36-django1.10:
     - echo -e $AFIP_TEST_KEY > testapp/test.key
     - echo -e $AFIP_TEST_CRT > testapp/test.crt
     - tox -e django1.10
+  after_script:
+    - pip install codecov
+    - codecov
 
 docs:
   stage: test
