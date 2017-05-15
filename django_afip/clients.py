@@ -1,58 +1,20 @@
 import pytz
-from django.utils.functional import LazyObject
 from zeep import Client
+from zeep.cache import SqliteCache
+from zeep.transports import Transport
 
 TZ_AR = pytz.timezone(pytz.country_timezones['ar'][0])
 
 
-# XXX: Below are a set of clients for each WS. Each one is
-# lazy-initialized ONCE, and only once.
-#
-# The code layout is somewhat ugly, so, if you have better code-pattern,
-# patches are welcome.
+transport = Transport(cache=SqliteCache(timeout=86400))
+wsdls = {
+    ('wsaa', False): 'https://wsaa.afip.gov.ar/ws/services/LoginCms?wsdl',
+    ('wsfe', False): 'https://servicios1.afip.gov.ar/wsfev1/service.asmx?WSDL',
+    ('wsaa', True): 'https://wsaahomo.afip.gov.ar/ws/services/LoginCms?wsdl',
+    ('wsfe', True): 'https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL',
+}
 
-
-class WsaaProductionClient(LazyObject):
-
-    def _setup(self):
-        self._wrapped = Client(
-            'https://wsaa.afip.gov.ar/ws/services/LoginCms?wsdl'
-        )
-
-
-class WsaaSandboxClient(LazyObject):
-
-    def _setup(self):
-        self._wrapped = Client(
-            'https://wsaahomo.afip.gov.ar/ws/services/LoginCms?wsdl'
-        )
-
-
-class WsfeProductionClient(LazyObject):
-
-    def _setup(self):
-        self._wrapped = Client(
-            'https://servicios1.afip.gov.ar/wsfev1/service.asmx?WSDL'
-        )
-
-
-class WsfeSandboxClient(LazyObject):
-
-    def _setup(self):
-        self._wrapped = Client(
-            'https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL'
-        )
-
-
-production_clients = dict(
-    wsaa=WsaaProductionClient(),
-    wsfe=WsfeProductionClient(),
-)
-
-sandbox_clients = dict(
-    wsaa=WsaaSandboxClient(),
-    wsfe=WsfeSandboxClient(),
-)
+cached_clients = {}
 
 
 def get_client(service_name, sandbox=False):
@@ -63,8 +25,19 @@ def get_client(service_name, sandbox=False):
     used to make a request. If it will only be used to serialize objects, it is
     irrelevant.  Avoid the overhead of determining the sandbox mode in the
     calling context if only serialization operations will take place.
+
+    :param string service_name: The name of the web services.
+    :param bool sandbox: Whether the sandbox (or production) environment should
+        be used by the returned client.
+    :returns: A zeep client to communicate with an AFIP webservice.
+    :rtype: zeep.Client
     """
-    if sandbox:
-        return sandbox_clients[service_name]
-    else:
-        return production_clients[service_name]
+    key = (service_name.lower(), sandbox,)
+
+    try:
+        if key not in cached_clients:
+            cached_clients[key] = Client(wsdls[key], transport=transport)
+
+        return cached_clients[key]
+    except KeyError:
+        ValueError('Unknown service name, {}'.format(service_name))
