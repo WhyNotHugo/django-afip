@@ -15,6 +15,9 @@ setup(
     install_requires=open('requirements.txt').read().splitlines() + [
         'Django>=1.8.4'
     ],
+    extras_require={
+        'docs': ['Sphinx', 'sphinx-autobuild']
+    },
     use_scm_version={
         'version_scheme': 'post-release',
         'write_to': 'django_afip/version.py',
