@@ -75,9 +75,10 @@ class AuthTicketTest(TestCase):
 
         taxpayer.create_ticket('wsfe')
 
-        with self.assertRaisesMessage(
+        with self.assertRaisesRegex(
             exceptions.AfipException,
-            'ValidacionDeToken: No apareció CUIT en lista de relaciones:',
+            # Note: AFIP apparently edited this message and added a typo:
+            'ValidacionDeToken: No apareci[oó] CUIT en lista de relaciones:',
         ):
             models.populate_all()
 
