@@ -11,6 +11,7 @@ releases, in reverse chronological order.
   programmatically, and via the admin.
 * The ``AuthTicket.authorize`` method no longer takes a ``save`` argument.
   Authorized tickets are now always immediately saved.
+* Add a missing migration.
 
 2.5.1
 -----
