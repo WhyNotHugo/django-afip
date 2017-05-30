@@ -6,7 +6,6 @@ from .pdf import generate_receipt_pdf
 
 
 class ReceiptHTMLView(View):
-    template_name = 'django_afip/invoice.html'
 
     def get(self, request, pk):
         return HttpResponse(
