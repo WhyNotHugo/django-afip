@@ -151,6 +151,7 @@ to it. If you want some other, more complex generation (like sending via
 email), these views should serve as a reference to the PDF API.
 
 The template used for the HTML and PDF receipts is found in
-``templates/django_afip/invoice.html``. If you want to override the default (you
-probably do), simply place a template with the same path/name inside your own
-app, and make sure it's listed *before* ``django_afip`` in ``INSTALLED_APPS``.
+``templates/receipts/code_X.html``, where X is the :class:`~.ReceiptType`'s
+code. If you want to override the default (you probably do), simply place a
+template with the same path/name inside your own app, and make sure it's listed
+*before* ``django_afip`` in ``INSTALLED_APPS``.
