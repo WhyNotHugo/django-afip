@@ -4,6 +4,12 @@ Changelog
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
+2.6.1
+-----
+
+* Language settings of downstream apps should no longer generate bogus
+  migrations for ``django-afip``.
+
 2.6.0
 -----
 
