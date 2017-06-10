@@ -9,7 +9,7 @@ from tempfile import NamedTemporaryFile
 import pytz
 from django.core.files.base import File
 from django.db import models
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from lxml import etree
 from lxml.builder import E
 from zeep.exceptions import Fault
