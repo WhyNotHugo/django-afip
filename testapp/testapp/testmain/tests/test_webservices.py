@@ -488,14 +488,12 @@ class ReceiptPDFTest(AfipTestCase):
         self.assertEqual(response.content[:10], b'%PDF-1.5\n%')
 
         headers = sorted(response.serialize_headers().decode().splitlines())
-        expected_headers = sorted([
-            'Content-Type: application/pdf',
-            'X-Frame-Options: SAMEORIGIN',
-            'Content-Disposition: attachment; filename=receipt {}.pdf'.format(
-                pdf.receipt.pk
-            ),
-        ])
-        self.assertEqual(headers, expected_headers)
+        self.assertIn('Content-Type: application/pdf', headers)
+        self.assertIn(
+            'Content-Disposition: attachment; '
+            'filename=receipt {}.pdf'.format(pdf.receipt.pk),
+            headers
+        )
 
     def test_unauthorized_receipt_generation(self):
         """
