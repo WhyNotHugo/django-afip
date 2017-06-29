@@ -52,7 +52,7 @@ py36-django1.11:
   variables:
     TOXENV: django111
 
-py36-django11-live:
+live:
   <<: *unittests
   image: python:3.6
   before_script:
