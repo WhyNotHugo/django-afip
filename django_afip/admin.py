@@ -135,7 +135,7 @@ class ReceiptAdmin(admin.ModelAdmin):
         'point_of_sales',
         'receipt_number',
         'issued_date',
-        'total_amount',
+        'friendly_total_amount',
         'batch_link',
         'validated',
     )
@@ -173,6 +173,13 @@ class ReceiptAdmin(admin.ModelAdmin):
                 'point_of_sales',
                 'batch',
             )
+
+    def friendly_total_amount(self, obj):
+        return '{:0.2f} ARS ({})'.format(
+            obj.total_amount * obj.currency_quote,
+            obj.currency,
+        )
+    friendly_total_amount.short_description = _('total amount')
 
     def validated(self, obj):
         return obj.validation.result == models.Validation.RESULT_APPROVED
