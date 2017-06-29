@@ -14,12 +14,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='receipt',
             name='point_of_sales',
-            field=models.ForeignKey(to='afip.PointOfSales', verbose_name='punto de ventas', related_name='receipts'),
+            field=models.ForeignKey(to='afip.PointOfSales', verbose_name='punto de ventas', related_name='receipts', on_delete=models.CASCADE),
         ),
         migrations.AlterField(
             model_name='receipt',
             name='receipt_type',
-            field=models.ForeignKey(to='afip.ReceiptType', verbose_name='tipo de comprobante', related_name='receipts'),
+            field=models.ForeignKey(to='afip.ReceiptType', verbose_name='tipo de comprobante', related_name='receipts', on_delete=models.CASCADE),
         ),
         migrations.AlterField(
             model_name='receipt',

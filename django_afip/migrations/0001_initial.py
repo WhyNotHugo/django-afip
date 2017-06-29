@@ -120,7 +120,7 @@ class Migration(migrations.Migration):
             name='ReceiptBatch',
             fields=[
                 ('id', models.AutoField(serialize=False, auto_created=True, primary_key=True, verbose_name='ID')),
-                ('point_of_sales', models.ForeignKey(verbose_name='punto de ventas', to='afip.PointOfSales')),
+                ('point_of_sales', models.ForeignKey(verbose_name='punto de ventas', to='afip.PointOfSales', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'lote de comprobantes',
@@ -149,7 +149,7 @@ class Migration(migrations.Migration):
                 ('cae', models.CharField(verbose_name='cae', max_length=14)),
                 ('cae_expiration', models.DateField(verbose_name='expiración de cae')),
                 ('observations', models.ManyToManyField(verbose_name='observaciones', to='afip.Observation', related_name='valiations')),
-                ('receipt', models.OneToOneField(verbose_name='comprobante', to='afip.Receipt', related_name='validation')),
+                ('receipt', models.OneToOneField(verbose_name='comprobante', to='afip.Receipt', related_name='validation', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'validación de comprobante',
@@ -164,7 +164,7 @@ class Migration(migrations.Migration):
                 ('base_amount', models.DecimalField(verbose_name='monto base', max_digits=15, decimal_places=2)),
                 ('aliquot', models.DecimalField(verbose_name='alicuota', max_digits=5, decimal_places=2)),
                 ('amount', models.DecimalField(verbose_name='monto', max_digits=15, decimal_places=2)),
-                ('receipt', models.ForeignKey(related_name='taxes', to='afip.Receipt')),
+                ('receipt', models.ForeignKey(related_name='taxes', to='afip.Receipt', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'tributo',
@@ -205,7 +205,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(serialize=False, auto_created=True, primary_key=True, verbose_name='ID')),
                 ('processed_date', models.DateTimeField(verbose_name='fecha procesado')),
                 ('result', models.CharField(verbose_name='resultado', max_length=1, choices=[('A', 'aprobado'), ('R', 'rechazado'), ('P', 'parcial')])),
-                ('batch', models.ForeignKey(verbose_name='lote de comprobantes', to='afip.ReceiptBatch', related_name='validation')),
+                ('batch', models.ForeignKey(verbose_name='lote de comprobantes', to='afip.ReceiptBatch', related_name='validation', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'validación',
@@ -218,7 +218,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(serialize=False, auto_created=True, primary_key=True, verbose_name='ID')),
                 ('base_amount', models.DecimalField(verbose_name='monto base', max_digits=15, decimal_places=2)),
                 ('amount', models.DecimalField(verbose_name='monto', max_digits=15, decimal_places=2)),
-                ('receipt', models.ForeignKey(related_name='vat', to='afip.Receipt')),
+                ('receipt', models.ForeignKey(related_name='vat', to='afip.Receipt', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'iva',
@@ -242,52 +242,52 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='vat',
             name='vat_type',
-            field=models.ForeignKey(verbose_name='tipo de iva', to='afip.VatType'),
+            field=models.ForeignKey(verbose_name='tipo de iva', to='afip.VatType', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='tax',
             name='tax_type',
-            field=models.ForeignKey(verbose_name='tipo de tributo', to='afip.TaxType'),
+            field=models.ForeignKey(verbose_name='tipo de tributo', to='afip.TaxType', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='receiptvalidation',
             name='validation',
-            field=models.ForeignKey(verbose_name='validación', to='afip.Validation', related_name='receipts'),
+            field=models.ForeignKey(verbose_name='validación', to='afip.Validation', related_name='receipts', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='receiptbatch',
             name='receipt_type',
-            field=models.ForeignKey(verbose_name='tipo de comprobante', to='afip.ReceiptType'),
+            field=models.ForeignKey(verbose_name='tipo de comprobante', to='afip.ReceiptType', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='receipt',
             name='batch',
-            field=models.ForeignKey(null=True, blank=True, help_text='Los comprobantes son validados en lotes, así que debe ser asignado a unou antes de que sea posible validarlo.', verbose_name='lote de comprobantes', to='afip.ReceiptBatch', related_name='receipts'),
+            field=models.ForeignKey(null=True, blank=True, help_text='Los comprobantes son validados en lotes, así que debe ser asignado a unou antes de que sea posible validarlo.', verbose_name='lote de comprobantes', to='afip.ReceiptBatch', related_name='receipts', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='receipt',
             name='concept',
-            field=models.ForeignKey(verbose_name='concepto', to='afip.ConceptType', related_name='receipts'),
+            field=models.ForeignKey(verbose_name='concepto', to='afip.ConceptType', related_name='receipts', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='receipt',
             name='currency',
-            field=models.ForeignKey(verbose_name='moneda', to='afip.CurrencyType', related_name='documents', help_text='Moneda en la cual el comprobante es emitido.'),
+            field=models.ForeignKey(verbose_name='moneda', to='afip.CurrencyType', related_name='documents', help_text='Moneda en la cual el comprobante es emitido.', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='receipt',
             name='document_type',
-            field=models.ForeignKey(verbose_name='tipo de documento', to='afip.DocumentType', related_name='receipts', help_text='El tipo de documento del client para el cual este recibo es emitido.'),
+            field=models.ForeignKey(verbose_name='tipo de documento', to='afip.DocumentType', related_name='receipts', help_text='El tipo de documento del client para el cual este recibo es emitido.', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='receipt',
             name='point_of_sales',
-            field=models.ForeignKey(to='afip.PointOfSales'),
+            field=models.ForeignKey(to='afip.PointOfSales', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='receipt',
             name='receipt_type',
-            field=models.ForeignKey(to='afip.ReceiptType'),
+            field=models.ForeignKey(to='afip.ReceiptType', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='receipt',
@@ -297,12 +297,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='pointofsales',
             name='owner',
-            field=models.ForeignKey(verbose_name='dueño', to='afip.TaxPayer'),
+            field=models.ForeignKey(verbose_name='dueño', to='afip.TaxPayer', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='authticket',
             name='owner',
-            field=models.ForeignKey(verbose_name='dueño', to='afip.TaxPayer', related_name='auth_tickets'),
+            field=models.ForeignKey(verbose_name='dueño', to='afip.TaxPayer', related_name='auth_tickets', on_delete=models.CASCADE),
         ),
         migrations.AlterUniqueTogether(
             name='receipt',
