@@ -350,6 +350,7 @@ class TaxPayerProfile(models.Model):
         TaxPayer,
         related_name='profile',
         verbose_name=_('taxpayer'),
+        on_delete=models.CASCADE,
     )
     issuing_name = models.CharField(
         max_length=128,
@@ -421,6 +422,7 @@ class PointOfSales(models.Model):
         TaxPayer,
         related_name='points_of_sales',
         verbose_name=_('owner'),
+        on_delete=models.CASCADE,
     )
 
     def __str__(self):
@@ -478,7 +480,8 @@ class AuthTicket(models.Model):
     owner = models.ForeignKey(
         TaxPayer,
         verbose_name=_('owner'),
-        related_name='auth_tickets'
+        related_name='auth_tickets',
+        on_delete=models.CASCADE,
     )
     unique_id = models.IntegerField(
         _('unique id'),
@@ -610,10 +613,12 @@ class ReceiptBatch(models.Model):
     receipt_type = models.ForeignKey(
         ReceiptType,
         verbose_name=_('receipt type'),
+        on_delete=models.PROTECT,
     )
     point_of_sales = models.ForeignKey(
         PointOfSales,
         verbose_name=_('point of sales'),
+        on_delete=models.PROTECT,
     )
 
     def __str__(self):
@@ -811,6 +816,7 @@ class Receipt(models.Model):
         ConceptType,
         verbose_name=_('concept'),
         related_name='receipts',
+        on_delete=models.PROTECT,
     )
     document_type = models.ForeignKey(
         DocumentType,
@@ -820,6 +826,7 @@ class Receipt(models.Model):
             'The document type of the customer to whom this receipt '
             'is addressed'
         ),
+        on_delete=models.PROTECT,
     )
     document_number = models.BigIntegerField(
         _('document number'),
@@ -922,6 +929,7 @@ class Receipt(models.Model):
         help_text=_(
             'Currency in which this receipt is issued.',
         ),
+        on_delete=models.PROTECT,
     )
     currency_quote = models.DecimalField(
         _('currency quote'),
@@ -949,11 +957,13 @@ class Receipt(models.Model):
         ReceiptType,
         related_name='receipts',
         verbose_name=_('receipt type'),
+        on_delete=models.PROTECT,
     )
     point_of_sales = models.ForeignKey(
         PointOfSales,
         related_name='receipts',
         verbose_name=_('point of sales'),
+        on_delete=models.PROTECT,
     )
 
     def validate(self, ticket=None):
@@ -1033,6 +1043,7 @@ class ReceiptPDF(models.Model):
     receipt = models.OneToOneField(
         Receipt,
         verbose_name=_('receipt'),
+        on_delete=models.PROTECT,
     )
     pdf_file = models.FileField(
         verbose_name=_('pdf file'),
@@ -1132,6 +1143,7 @@ class ReceiptEntry(models.Model):
         Receipt,
         related_name='entries',
         verbose_name=_('receipt'),
+        on_delete=models.PROTECT,
     )
     description = models.CharField(
         max_length=128,
@@ -1150,6 +1162,7 @@ class ReceiptEntry(models.Model):
         related_name='receipt_entries',
         verbose_name=_('vat'),
         null=True,
+        on_delete=models.PROTECT,
     )
 
     @property
@@ -1168,6 +1181,7 @@ class Tax(models.Model):
     tax_type = models.ForeignKey(
         TaxType,
         verbose_name=_('tax type'),
+        on_delete=models.PROTECT,
     )
     description = models.CharField(
         _('description'),
@@ -1192,6 +1206,7 @@ class Tax(models.Model):
     receipt = models.ForeignKey(
         Receipt,
         related_name='taxes',
+        on_delete=models.PROTECT,
     )
 
     def compute_amount(self):
@@ -1210,6 +1225,7 @@ class Vat(models.Model):
     vat_type = models.ForeignKey(
         VatType,
         verbose_name=_('vat type'),
+        on_delete=models.PROTECT,
     )
     base_amount = models.DecimalField(
         _('base amount'),
@@ -1225,6 +1241,7 @@ class Vat(models.Model):
     receipt = models.ForeignKey(
         Receipt,
         related_name='vat',
+        on_delete=models.PROTECT,
     )
 
     class Meta:
@@ -1262,6 +1279,7 @@ class Validation(models.Model):
         ReceiptBatch,
         related_name='validation',
         verbose_name=_('receipt batch'),
+        on_delete=models.PROTECT,
     )
 
     class Meta:
@@ -1307,6 +1325,7 @@ class ReceiptValidation(models.Model):
         help_text=_(
             'The validation for the batch that produced this instance.'
         ),
+        on_delete=models.PROTECT,
     )
     # TODO: replace this with a `successful` boolean field.
     result = models.CharField(
@@ -1342,6 +1361,7 @@ class ReceiptValidation(models.Model):
         related_name='validation',
         verbose_name=_('receipt'),
         help_text=_('The Receipt for which this validation applies'),
+        on_delete=models.PROTECT,
     )
 
     class Meta:
