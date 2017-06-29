@@ -71,10 +71,10 @@ class TestTaxPayerAdminKeyGeneration(TestCase):
         client = Client()
         client.force_login(self.user)
 
-        response = client.post('/admin/afip/taxpayer/', data=dict(
-            _selected_action=[taxpayer.id],
-            action='generate_key',
-        ), follow=True)
+        response = client.post('/admin/afip/taxpayer/', data={
+            '_selected_action': [taxpayer.id],
+            'action': 'generate_key',
+        }, follow=True)
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Key generated successfully.')
@@ -90,10 +90,10 @@ class TestTaxPayerAdminKeyGeneration(TestCase):
         client = Client()
         client.force_login(self.user)
 
-        response = client.post('/admin/afip/taxpayer/', data=dict(
-            _selected_action=[taxpayer.id],
-            action='generate_key',
-        ), follow=True)
+        response = client.post('/admin/afip/taxpayer/', data={
+            '_selected_action': [taxpayer.id],
+            'action': 'generate_key',
+        }, follow=True)
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(
@@ -116,10 +116,10 @@ class TestTaxPayerAdminRequestGeneration(TestCase):
         client = Client()
         client.force_login(self.user)
 
-        response = client.post('/admin/afip/taxpayer/', data=dict(
-            _selected_action=[taxpayer.id],
-            action='generate_csr',
-        ), follow=True)
+        response = client.post('/admin/afip/taxpayer/', data={
+            '_selected_action': [taxpayer.id],
+            'action': 'generate_csr',
+        }, follow=True)
 
         self.assertEqual(response.status_code, 200)
         self.assertIn(
@@ -137,10 +137,10 @@ class TestTaxPayerAdminRequestGeneration(TestCase):
         client = Client()
         client.force_login(self.user)
 
-        response = client.post('/admin/afip/taxpayer/', data=dict(
-            _selected_action=[taxpayer.id],
-            action='generate_csr',
-        ), follow=True)
+        response = client.post('/admin/afip/taxpayer/', data={
+            '_selected_action': [taxpayer.id],
+            'action': 'generate_csr',
+        }, follow=True)
 
         self.assertEqual(response.status_code, 200)
         self.assertIn(
@@ -158,10 +158,10 @@ class TestTaxPayerAdminRequestGeneration(TestCase):
         client = Client()
         client.force_login(self.user)
 
-        response = client.post('/admin/afip/taxpayer/', data=dict(
-            _selected_action=[taxpayer1.id, taxpayer2.id],
-            action='generate_csr',
-        ), follow=True)
+        response = client.post('/admin/afip/taxpayer/', data={
+            '_selected_action': [taxpayer1.id, taxpayer2.id],
+            'action': 'generate_csr',
+        }, follow=True)
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(

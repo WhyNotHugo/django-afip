@@ -23,10 +23,10 @@ def staticfile_url_fetcher(url):
         filepath = find(filename)
         with open(filepath, 'rb') as file_:
             data = file_.read()
-        return dict(
-            string=data,
-            mime_type=mimetypes.guess_type(url)[0],
-        )
+        return {
+            'string': data,
+            'mime_type': mimetypes.guess_type(url)[0],
+        }
     else:
         return default_url_fetcher(url)
 
@@ -48,10 +48,10 @@ def generate_receipt_pdf(pk, target, force_html=False):
 
     html = get_template('receipts/code_{}.html'.format(
         pdf.receipt.receipt_type.code,
-    )).render(dict(
-        pdf=pdf,
-        taxpayer=pdf.receipt.point_of_sales.owner,
-    ))
+    )).render({
+        'pdf': pdf,
+        'taxpayer': pdf.receipt.point_of_sales.owner,
+    })
 
     if force_html:
         return html

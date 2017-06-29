@@ -327,10 +327,10 @@ class TaxPayerAdmin(admin.ModelAdmin):
             message=(
                 _(
                     '%(total)d points of sales fetched. %(created)d created.'
-                ) % dict(
-                    total=total,
-                    created=created,
-                )
+                ) % {
+                    'total': total,
+                    'created': created,
+                }
             ),
             level=messages.SUCCESS,
         )

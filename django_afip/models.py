@@ -320,10 +320,10 @@ class TaxPayer(models.Model):
                 number=pos_data.Nro,
                 issuance_type=pos_data.EmisionTipo,
                 owner=self,
-                defaults=dict(
-                    blocked=pos_data.Bloqueado == 'N',
-                    drop_date=parsers.parse_date(pos_data.FchBaja),
-                )
+                defaults={
+                    'blocked': pos_data.Bloqueado == 'N',
+                    'drop_date': parsers.parse_date(pos_data.FchBaja),
+                }
             ))
 
         return results
