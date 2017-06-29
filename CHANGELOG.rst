@@ -8,6 +8,11 @@ releases, in reverse chronological order.
 -----
 
 * Drop support for Django 1.9, support Django 1.11.
+* The default ordering of ``Receipt`` instances has now changed, both via
+  querysets and in the admin.
+* The total amount for receipts is not shown in ARS.
+* CI now run tests with all supported Python and Django versions.
+* This version has experimental Django 2.0 support.
 
 2.6.1
 -----
