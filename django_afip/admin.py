@@ -157,7 +157,7 @@ class ReceiptAdmin(admin.ModelAdmin):
         TaxInline,
     )
     ordering = (
-        'id',
+        '-issued_date',
     )
 
     def get_fields(self, request, obj=None):

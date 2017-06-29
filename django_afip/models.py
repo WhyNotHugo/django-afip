@@ -991,6 +991,7 @@ class Receipt(models.Model):
                 % {'receipt_type': self.receipt_type, 'id': self.pk}
 
     class Meta:
+        ordering = ('issued_date',)
         verbose_name = _('receipt')
         verbose_name_plural = _('receipts')
         unique_together = (
