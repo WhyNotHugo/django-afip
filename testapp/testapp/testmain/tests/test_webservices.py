@@ -54,6 +54,7 @@ class AfipTestCase(TestCase):
         AfipTestCase.ticket.save()
 
 
+@tag('live')
 class AuthTicketTest(TestCase):
     """Test AuthTicket methods."""
 
