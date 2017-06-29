@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.utils.timezone import now
 
 from django_afip import exceptions, models
-from testapp.testmain import mocks
+from testapp.testmain import fixtures, mocks
 
 
 @tag('live')
@@ -190,15 +190,17 @@ class TaxPayerTest(AfipTestCase):
         self.assertGreater(points_of_sales, 0)
 
 
-class ReceiptBatchTest(AfipTestCase):
-    """Test ReceiptBatch methods."""
-
+class PopulatedAfipTestCase(AfipTestCase):
     def setUp(self):
         """Populate AFIP metadata and create a TaxPayer and PointOfSales."""
         super().setUp()
         models.populate_all()
         taxpayer = models.TaxPayer.objects.first()
         taxpayer.fetch_points_of_sales()
+
+
+class ReceiptBatchTest(PopulatedAfipTestCase):
+    """Test ReceiptBatch methods."""
 
     def _good_receipt(self):
         return mocks.receipt()
@@ -230,12 +232,12 @@ class ReceiptBatchTest(AfipTestCase):
             models.Receipt.objects.filter(batch_id__isnull=True),
         )
 
-        self.assertEquals(batch.receipts.count(), 2)
+        self.assertEqual(batch.receipts.count(), 2)
 
     def test_validate_empty(self):
         """Test that validating an empty batch does not crash."""
         # Hack to easily create an empty batch:
-        self._good_receipt()
+        fixtures.ReceiptFactory()
         batch = models.ReceiptBatch.objects.create(
             models.Receipt.objects.all(),
         )
@@ -379,6 +381,44 @@ class ReceiptBatchTest(AfipTestCase):
         batch = models.ReceiptBatch.objects \
             .create(models.Receipt.objects.all())
         errs = batch.validate()
+
+        self.assertEqual(len(errs), 0)
+        self.assertEqual(
+            batch.validation.last().result,
+            models.Validation.RESULT_APPROVED,
+        )
+        self.assertEqual(batch.validation.count(), 1)
+        self.assertEqual(batch.receipts.count(), 1)
+
+
+class ReceiptQuerySetTestCase(PopulatedAfipTestCase):
+
+    def test_validation(self):
+        """Test validating valid receipts."""
+        mocks.receipt()
+        mocks.receipt()
+        mocks.receipt()
+
+        errs = models.Receipt.objects.all().validate()
+        batch = models.ReceiptBatch.objects.last()
+
+        self.assertEqual(len(errs), 0)
+        self.assertEqual(
+            batch.validation.last().result,
+            models.Validation.RESULT_APPROVED,
+        )
+        self.assertEqual(batch.validation.count(), 1)
+        self.assertEqual(batch.receipts.count(), 3)
+
+
+class ReceiptTestCase(PopulatedAfipTestCase):
+
+    def test_validation(self):
+        """Test validating valid receipts."""
+        receipt = mocks.receipt()
+
+        errs = receipt.validate()
+        batch = models.ReceiptBatch.objects.last()
 
         self.assertEqual(len(errs), 0)
         self.assertEqual(
