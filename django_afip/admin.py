@@ -5,9 +5,9 @@ from datetime import datetime
 from django.apps import apps
 from django.contrib import admin, messages
 from django.contrib.admin.sites import AlreadyRegistered
-from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.http import HttpResponse
+from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 from django_afip import exceptions, models
