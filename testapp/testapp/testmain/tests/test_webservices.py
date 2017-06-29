@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import management
 from django.core.files import File
-from django.test import Client, TestCase
+from django.test import Client, tag, TestCase
 from django.urls import reverse
 from django.utils.timezone import now
 
@@ -14,6 +14,7 @@ from django_afip import exceptions, models
 from testapp.testmain import mocks
 
 
+@tag('live')
 class AfipTestCase(TestCase):
     """
     Base class for AFIP-WS related tests.

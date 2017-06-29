@@ -11,17 +11,59 @@ flake8:
   script:
     - tox -e flake8
 
-# We only run with one because AFIP doesn't like us logging in too fast and
-# that breaks concurrent tests.
-py36-django1.10:
+.job_template: &unittests
   stage: test
   script:
+    - tox
+
+py34-django1.10:
+  <<: *unittests
+  image: python:3.4
+  variables:
+    TOXENV: django10
+
+py34-django1.11:
+  <<: *unittests
+  image: python:3.4
+  variables:
+    TOXENV: django11
+
+py35-django1.10:
+  <<: *unittests
+  image: python:3.5
+  variables:
+    TOXENV: django10
+
+py35-django1.11:
+  <<: *unittests
+  image: python:3.5
+  variables:
+    TOXENV: django11
+
+py36-django1.10:
+  <<: *unittests
+  image: python:3.6
+  variables:
+    TOXENV: django10
+
+py36-django1.11:
+  <<: *unittests
+  image: python:3.6
+  variables:
+    TOXENV: django11
+
+py36-django11-live:
+  <<: *unittests
+  image: python:3.6
+  before_script:
+    - pip install tox
     - echo -e $AFIP_TEST_KEY > testapp/test.key
     - echo -e $AFIP_TEST_CRT > testapp/test.crt
-    - tox -e django1.11
   after_script:
     - pip install codecov
     - codecov
+  variables:
+    TOXENV: live
 
 docs:
   stage: test
