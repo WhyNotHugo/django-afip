@@ -338,7 +338,7 @@ class TaxPayerAdmin(admin.ModelAdmin):
     fetch_points_of_sales.short_description = _('Fetch points of sales')
 
     def generate_key(self, request, queryset):
-        key_count = sum([t.generate_key() for t in queryset.all()])
+        key_count = sum(t.generate_key() for t in queryset.all())
 
         if key_count is 1:
             message = _('Key generated successfully.')
