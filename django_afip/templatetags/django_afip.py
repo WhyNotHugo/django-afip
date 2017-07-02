@@ -1,4 +1,5 @@
 import re
+import warnings
 
 from django import template
 
@@ -7,10 +8,12 @@ register = template.Library()
 
 @register.filter
 def receiptnumber(receipt):
-    return '{:04d}-{:08d}'.format(
-        receipt.point_of_sales.number,
-        receipt.receipt_number,
+    warnings.warn(
+        'Use receipt.formatted_number instead.',
+        DeprecationWarning,
+        stacklevel=2,
     )
+    return receipt.formatted_number
 
 
 @register.filter

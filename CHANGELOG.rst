@@ -14,6 +14,8 @@ releases, in reverse chronological order.
   admin.
 * ``Receipt`` instances have a new ``validate()`` method to validate that
   single receipt.
+* The ``receiptnumber`` tag is now deprecated. Use ``Receipt.formatted_number``
+  instead.
 
 2.7.0
 -----
