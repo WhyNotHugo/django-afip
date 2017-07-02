@@ -979,10 +979,12 @@ class Receipt(models.Model):
 
     @property
     def formatted_number(self):
-        return '{:04d}-{:08d}'.format(
-            self.point_of_sales.number,
-            self.receipt_number,
-        )
+        if self.receipt_number:
+            return '{:04d}-{:08d}'.format(
+                self.point_of_sales.number,
+                self.receipt_number,
+            )
+        return None
 
     def validate(self, ticket=None):
         """
