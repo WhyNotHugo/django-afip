@@ -13,6 +13,7 @@ releases, in reverse chronological order.
 * The total amount for receipts is not shown in ARS.
 * CI now run tests with all supported Python and Django versions.
 * This version has experimental Django 2.0 support.
+* Include a new ReceiptPDF admin.
 
 2.6.1
 -----

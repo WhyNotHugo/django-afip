@@ -413,8 +413,22 @@ class CurrencyTypeAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(models.ReceiptPDF)
+class ReceiptPDFAdmin(admin.ModelAdmin):
+    list_display = (
+        'receipt_id',
+        'client_name',
+        'has_file',
+    )
+
+    def has_file(self, obj):
+        return bool(obj.pdf_file)
+    has_file.admin_order_field = 'pdf_file'
+    has_file.boolean = True
+    has_file.short_description = _('Has file')
+
+
 admin.site.register(models.Receipt, ReceiptAdmin)
-admin.site.register(models.ReceiptBatch, ReceiptBatchAdmin)
 admin.site.register(models.AuthTicket, AuthTicketAdmin)
 admin.site.register(models.TaxPayer, TaxPayerAdmin)
 
