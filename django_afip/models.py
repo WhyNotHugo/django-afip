@@ -580,7 +580,7 @@ class AuthTicket(models.Model):
 
 class ReceiptQuerySet(models.QuerySet):
     """
-    The default queryset obtained when querying via :class:`~.ReceiptManager`.
+    The default queryset obtains when querying via :class:`~.ReceiptManager`.
     """
 
     def _assign_numbers(self):
