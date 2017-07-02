@@ -200,8 +200,8 @@ class PopulatedAfipTestCase(AfipTestCase):
         taxpayer.fetch_points_of_sales()
 
 
-class ReceiptBatchTest(PopulatedAfipTestCase):
-    """Test ReceiptBatch methods."""
+class ReceiptQuerySetTestCase(PopulatedAfipTestCase):
+    """Test ReceiptQuerySet methods."""
 
     def _good_receipt(self):
         return mocks.receipt()
@@ -209,61 +209,36 @@ class ReceiptBatchTest(PopulatedAfipTestCase):
     def _bad_receipt(self):
         return mocks.receipt(80)
 
-    def test_creation_empty(self):
-        """
-        Test creation of an empty batch.
-
-        An empty batch has no sense, and None should be returned.
-        """
-        batch = models.ReceiptBatch.objects.create(
-            models.Receipt.objects.none(),
-        )
-        self.assertIsNone(batch)
-
-    def test_creation_exclusion(self):
-        """Test that batch creation excludes already batched receipts."""
-        self._good_receipt()
-        self._good_receipt()
-        self._good_receipt()
-
-        models.ReceiptBatch.objects.create(
-            models.Receipt.objects.filter(pk=1),
-        )
-        batch = models.ReceiptBatch.objects.create(
-            models.Receipt.objects.filter(batch_id__isnull=True),
-        )
-
-        self.assertEqual(batch.receipts.count(), 2)
-
     def test_validate_empty(self):
-        """Test that validating an empty batch does not crash."""
-        # Hack to easily create an empty batch:
         fixtures.ReceiptFactory()
-        batch = models.ReceiptBatch.objects.create(
-            models.Receipt.objects.all(),
-        )
-        models.Receipt.objects.all().delete()
 
-        errs = batch.validate()
+        errs = models.Receipt.objects.none().validate()
+
         self.assertEqual(errs, [])
+        self.assertEqual(models.ReceiptValidation.objects.count(), 0)
 
     def test_validation_good(self):
         """Test validating valid receipts."""
-        self._good_receipt()
-        self._good_receipt()
-        self._good_receipt()
+        r1 = self._good_receipt()
+        r2 = self._good_receipt()
+        r3 = self._good_receipt()
 
-        batch = models.ReceiptBatch.objects \
-            .create(models.Receipt.objects.all())
-        errs = batch.validate()
+        errs = models.Receipt.objects.all().validate()
 
         self.assertEqual(len(errs), 0)
         self.assertEqual(
-            batch.validation.last().result,
-            models.Validation.RESULT_APPROVED,
+            r1.validation.result,
+            models.ReceiptValidation.RESULT_APPROVED,
         )
-        self.assertEqual(batch.validation.count(), 1)
-        self.assertEqual(batch.receipts.count(), 3)
+        self.assertEqual(
+            r2.validation.result,
+            models.ReceiptValidation.RESULT_APPROVED,
+        )
+        self.assertEqual(
+            r3.validation.result,
+            models.ReceiptValidation.RESULT_APPROVED,
+        )
+        self.assertEqual(models.ReceiptValidation.objects.count(), 3)
 
     def test_validation_bad(self):
         """Test validating invalid receipts."""
@@ -271,9 +246,7 @@ class ReceiptBatchTest(PopulatedAfipTestCase):
         self._bad_receipt()
         self._bad_receipt()
 
-        batch = models.ReceiptBatch.objects \
-            .create(models.Receipt.objects.all())
-        errs = batch.validate()
+        errs = models.Receipt.objects.all().validate()
 
         self.assertEqual(len(errs), 1)
         self.assertEqual(
@@ -282,7 +255,7 @@ class ReceiptBatchTest(PopulatedAfipTestCase):
             '80, DocNro 203012345 no se encuentra registrado en los padrones '
             'de AFIP y no corresponde a una cuit pais.'
         )
-        self.assertEqual(batch.receipts.count(), 0)
+        self.assertQuerysetEqual(models.ReceiptValidation.objects.all(), [])
 
     def test_validation_mixed(self):
         """
@@ -292,13 +265,11 @@ class ReceiptBatchTest(PopulatedAfipTestCase):
         the bad one are validated, and nothing else is even parsed after the
         invalid one.
         """
-        self._good_receipt()
+        r1 = self._good_receipt()
         self._bad_receipt()
         self._good_receipt()
 
-        batch = models.ReceiptBatch.objects \
-            .create(models.Receipt.objects.all())
-        errs = batch.validate()
+        errs = models.Receipt.objects.all().validate()
 
         self.assertEqual(len(errs), 1)
         self.assertEqual(
@@ -307,36 +278,26 @@ class ReceiptBatchTest(PopulatedAfipTestCase):
             '80, DocNro 203012345 no se encuentra registrado en los padrones '
             'de AFIP y no corresponde a una cuit pais.'
         )
-        self.assertEqual(batch.receipts.count(), 1)
+        self.assertQuerysetEqual(
+            models.ReceiptValidation.objects.all(),
+            [r1.pk],
+            lambda rv: rv.receipt_id,
+        )
 
     def test_validation_validated(self):
         """Test validating invalid receipts."""
         receipt = self._good_receipt()
-        batch = models.ReceiptBatch.objects.create(
-            models.Receipt.objects.all()
-        )
-        validation = models.Validation.objects.create(
-            processed_date=now(),
-            result=models.Validation.RESULT_APPROVED,
-            batch=batch,
-        )
         models.ReceiptValidation.objects.create(
-            validation=validation,
-            result=models.Validation.RESULT_APPROVED,
+            result=models.ReceiptValidation.RESULT_APPROVED,
             cae='123',
             cae_expiration=now(),
             receipt=receipt,
+            processed_date=now(),
         )
 
-        receipt.batch = None
-        receipt.save()
+        errs = models.Receipt.objects.all().validate()
 
-        batch = models.ReceiptBatch.objects.create(
-            models.Receipt.objects.all()
-        )
-        self.assertIsNotNone(batch)
-        errs = batch.validate()
-
+        self.assertEqual(models.ReceiptValidation.objects.count(), 1)
         self.assertEqual(errs, [])
 
     def test_validation_good_service(self):
@@ -348,86 +309,40 @@ class ReceiptBatchTest(PopulatedAfipTestCase):
         receipt.expiration_date = datetime.now() + timedelta(days=10)
         receipt.save()
 
-        batch = models.ReceiptBatch.objects \
-            .create(models.Receipt.objects.all())
-        errs = batch.validate()
+        errs = models.Receipt.objects.all().validate()
 
         self.assertEqual(len(errs), 0)
         self.assertEqual(
-            batch.validation.last().result,
-            models.Validation.RESULT_APPROVED,
+            receipt.validation.result,
+            models.ReceiptValidation.RESULT_APPROVED,
         )
-        self.assertEqual(batch.receipts.count(), 1)
+        self.assertEqual(models.ReceiptValidation.objects.count(), 1)
 
     def test_validation_good_without_tax(self):
         """Test validating valid receipts."""
-        mocks.receipt(with_tax=False)
+        receipt = mocks.receipt(with_tax=False)
 
-        batch = models.ReceiptBatch.objects \
-            .create(models.Receipt.objects.all())
-        errs = batch.validate()
+        errs = models.Receipt.objects.all().validate()
 
         self.assertEqual(len(errs), 0)
         self.assertEqual(
-            batch.validation.last().result,
-            models.Validation.RESULT_APPROVED,
+            receipt.validation.result,
+            models.ReceiptValidation.RESULT_APPROVED,
         )
-        self.assertEqual(batch.validation.count(), 1)
-        self.assertEqual(batch.receipts.count(), 1)
+        self.assertEqual(models.ReceiptValidation.objects.count(), 1)
 
     def test_validation_good_without_vat(self):
         """Test validating valid receipts."""
-        mocks.receipt(with_vat=False, receipt_type=11)
-
-        batch = models.ReceiptBatch.objects \
-            .create(models.Receipt.objects.all())
-        errs = batch.validate()
-
-        self.assertEqual(len(errs), 0)
-        self.assertEqual(
-            batch.validation.last().result,
-            models.Validation.RESULT_APPROVED,
-        )
-        self.assertEqual(batch.validation.count(), 1)
-        self.assertEqual(batch.receipts.count(), 1)
-
-
-class ReceiptQuerySetTestCase(PopulatedAfipTestCase):
-
-    def test_validation(self):
-        """Test validating valid receipts."""
-        mocks.receipt()
-        mocks.receipt()
-        mocks.receipt()
+        receipt = mocks.receipt(with_vat=False, receipt_type=11)
 
         errs = models.Receipt.objects.all().validate()
-        batch = models.ReceiptBatch.objects.last()
 
         self.assertEqual(len(errs), 0)
         self.assertEqual(
-            batch.validation.last().result,
-            models.Validation.RESULT_APPROVED,
+            receipt.validation.result,
+            models.ReceiptValidation.RESULT_APPROVED,
         )
-        self.assertEqual(batch.validation.count(), 1)
-        self.assertEqual(batch.receipts.count(), 3)
-
-
-class ReceiptTestCase(PopulatedAfipTestCase):
-
-    def test_validation(self):
-        """Test validating valid receipts."""
-        receipt = mocks.receipt()
-
-        errs = receipt.validate()
-        batch = models.ReceiptBatch.objects.last()
-
-        self.assertEqual(len(errs), 0)
-        self.assertEqual(
-            batch.validation.last().result,
-            models.Validation.RESULT_APPROVED,
-        )
-        self.assertEqual(batch.validation.count(), 1)
-        self.assertEqual(batch.receipts.count(), 1)
+        self.assertEqual(models.ReceiptValidation.objects.count(), 1)
 
 
 class ReceiptPDFTest(AfipTestCase):
@@ -587,20 +502,12 @@ class ReceiptAdminTest(AfipTestCase):
         not_validated_receipt = mocks.receipt()
         # XXX: Receipt with failed validation?
 
-        batch = models.ReceiptBatch.objects.create(
-            models.Receipt.objects.filter(pk=validated_receipt.pk)
-        )
-        validation = models.Validation.objects.create(
-            processed_date=now(),
-            result=models.Validation.RESULT_APPROVED,
-            batch=batch,
-        )
         models.ReceiptValidation.objects.create(
-            validation=validation,
-            result=models.Validation.RESULT_APPROVED,
+            result=models.ReceiptValidation.RESULT_APPROVED,
             cae='123',
             cae_expiration=now(),
             receipt=validated_receipt,
+            processed_date=now(),
         )
 
         client = Client()

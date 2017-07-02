@@ -93,16 +93,15 @@ Validating receipts
 After getting started, you should be ready to emit/validate receipts.
 
 The first step is, naturally, to create a :class:`~.Receipt` instance. Receipts
-are then sent to AFIP's web services in batches (this can be one, or many
-receipts). You can create a :class:`~.ReceiptBatch` by using
-:meth:`~.ReceiptBatchManager.create`.
+are then sent to AFIP's web services in batches, so you van actually validate
+multiple ones, by operating over a ``QuerySet``; eg:
+``Receipt.objects.filter(...).validate()``.
 
-To validate the receipts, you'll need to use :meth:`~.ReceiptBatch.validate`.
-Authorization is handled transparently (consult the API documentation if you'd
-prefer to do this manually).
+To validate the receipts, you'll need to use :meth:`~.Receipt.validate` or
+:meth:`~.ReceiptQuerySet.validate` .  Authorization is handled transparently
+(consult the API documentation if you'd prefer to do this manually).
 
-All of these actions can be completed via the ``Receipt`` and ``ReceiptBatch``
-admins.
+Validation is also possible via the ``Receipt`` admin.
 
 PDF Receipts
 ------------

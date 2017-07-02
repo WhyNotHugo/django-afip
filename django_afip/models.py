@@ -9,6 +9,7 @@ from tempfile import NamedTemporaryFile
 import pytz
 from django.core.files.base import File
 from django.db import models
+from django.db.models import Count
 from django.utils.translation import ugettext_lazy as _
 from lxml import etree
 from lxml.builder import E
@@ -577,128 +578,112 @@ class AuthTicket(models.Model):
         verbose_name_plural = _('authorization tickets')
 
 
-class ReceiptBatchManager(models.Manager):
+class ReceiptQuerySet(models.QuerySet):
+    """
+    The default queryset obtained when querying via :class:`~.ReceiptManager`.
+    """
 
-    def create(self, queryset):
+    def _assign_numbers(self):
         """
-        Creates a batch with all receipts returned by ``queryset``.
+        Assign numbers in preparation for validating these receipts.
 
-        If you need to create a ReceiptBatch with a single receipt, just
-        pass a query that returns that one::
-
-            Receipt.objects.filter(pk=pk)
+        WARNING: Don't call the method manually unless you know what you're
+        doing!
         """
-        first = queryset.select_related('point_of_sales').first()
-        if not first:
-            # Queryset is empty, nothing to create
-            return
-        batch = ReceiptBatch(
-            receipt_type_id=first.receipt_type_id,
-            point_of_sales_id=first.point_of_sales_id,
+        first = self.select_related('point_of_sales', 'receipt_type').first()
+
+        next_num = Receipt.objects.fetch_last_receipt_number(
+            first.point_of_sales,
+            first.receipt_type,
+        ) + 1
+
+        for receipt in self.filter(receipt_number__isnull=True):
+            # Atomically update receipt number
+            Receipt.objects.filter(
+                pk=receipt.id,
+                receipt_number__isnull=True,
+            ).update(
+                receipt_number=next_num,
+            )
+            next_num += 1
+
+    def check_groupable(self):
+        """
+        Checks that all receipts returned by this queryset are groupable.
+
+        "Groupable" means that they can be validated together: they have the
+        same POS and receipt type.
+
+        Returns the same queryset is all receipts are groupable, otherwise,
+        raises :class:`~.CannotValidateTogether`.
+        """
+        types = self.aggregate(
+            poses=Count('point_of_sales_id', distinct=True),
+            types=Count('receipt_type', distinct=True),
         )
-        batch.save()
 
-        # Exclude any receipts that are already batched (either pre-selection,
-        # or due to concurrency):
-        queryset.filter(batch__isnull=True).update(batch=batch)
-        return batch
+        if set(types.values()) > {1}:
+            raise exceptions.CannotValidateTogether()
 
-
-class ReceiptBatch(models.Model):
-    """
-    Receipts are validated in batches.
-
-    AFIP's webservice validates receipts in batches, and this class models
-    them. A batch of receipts is simply a set of consecutive-numbered
-    :class:`~.Receipt` instances, with the same :class:`~.ReceiptType` and
-    :class:`~.PointOfSales`.
-
-    If you need to validate a single Receipt, it's okay to create a batch with
-    just one.
-    """
-
-    receipt_type = models.ForeignKey(
-        ReceiptType,
-        verbose_name=_('receipt type'),
-        on_delete=models.PROTECT,
-    )
-    point_of_sales = models.ForeignKey(
-        PointOfSales,
-        verbose_name=_('point of sales'),
-        on_delete=models.PROTECT,
-    )
-
-    def __str__(self):
-        return str(self.id)
+        return self
 
     def validate(self, ticket=None):
         """
-        Validates all receipts assigned to this batch.
+        Validates all receipts matching this queryset.
 
-        Attempting to validate an empty batch will do nothing.
+        Note that, due to how AFIP implements its numbering, this method is not
+        thread-safe, or even multiprocess-safe.
 
-        Any receipts that fail validation are removed from the batch, so you
-        should never modify a batch after validation. Receipts that succesfully
-        validae will have a :class:`~.ReceiptValidation` object attatched to
-        them with a validation date and CAE information.
+        Because of this, it is possible that not all instances matching this
+        queryset are validates properly; however, consistency *is* and receipts
+        will be updated if and only if they have been validated by the AFIP.
 
         Returns a list of errors as returned from AFIP's webservices. An
         exception is not raised because partial failures are possible.
+
+        Receipts that succesfully validae will have a
+        :class:`~.ReceiptValidation` object attatched to them with a validation
+        date and CAE information.
+
+        Already-validated receipts are ignored.
+
+        Attempting to validate an empty queryset will simply return an empty
+        list.
         """
-        if self.receipts.count() == 0:
-            logger.debug('Refusing to validate empty Batch')
+        # Skip any already-validated ones:
+        qs = self.filter(validation__isnull=True).check_groupable()
+        if qs.count() == 0:
             return []
-        if self.receipts.filter(validation__isnull=True).count() == 0:
-            logger.debug('Refusing to Batch with no non-validated Receipts')
-            return []
+        qs.order_by('issued_date', 'id')._assign_numbers()
 
-        ticket = ticket or \
-            self.point_of_sales.owner.get_or_create_ticket('wsfe')
+        return qs._validate(ticket)
 
-        next_num = Receipt.objects.fetch_last_receipt_number(
-            self.point_of_sales,
-            self.receipt_type,
-        ) + 1
-        for receipt in self.receipts.filter(receipt_number__isnull=True):
-
-            # Atomically update receipt number
-            Receipt.objects \
-                .filter(pk=receipt.id, receipt_number__isnull=True) \
-                .update(receipt_number=next_num)
-            next_num += 1
-
-        # Purge the internal cache (.update() doesn't maintan it)
-        self.receipts.all()
-
+    def _validate(self, ticket=None):
+        first = self.first()
+        ticket = (
+            ticket or
+            first.point_of_sales.owner.get_or_create_ticket('wsfe')
+        )
         client = clients.get_client(
-            'wsfe', self.point_of_sales.owner.is_sandboxed
+            'wsfe', first.point_of_sales.owner.is_sandboxed
         )
         response = client.service.FECAESolicitar(
             serializers.serialize_ticket(ticket),
-            serializers.serialize_receipt_batch(self),
+            serializers.serialize_multiple_receipts(self),
         )
         check_response(response)
-
-        if response.Errors:
-            raise exceptions.AfipException(response)
-
-        validation = Validation.objects.create(
-            processed_date=parsers.parse_datetime(
-                response.FeCabResp.FchProceso
-            ),
-            result=response.FeCabResp.Resultado,
-            batch=self,
-        )
-
         errs = []
         for cae_data in response.FeDetResp.FECAEDetResponse:
-            if cae_data.Resultado == Validation.RESULT_APPROVED:
-                rv = validation.receipts.create(
+            if cae_data.Resultado == ReceiptValidation.RESULT_APPROVED:
+                rv = ReceiptValidation.objects.create(
                     result=cae_data.Resultado,
                     cae=cae_data.CAE,
                     cae_expiration=parsers.parse_date(cae_data.CAEFchVto),
-                    receipt=self.receipts.get(
-                        receipt_number=cae_data.CbteDesde
+                    receipt=self.get(
+                        receipt_number=cae_data.CbteDesde,
+                    ),
+                    processed_date=parsers.parse_datetime(
+                        response.FeCabResp.FchProceso,
                     ),
                 )
                 if cae_data.Observaciones:
@@ -717,36 +702,10 @@ class ReceiptBatch(models.Model):
                         )
                     )
 
-        # Remove failed receipts from the batch
-        self.receipts.filter(validation__isnull=True) \
-            .update(batch=None, receipt_number=None)
+        # Remove the number from ones that vailed to validate:
+        self.filter(validation__isnull=True).update(receipt_number=None)
 
         return errs
-
-    class Meta:
-        verbose_name = _('receipt batch')
-        verbose_name_plural = _('receipt batches')
-
-    objects = ReceiptBatchManager()
-
-
-class ReceiptQuerySet(models.QuerySet):
-    """
-    The default queryset obtains when querying via :class:`~.ReceiptManager`.
-    """
-
-    def validate(self, ticket=None):
-        """
-        Validates all receipts matching this queryset.
-
-        Note that, due to how AFIP implements its numbering, this method is not
-        thread-safe, or even multiprocess-safe.
-
-        Because of this, it is possible that not all instances matching this
-        queryset are validates properly; however, consistency *is* and receipts
-        will be updated if and only if they have been validated by the AFIP.
-        """
-        return ReceiptBatch.objects.create(self).validate(ticket)
 
 
 class ReceiptManager(models.Manager):
@@ -797,8 +756,6 @@ class Receipt(models.Model):
     Note that AFIP allows sending ranges of receipts, but this isn't generally
     what you want, so we model invoices individually.
 
-    To validate a Receipt, you need to create a :class:`~.ReceiptBatch` first.
-
     You'll probably want to relate some `Sale` or `Order` object from your
     model with each Receipt.
 
@@ -807,16 +764,16 @@ class Receipt(models.Model):
     If the taxpayer has taxes or pays VAT, you need to attach :class:`~.Tax`
     and/or :class:`~.Vat` instances to the Receipt.
     """
-    batch = models.ForeignKey(
-        ReceiptBatch,
+    point_of_sales = models.ForeignKey(
+        PointOfSales,
         related_name='receipts',
-        null=True,
-        blank=True,
-        verbose_name=_('receipt batch'),
-        help_text=_(
-            'Receipts are validated in batches, so it must be assigned one '
-            'before validation is possible.'
-        ),
+        verbose_name=_('point of sales'),
+        on_delete=models.PROTECT,
+    )
+    receipt_type = models.ForeignKey(
+        ReceiptType,
+        related_name='receipts',
+        verbose_name=_('receipt type'),
         on_delete=models.PROTECT,
     )
     concept = models.ForeignKey(
@@ -961,21 +918,6 @@ class Receipt(models.Model):
 
     # TODO: Not implemented: optionals
     # TODO: methods to validate totals
-
-    # These two values are stored in the receipt's batch. However, before the
-    # receipt is assigned into a batch, this value should be used.
-    receipt_type = models.ForeignKey(
-        ReceiptType,
-        related_name='receipts',
-        verbose_name=_('receipt type'),
-        on_delete=models.PROTECT,
-    )
-    point_of_sales = models.ForeignKey(
-        PointOfSales,
-        related_name='receipts',
-        verbose_name=_('point of sales'),
-        on_delete=models.PROTECT,
-    )
 
     @property
     def formatted_number(self):
@@ -1279,44 +1221,6 @@ class Vat(models.Model):
         verbose_name_plural = _('vat')
 
 
-class Validation(models.Model):
-    """
-    The validation result for a batch.
-
-    The validation result for an attempt to validate a batch. Note that each
-    Receipt inside the batch will have its own :class:`~.ReceiptValidation`.
-    """
-    RESULT_APPROVED = 'A'
-    RESULT_REJECTED = 'R'
-    RESULT_PARTIAL = 'P'
-
-    processed_date = models.DateTimeField(
-        _('processed date'),
-    )
-    result = models.CharField(
-        _('result'),
-        max_length=1,
-        choices=(
-            (RESULT_APPROVED, _('approved')),
-            (RESULT_REJECTED, _('rejected')),
-            (RESULT_PARTIAL, _('partial')),
-        ),
-    )
-
-    # reprocessed?
-
-    batch = models.ForeignKey(
-        ReceiptBatch,
-        related_name='validation',
-        verbose_name=_('receipt batch'),
-        on_delete=models.PROTECT,
-    )
-
-    class Meta:
-        verbose_name = _('validation')
-        verbose_name_plural = _('validations')
-
-
 class Observation(models.Model):
     """
     An observation returned by AFIP.
@@ -1347,25 +1251,21 @@ class ReceiptValidation(models.Model):
     The ``observation`` field may contain any data returned by AFIP regarding
     validation failure.
     """
+    RESULT_APPROVED = 'A'
+    RESULT_REJECTED = 'R'
 
-    validation = models.ForeignKey(
-        Validation,
-        verbose_name=_('validation'),
-        related_name='receipts',
-        help_text=_(
-            'The validation for the batch that produced this instance.'
-        ),
-        on_delete=models.PROTECT,
-    )
     # TODO: replace this with a `successful` boolean field.
     result = models.CharField(
         _('result'),
         max_length=1,
         choices=(
-            (Validation.RESULT_APPROVED, _('approved')),
-            (Validation.RESULT_REJECTED, _('rejected')),
+            (RESULT_APPROVED, _('approved')),
+            (RESULT_REJECTED, _('rejected')),
         ),
         help_text=_('Indicates whether the validation was succesful or not'),
+    )
+    processed_date = models.DateTimeField(
+        _('processed date'),
     )
     cae = models.CharField(
         _('cae'),

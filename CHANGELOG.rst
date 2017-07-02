@@ -4,6 +4,17 @@ Changelog
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
+3.0.0
+-----
+* The entire ``ReceiptBatch`` model has been dropped, along with
+  ``Validation``. Receipts are now validated via Receipt querysets, eg:
+  ``Receipt.objects.filter(...).validate()``. The existing
+  ``ReceiptValidation`` objects remain unchanged.
+* Validation of Receipts can now be done in a single action via the ``Receipt``
+  admin.
+* ``Receipt`` instances have a new ``validate()`` method to validate that
+  single receipt.
+
 2.7.0
 -----
 

@@ -31,17 +31,18 @@ def serialize_ticket(ticket):
     )
 
 
-def serialize_receipt_batch(batch):
-    receipts = batch.receipts.all().order_by('receipt_number')
+def serialize_multiple_receipts(receipts):
+    receipts = receipts.all().order_by('receipt_number')
     f = _wsfe_factory()
 
+    first = receipts.first()
     receipts = [serialize_receipt(receipt) for receipt in receipts]
 
     wso = f.FECAERequest(
         FeCabReq=f.FECAECabRequest(
             CantReg=len(receipts),
-            PtoVta=batch.point_of_sales.number,
-            CbteTipo=batch.receipt_type.code,
+            PtoVta=first.point_of_sales.number,
+            CbteTipo=first.receipt_type.code,
         ),
         FeDetReq=f.ArrayOfFECAEDetRequest(receipts),
     )

@@ -10,15 +10,11 @@ These are the code models which will normally be used for  ``Receipt`` validatio
     :members:
 .. autoclass:: django_afip.models.Receipt
     :members:
-.. autoclass:: django_afip.models.ReceiptBatch
-    :members:
 .. autoclass:: django_afip.models.ReceiptValidation
     :members:
 .. autoclass:: django_afip.models.Tax
     :members:
 .. autoclass:: django_afip.models.TaxPayer
-    :members:
-.. autoclass:: django_afip.models.Validation
     :members:
 .. autoclass:: django_afip.models.Vat
     :members:
@@ -26,11 +22,8 @@ These are the code models which will normally be used for  ``Receipt`` validatio
 Managers
 ~~~~~~~~
 
-Managers should be accessed via models. For example, ``ReceiptBatchManager``
-should be accessed using ``ReceiptBatch.objects``.
-
-.. autoclass:: django_afip.models.ReceiptBatchManager
-    :members:
+Managers should be accessed via models. For example, ``ReceiptManager``
+should be accessed using ``Receipt.objects``.
 
 .. autoclass:: django_afip.models.ReceiptManager
     :members:

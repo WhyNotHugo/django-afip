@@ -41,3 +41,10 @@ class CorruptCertificate(AuthenticationError):
     attempt.
     """
     pass
+
+
+class CannotValidateTogether(DjangoAfipException):
+    """
+    Raised when attempting to validate receipts that cannot be validated
+    together (eg: different receipt types, or different point of sales).
+    """
