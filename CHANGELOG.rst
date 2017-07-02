@@ -14,6 +14,7 @@ releases, in reverse chronological order.
 * CI now run tests with all supported Python and Django versions.
 * This version has experimental Django 2.0 support.
 * Include a new ReceiptPDF admin.
+* All exceptions now inherit from ``DjangoAfipException``.
 
 2.6.1
 -----

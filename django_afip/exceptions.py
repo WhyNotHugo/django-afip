@@ -1,4 +1,8 @@
-class AfipException(Exception):
+class DjangoAfipException(Exception):
+    """Superclass for all exceptions explicitly thrown by this app."""
+
+
+class AfipException(DjangoAfipException):
     """
     Wraps around errors returned by AFIP's WS.
     """
@@ -10,7 +14,7 @@ class AfipException(Exception):
         ))
 
 
-class AuthenticationError(Exception):
+class AuthenticationError(DjangoAfipException):
     """
     Raised when there is a non-specific error during an authentication attempt.
     """
