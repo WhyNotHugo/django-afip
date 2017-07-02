@@ -951,10 +951,7 @@ class Receipt(models.Model):
 
     def __str__(self):
         if self.receipt_number:
-            return _('%(receipt_type)s %(receipt_number)s') % {
-                'receipt_type': self.receipt_type,
-                'receipt_number': self.formatted_number,
-            }
+            return '{} {}'.format(self.receipt_type, self.formatted_number)
         else:
             return _('Unnumbered %s') % self.receipt_type
 

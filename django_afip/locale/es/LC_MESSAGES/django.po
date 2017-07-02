@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-afip\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-15 02:50+0000\n"
-"PO-Revision-Date: 2017-03-14 23:50-0300\n"
+"POT-Creation-Date: 2017-07-02 23:41+0000\n"
+"PO-Revision-Date: 2017-07-02 20:40-0300\n"
 "Last-Translator: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
 "Language-Team: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
 "Language: es\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.8.11\n"
+"X-Generator: Poedit 2.0.2\n"
 
 msgid "The AFIP Taxpayer certificate has expired."
 msgstr "El certificado de contribuyente del AFIP venció."
@@ -39,14 +39,11 @@ msgstr "Validados"
 msgid "Not validated"
 msgstr "No validados"
 
-msgid "batched"
-msgstr "loteado"
+msgid "receipt number"
+msgstr "número de comprobante"
 
-msgid "Batched"
-msgstr "Loteados"
-
-msgid "Not batched"
-msgstr "No loteados"
+msgid "total amount"
+msgstr "monto total"
 
 msgid "validated"
 msgstr "validado"
@@ -54,27 +51,9 @@ msgstr "validado"
 msgid "cae"
 msgstr "cae"
 
-msgid "The selected receipts are not all of the same type."
-msgstr "Los comprobantes seleccionados no son todos del mismo tipo."
-
-msgid "The selected receipts are not all from the same point of sales."
-msgstr "Los comprobantes seleccionados no son todos del mismo punto de ventas."
-
-msgid "All the selected invoices have already been batched"
-msgstr "Todos los comprobantes seleccionados ya han sido loteados"
-
-msgid "Create receipt batch"
-msgstr "Crear lote de comprobantes"
-
-msgid "batch"
-msgstr "lote"
-
-msgid "receipts"
-msgstr "comprobantes"
-
 #, python-format
-msgid "Batch #%(num)s failed: %(err)s"
-msgstr "Lote #%(num)s falló: %(err)s"
+msgid "Receipt validation failed: %s"
+msgstr "Validación de comprobante falló: %s"
 
 msgid "Validate"
 msgstr "Validar"
@@ -104,6 +83,9 @@ msgstr "Sólo se pueden generar CSR para un contribuyente por vez."
 
 msgid "Generate CSR"
 msgstr "Generar CSR"
+
+msgid "Has file"
+msgstr "Tiene archivo"
 
 msgid "Fetches required AFIP metadata and stores it locally"
 msgstr "Obtiene metadatos necesarios del AFIP y los almacena localmente."
@@ -275,19 +257,6 @@ msgstr "ticket de autorización"
 msgid "authorization tickets"
 msgstr "tickets de autorización"
 
-msgid "receipt batch"
-msgstr "lote de comprobantes"
-
-msgid "receipt batches"
-msgstr "lotes de comprobantes"
-
-msgid ""
-"Receipts are validated in batches, so it must be assigned one before "
-"validation is possible."
-msgstr ""
-"Los comprobantes son validados en lotes, así que debe ser asignado a unou "
-"antes de que sea posible validarlo."
-
 msgid "concept"
 msgstr "concepto"
 
@@ -301,17 +270,18 @@ msgid "The document number of the customer to whom this receipt is addressed"
 msgstr ""
 "El número de documento del cliente para el cual este comprobante es emitido."
 
-msgid "receipt number"
-msgstr "número de comprobante"
+msgid ""
+"If left blank, the next valid number will assigned when validating the "
+"receipt."
+msgstr ""
+"Si queda en blanco, se completará con el próximo número válido al validar el "
+"comprobante."
 
 msgid "issued date"
 msgstr "fecha de emisión"
 
 msgid "Can diverge up to 5 days for good, or 10 days otherwise"
 msgstr "Puede diverger hasta 5 días para bienes, o 10 en otros casos."
-
-msgid "total amount"
-msgstr "monto total"
 
 msgid "Must be equal to untaxed amount + exempt amount + taxes + vat."
 msgstr "Debe ser igual al monto no gravado + monto gravado + tributos + iva."
@@ -380,11 +350,14 @@ msgid "related receipts"
 msgstr "comprobantes relacionados"
 
 #, python-format
-msgid "<%(id)s> %(receipt_type)s"
-msgstr "<%(id)s> %(receipt_type)s"
+msgid "Unnumbered %s"
+msgstr "%s sin número"
 
 msgid "receipt"
 msgstr "comprobante"
+
+msgid "receipts"
+msgstr "comprobantes"
 
 msgid "pdf file"
 msgstr "archivo pdf"
@@ -400,6 +373,10 @@ msgstr "Debería ser algo como \"Efectivo\" o \"Pagable a 30 días\", etc"
 
 msgid "Cannot generate pdf for non-authorized receipt"
 msgstr "No se puede generar un PDF para un comprobante no-autorizado."
+
+#, python-format
+msgid "Receipt PDF for %s"
+msgstr "PDF de comprobante para %s"
 
 msgid "receipt pdf"
 msgstr "pdf del comprobante"
@@ -437,8 +414,14 @@ msgstr "tributo"
 msgid "taxes"
 msgstr "tributos"
 
-msgid "processed date"
-msgstr "fecha procesado"
+msgid "message"
+msgstr "mensaje"
+
+msgid "observation"
+msgstr "observación"
+
+msgid "observations"
+msgstr "observaciones"
 
 msgid "result"
 msgstr "resultado"
@@ -449,29 +432,11 @@ msgstr "aprobado"
 msgid "rejected"
 msgstr "rechazado"
 
-msgid "partial"
-msgstr "parcial"
-
-msgid "validation"
-msgstr "validación"
-
-msgid "validations"
-msgstr "validaciones"
-
-msgid "message"
-msgstr "mensaje"
-
-msgid "observation"
-msgstr "observación"
-
-msgid "observations"
-msgstr "observaciones"
-
-msgid "The validation for the batch that produced this instance."
-msgstr "La validación del lote que produjo esta instancia."
-
 msgid "Indicates whether the validation was succesful or not"
 msgstr "Indica si la validación fue exitosa o no."
+
+msgid "processed date"
+msgstr "fecha procesado"
 
 msgid "The CAE as returned by the AFIP"
 msgstr "El CAE, tal como fue devuelto por el AFIP."
@@ -501,20 +466,3 @@ msgstr "validaciones de comprobante"
 #, python-format
 msgid "receipt %s.pdf"
 msgstr "comprobante %s.pdf"
-
-#~ msgid "vat amount"
-#~ msgstr "monto de iva"
-
-#~ msgid "Must be equal to the sum of all Vat objects."
-#~ msgstr "Debe ser igual a la suma de todos los ivas."
-
-#~ msgid "tax amount"
-#~ msgstr "monto de tributos"
-
-#~ msgid "Must be equal to the sum of all Tax objects."
-#~ msgstr "Debe ser igual a la suma de todos los tributos."
-
-#, fuzzy
-#~| msgid "receipts"
-#~ msgid "receipts__count"
-#~ msgstr "comprobantes"
