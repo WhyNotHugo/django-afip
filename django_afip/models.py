@@ -903,10 +903,10 @@ class Receipt(models.Model):
         _('currency quote'),
         max_digits=10,
         decimal_places=6,
+        default=1,
         help_text=_(
             'Quote of the day for the currency used in the receipt',
         ),
-        # XXX: Is this always mandatory?
     )
     related_receipts = models.ManyToManyField(
         'Receipt',
