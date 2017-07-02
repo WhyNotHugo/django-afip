@@ -328,6 +328,13 @@ class TaxPayer(models.Model):
 
         return results
 
+    def __repr__(self):
+        return '<TaxPayer {}: {}, CUIT {}>'.format(
+            self.pk,
+            self.name,
+            self.cuit,
+        )
+
     def __str__(self):
         return str(self.cuit)
 
@@ -840,6 +847,10 @@ class Receipt(models.Model):
         _('receipt number'),
         null=True,
         blank=True,
+        help_text=_(
+            'If left blank, the next valid number will assigned when '
+            'validating the receipt.'
+        )
     )
     issued_date = models.DateField(
         verbose_name=_('issued date'),
@@ -966,6 +977,13 @@ class Receipt(models.Model):
         on_delete=models.PROTECT,
     )
 
+    @property
+    def formatted_number(self):
+        return '{:04d}-{:08d}'.format(
+            self.point_of_sales.number,
+            self.receipt_number,
+        )
+
     def validate(self, ticket=None):
         """
         Validates this receipt.
@@ -979,16 +997,22 @@ class Receipt(models.Model):
         self.refresh_from_db()
         return rv
 
+    def __repr__(self):
+        return '<Receipt {}: {} {} for {}>'.format(
+            self.pk,
+            self.receipt_type,
+            self.receipt_number,
+            self.point_of_sales.owner,
+        )
+
     def __str__(self):
         if self.receipt_number:
-            return '<{}> {} #{}'.format(
-                self.pk,
-                self.receipt_type,
-                self.receipt_number,
-            )
+            return _('%(receipt_type)s %(receipt_number)s') % {
+                'receipt_type': self.receipt_type,
+                'receipt_number': self.formatted_number,
+            }
         else:
-            return _('<%(id)s> %(receipt_type)s') \
-                % {'receipt_type': self.receipt_type, 'id': self.pk}
+            return _('Unnumbered %s') % self.receipt_type
 
     class Meta:
         ordering = ('issued_date',)
@@ -1123,6 +1147,9 @@ class ReceiptPDF(models.Model):
 
         from . import pdf
         pdf.generate_receipt_pdf(self.receipt_id, file_)
+
+    def __str__(self):
+        return _('Receipt PDF for %s') % self.receipt_id
 
     class Meta:
         verbose_name = _('receipt pdf')
@@ -1364,6 +1391,14 @@ class ReceiptValidation(models.Model):
         help_text=_('The Receipt for which this validation applies'),
         on_delete=models.PROTECT,
     )
+
+    def __repr__(self):
+        return '<{} {}: {} for Receipt {}>'.format(
+            self.__class__.__name__,
+            self.pk,
+            self.result,
+            self.receipt_id,
+        )
 
     class Meta:
         verbose_name = _('receipt validation')
