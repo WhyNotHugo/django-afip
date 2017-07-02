@@ -51,7 +51,7 @@ duplicate data. To fetch all metadata, simply run::
     python manage.py afipmetadata
 
 This metadata can also be downloaded programmatically, via
-:func:`.models.populate_all`.
+:func:`~.models.populate_all`.
 
 You are now ready to start creating and validating receipts. While you may do
 this via the admin as well, you probably want to do this programmatically or via

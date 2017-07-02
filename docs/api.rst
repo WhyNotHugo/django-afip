@@ -58,6 +58,8 @@ These models represent metadata like currency types or document types. Their
 tables should be populated from AFIP's webservices, using the ``afipmetadata``
 command.
 
+.. autofunction:: django_afip.models.populate_all
+
 .. autoclass:: django_afip.models.ConceptType
     :members:
 .. autoclass:: django_afip.models.CurrencyType
