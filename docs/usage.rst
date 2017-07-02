@@ -56,6 +56,9 @@ This metadata can also be downloaded programmatically, via
 You are now ready to start creating and validating receipts. While you may do
 this via the admin as well, you probably want to do this programmatically or via
 some custom view.
+Note that the admin views provided do very little validations - it's generally
+intended as a developer tool, though it's known to be used for invoicing by a
+few people who understand it's limitations.
 
 Example
 ~~~~~~~
