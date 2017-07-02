@@ -107,7 +107,7 @@ class ReceiptAdmin(admin.ModelAdmin):
         'id',
         'receipt_type',
         'point_of_sales',
-        'receipt_number',
+        'number',
         'issued_date',
         'friendly_total_amount',
         'validated',
@@ -143,6 +143,11 @@ class ReceiptAdmin(admin.ModelAdmin):
                 'receipt_type',
                 'point_of_sales',
             )
+
+    def number(self, obj):
+        return obj.formatted_number
+    number.short_description = _('receipt number')
+    number.admin_order_field = 'receipt_number'
 
     def friendly_total_amount(self, obj):
         return '{:0.2f} ARS ({})'.format(
