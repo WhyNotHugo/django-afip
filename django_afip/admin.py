@@ -101,6 +101,7 @@ class ReceiptStatusFilter(admin.SimpleListFilter):
             )
 
 
+@admin.register(models.Receipt)
 class ReceiptAdmin(admin.ModelAdmin):
 
     list_display = (
@@ -183,6 +184,7 @@ class ReceiptAdmin(admin.ModelAdmin):
     actions = [validate]
 
 
+@admin.register(models.AuthTicket)
 class AuthTicketAdmin(admin.ModelAdmin):
     list_display = (
         'unique_id',
@@ -193,6 +195,7 @@ class AuthTicketAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(models.TaxPayer)
 class TaxPayerAdmin(admin.ModelAdmin):
     list_display = (
         'name',
@@ -341,10 +344,6 @@ class ReceiptValidationAdmin(admin.ModelAdmin):
     successful.admin_order_field = 'result'
     successful.boolean = True
 
-
-admin.site.register(models.Receipt, ReceiptAdmin)
-admin.site.register(models.AuthTicket, AuthTicketAdmin)
-admin.site.register(models.TaxPayer, TaxPayerAdmin)
 
 app = apps.get_app_config('afip')
 for model in app.get_models():
