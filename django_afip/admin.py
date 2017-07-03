@@ -316,6 +316,32 @@ class ReceiptPDFAdmin(admin.ModelAdmin):
     has_file.short_description = _('Has file')
 
 
+@admin.register(models.ReceiptValidation)
+class ReceiptValidationAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'receipt_number',
+        'successful',
+        'cae',
+        'processed_date',
+    )
+
+    raw_id_fields = (
+        'receipt',
+    )
+
+    def receipt_number(self, obj):
+        return obj.receipt.formatted_number
+    receipt_number.short_description = _('receipt number')
+    receipt_number.admin_order_field = 'receipt_id'
+
+    def successful(self, obj):
+        return obj.result == models.ReceiptValidation.RESULT_APPROVED
+    successful.short_description = _('result')
+    successful.admin_order_field = 'result'
+    successful.boolean = True
+
+
 admin.site.register(models.Receipt, ReceiptAdmin)
 admin.site.register(models.AuthTicket, AuthTicketAdmin)
 admin.site.register(models.TaxPayer, TaxPayerAdmin)
