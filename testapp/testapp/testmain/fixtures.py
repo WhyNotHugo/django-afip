@@ -2,7 +2,7 @@ from datetime import date, datetime
 
 from django.contrib.auth.models import User
 from factory import PostGenerationMethodCall, SubFactory
-from factory.django import DjangoModelFactory
+from factory.django import DjangoModelFactory, FileField
 
 from django_afip import models
 
@@ -64,6 +64,21 @@ class TaxPayerFactory(DjangoModelFactory):
     name = 'John Smith'
     cuit = '20329642330'
     is_sandboxed = True
+    key = FileField()
+
+
+class TaxPayerProfileFactory(DjangoModelFactory):
+    class Meta:
+        model = models.TaxPayerProfile
+
+    taxpayer = SubFactory(TaxPayerFactory)
+    issuing_name = 'Red Company Inc.'
+    issuing_address = '100 Red Av\nRedsville\nUK'
+    issuing_email = 'billing@example.com'
+    vat_condition = 'Exempt'
+    gross_income_condition = 'Exempt'
+    sales_terms = 'Credit Card'
+    active_since = datetime(2011, 10, 3)
 
 
 class PointOfSalesFactory(DjangoModelFactory):

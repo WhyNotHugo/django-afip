@@ -4,13 +4,13 @@ from django.test import TestCase
 from freezegun import freeze_time
 from OpenSSL import crypto
 
-from testapp.testmain import mocks
+from testapp.testmain import fixtures
 
 
 class TestTaxPayerKeyManagement(TestCase):
 
     def test_key_generation(self):
-        taxpayer = mocks.taxpayer()
+        taxpayer = fixtures.TaxPayerFactory(key=None)
         taxpayer.generate_key()
 
         key = taxpayer.key.file.read().decode()
@@ -22,7 +22,7 @@ class TestTaxPayerKeyManagement(TestCase):
 
     def test_dont_overwrite_keys(self):
         text = "Hello! I'm not really a key :D".encode()
-        taxpayer = mocks.taxpayer(key=text)
+        taxpayer = fixtures.TaxPayerFactory(key__data=text)
 
         taxpayer.generate_key()
         key = taxpayer.key.read()
@@ -31,7 +31,7 @@ class TestTaxPayerKeyManagement(TestCase):
 
     def test_overwrite_keys_force(self):
         text = "Hello! I'm not really a key :D".encode()
-        taxpayer = mocks.taxpayer(key=text)
+        taxpayer = fixtures.TaxPayerFactory(key__data=text)
 
         taxpayer.generate_key(force=True)
         key = taxpayer.key.file.read().decode()
@@ -45,7 +45,7 @@ class TestTaxPayerKeyManagement(TestCase):
 
     @freeze_time(datetime.fromtimestamp(1489537017))
     def test_csr_generation(self):
-        taxpayer = mocks.taxpayer()
+        taxpayer = fixtures.TaxPayerFactory(key=None)
         taxpayer.generate_key()
 
         csr_file = taxpayer.generate_csr()
@@ -65,7 +65,7 @@ class TestTaxPayerKeyManagement(TestCase):
         self.assertIsInstance(loaded_csr, crypto.X509Req)
 
         expected_components = [
-            (b'O', b'Test Taxpayer'),
+            (b'O', b'John Smith'),
             (b'CN', b'djangoafip1489537017'),
             (b'serialNumber', b'CUIT 20329642330'),
         ]

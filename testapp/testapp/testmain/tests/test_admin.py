@@ -8,7 +8,7 @@ from django.utils.translation import ugettext as _
 
 from django_afip import exceptions, models
 from django_afip.admin import catch_errors
-from testapp.testmain import fixtures, mocks
+from testapp.testmain import fixtures
 
 
 class TestCatchErrors(TestCase):
@@ -65,10 +65,10 @@ class TestCatchErrors(TestCase):
 class TestTaxPayerAdminKeyGeneration(TestCase):
 
     def setUp(self):
-        self.user = mocks.superuser()
+        self.user = fixtures.SuperUserFactory()
 
     def test_without_key(self):
-        taxpayer = mocks.taxpayer()
+        taxpayer = fixtures.TaxPayerFactory(key=None)
         client = Client()
         client.force_login(self.user)
 
@@ -87,7 +87,7 @@ class TestTaxPayerAdminKeyGeneration(TestCase):
         )
 
     def test_with_key(self):
-        taxpayer = mocks.taxpayer(key='Blah'.encode())
+        taxpayer = fixtures.TaxPayerFactory(key__data=b'Blah')
         client = Client()
         client.force_login(self.user)
 
@@ -109,10 +109,10 @@ class TestTaxPayerAdminKeyGeneration(TestCase):
 class TestTaxPayerAdminRequestGeneration(TestCase):
 
     def setUp(self):
-        self.user = mocks.superuser()
+        self.user = fixtures.SuperUserFactory()
 
     def test_with_csr(self):
-        taxpayer = mocks.taxpayer()
+        taxpayer = fixtures.TaxPayerFactory(key=None)
         taxpayer.generate_key()
         client = Client()
         client.force_login(self.user)
@@ -133,7 +133,7 @@ class TestTaxPayerAdminRequestGeneration(TestCase):
         )
 
     def test_without_key(self):
-        taxpayer = mocks.taxpayer()
+        taxpayer = fixtures.TaxPayerFactory(key=None)
         taxpayer.generate_key()
         client = Client()
         client.force_login(self.user)
@@ -154,8 +154,8 @@ class TestTaxPayerAdminRequestGeneration(TestCase):
         )
 
     def test_multiple_taxpayers(self):
-        taxpayer1 = mocks.taxpayer(key='Blah'.encode())
-        taxpayer2 = mocks.taxpayer(key='Blah'.encode())
+        taxpayer1 = fixtures.TaxPayerFactory(key__data=b'Blah')
+        taxpayer2 = fixtures.TaxPayerFactory(key__data=b'Blah')
         client = Client()
         client.force_login(self.user)
 
