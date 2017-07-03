@@ -1,13 +1,14 @@
 from unittest import mock
 
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.http import HttpRequest
 from django.test import Client, TestCase
 from django.utils.translation import ugettext as _
 
-from django_afip import exceptions
+from django_afip import exceptions, models
 from django_afip.admin import catch_errors
-from testapp.testmain import mocks
+from testapp.testmain import fixtures, mocks
 
 
 class TestCatchErrors(TestCase):
@@ -167,4 +168,70 @@ class TestTaxPayerAdminRequestGeneration(TestCase):
         self.assertContains(
             response,
             'Can only generate CSR for one taxpayer at a time',
+        )
+
+
+class ReceiptFiltersAdminTestCase(TestCase):
+    """Test ReceiptAdmin methods."""
+
+    def setUp(self):
+        fixtures.SuperUserFactory()
+
+    def test_validation_filters(self):
+        """
+        Test the admin validation filters.
+
+        This filters receipts by the validation status.
+        """
+        validated_receipt = fixtures.ReceiptFactory()
+        failed_validation_receipt = fixtures.ReceiptFactory()
+        not_validated_receipt = fixtures.ReceiptFactory()
+
+        fixtures.ReceiptValidationFactory(receipt=validated_receipt)
+        fixtures.ReceiptValidationFactory(
+            result=models.ReceiptValidation.RESULT_REJECTED,
+            receipt=failed_validation_receipt,
+        )
+
+        client = Client()
+        client.force_login(User.objects.first())
+
+        response = client.get('/admin/afip/receipt/?status=validated')
+        self.assertContains(
+            response,
+            '<input class="action-select" name="_selected_action" value="{}" '
+            'type="checkbox">'.format(validated_receipt.pk),
+            html=True,
+        )
+        self.assertNotContains(
+            response,
+            '<input class="action-select" name="_selected_action" value="{}" '
+            'type="checkbox">'.format(not_validated_receipt.pk),
+            html=True,
+        )
+        self.assertNotContains(
+            response,
+            '<input class="action-select" name="_selected_action" value="{}" '
+            'type="checkbox">'.format(failed_validation_receipt.pk),
+            html=True,
+        )
+
+        response = client.get('/admin/afip/receipt/?status=not_validated')
+        self.assertNotContains(
+            response,
+            '<input class="action-select" name="_selected_action" value="{}" '
+            'type="checkbox">'.format(validated_receipt.pk),
+            html=True,
+        )
+        self.assertContains(
+            response,
+            '<input class="action-select" name="_selected_action" value="{}" '
+            'type="checkbox">'.format(not_validated_receipt.pk),
+            html=True,
+        )
+        self.assertContains(
+            response,
+            '<input class="action-select" name="_selected_action" value="{}" '
+            'type="checkbox">'.format(failed_validation_receipt.pk),
+            html=True,
         )

@@ -1,9 +1,24 @@
 from datetime import date, datetime
 
-from factory import SubFactory
+from django.contrib.auth.models import User
+from factory import PostGenerationMethodCall, SubFactory
 from factory.django import DjangoModelFactory
 
 from django_afip import models
+
+
+class UserFactory(DjangoModelFactory):
+    class Meta:
+        model = User
+
+    username = 'john doe'
+    email = 'john@doe.co'
+    password = PostGenerationMethodCall('set_password', '123')
+
+
+class SuperUserFactory(UserFactory):
+    is_staff = True
+    is_superuser = True
 
 
 class ConceptTypeFactory(DjangoModelFactory):
@@ -77,3 +92,14 @@ class ReceiptFactory(DjangoModelFactory):
     currency_quote = 1
     receipt_type = SubFactory(ReceiptTypeFactory)
     point_of_sales = SubFactory(PointOfSalesFactory)
+
+
+class ReceiptValidationFactory(DjangoModelFactory):
+    class Meta:
+        model = models.ReceiptValidation
+
+    result = models.ReceiptValidation.RESULT_APPROVED
+    processed_date = datetime(2017, 7, 2, 21, 6, 4)
+    cae = '67190616790549'
+    cae_expiration = datetime(2017, 7, 12)
+    receipt = SubFactory(ReceiptFactory)

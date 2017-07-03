@@ -3,7 +3,6 @@ import os
 from datetime import date, datetime, timedelta
 
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.core import management
 from django.core.files import File
 from django.test import Client, tag, TestCase
@@ -472,74 +471,6 @@ class ReceiptPDFTest(AfipTestCase):
             'Cannot generate pdf for non-authorized receipt'
         ):
             pdf.save_pdf()
-
-
-class ReceiptAdminTest(AfipTestCase):
-    """Test ReceiptAdmin methods."""
-
-    def setUp(self):
-        """Initialized AFIP metadata and a single django superuser."""
-        super().setUp()
-        models.populate_all()
-        taxpayer = models.TaxPayer.objects.first()
-        taxpayer.fetch_points_of_sales()
-
-        User.objects._create_user(
-           username='superuser',
-           email='superuser@email.com',
-           password='123',
-           is_staff=True,
-           is_superuser=True,
-        )
-
-    def test_validation_filters(self):
-        """
-        Test the admin validation filters.
-
-        This filters receipts by the validation status.
-        """
-        validated_receipt = mocks.receipt()
-        not_validated_receipt = mocks.receipt()
-        # XXX: Receipt with failed validation?
-
-        models.ReceiptValidation.objects.create(
-            result=models.ReceiptValidation.RESULT_APPROVED,
-            cae='123',
-            cae_expiration=now(),
-            receipt=validated_receipt,
-            processed_date=now(),
-        )
-
-        client = Client()
-        client.force_login(User.objects.first())
-
-        response = client.get('/admin/afip/receipt/?status=validated')
-        self.assertContains(
-            response,
-            '<input class="action-select" name="_selected_action" value="{}" '
-            'type="checkbox">'.format(validated_receipt.pk),
-            html=True,
-        )
-        self.assertNotContains(
-            response,
-            '<input class="action-select" name="_selected_action" value="{}" '
-            'type="checkbox">'.format(not_validated_receipt.pk),
-            html=True,
-        )
-
-        response = client.get('/admin/afip/receipt/?status=not_validated')
-        self.assertNotContains(
-            response,
-            '<input class="action-select" name="_selected_action" value="{}" '
-            'type="checkbox">'.format(validated_receipt.pk),
-            html=True,
-        )
-        self.assertContains(
-            response,
-            '<input class="action-select" name="_selected_action" value="{}" '
-            'type="checkbox">'.format(not_validated_receipt.pk),
-            html=True,
-        )
 
 
 # TODO: Test receipts with related_receipts
