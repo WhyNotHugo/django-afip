@@ -78,3 +78,6 @@ pypi:
     - twine upload --config-file .pypirc -u $PYPI_USER -p $PYPI_PASSWORD dist/*
   only:
     - tags@hobarrera/django-afip
+  environment:
+    name: PyPI
+    url: https://pypi.python.org/pypi/django-afip
