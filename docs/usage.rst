@@ -1,25 +1,6 @@
 Usage
 =====
 
-Installing
-----------
-
-Installation is quite simple and can be done via pip::
-
-    pip install django-afip
-
-You'll then need to configure your project to use it by adding it to
-settings.py::
-
-    INSTALLED_APPS = (
-        ...
-        'django_afip',
-        ...
-    )
-
-Make sure to run all migrations after you've added the app (eg: ``python
-manage.py migrate``).
-
 Getting started
 ---------------
 
