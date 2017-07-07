@@ -12,7 +12,8 @@ Official documentation for obtaining the certificate is available
 delegation `here <http://www.afip.gov.ar/ws/WSAA/ADMINREL.DelegarWS.pdf>`_.
 
 django-afip includes admin views for every model included, and it's the
-recommended way to create :class:`~.TaxPayer` objects.
+recommended way to create :class:`~.TaxPayer` objects (at least during
+development/testing).
 
 Once you have created a :class:`~.TaxPayer`, you'll need its points of sales. This,
 again, can be done via the admin by selecting "fetch points of sales'. You may
@@ -138,3 +139,15 @@ The template used for the HTML and PDF receipts is found in
 code. If you want to override the default (you probably do), simply place a
 template with the same path/name inside your own app, and make sure it's listed
 *before* ``django_afip`` in ``INSTALLED_APPS``.
+
+About the admin
+---------------
+
+As mentioned above, admin views are included for most models. If you need
+to customize admin views, it is recommended that you subclass these and aviod
+repeating anything.
+
+Admin views are generally present for developers to check data (especially
+during development and tests), or for low-volume power-users to generate their
+invoices (but they really do need to know what they're doing). They are not
+really intended for end-users, and definitely not on multi-user systems.
