@@ -408,6 +408,9 @@ class PointOfSales(models.Model):
     Points of sales need to be created via AFIP's web interface and it is
     recommended that you use :meth:`~.TaxPayer.fetch_points_of_sales` to fetch
     these programatically.
+
+    Note that deleting or altering these models will not affect upstream point
+    of sales.
     """
     number = models.PositiveSmallIntegerField(
         _('number'),
