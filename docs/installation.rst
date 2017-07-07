@@ -37,8 +37,3 @@ notes ARE provided though):
        dependencies.  Consult `their documentation
        <http://weasyprint.readthedocs.io/en/stable/install.html>`_ for clear
        and up-to-date details.
-
-
-
-
-
