@@ -170,9 +170,13 @@ class ReceiptAdmin(admin.ModelAdmin):
     friendly_total_amount.short_description = _('total amount')
 
     def validated(self, obj):
-        return (
-            obj.validation.result == models.ReceiptValidation.RESULT_APPROVED
-        )
+        try:
+            return (
+                obj.validation.result ==
+                models.ReceiptValidation.RESULT_APPROVED
+            )
+        except models.ReceiptValidation.DoesNotExist:
+            return False
     validated.short_description = _('validated')
     validated.admin_order_field = 'validation__result'
     validated.boolean = True
