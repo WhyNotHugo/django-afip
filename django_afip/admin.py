@@ -334,6 +334,15 @@ class ReceiptPDFAdmin(admin.ModelAdmin):
     has_file.boolean = True
     has_file.short_description = _('Has file')
 
+    def generate_pdf(self, request, queryset):
+        for pdf in queryset:
+            pdf.save_pdf()
+    generate_pdf.short_description = _('generate pdf')
+
+    actions = (
+        generate_pdf,
+    )
+
 
 @admin.register(models.ReceiptValidation)
 class ReceiptValidationAdmin(admin.ModelAdmin):
