@@ -77,6 +77,17 @@ class TaxInline(admin.TabularInline):
     extra = 1
 
 
+class ReceiptEntryInline(admin.TabularInline):
+    model = models.ReceiptEntry
+    fields = (
+        'description',
+        'quantity',
+        'unit_price',
+        'vat',
+    )
+    extra = 1
+
+
 class ReceiptStatusFilter(admin.SimpleListFilter):
     title = _('status')
     parameter_name = 'status'
@@ -127,6 +138,7 @@ class ReceiptAdmin(admin.ModelAdmin):
     inlines = (
         VatInline,
         TaxInline,
+        ReceiptEntryInline,
     )
     ordering = (
         '-issued_date',
