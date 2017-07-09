@@ -15,8 +15,7 @@
         <div class="my-details group">
           <address>
             <strong>{{ pdf.issuing_name }}</strong><br>
-            <!-- linkbreaks adds a br here -->
-            {{ pdf.issuing_address|linebreaks }}
+            {{ pdf.issuing_address|linebreaksbr }}<br>
             {% if pdf.issuing_email %}
             <a href="mailto:{{ pdf.issuing_email }}">{{ pdf.issuing_email }}</a>
             <br>
@@ -50,9 +49,8 @@
           <strong>Facturado a:</strong><br>
           {{ pdf.client_name }},
           {{ pdf.receipt.document_type }}
-          {{ pdf.receipt.document_number }}
-          <!-- linkbreaks adds a br here -->
-          {{ pdf.client_address|linebreaks }}
+          {{ pdf.receipt.document_number }}<br>
+          {{ pdf.client_address|linebreaksbr }}<br>
           {{ pdf.vat_condition }}<br>
           {{ pdf.sales_terms }}
         </div>
