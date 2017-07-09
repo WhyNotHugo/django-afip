@@ -72,7 +72,7 @@
           {% for entry in pdf.receipt.entries.all %}
           <tr>
             <td>{{ entry.description }}</td>
-            <td>{{ entry.amount }}</td>
+            <td>{{ entry.quantity }}</td>
             <td>{{ entry.unit_price }}</td>
             <td>{{ entry.total_price }}</td>
           </tr>
