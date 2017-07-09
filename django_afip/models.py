@@ -901,6 +901,7 @@ class Receipt(models.Model):
             'Currency in which this receipt is issued.',
         ),
         on_delete=models.PROTECT,
+        default=CurrencyType.objects.filter(code='PES').first,
     )
     currency_quote = models.DecimalField(
         _('currency quote'),
