@@ -4,6 +4,14 @@ Changelog
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
+3.1.0
+-----
+* Receipt entries are now shown in the Receipts admin.
+* Fix receipt entries being mis-rendered (missing quantity) in PDFs.
+* Allow generating PDFs for receipts via the admin.
+* Use PES (ARS) as a default currency for Receipts (only if metadata is
+  present), and '1' as a currency quote.
+
 3.0.0
 -----
 * The entire ``ReceiptBatch`` model has been dropped, along with
