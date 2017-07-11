@@ -1,12 +1,11 @@
 """Tests for AFIP-WS related classes."""
 import os
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.core import management
 from django.core.files import File
-from django.test import Client, tag, TestCase
-from django.urls import reverse
+from django.test import tag, TestCase
 from django.utils.timezone import now
 
 from django_afip import exceptions, models
@@ -342,135 +341,6 @@ class ReceiptQuerySetTestCase(PopulatedAfipTestCase):
             models.ReceiptValidation.RESULT_APPROVED,
         )
         self.assertEqual(models.ReceiptValidation.objects.count(), 1)
-
-
-class ReceiptPDFTest(AfipTestCase):
-    """Test ReceiptPDF methods."""
-
-    # TODO: Test generation via ReceiptHTMLView
-
-    def setUp(self):
-        """Generate a valid receipt for later PDF generation."""
-        super().setUp()
-        models.populate_all()
-        taxpayer = models.TaxPayer.objects.first()
-        taxpayer.fetch_points_of_sales()
-        models.TaxPayerProfile.objects.create(
-            taxpayer=taxpayer,
-            issuing_name='Red Company Inc.',
-            issuing_address='100 Red Av\nRedsville\nUK',
-            issuing_email='billing@example.com',
-            vat_condition='Exempt',
-            gross_income_condition='Exempt',
-            sales_terms='Credit Card',
-            active_since=datetime(2011, 10, 3),
-        )
-
-        models.Receipt.objects.create(
-            concept=models.ConceptType.objects.get(code=1),
-            document_type=models.DocumentType.objects.get(code=96),
-            document_number='203012345',
-            issued_date=date.today(),
-            total_amount=100,
-            net_untaxed=0,
-            net_taxed=100,
-            exempt_amount=0,
-            currency=models.CurrencyType.objects.get(code='PES'),
-            currency_quote=1,
-
-            receipt_number=4236,
-            receipt_type=models.ReceiptType.objects.get(code=11),
-            point_of_sales=models.PointOfSales.objects.first(),
-        )
-
-        # TODO: Add a ReceiptEntry
-
-    def _create_valid_receipt(self):
-        receipt = models.Receipt.objects.first()
-        pdf = models.ReceiptPDF.objects.create_for_receipt(
-            receipt=receipt,
-            client_name='John Doe',
-            client_address='12 Green Road\nGreenville\nUK',
-        )
-        pdf.save_pdf()
-
-        return pdf
-
-    def test_pdf_generation(self):
-        """
-        Test PDF file generation.
-
-        For the moment, this test case mostly verifies that pdf generation
-        *works*, but does not actually validate the pdf file itself.
-
-        Running this locally *will* yield the file itself, which is useful for
-        manual inspection.
-        """
-        pdf = self._create_valid_receipt()
-        self.assertTrue(pdf.pdf_file.name.startswith('receipts/'))
-        self.assertTrue(pdf.pdf_file.name.endswith('.pdf'))
-
-    def test_html_view(self):
-        """
-        Test the PDF generation view.
-        """
-        pdf = self._create_valid_receipt()
-
-        client = Client()
-        response = client.get(
-            reverse('receipt_html_view', args=(pdf.receipt.pk,))
-        )
-        self.assertContains(
-            response,
-            '<div class="client">\n<strong>Facturado a:</strong><br>\n John '
-            'Doe,\nDNI\n203012345\n<!-- linkbreaks adds a br here -->\n<p>12 '
-            'Green Road<br />Greenville<br />UK</p>\n Exempt<br>\nCredit '
-            'Card\n</div>',
-            html=True,
-        )
-
-    def test_pdf_view(self):
-        """
-        Test the PDF generation view.
-        """
-        pdf = self._create_valid_receipt()
-
-        client = Client()
-        response = client.get(
-            reverse('receipt_pdf_view', args=(pdf.receipt.pk,))
-        )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content[:10], b'%PDF-1.5\n%')
-
-        headers = sorted(response.serialize_headers().decode().splitlines())
-        self.assertIn('Content-Type: application/pdf', headers)
-        self.assertIn(
-            'Content-Disposition: attachment; '
-            'filename=receipt {}.pdf'.format(pdf.receipt.pk),
-            headers
-        )
-
-    def test_unauthorized_receipt_generation(self):
-        """
-        Test PDF file generation for unauthorized receipts.
-
-        Confirm that attempting to generate a PDF for an unauthorized receipt
-        raises.
-        """
-        receipt = models.Receipt.objects.first()
-        receipt.receipt_number = None
-        receipt.save()
-        pdf = models.ReceiptPDF.objects.create_for_receipt(
-            receipt=receipt,
-            client_name='John Doe',
-            client_address='12 Green Road\nGreenville\nUK',
-        )
-        with self.assertRaisesMessage(
-            Exception,
-            'Cannot generate pdf for non-authorized receipt'
-        ):
-            pdf.save_pdf()
 
 
 # TODO: Test receipts with related_receipts

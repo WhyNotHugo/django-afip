@@ -118,3 +118,12 @@ class ReceiptValidationFactory(DjangoModelFactory):
     cae = '67190616790549'
     cae_expiration = datetime(2017, 7, 12)
     receipt = SubFactory(ReceiptFactory)
+
+
+class ReceiptPDFFactory(DjangoModelFactory):
+    class Meta:
+        model = models.ReceiptPDF
+
+    receipt = SubFactory(ReceiptFactory)
+    client_name = 'John Doe'
+    client_address = '12 Green Road\nGreenville\nUK'
