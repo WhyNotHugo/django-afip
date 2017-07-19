@@ -11,6 +11,7 @@ releases, in reverse chronological order.
 * Allow generating PDFs for receipts via the admin.
 * Use PES (ARS) as a default currency for Receipts (only if metadata is
   present), and '1' as a currency quote.
+* Customized admins are now included for a few more models.
 
 3.0.0
 -----
