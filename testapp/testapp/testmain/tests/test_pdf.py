@@ -64,3 +64,7 @@ class BarcodeGeneratorTestCase(TestCase):
             '111111111112233334444444444444455555555',
             3,
         )
+        self.assert_verification_digit(
+            '202468793631100026719363618010820170512',
+            9
+        )
