@@ -1,6 +1,7 @@
 from django.test import TestCase
 
 from django_afip import models
+from django_afip.pdf import ReceiptBarcodeGenerator
 from testapp.testmain import fixtures
 
 
@@ -43,3 +44,23 @@ class ReceiptPDFGenerationTestCase(TestCase):
             'Cannot generate pdf for non-authorized receipt'
         ):
             pdf.save_pdf()
+
+
+class BarcodeGeneratorTestCase(TestCase):
+    def assert_verification_digit(self, number, digit):
+        number = [int(n) for n in number]
+        self.assertEqual(
+            ReceiptBarcodeGenerator.verification_digit(number),
+            digit,
+        )
+
+    def test_verfification_digit(self):
+        self.assert_verification_digit('01234567890', 5)
+        self.assert_verification_digit(
+            '123456789012345678901234567890123456789',
+            0,
+        )
+        self.assert_verification_digit(
+            '111111111112233334444444444444455555555',
+            3,
+        )

@@ -1,3 +1,4 @@
+pyBarcode>=0.8b1
 WeasyPrint>=0.24
 lxml>=3.4.4
 pyOpenSSL==16.2.0
