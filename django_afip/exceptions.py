@@ -48,3 +48,7 @@ class CannotValidateTogether(DjangoAfipException):
     Raised when attempting to validate receipts that cannot be validated
     together (eg: different receipt types, or different point of sales).
     """
+
+
+class ValidationError(DjangoAfipException):
+    """Raised when a single Receipt failed to validate with AFIP's WS."""

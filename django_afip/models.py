@@ -932,17 +932,25 @@ class Receipt(models.Model):
             )
         return None
 
-    def validate(self, ticket=None):
+    def validate(self, ticket=None, raise_=False):
         """
         Validates this receipt.
 
         This is a shortcut to :class:`~.ReceiptQuerySet`'s method of the same
         name. Calling this validates only this instance.
+
+        :param AuthTicket ticket: Use this ticket. If None, one will be loaded
+            or created automatically.
+        :param bool raise_: If True, an exception will be raised when
+            validation fails.
         """
+        # XXX: Maybe actually have this sortcut raise an exception?
         rv = Receipt.objects.filter(pk=self.pk).validate(ticket)
         # Since we're operating via a queryset, this instance isn't properly
         # updated:
         self.refresh_from_db()
+        if raise_ and rv:
+            raise exceptions.ValidationError(rv[0])
         return rv
 
     def __repr__(self):

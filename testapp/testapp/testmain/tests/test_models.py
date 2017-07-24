@@ -2,7 +2,7 @@ from unittest.mock import call, MagicMock, patch
 
 from django.test import TestCase
 
-from django_afip import models
+from django_afip import exceptions, models
 from testapp.testmain import fixtures, mocks
 from testapp.testmain.tests.test_webservices import PopulatedAfipTestCase
 
@@ -76,3 +76,36 @@ class ReceiptValidateTestCase(PopulatedAfipTestCase):
             models.ReceiptValidation.RESULT_APPROVED,
         )
         self.assertEqual(models.ReceiptValidation.objects.count(), 1)
+
+    def test_failed_validation(self):
+        """Test validating valid receipts."""
+        receipt = mocks.receipt(80)
+
+        errs = receipt.validate()
+
+        self.assertEqual(len(errs), 1)
+        # FIXME: We're not creating rejection entries
+        # self.assertEqual(len(errs), 1)
+        # self.assertEqual(
+        #     receipt.validation.result,
+        #     models.ReceiptValidation.RESULT_REJECTED,
+        # )
+        self.assertEqual(models.ReceiptValidation.objects.count(), 0)
+
+    def test_raise_validation(self):
+        """Test validating valid receipts."""
+        receipt = mocks.receipt(80)
+
+        with self.assertRaisesRegex(
+            exceptions.ValidationError,
+            # Note: AFIP apparently edited this message and added a typo:
+            'DocNro 203012345 no se encuentra registrado en los padrones',
+        ):
+            receipt.validate(raise_=True)
+
+        # FIXME: We're not creating rejection entries
+        # self.assertEqual(
+        #     receipt.validation.result,
+        #     models.ReceiptValidation.RESULT_REJECTED,
+        # )
+        self.assertEqual(models.ReceiptValidation.objects.count(), 0)
