@@ -638,13 +638,13 @@ class ReceiptQuerySet(models.QuerySet):
         thread-safe, or even multiprocess-safe.
 
         Because of this, it is possible that not all instances matching this
-        queryset are validates properly; however, consistency *is* and receipts
-        will be updated if and only if they have been validated by the AFIP.
+        queryset are validated properly. Obviously, only successfully validated
+        receipts will be updated.
 
         Returns a list of errors as returned from AFIP's webservices. An
         exception is not raised because partial failures are possible.
 
-        Receipts that succesfully validae will have a
+        Receipts that succesfully validate will have a
         :class:`~.ReceiptValidation` object attatched to them with a validation
         date and CAE information.
 
