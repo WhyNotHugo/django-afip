@@ -48,6 +48,10 @@ def check_response(response):
         raise exceptions.AfipException(response)
 
 
+def first_currency():
+    return CurrencyType.objects.filter(code='PES').first
+
+
 class GenericAfipTypeManager(models.Manager):
     """Default Manager for GenericAfipType."""
 
@@ -940,7 +944,7 @@ class Receipt(models.Model):
             'Currency in which this receipt is issued.',
         ),
         on_delete=models.PROTECT,
-        default=CurrencyType.objects.filter(code='PES').first,
+        default=first_currency,
     )
     currency_quote = models.DecimalField(
         _('currency quote'),
