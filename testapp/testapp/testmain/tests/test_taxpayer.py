@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.test import TestCase
+from factory.django import FileField
 from freezegun import freeze_time
 from OpenSSL import crypto
 
@@ -22,7 +23,7 @@ class TestTaxPayerKeyManagement(TestCase):
 
     def test_dont_overwrite_keys(self):
         text = "Hello! I'm not really a key :D".encode()
-        taxpayer = fixtures.TaxPayerFactory(key__data=text)
+        taxpayer = fixtures.TaxPayerFactory(key=FileField(data=text))
 
         taxpayer.generate_key()
         key = taxpayer.key.read()

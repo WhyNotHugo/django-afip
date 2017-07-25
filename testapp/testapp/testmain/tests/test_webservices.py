@@ -23,32 +23,16 @@ class AfipTestCase(TestCase):
     the DB every time a new class is ``setUp``.
     """
 
-    taxpayer = None
     ticket = None
 
     def setUp(self):
         """Save a TaxPayer and Ticket into the database."""
-        if not AfipTestCase.taxpayer:
-            taxpayer = models.TaxPayer(
-                pk=1,
-                name='test taxpayer',
-                cuit=20329642330,
-                is_sandboxed=True,
-            )
-
-            basepath = settings.BASE_DIR
-            with open(os.path.join(basepath, 'test.key')) as key:
-                taxpayer.key.save('test.key', File(key))
-            with open(os.path.join(basepath, 'test.crt')) as crt:
-                taxpayer.certificate.save('test.crt', File(crt))
-
-            AfipTestCase.taxpayer = taxpayer
+        AfipTestCase.taxpayer = fixtures.TaxPayerFactory(pk=1)
 
         if not AfipTestCase.ticket:
             ticket = models.AuthTicket.objects.get_any_active('wsfe')
             AfipTestCase.ticket = ticket
 
-        AfipTestCase.taxpayer.save()
         AfipTestCase.ticket.save()
 
 

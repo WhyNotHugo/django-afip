@@ -1,10 +1,22 @@
+import os
 from datetime import date, datetime
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from factory import PostGenerationMethodCall, SubFactory
 from factory.django import DjangoModelFactory, FileField
 
 from django_afip import models
+
+
+def _get_key_file():
+    basepath = settings.BASE_DIR
+    return open(os.path.join(basepath, 'test.key'))
+
+
+def _get_cert_file():
+    basepath = settings.BASE_DIR
+    return open(os.path.join(basepath, 'test.crt'))
 
 
 class UserFactory(DjangoModelFactory):
@@ -64,7 +76,8 @@ class TaxPayerFactory(DjangoModelFactory):
     name = 'John Smith'
     cuit = 20329642330
     is_sandboxed = True
-    key = FileField()
+    key = FileField(from_func=_get_key_file)
+    certificate = FileField(from_func=_get_cert_file)
 
 
 class TaxPayerProfileFactory(DjangoModelFactory):

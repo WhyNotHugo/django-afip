@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.http import HttpRequest
 from django.test import Client, TestCase
 from django.utils.translation import ugettext as _
+from factory.django import FileField
 
 from django_afip import exceptions, models
 from django_afip.admin import catch_errors
@@ -87,7 +88,7 @@ class TestTaxPayerAdminKeyGeneration(TestCase):
         )
 
     def test_with_key(self):
-        taxpayer = fixtures.TaxPayerFactory(key__data=b'Blah')
+        taxpayer = fixtures.TaxPayerFactory(key=FileField(data=b'Blah'))
         client = Client()
         client.force_login(self.user)
 
