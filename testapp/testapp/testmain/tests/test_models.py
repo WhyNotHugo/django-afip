@@ -109,3 +109,30 @@ class ReceiptValidateTestCase(PopulatedAfipTestCase):
         #     models.ReceiptValidation.RESULT_REJECTED,
         # )
         self.assertEqual(models.ReceiptValidation.objects.count(), 0)
+
+
+class ReceiptIsValidatedTestCase(TestCase):
+    def test_not_validated(self):
+        receipt = fixtures.ReceiptFactory()
+        self.assertEqual(receipt.is_validated, False)
+
+    def test_validated(self):
+        receipt = fixtures.ReceiptFactory(receipt_number=1)
+        fixtures.ReceiptValidationFactory(receipt=receipt)
+        self.assertEqual(receipt.is_validated, True)
+
+    def test_failed_validation(self):
+        # These should never really exist,but oh well:
+        receipt = fixtures.ReceiptFactory()
+        fixtures.ReceiptValidationFactory(
+            receipt=receipt,
+            result=models.ReceiptValidation.RESULT_REJECTED,
+        )
+        self.assertEqual(receipt.is_validated, False)
+
+        receipt = fixtures.ReceiptFactory(receipt_number=1)
+        fixtures.ReceiptValidationFactory(
+            receipt=receipt,
+            result=models.ReceiptValidation.RESULT_REJECTED,
+        )
+        self.assertEqual(receipt.is_validated, False)

@@ -7,6 +7,8 @@ releases, in reverse chronological order.
 3.2.0
 -----
 * New runtime dependency: pyBarcode>=0.8b1.
+* The receipt class now has a ``is_validated`` property to check if a single
+  instance has been validated.
 
 3.1.0
 -----

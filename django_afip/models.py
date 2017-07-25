@@ -932,6 +932,32 @@ class Receipt(models.Model):
             )
         return None
 
+    @property
+    def is_validated(self):
+        """
+        Returns True if this instance is validated.
+
+        Note that resolving this property requires a DB query, so if you've a
+        very large amount of receipts you should prefetch (see django's
+        ``select_related``) the ``validation`` field. Even so, a DB query *may*
+        be triggered.
+
+        If you need a large list of validated receipts, you should actually
+        filter them via a QuerySet::
+
+            Receipt.objects.filter(validation__result==RESULT_APPROVED)
+
+        :rtype: bool
+        """
+        # Avoid the DB lookup if possible:
+        if not self.receipt_number:
+            return False
+
+        try:
+            return self.validation.result == ReceiptValidation.RESULT_APPROVED
+        except ReceiptValidation.DoesNotExist:
+            return False
+
     def validate(self, ticket=None, raise_=False):
         """
         Validates this receipt.
