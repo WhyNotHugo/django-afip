@@ -604,11 +604,11 @@ class AuthTicket(models.Model):
         try:
             raw_response = client.service.loginCms(request)
         except Fault as e:
-            if e.message == 'Certificado expirado':
-                raise exceptions.CertificateExpired(e.message) from e
-            if e.message == 'Certificado no emitido por AC de confianza':
-                raise exceptions.UntrustedCertificate(e.message) from e
-            raise exceptions.AuthenticationError(e.message) from e
+            if str(e) == 'Certificado expirado':
+                raise exceptions.CertificateExpired(str(e)) from e
+            if str(e) == 'Certificado no emitido por AC de confianza':
+                raise exceptions.UntrustedCertificate(str(e)) from e
+            raise exceptions.AuthenticationError(str(e)) from e
         response = etree.fromstring(raw_response.encode('utf-8'))
 
         self.token = response.xpath(self.TOKEN_XPATH)[0].text
