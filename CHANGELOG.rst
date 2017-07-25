@@ -9,6 +9,7 @@ releases, in reverse chronological order.
 * New runtime dependency: pyBarcode>=0.8b1.
 * The receipt class now has a ``is_validated`` property to check if a single
   instance has been validated.
+* All internal errors now raise ``DjangoAfipException`` or a subclass of it.
 
 3.1.0
 -----

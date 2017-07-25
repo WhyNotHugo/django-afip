@@ -1017,7 +1017,7 @@ class ReceiptPDFManager(models.Manager):
                 taxpayer__points_of_sales__receipts=receipt,
             )
         except TaxPayerProfile.DoesNotExist:
-            raise Exception(
+            raise exceptions.DjangoAfipException(
                 'Cannot generate a PDF for taxpayer with no profile',
             )
         pdf = ReceiptPDF.objects.create(
@@ -1099,7 +1099,7 @@ class ReceiptPDF(models.Model):
 
     def _check_authorized(self):
         if not self.receipt.receipt_number:
-            raise Exception(
+            raise exceptions.DjangoAfipException(
                 _('Cannot generate pdf for non-authorized receipt')
             )
 
