@@ -217,10 +217,12 @@ class TaxPayer(models.Model):
     )
     key = models.FileField(
         _('key'),
+        blank=True,
         null=True,
     )
     certificate = models.FileField(
         _('certificate'),
+        blank=True,
         null=True,
     )
     cuit = models.BigIntegerField(

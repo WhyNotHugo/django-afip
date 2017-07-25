@@ -11,6 +11,9 @@ releases, in reverse chronological order.
   instance has been validated.
 * All internal errors now raise ``DjangoAfipException`` or a subclass of it.
 * Add barcodes to receipt PDFs (AFIP 1702/04).
+* TaxPayer certs are now blankable, which should improve admin usability, as
+  well as make forms for new TaxPayers friendlier. You might need to check your
+  forms if users are expected to always provide a certificate.
 
 3.1.0
 -----
