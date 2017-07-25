@@ -337,7 +337,7 @@ class ReceiptPDFAdmin(admin.ModelAdmin):
     def generate_pdf(self, request, queryset):
         for pdf in queryset:
             pdf.save_pdf()
-    generate_pdf.short_description = _('generate pdf')
+    generate_pdf.short_description = _('Generate pdf')
 
     actions = (
         generate_pdf,

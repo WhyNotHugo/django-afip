@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-afip\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-02 23:41+0000\n"
+"POT-Creation-Date: 2017-07-25 03:37+0000\n"
 "PO-Revision-Date: 2017-07-02 20:40-0300\n"
 "Last-Translator: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
 "Language-Team: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
@@ -86,6 +86,12 @@ msgstr "Generar CSR"
 
 msgid "Has file"
 msgstr "Tiene archivo"
+
+msgid "Generate pdf"
+msgstr "Generar pdf"
+
+msgid "result"
+msgstr "resultado"
 
 msgid "Fetches required AFIP metadata and stores it locally"
 msgstr "Obtiene metadatos necesarios del AFIP y los almacena localmente."
@@ -422,9 +428,6 @@ msgstr "observación"
 
 msgid "observations"
 msgstr "observaciones"
-
-msgid "result"
-msgstr "resultado"
 
 msgid "approved"
 msgstr "aprobado"
