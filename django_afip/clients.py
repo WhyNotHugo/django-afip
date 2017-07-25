@@ -1,3 +1,7 @@
+__all__ = (
+    'get_client',
+)
+
 import pytz
 from zeep import Client
 from zeep.cache import SqliteCache
@@ -40,4 +44,4 @@ def get_client(service_name, sandbox=False):
 
         return cached_clients[key]
     except KeyError:
-        ValueError('Unknown service name, {}'.format(service_name))
+        raise ValueError('Unknown service name, {}'.format(service_name))
