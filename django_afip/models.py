@@ -1141,7 +1141,7 @@ class ReceiptPDF(models.Model):
     objects = ReceiptPDFManager()
 
     def _check_authorized(self):
-        if not self.receipt.receipt_number:
+        if not self.receipt.is_validated:
             raise exceptions.DjangoAfipException(
                 _('Cannot generate pdf for non-authorized receipt')
             )
