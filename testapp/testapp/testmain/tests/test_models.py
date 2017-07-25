@@ -136,3 +136,20 @@ class ReceiptIsValidatedTestCase(TestCase):
             result=models.ReceiptValidation.RESULT_REJECTED,
         )
         self.assertEqual(receipt.is_validated, False)
+
+
+class ReceiptDefaultCurrencyTestCase(TestCase):
+    def test_no_currencies(self):
+        receipt = models.Receipt()
+        with self.assertRaises(models.CurrencyType.DoesNotExist):
+            receipt.currency
+
+    def test_multieple_currencies(self):
+        c1 = fixtures.CurrencyTypeFactory(pk=2)
+        c2 = fixtures.CurrencyTypeFactory(pk=1)
+        c3 = fixtures.CurrencyTypeFactory(pk=3)
+
+        receipt = models.Receipt()
+        self.assertNotEqual(receipt.currency, c1)
+        self.assertEqual(receipt.currency, c2)
+        self.assertNotEqual(receipt.currency, c3)

@@ -49,7 +49,7 @@ def check_response(response):
 
 
 def first_currency():
-    return CurrencyType.objects.filter(code='PES').first
+    return CurrencyType.objects.filter(code='PES').first()
 
 
 class GenericAfipTypeManager(models.Manager):
