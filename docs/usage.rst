@@ -113,6 +113,14 @@ The PDF file itself can then be generated via::
 The former is usually recommended since it allows simpler interaction via
 standard django patterns.
 
+Barcodes
+~~~~~~~~
+
+Since version 3.2.0, PDFs include the barcode defined in AFIP 1702/04. These
+barcodes require that receipts have expiration dates, but expiration dates are
+only mandatory for receipts for services. If you're required to have barcodes
+in your receipts, you're transitively required to specify an expiration date.
+
 Exposing receipts
 ~~~~~~~~~~~~~~~~~
 

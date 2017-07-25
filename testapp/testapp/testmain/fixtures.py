@@ -62,7 +62,7 @@ class TaxPayerFactory(DjangoModelFactory):
         model = models.TaxPayer
 
     name = 'John Smith'
-    cuit = '20329642330'
+    cuit = 20329642330
     is_sandboxed = True
     key = FileField()
 
@@ -98,6 +98,7 @@ class ReceiptFactory(DjangoModelFactory):
     concept = SubFactory(ConceptTypeFactory)
     document_type = SubFactory(DocumentTypeFactory)
     document_number = 33445566
+    expiration_date = datetime(2017, 7, 25)
     issued_date = datetime(2017, 5, 15)
     total_amount = 100
     net_untaxed = 0

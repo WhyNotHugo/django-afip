@@ -112,3 +112,18 @@ hr {
 a {
   color: #00E;
 }
+
+.cae strong:nth-child(2) {
+    margin-left: 20px;
+}
+
+.barcode {
+    text-align: center;
+}
+
+.barcode img {
+    display: block;
+    height: 80px;
+    margin-left: -35px;  /* Aligns with text */
+    width: 450px;
+}

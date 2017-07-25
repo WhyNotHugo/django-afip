@@ -10,6 +10,7 @@ releases, in reverse chronological order.
 * The receipt class now has a ``is_validated`` property to check if a single
   instance has been validated.
 * All internal errors now raise ``DjangoAfipException`` or a subclass of it.
+* Add barcodes to receipt PDFs (AFIP 1702/04).
 
 3.1.0
 -----

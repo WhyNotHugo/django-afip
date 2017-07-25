@@ -1,9 +1,10 @@
+import base64
 import logging
 import mimetypes
 from io import BytesIO
 
 from barcode import ITF
-from barcode.writer import SVGWriter
+from barcode.writer import ImageWriter
 from django.contrib.staticfiles.finders import find
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.template.loader import get_template
@@ -13,6 +14,11 @@ from weasyprint import default_url_fetcher, HTML
 from . import models
 
 logger = logging.getLogger(__name__)
+
+
+class ImageWitoutTextWriter(ImageWriter):
+    def _paint_text(self, xpos, ypos):
+        pass
 
 
 def staticfile_url_fetcher(url):
@@ -50,11 +56,18 @@ def generate_receipt_pdf(pk, target, force_html=False):
         receipt__pk=pk
     )
 
+    if pdf.receipt.expiration_date:
+        generator = ReceiptBarcodeGenerator(pdf.receipt)
+        barcode = base64.b64encode(generator.generate_barcode())
+    else:
+        barcode = None
+
     html = get_template('receipts/code_{}.html'.format(
         pdf.receipt.receipt_type.code,
     )).render({
         'pdf': pdf,
         'taxpayer': pdf.receipt.point_of_sales.owner,
+        'barcode': barcode,
     })
 
     if force_html:
@@ -80,7 +93,6 @@ class ReceiptBarcodeGenerator:
 
         :return: list(int)
         """
-
         numstring = '{:011d}{:02d}{:04d}{}{}'.format(
             self._receipt.point_of_sales.owner.cuit,  # 11 digits
             int(self._receipt.receipt_type.code),  # 2 digits
@@ -131,9 +143,8 @@ class ReceiptBarcodeGenerator:
             ReceiptBarcodeGenerator.verification_digit(self.numbers),
         )
 
-    def generate_barcode(self):
+    def generate_barcode(self, writer_class=ImageWitoutTextWriter):
         rv = BytesIO()
-        ITF(self.full_number, writer=SVGWriter).write(rv)
-        rv.seek(0)
+        ITF(self.full_number, writer=writer_class()).write(rv)
 
-        return rv.read()
+        return rv.getvalue()

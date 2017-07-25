@@ -8,6 +8,7 @@ class ReceiptPDFTestCase(TestCase):
     def test_html_view(self):
         """Test the HTML generation view."""
         pdf = fixtures.ReceiptPDFFactory()
+        fixtures.ReceiptValidationFactory(receipt=pdf.receipt)
 
         client = Client()
         response = client.get(
@@ -31,6 +32,7 @@ class ReceiptPDFTestCase(TestCase):
         pdf = fixtures.ReceiptPDFFactory(
             receipt__point_of_sales__owner=taxpayer,
         )
+        fixtures.ReceiptValidationFactory(receipt=pdf.receipt)
 
         client = Client()
         response = client.get(
