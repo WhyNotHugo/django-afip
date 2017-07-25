@@ -5,7 +5,6 @@ from unittest.mock import patch
 
 from django.conf import settings
 from django.core import management
-from django.core.files import File
 from django.test import tag, TestCase
 from django.utils.timezone import now
 from factory.django import FileField
