@@ -116,10 +116,16 @@ standard django patterns.
 Barcodes
 ~~~~~~~~
 
-Since version 3.2.0, PDFs include the barcode defined in AFIP 1702/04. These
-barcodes require that receipts have expiration dates, but expiration dates are
-only mandatory for receipts for services. If you're required to have barcodes
-in your receipts, you're transitively required to specify an expiration date.
+Since version 3.2.0, PDFs include the barcode defined in AFIP 1702/04.
+
+Version 3.2.0 used the receipt's expiration date for the barcode. After some
+debate with fellow developers and accountants, we've resolved that the CAE's
+expiration date should be used. Even though `resolution 1702/04`_ does not
+explicitly state this (it just says "Expiration Date", their own receipt PDFs
+use this date.
+Also, not all receipts have expiration dates.
+
+.. _resolution 1702/04: http://www.afip.gov.ar/afip/resol170204.html
 
 Exposing receipts
 ~~~~~~~~~~~~~~~~~

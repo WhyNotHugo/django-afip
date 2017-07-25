@@ -56,11 +56,8 @@ def generate_receipt_pdf(pk, target, force_html=False):
         receipt__pk=pk
     )
 
-    if pdf.receipt.expiration_date:
-        generator = ReceiptBarcodeGenerator(pdf.receipt)
-        barcode = base64.b64encode(generator.generate_barcode())
-    else:
-        barcode = None
+    generator = ReceiptBarcodeGenerator(pdf.receipt)
+    barcode = base64.b64encode(generator.generate_barcode())
 
     html = get_template('receipts/code_{}.html'.format(
         pdf.receipt.receipt_type.code,
@@ -98,7 +95,7 @@ class ReceiptBarcodeGenerator:
             int(self._receipt.receipt_type.code),  # 2 digits
             self._receipt.point_of_sales.number,  # point of sales
             self._receipt.validation.cae,  # 14 digits
-            self._receipt.expiration_date.strftime('%Y%m%d'),  # 8 digits
+            self._receipt.validation.cae_expiration.strftime('%Y%m%d'),  # 8
         )
         return [int(num) for num in numstring]
 

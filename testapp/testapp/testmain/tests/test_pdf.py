@@ -26,28 +26,6 @@ class ReceiptPDFGenerationTestCase(TestCase):
         self.assertTrue(pdf.pdf_file.name.startswith('receipts/'))
         self.assertTrue(pdf.pdf_file.name.endswith('.pdf'))
 
-    def test_generation_without_expiration(self):
-        """
-        Test generation for receipts without expiration dates
-
-        Since barcode require expiration dates, then make sure that we properly
-        skip barcode generation and don't crash if there's no expiration date.
-        """
-        pdf = fixtures.ReceiptPDFFactory(
-            receipt__receipt_number=3,
-            receipt__expiration_date=None,
-        )
-        fixtures.ReceiptValidationFactory(receipt=pdf.receipt)
-        with patch(
-            'django_afip.pdf.ReceiptBarcodeGenerator.generate_barcode',
-            side_effect=Exception(
-                'Tried to generate barcode with no expiration',
-            )
-        ):
-            pdf.save_pdf()
-        self.assertTrue(pdf.pdf_file.name.startswith('receipts/'))
-        self.assertTrue(pdf.pdf_file.name.endswith('.pdf'))
-
     def test_unauthorized_receipt_generation(self):
         """
         Test PDF file generation for unauthorized receipts.

@@ -4,6 +4,12 @@ Changelog
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
+3.2.1
+-----
+* Use CAE expirations for receipt barcodes, not receipt expiration. This is the
+  behaviour follows by AFIP's own generators, even though the spec doesn't
+  explicitly state this.
+
 3.2.0
 -----
 * New runtime dependency: pyBarcode>=0.8b1.
