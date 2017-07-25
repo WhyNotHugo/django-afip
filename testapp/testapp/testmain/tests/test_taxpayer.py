@@ -75,3 +75,32 @@ class TestTaxPayerKeyManagement(TestCase):
             expected_components,
             loaded_csr.get_subject().get_components()
         )
+
+
+class TaxPayerCertificateObjectTestCase(TestCase):
+    def test_certificate_object(self):
+        taxpayer = fixtures.TaxPayerFactory()
+        cert = taxpayer.certificate_object
+
+        self.assertIsInstance(cert, crypto.X509)
+
+    def test_null_certificate_object(self):
+        taxpayer = fixtures.TaxPayerFactory(certificate=None)
+        cert = taxpayer.certificate_object
+
+        self.assertIsNone(cert)
+
+
+class TaxPayerExpirationTestCase(TestCase):
+    def test_expiration_getter(self):
+        taxpayer = fixtures.TaxPayerFactory()
+        expiration = taxpayer.get_certificate_expiration()
+
+        self.assertIsInstance(expiration, datetime)
+
+    def test_expiration_signal_update(self):
+        taxpayer = fixtures.TaxPayerFactory(certificate_expiration=None)
+        taxpayer.save()
+        expiration = taxpayer.certificate_expiration
+
+        self.assertIsInstance(expiration, datetime)

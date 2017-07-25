@@ -9,4 +9,6 @@ class AfipConfig(AppConfig):
     verbose_name = 'AFIP'
 
     def ready(self):
+        # Register app signals:
+        from django_afip import signals  # noqa: F401
         monkeys.patch_https_for_afip()

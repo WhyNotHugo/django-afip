@@ -1,12 +1,14 @@
 """Tests for AFIP-WS related classes."""
 import os
 from datetime import datetime, timedelta
+from unittest.mock import patch
 
 from django.conf import settings
 from django.core import management
 from django.core.files import File
 from django.test import tag, TestCase
 from django.utils.timezone import now
+from factory.django import FileField
 
 from django_afip import exceptions, models
 from testapp.testmain import fixtures, mocks
@@ -43,20 +45,7 @@ class AuthTicketTest(TestCase):
     def test_bad_cuit(self):
         """Test using the wrong cuit for a key pair."""
 
-        taxpayer = models.TaxPayer(
-            pk=1,
-            name='test taxpayer',
-            # This is the wrong CUIT for our keypair:
-            cuit=20329642339,
-            is_sandboxed=True,
-        )
-        basepath = settings.BASE_DIR
-        with open(os.path.join(basepath, 'test.key')) as key:
-            taxpayer.key.save('test.key', File(key))
-        with open(os.path.join(basepath, 'test.crt')) as crt:
-            taxpayer.certificate.save('test.crt', File(crt))
-        taxpayer.save()
-
+        taxpayer = fixtures.TaxPayerFactory(cuit=20329642339)
         taxpayer.create_ticket('wsfe')
 
         with self.assertRaisesRegex(
@@ -68,19 +57,19 @@ class AuthTicketTest(TestCase):
 
     def test_bogus_certificate_exception(self):
         """Test that using a junk ceritificates raises as expected."""
-        taxpayer = models.TaxPayer(
-            pk=1,
-            name='test taxpayer',
-            cuit=20329642330,
-            is_sandboxed=True,
-        )
-        # Note that we swap key and crt so that it's bogus input:
-        basepath = settings.BASE_DIR
-        with open(os.path.join(basepath, 'test.crt')) as key:
-            taxpayer.key.save('test.key', File(key))
-        with open(os.path.join(basepath, 'test.key')) as crt:
-            taxpayer.certificate.save('test.crt', File(crt))
-        taxpayer.save()
+
+        # New TaxPayers will fail to save with an invalid cert, but many
+        # systems may have very old TaxPayers, externally created, or other
+        # stuff, so this scenario might still be possible.
+        with patch(
+            'django_afip.models.TaxPayer.get_certificate_expiration',
+            spec=True,
+            return_value=None,
+        ):
+            taxpayer = fixtures.TaxPayerFactory(
+                key=FileField(data=b'Blah'),
+                certificate=FileField(data=b'Blah'),
+            )
 
         with self.assertRaises(exceptions.CorruptCertificate) as e:
             taxpayer.create_ticket('wsfe')
@@ -97,18 +86,15 @@ class AuthTicketTest(TestCase):
 
     def test_expired_certificate_exception(self):
         """Test that using an expired ceritificate raises as expected."""
-        taxpayer = models.TaxPayer(
-            pk=1,
-            name='test taxpayer',
-            cuit=20329642330,
-            is_sandboxed=True,
-        )
-        basepath = settings.BASE_DIR
-        with open(os.path.join(basepath, 'test_expired.key')) as key:
-            taxpayer.key.save('test.key', File(key))
-        with open(os.path.join(basepath, 'test_expired.crt')) as crt:
-            taxpayer.certificate.save('test.crt', File(crt))
-        taxpayer.save()
+        with open(
+            os.path.join(settings.BASE_DIR, 'test_expired.key'),
+        ) as key, open(
+            os.path.join(settings.BASE_DIR, 'test_expired.crt'),
+        ) as crt:
+            taxpayer = fixtures.TaxPayerFactory(
+                key=FileField(from_file=key),
+                certificate=FileField(from_file=crt),
+            )
 
         with self.assertRaises(exceptions.CertificateExpired):
             taxpayer.create_ticket('wsfe')
@@ -117,19 +103,8 @@ class AuthTicketTest(TestCase):
         """
         Test that using an untrusted ceritificate raises as expected.
         """
-        taxpayer = models.TaxPayer(
-            pk=1,
-            name='test taxpayer',
-            cuit=20329642330,
-            # Note that we hit production with a sandbox cert here:
-            is_sandboxed=False,
-        )
-        basepath = settings.BASE_DIR
-        with open(os.path.join(basepath, 'test.key')) as key:
-            taxpayer.key.save('test.key', File(key))
-        with open(os.path.join(basepath, 'test.crt')) as crt:
-            taxpayer.certificate.save('test.crt', File(crt))
-        taxpayer.save()
+        # Note that we hit production with a sandbox cert here:
+        taxpayer = fixtures.TaxPayerFactory(is_sandboxed=False)
 
         with self.assertRaises(exceptions.UntrustedCertificate):
             taxpayer.create_ticket('wsfe')

@@ -216,6 +216,7 @@ class TaxPayerAdmin(admin.ModelAdmin):
     list_display = (
         'name',
         'cuit',
+        'certificate_expiration',
     )
 
     @catch_errors

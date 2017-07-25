@@ -14,6 +14,9 @@ releases, in reverse chronological order.
 * TaxPayer certs are now blankable, which should improve admin usability, as
   well as make forms for new TaxPayers friendlier. You might need to check your
   forms if users are expected to always provide a certificate.
+* Certificate expiration dates are now stored (via a pre-save hook) and exposed
+  by the ``TaxPayer`` model. This should also make it impossible to upload
+  garbage instead of a proper certificate file.
 
 3.1.0
 -----

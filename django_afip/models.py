@@ -235,6 +235,43 @@ class TaxPayer(models.Model):
             'rather than the production servers'
         )
     )
+    certificate_expiration = models.DateTimeField(
+        _('certificate expiration'),
+        editable=False,
+        null=True,  # Either no cert, or and old TaxPayer
+        help_text=_(
+            'Stores expiration for the current certificate. Note that this '
+            'field is updated pre-save, so the value may be invalid for '
+            'unsaved models.'
+        ),
+    )
+
+    @property
+    def certificate_object(self):
+        """
+        Returns the certificate as an OpenSSL object
+
+        Returns the certificate as an OpenSSL object (rather than as a file
+        object).
+        """
+        if not self.certificate:
+            return None
+        self.certificate.seek(0)
+        return crypto.parse_certificate(self.certificate.read())
+
+    def get_certificate_expiration(self):
+        """
+        Gets the certificate expiration from the certificate
+
+
+        Gets the certificate expiration from the certificate file. Note that
+        this value is stored into ``certificate_expiration`` when an instance
+        is saved, so you should generally prefer that method (since this one
+        requires reading and parsing the entire certificate).
+        """
+        datestring = self.certificate_object.get_notAfter().decode()
+        dt = datetime.strptime(datestring, '%Y%m%d%H%M%SZ')
+        return dt.replace(tzinfo=timezone.utc)
 
     def generate_key(self, force=False):
         """
