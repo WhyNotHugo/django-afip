@@ -52,6 +52,15 @@ py36-django1.11:
   variables:
     TOXENV: django111
 
+postgres:
+  <<: *unittests
+  image: python:3.6
+  services:
+    - postgres
+  variables:
+    TOXENV: django111-postgres
+    DATABASE_URL: postgres://postgres@postgres:5432
+
 live:
   <<: *unittests
   image: python:3.6

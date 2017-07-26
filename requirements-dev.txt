@@ -1,3 +1,4 @@
 coverage
 factory-boy
 freezegun
+dj-database-url
