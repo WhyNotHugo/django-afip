@@ -127,6 +127,9 @@ class ReceiptAdmin(admin.ModelAdmin):
     list_filter = (
         ReceiptStatusFilter,
     )
+    exclude = (
+        'related_receipts',
+    )
 
     __related_fields = [
         'validated',
@@ -327,6 +330,9 @@ class ReceiptPDFAdmin(admin.ModelAdmin):
         'receipt_id',
         'client_name',
         'has_file',
+    )
+    raw_id_fields = (
+        'receipt',
     )
 
     def has_file(self, obj):
