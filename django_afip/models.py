@@ -49,7 +49,16 @@ def check_response(response):
 
 
 def first_currency():
-    return CurrencyType.objects.filter(code='PES').first()
+    """
+    Returns the id for the first currency
+
+    The `default` parameter of a foreign key *MUST* be a primary key (and not
+    an instance), else migrations break. This helper method exists solely for
+    that purpose.
+    """
+    ct = CurrencyType.objects.filter(code='PES').first()
+    if ct:
+        return ct.pk
 
 
 class GenericAfipTypeManager(models.Manager):
