@@ -38,23 +38,23 @@ def process_docstring(app, what, name, obj, options, lines):
             if help_text:
                 # Add the model field to the end of the docstring as a param
                 # using the help text as the description
-                lines.append(u':param %s: %s' % (field.attname, help_text))
+                lines.append(':param %s: %s' % (field.attname, help_text))
             else:
                 # Add the model field to the end of the docstring as a param
                 # using the verbose name as the description
-                lines.append(u':param %s: %s' % (field.attname, verbose_name))
+                lines.append(':param %s: %s' % (field.attname, verbose_name))
 
             # Add the field's type to the docstring
             if isinstance(field, models.ForeignKey):
                 to = field.rel.to
-                lines.append(u':type %s: %s to :class:`~%s.%s`' % (
+                lines.append(':type %s: %s to :class:`~%s.%s`' % (
                     field.attname,
                     type(field).__name__,
                     to.__module__,
                     to.__name__
                 ))
             else:
-                lines.append(u':type %s: %s' % (
+                lines.append(':type %s: %s' % (
                     field.attname, type(field).__name__)
                 )
 
