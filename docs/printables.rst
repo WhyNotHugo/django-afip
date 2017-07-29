@@ -21,6 +21,9 @@ The PDF file itself can then be generated via::
     # Save the file as a model field into your MEDIA_ROOT directory:
     receipt_pdf.save_pdf()
 
+Note that the ``TaxPayerProfile`` model is merely a helper one -- it's entirely
+possible to construct ``ReceiptPDF`` manually without them.
+
 Barcodes
 ~~~~~~~~
 
