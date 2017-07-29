@@ -9,6 +9,8 @@ releases, in reverse chronological order.
 * The ``ReceiptPDF.save_pdf_to`` method has been removed.
 * The ``active_since`` field has been moved from ``TaxPayerProfile`` to
   ``TaxPayer``.
+* Invoices in the admin will show a small asterisk if their value in the
+  original currency doesn't match their value in ARS.
 
 3.3.0
 -----

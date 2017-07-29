@@ -166,9 +166,9 @@ class ReceiptAdmin(admin.ModelAdmin):
     number.admin_order_field = 'receipt_number'
 
     def friendly_total_amount(self, obj):
-        return '{:0.2f} ARS ({})'.format(
+        return '{:0.2f} ARS{}'.format(
             obj.total_amount * obj.currency_quote,
-            obj.currency,
+            '*' if obj.currency_quote != 1 else '',
         )
     friendly_total_amount.short_description = _('total amount')
 
