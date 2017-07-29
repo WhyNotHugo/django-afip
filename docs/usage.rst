@@ -107,8 +107,6 @@ The PDF file itself can then be generated via::
 
     # Save the file as a model field into your MEDIA_ROOT directory:
     receipt_pdf.save_pdf()
-    # Save to some custom file-like-object:
-    receipt_pdf.save_pdf_to(file_object)
 
 The former is usually recommended since it allows simpler interaction via
 standard django patterns.

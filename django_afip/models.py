@@ -2,6 +2,7 @@ import io
 import logging
 import random
 import uuid
+import warnings
 from base64 import b64encode
 from datetime import datetime, timedelta, timezone
 from tempfile import NamedTemporaryFile
@@ -1169,11 +1170,11 @@ class ReceiptPDF(models.Model):
             self.save()
 
     def save_pdf_to(self, file_):
-        """
-        Save the receipt as an actual PDF file into a custom location.
-
-        The related :class:`~.Receipt` should be validated first, of course.
-        """
+        warnings.warn(
+            "This method is deprecated and will be removed in v4.0.0",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         self._check_authorized()
 
         from . import pdf

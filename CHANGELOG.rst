@@ -4,6 +4,11 @@ Changelog
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
+3.3.0
+-----
+* The ``ReceiptPDF.save_pdf_to`` method has been deprecated and will be removed
+  in 4.0.0.
+
 3.2.1
 -----
 * Use CAE expirations for receipt barcodes, not receipt expiration. This is the
