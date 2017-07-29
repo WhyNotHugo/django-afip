@@ -21,9 +21,6 @@ The PDF file itself can then be generated via::
     # Save the file as a model field into your MEDIA_ROOT directory:
     receipt_pdf.save_pdf()
 
-The former is usually recommended since it allows simpler interaction via
-standard django patterns.
-
 Barcodes
 ~~~~~~~~
 

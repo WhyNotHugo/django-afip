@@ -6,6 +6,7 @@ releases, in reverse chronological order.
 
 4.0.0
 -----
+* The ``ReceiptPDF.save_pdf_to`` method has been removed.
 * The ``active_since`` field has been moved from ``TaxPayerProfile`` to
   ``TaxPayer``.
 

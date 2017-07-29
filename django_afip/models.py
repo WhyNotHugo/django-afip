@@ -2,7 +2,6 @@ import io
 import logging
 import random
 import uuid
-import warnings
 from base64 import b64encode
 from datetime import datetime, timedelta, timezone
 from tempfile import NamedTemporaryFile
@@ -1180,23 +1179,13 @@ class ReceiptPDF(models.Model):
 
         The related :class:`~.Receipt` should be validated first, of course.
         """
+        from . import pdf
         self._check_authorized()
 
         with NamedTemporaryFile(suffix='.pdf') as file_:
-            self.save_pdf_to(file_)
+            pdf.generate_receipt_pdf(self.receipt_id, file_)
             self.pdf_file = File(file_, name='{}.pdf'.format(uuid.uuid4().hex))
             self.save()
-
-    def save_pdf_to(self, file_):
-        warnings.warn(
-            'This method is deprecated and will be removed in v4.0.0',
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        self._check_authorized()
-
-        from . import pdf
-        pdf.generate_receipt_pdf(self.receipt_id, file_)
 
     def __str__(self):
         return _('Receipt PDF for %s') % self.receipt_id
