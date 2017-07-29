@@ -1191,7 +1191,7 @@ class ReceiptPDF(models.Model):
 
     def save_pdf_to(self, file_):
         warnings.warn(
-            "This method is deprecated and will be removed in v4.0.0",
+            'This method is deprecated and will be removed in v4.0.0',
             DeprecationWarning,
             stacklevel=2,
         )
