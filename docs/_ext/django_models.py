@@ -46,7 +46,7 @@ def process_docstring(app, what, name, obj, options, lines):
 
             # Add the field's type to the docstring
             if isinstance(field, models.ForeignKey):
-                to = field.rel.to
+                to = field.remote_field.model
                 lines.append(':type %s: %s to :class:`~%s.%s`' % (
                     field.attname,
                     type(field).__name__,
