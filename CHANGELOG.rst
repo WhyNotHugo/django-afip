@@ -4,6 +4,11 @@ Changelog
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
+4.0.0
+-----
+* The ``active_since`` field has been moved from ``TaxPayerProfile`` to
+  ``TaxPayer``.
+
 3.3.0
 -----
 * The ``ReceiptPDF.save_pdf_to`` method has been deprecated and will be removed

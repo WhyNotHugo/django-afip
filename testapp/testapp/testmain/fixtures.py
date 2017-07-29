@@ -76,6 +76,7 @@ class TaxPayerFactory(DjangoModelFactory):
     is_sandboxed = True
     key = FileField(from_func=_key_file)
     certificate = FileField(from_func=_cert_file)
+    active_since = datetime(2011, 10, 3)
 
 
 class TaxPayerProfileFactory(DjangoModelFactory):
@@ -89,7 +90,6 @@ class TaxPayerProfileFactory(DjangoModelFactory):
     vat_condition = 'Exempt'
     gross_income_condition = 'Exempt'
     sales_terms = 'Credit Card'
-    active_since = datetime(2011, 10, 3)
 
 
 class PointOfSalesFactory(DjangoModelFactory):

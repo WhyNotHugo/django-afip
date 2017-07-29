@@ -275,6 +275,10 @@ class TaxPayer(models.Model):
             'unsaved models.'
         ),
     )
+    active_since = models.DateField(
+        _('active since'),
+        help_text=_('Date since which this taxpayer has been legally active.'),
+    )
 
     @property
     def certificate_object(self):
@@ -458,12 +462,6 @@ class TaxPayerProfile(models.Model):
         help_text=_(
             'The terms of the sale printed onto receipts by default '
             '(eg: single payment, checking account, etc).'
-        ),
-    )
-    active_since = models.DateField(
-        _('active since'),
-        help_text=_(
-            'Date since which this taxpayer has been legally active.'
         ),
     )
 
