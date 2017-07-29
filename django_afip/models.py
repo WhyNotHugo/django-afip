@@ -445,7 +445,7 @@ class TaxPayerProfile(models.Model):
     )
     vat_condition = models.CharField(
         max_length=48,
-        choices={(condition, condition,) for condition in VAT_CONDITIONS},
+        choices=((condition, condition,) for condition in VAT_CONDITIONS),
         verbose_name=_('vat condition'),
     )
     gross_income_condition = models.CharField(
@@ -1146,7 +1146,7 @@ class ReceiptPDF(models.Model):
     )
     vat_condition = models.CharField(
         max_length=48,
-        choices={(condition, condition,) for condition in VAT_CONDITIONS},
+        choices=((condition, condition,) for condition in VAT_CONDITIONS),
         verbose_name=_('vat condition'),
     )
     gross_income_condition = models.CharField(
