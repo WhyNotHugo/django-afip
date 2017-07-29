@@ -8,6 +8,9 @@ releases, in reverse chronological order.
 -----
 * The ``ReceiptPDF.save_pdf_to`` method has been deprecated and will be removed
   in 4.0.0.
+* VAT conditions in models are now limited to know types -- this should very
+  much help create UIs and forms. If you come across a missing VAT condition,
+  please open an issue for it.
 
 3.2.1
 -----

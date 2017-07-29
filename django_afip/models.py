@@ -22,6 +22,22 @@ logger = logging.getLogger(__name__)
 TZ_AR = pytz.timezone(pytz.country_timezones['ar'][0])
 
 
+# NOTE: If you find a VAT condition not listed here, please open an issue, and
+# a reference to where it's defined.
+VAT_CONDITIONS = (
+    'IVA Responsable Inscripto',
+    'IVA Sujeto Exento',
+    'Consumidor Final',
+    'Responsable Monotributo',
+    'Proveedor del Exterior',
+    'Cliente del Exterior',
+    'IVA Liberado - Ley Nº 19.640',
+    'IVA Responsable Inscripto - Agente de Percepción',
+    'Monotributista Social',
+    'IVA no alcanzado',
+)
+
+
 def populate_all():
     """Fetch and store all metadata from the AFIP."""
     ReceiptType.objects.populate()
@@ -428,6 +444,7 @@ class TaxPayerProfile(models.Model):
     )
     vat_condition = models.CharField(
         max_length=48,
+        choices={(condition, condition,) for condition in VAT_CONDITIONS},
         verbose_name=_('vat condition'),
     )
     gross_income_condition = models.CharField(
@@ -1123,11 +1140,8 @@ class ReceiptPDF(models.Model):
     )
     vat_condition = models.CharField(
         max_length=48,
+        choices={(condition, condition,) for condition in VAT_CONDITIONS},
         verbose_name=_('vat condition'),
-        # IVA Responsable Inscripto
-        # No responsable IVA
-        # IVA Exento
-        # A consumidor Final
     )
     gross_income_condition = models.CharField(
         max_length=48,
