@@ -790,6 +790,7 @@ class ReceiptManager(models.Manager):
     """
 
     def fetch_last_receipt_number(self, point_of_sales, receipt_type):
+        """Returns the number for the last validated receipt."""
         client = clients.get_client('wsfe', point_of_sales.owner.is_sandboxed)
         response_xml = client.service.FECompUltimoAutorizado(
             serializers.serialize_ticket(
