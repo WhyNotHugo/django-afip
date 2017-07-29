@@ -82,75 +82,11 @@ are then sent to AFIP's web services in batches, so you van actually validate
 multiple ones, by operating over a ``QuerySet``; eg:
 ``Receipt.objects.filter(...).validate()``.
 
-To validate the receipts, you'll need to use :meth:`~.Receipt.validate` or
-:meth:`~.ReceiptQuerySet.validate` .  Authorization is handled transparently
+To validate the receipts, you'll need to use :meth:`.Receipt.validate` or
+:meth:`.ReceiptQuerySet.validate` .  Authorization is handled transparently
 (consult the API documentation if you'd prefer to do this manually).
 
 Validation is also possible via the ``Receipt`` admin.
-
-PDF Receipts
-------------
-
-Version 1.2.0 introduced PDF-generation for validated receipts. These PDFs are
-backed by the :class:`~.ReceiptPDF` model.
-
-There are two ways of creating these objects; you can do this manually, or via
-these steps:
-
-* Creating a :class:`~.TaxPayerProfile` object for your :class:`~.TaxPayer`,
-  with the right default values.
-* Create the PDFs via ``ReceiptPDF.objects.create_for_receipt()``.
-* Add the proper :class:`~.ReceiptEntry` objects to the :class:`~.Receipt`.
-  Each :class:`~.ReceiptEntry` represents a line in the resulting PDF file.
-
-The PDF file itself can then be generated via::
-
-    # Save the file as a model field into your MEDIA_ROOT directory:
-    receipt_pdf.save_pdf()
-
-The former is usually recommended since it allows simpler interaction via
-standard django patterns.
-
-Barcodes
-~~~~~~~~
-
-Since version 3.2.0, PDFs include the barcode defined in AFIP 1702/04.
-
-Version 3.2.0 used the receipt's expiration date for the barcode. After some
-debate with fellow developers and accountants, we've resolved that the CAE's
-expiration date should be used. Even though `resolution 1702/04`_ does not
-explicitly state this (it just says "Expiration Date", their own receipt PDFs
-use this date.
-Also, not all receipts have expiration dates.
-
-.. _resolution 1702/04: http://www.afip.gov.ar/afip/resol170204.html
-
-Exposing receipts
-~~~~~~~~~~~~~~~~~
-
-Generated receipt files may be exposed both as PDF or html with an existing
-view, for example, using::
-
-    url(
-        r'^invoices/pdf/(?P<pk>\d+)?$',
-        views.ReceiptPDFView.as_view(),
-        name='receipt_view',
-    ),
-    url(
-        r'^invoices/html/(?P<pk>\d+)?$',
-        views.ReceiptHTMLView.as_view(),
-        name='receipt_view',
-    ),
-
-You'll generally want to subclass this view, and add some authorization checks
-to it. If you want some other, more complex generation (like sending via
-email), these views should serve as a reference to the PDF API.
-
-The template used for the HTML and PDF receipts is found in
-``templates/receipts/code_X.html``, where X is the :class:`~.ReceiptType`'s
-code. If you want to override the default (you probably do), simply place a
-template with the same path/name inside your own app, and make sure it's listed
-*before* ``django_afip`` in ``INSTALLED_APPS``.
 
 About the admin
 ---------------

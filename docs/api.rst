@@ -65,6 +65,8 @@ should be accessed using ``Receipt.objects``.
 
 .. autoclass:: django_afip.models.ReceiptManager
     :members:
+.. autoclass:: django_afip.models.ReceiptPDFManager
+    :members:
 
 QuerySets
 ---------

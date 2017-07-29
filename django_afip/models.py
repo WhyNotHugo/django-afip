@@ -415,12 +415,13 @@ class TaxPayer(models.Model):
 
 class TaxPayerProfile(models.Model):
     """
-    Custom information about a taxpayer, used in printed receipts.
+    Metadata about a taxpayer used for printable receipts.
 
-    Most of these can be overriden per-receipt, and are usually just defaults.
+    None of this information is required or sent to the AFIP when notifying
+    about receipt generation. It is used *only* for PDF generation.
 
-    None of these are required or sent to the AFIP when notifying about receipt
-    generation. They are used *only* for PDF generation.
+    Most of these can be overriden per-receipt as this class is a placeholder
+    for default values.
     """
 
     taxpayer = models.OneToOneField(
@@ -1080,7 +1081,11 @@ class ReceiptPDFManager(models.Manager):
         Creates a ReceiptPDF object for a given receipt. Does not actually
         generate the related PDF file.
 
-        :param Receipt receipt: The receipt for the PDF will be generated.
+        All attributes will be completed with the information for the relevant
+        ``TaxPayerProfile`` instance.
+
+        :param Receipt receipt: The receipt for the PDF which will be
+            generated.
         """
         try:
             profile = TaxPayerProfile.objects.get(

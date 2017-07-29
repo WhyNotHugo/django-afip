@@ -32,6 +32,7 @@ Table of Contents
 
    installation
    usage
+   printables
    api
    contributing
    changelog
