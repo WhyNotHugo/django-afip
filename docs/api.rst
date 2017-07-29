@@ -19,24 +19,6 @@ These are the code models which will normally be used for  ``Receipt`` validatio
 .. autoclass:: django_afip.models.Vat
     :members:
 
-Managers
-~~~~~~~~
-
-Managers should be accessed via models. For example, ``ReceiptManager``
-should be accessed using ``Receipt.objects``.
-
-.. autoclass:: django_afip.models.ReceiptManager
-    :members:
-
-QuerySets
----------
-
-QuerySets are generally accessed via their models. For example,
-``Receipt.objects.filter()`` will return a ``ReceiptQuerySet``.
-
-.. autoclass:: django_afip.models.ReceiptQuerySet
-    :members:
-
 PDF-related models
 ------------------
 
@@ -73,4 +55,22 @@ command.
 .. autoclass:: django_afip.models.TaxType
     :members:
 .. autoclass:: django_afip.models.VatType
+    :members:
+
+Managers
+~~~~~~~~
+
+Managers should be accessed via models. For example, ``ReceiptManager``
+should be accessed using ``Receipt.objects``.
+
+.. autoclass:: django_afip.models.ReceiptManager
+    :members:
+
+QuerySets
+---------
+
+QuerySets are generally accessed via their models. For example,
+``Receipt.objects.filter()`` will return a ``ReceiptQuerySet``.
+
+.. autoclass:: django_afip.models.ReceiptQuerySet
     :members:
