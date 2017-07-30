@@ -119,3 +119,71 @@ releases, in reverse chronological order.
 * The field ``ReceiptEntry.amount`` has been renamed to ``quantity``.
 * Add a links to documentation on where to obtain the AFIP WS certificates.
 * Introduce this changelog.
+
+2.3.1
+-----
+* Fix inconsistencies in the return type for ``ReceiptBatch.validate()``.
+* Fix bad file names in PDF views.
+
+v2.3.0
+------
+* Switched from ``suds-py3`` to ``suds-redux``. This should make installation a
+  lot easier, since the latter is available on PyPI.
+
+v2.2.1
+------
+* Fix a crash when fetching more than one point of sale.
+
+v2.2.0
+------
+* Add support for Django 1.10.
+* The ``profile`` parameter has been dropped from the
+  ``ReceiptPDF.create_for_receipt`` method.
+* Use PyOpenSSL to sign authentication tickets.
+* Dropped runtime dependency: The ``openssl`` binary is no longer required.
+* Added runtime dependency: ``pyOpenSSL``.
+
+v2.1.2
+------
+* The package version is not exposed via ``django_afip.__version__``
+* Lots of documentation improvements!
+* Improve handling of some errors returned by AFIP's WS when using invalid
+  credentials.
+
+v2.1.1
+------
+* Work around PyPI issues which resulted in failed deployments.
+
+v2.1.0
+------
+* Each ``ReceiptEntry`` can now have a VAT attached to it.
+* Add a missing migration.
+* Each ``TaxPayer`` instance now has an ``is_sandboxed`` flag. Sandboxes and
+  non-sandboxed users can now coexist. This flag should be updated to the
+  current value of ``settings.AFIP_DEBUG``. This setting had been dropped and
+  will no longer be used.
+* Include a management command ``afipmetadata``, to fetch all metadata from
+  AFIP's WS.
+* Make the ssl monkey-patching as least invasive as possible.
+* Improve error handling for ``openssl``  calls.
+* Add a new template tag ``format_cuit``, which can be used to format numbers
+  as CUITs.
+
+v2.0.3
+------
+* Save PDF receipts into a ``receipts`` directory inside the media directory.
+
+v2.0.2
+------
+* Only allow one ``TaxPayerProfile`` per ``TaxPayer``.
+
+v2.0.1
+------
+* Tidy up exception handling and corner cases for PDF generation.
+
+v2.0.0
+------
+* Only allow a single ``ReceiptPDF`` instance per ``Receipt``.
+* Failed receipt validations no longer raise an exception, but rather return a
+  list of errors (since this handles partial validations better).
+* Lots of improvements to unit tests and error checking.
