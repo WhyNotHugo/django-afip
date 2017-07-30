@@ -16,6 +16,11 @@ releases, in reverse chronological order.
 * ``ReceiptPDF`` instances will now auto-generate the PDF file when they are
   saved if the receipt has been validated. Note that they are only generated
   ONCE, and regeneration must be done manually.
+* Added a new ``ReceiptPDFDisplayView``, that shows a PDF without prompting
+  users to download it.
+* Only minimal dependencies are now specified, rather that pinned versions
+  (this should avoid silly conflicts with other libraries requiring newer
+  versions).
 
 3.3.0
 -----
