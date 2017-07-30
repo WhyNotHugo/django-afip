@@ -231,19 +231,17 @@ class TaxPayerAdmin(admin.ModelAdmin):
         ]
 
         created = len([pos for pos in poses if pos[1]])
-        total = len(poses)
+        skipped = len(poses) - created
 
         self.message_user(
             request,
-            message=(
-                _(
-                    '%(total)d points of sales fetched. %(created)d created.'
-                ) % {
-                    'total': total,
-                    'created': created,
-                }
-            ),
+            message=(_('%d points of sales created.') % created),
             level=messages.SUCCESS,
+        )
+        self.message_user(
+            request,
+            message=(_('%d points of sales already existed.') % skipped),
+            level=messages.WARNING,
         )
 
     fetch_points_of_sales.short_description = _('Fetch points of sales')

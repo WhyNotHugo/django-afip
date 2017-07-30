@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-afip\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-25 03:37+0000\n"
+"POT-Creation-Date: 2017-07-30 18:11+0000\n"
 "PO-Revision-Date: 2017-07-02 20:40-0300\n"
 "Last-Translator: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
 "Language-Team: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
@@ -59,8 +59,12 @@ msgid "Validate"
 msgstr "Validar"
 
 #, python-format
-msgid "%(total)d points of sales fetched. %(created)d created."
-msgstr "%(total)d puntos de ventas obtenidos. %(created)d creados."
+msgid "%d points of sales created."
+msgstr "%d puntos de venta creados."
+
+#, python-format
+msgid "%d points of sales already existed."
+msgstr "%d puntos de ventas ya existían."
 
 msgid "Fetch points of sales"
 msgstr "Obtener puntos de venta"
