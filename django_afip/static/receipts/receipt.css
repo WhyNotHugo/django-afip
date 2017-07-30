@@ -27,12 +27,12 @@ header {
 }
 
 div.my-details > address {
-  width: 50%;
+  width: 60%;
   float: left;
 }
 
 div.my-details > .invoice-details {
-  width: 50%;
+  width: 40%;
   float: right;
   text-align: right;
 }

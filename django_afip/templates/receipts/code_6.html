@@ -32,14 +32,12 @@
 
           <div class="invoice-details">
             {{ pdf.receipt.receipt_type.description }}<br>
-            {# TODO: We probably want a tag that formats an invoice number! #}
             Nº {{ pdf.receipt|receiptnumber }}
             <br>
             Fecha: <time>{{ pdf.receipt.issued_date }}</time><br>
             CUIT {{ taxpayer.cuit|format_cuit }}<br>
             Ingresos Brutos: {{ pdf.gross_income_condition }}<br>
-            Inicio de Actividades: 
-            {{ taxpayer.active_since }}
+            Inicio de Actividades: {{ taxpayer.active_since }}
           </div>
         </div>
 
@@ -51,8 +49,8 @@
           {{ pdf.receipt.document_type }}
           {{ pdf.receipt.document_number }}<br>
           {{ pdf.client_address|linebreaksbr }}<br>
-          {{ pdf.client_vat_condition }}<br>
-          {{ pdf.sales_terms }}
+          Condición de IVA: {{ pdf.client_vat_condition }}<br>
+          Condición de Pago: {{ pdf.sales_terms }}
         </div>
 
       </header>
