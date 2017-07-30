@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-afip\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-30 18:11+0000\n"
+"POT-Creation-Date: 2017-07-30 18:15+0000\n"
 "PO-Revision-Date: 2017-07-02 20:40-0300\n"
 "Last-Translator: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
 "Language-Team: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
@@ -173,6 +173,23 @@ msgstr ""
 "Indica si el contribuyente interactúa con los servidores de prueba en vez de "
 "los servidores productivos."
 
+msgid "certificate expiration"
+msgstr "expiración de certificado"
+
+msgid ""
+"Stores expiration for the current certificate. Note that this field is "
+"updated pre-save, so the value may be invalid for unsaved models."
+msgstr ""
+"Guarda la fecha de expiración del certificado actual. Nótese que este campo "
+"es actualizado previo a guardar, así que el valor puede ser inválido para "
+"modelos sin guardar."
+
+msgid "active since"
+msgstr "inicio de actividades"
+
+msgid "Date since which this taxpayer has been legally active."
+msgstr "Fecha desde la cual el contribuyente está legalmente activo."
+
 msgid "taxpayer"
 msgstr "contribuyente"
 
@@ -203,12 +220,6 @@ msgid ""
 msgstr ""
 "Los términos de venta impresos en los comprobantes por defecto (eg: un pago, "
 "cuenta corriente, etc)."
-
-msgid "active since"
-msgstr "inicio de actividades"
-
-msgid "Date since which this taxpayer has been legally active."
-msgstr "Fecha desde la cual el contribuyente está legalmente activo."
 
 msgid "taxpayer profile"
 msgstr "perfil de contribuyente"
@@ -372,11 +383,17 @@ msgstr "comprobantes"
 msgid "pdf file"
 msgstr "archivo pdf"
 
+msgid "The actual file which contains the PDF data."
+msgstr "El archivo que contiene el PDF en sí."
+
 msgid "client name"
 msgstr "nombre del cliente"
 
 msgid "client address"
 msgstr "domicilio del cliente"
+
+msgid "client vat condition"
+msgstr "condición de IVA del client"
 
 msgid "Should be something like \"Cash\", \"Payable in 30 days\", etc"
 msgstr "Debería ser algo como \"Efectivo\" o \"Pagable a 30 días\", etc"
