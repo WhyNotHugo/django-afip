@@ -1168,7 +1168,7 @@ class ReceiptPDF(models.Model):
     )
     client_vat_condition = models.CharField(
         max_length=48,
-        choices=((condition, condition,) for condition in VAT_CONDITIONS),
+        choices=((cond, cond,) for cond in CLIENT_VAT_CONDITIONS),
         verbose_name=_('client vat condition'),
     )
     sales_terms = models.CharField(
