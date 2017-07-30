@@ -21,6 +21,8 @@ releases, in reverse chronological order.
 * Only minimal dependencies are now specified, rather that pinned versions
   (this should avoid silly conflicts with other libraries requiring newer
   versions).
+* ``ReceiptEntry.vat`` is now blankable, making forms and admins less
+  confusing.
 
 3.3.0
 -----

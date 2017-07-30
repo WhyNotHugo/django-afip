@@ -1250,6 +1250,7 @@ class ReceiptEntry(models.Model):
         VatType,
         related_name='receipt_entries',
         verbose_name=_('vat'),
+        blank=True,
         null=True,
         on_delete=models.PROTECT,
     )
