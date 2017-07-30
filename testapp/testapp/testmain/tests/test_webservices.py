@@ -11,30 +11,10 @@ from factory.django import FileField
 
 from django_afip import exceptions, models
 from testapp.testmain import fixtures, mocks
-
-
-@tag('live')
-class AfipTestCase(TestCase):
-    """
-    Base class for AFIP-WS related tests.
-
-    Since AFIP rate-limits how often authentication tokens can be fetched, we
-    need to keep one between tests.
-    This class is a simple hack to keep that ticket in-memory and saves it into
-    the DB every time a new class is ``setUp``.
-    """
-
-    ticket = None
-
-    def setUp(self):
-        """Save a TaxPayer and Ticket into the database."""
-        AfipTestCase.taxpayer = fixtures.TaxPayerFactory(pk=1)
-
-        if not AfipTestCase.ticket:
-            ticket = models.AuthTicket.objects.get_any_active('wsfe')
-            AfipTestCase.ticket = ticket
-
-        AfipTestCase.ticket.save()
+from testapp.testmain.tests.testcases import (
+    LiveAfipTestCase,
+    PopulatedLiveAfipTestCase,
+)
 
 
 @tag('live')
@@ -109,7 +89,7 @@ class AuthTicketTest(TestCase):
             taxpayer.create_ticket('wsfe')
 
 
-class PopulationTest(AfipTestCase):
+class PopulationTest(LiveAfipTestCase):
     """
     Tests models population view.
 
@@ -135,7 +115,7 @@ class PopulationTest(AfipTestCase):
         self.assertGreater(currencies, 0)
 
 
-class TaxPayerTest(AfipTestCase):
+class TaxPayerTest(LiveAfipTestCase):
     """Test TaxPayer methods."""
 
     def test_fetch_points_of_sale(self):
@@ -147,16 +127,7 @@ class TaxPayerTest(AfipTestCase):
         self.assertGreater(points_of_sales, 0)
 
 
-class PopulatedAfipTestCase(AfipTestCase):
-    def setUp(self):
-        """Populate AFIP metadata and create a TaxPayer and PointOfSales."""
-        super().setUp()
-        models.populate_all()
-        taxpayer = models.TaxPayer.objects.first()
-        taxpayer.fetch_points_of_sales()
-
-
-class ReceiptQuerySetTestCase(PopulatedAfipTestCase):
+class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
     """Test ReceiptQuerySet methods."""
 
     def _good_receipt(self):

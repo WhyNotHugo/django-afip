@@ -4,7 +4,7 @@ from django.test import TestCase
 
 from django_afip import exceptions, models
 from testapp.testmain import fixtures, mocks
-from testapp.testmain.tests.test_webservices import PopulatedAfipTestCase
+from testapp.testmain.tests.testcases import PopulatedLiveAfipTestCase
 
 
 class ReceiptQuerySetTestCase(TestCase):
@@ -62,7 +62,7 @@ class ReceiptTestCase(TestCase):
         self.assertTrue(self.called)
 
 
-class ReceiptValidateTestCase(PopulatedAfipTestCase):
+class ReceiptValidateTestCase(PopulatedLiveAfipTestCase):
 
     def test_validation(self):
         """Test validating valid receipts."""
