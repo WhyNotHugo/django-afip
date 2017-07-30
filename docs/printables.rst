@@ -40,23 +40,32 @@ Also, not all receipts have expiration dates.
 Exposing receipts
 ~~~~~~~~~~~~~~~~~
 
-Generated receipt files may be exposed both as PDF or html with an existing
-view, for example, using::
+Views
+.....
+
+Printable receipts can be exposed via views. They all require a ``pk``
+URL-param, so URL registration should look something like:
+
+.. code-block:: python
 
     url(
         r'^invoices/pdf/(?P<pk>\d+)?$',
-        views.ReceiptPDFView.as_view(),
-        name='receipt_view',
-    ),
-    url(
-        r'^invoices/html/(?P<pk>\d+)?$',
         views.ReceiptHTMLView.as_view(),
         name='receipt_view',
     ),
 
-You'll generally want to subclass this view, and add some authorization checks
-to it. If you want some other, more complex generation (like sending via
-email), these views should serve as a reference to the PDF API.
+Note that you'll generally want to subclass these and add some for of
+permission checking.
+
+.. autoclass:: django_afip.views.ReceiptHTMLView
+    :members:
+.. autoclass:: django_afip.views.ReceiptPDFView
+    :members:
+.. autoclass:: django_afip.views.ReceiptPDFDisplayView
+    :members:
+
+Templates
+.........
 
 The template used for the HTML and PDF receipts is found in
 ``templates/receipts/code_X.html``, where X is the :class:`~.ReceiptType`'s
