@@ -16,9 +16,13 @@ class ReceiptPDFTestCase(TestCase):
         )
         self.assertContains(
             response,
-            '<div class="client">\n<strong>Facturado a:</strong><br>\n'
-            'John Doe,\nDNI\n33445566<br>\n'
-            '12 Green Road<br />Greenville<br />UK<br>\n<br>\n\n</div>',
+            '<div class="client">\n'
+            '<strong>Facturado a:</strong><br>\n'
+            'John Doe,\n'
+            'DNI\n33445566<br>\n'
+            '12 Green Road<br />Greenville<br />UK<br>\n'
+            'Condición de IVA: <br>\n'
+            'Condición de Pago: \n</div>',
             html=True,
         )
 
