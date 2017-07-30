@@ -3,6 +3,7 @@ from datetime import date, datetime
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.utils.timezone import make_aware
 from factory import PostGenerationMethodCall, SubFactory
 from factory.django import DjangoModelFactory, FileField
 
@@ -125,9 +126,9 @@ class ReceiptValidationFactory(DjangoModelFactory):
         model = models.ReceiptValidation
 
     result = models.ReceiptValidation.RESULT_APPROVED
-    processed_date = datetime(2017, 7, 2, 21, 6, 4)
+    processed_date = make_aware(datetime(2017, 7, 2, 21, 6, 4))
     cae = '67190616790549'
-    cae_expiration = datetime(2017, 7, 12)
+    cae_expiration = make_aware(datetime(2017, 7, 12))
     receipt = SubFactory(ReceiptFactory)
 
 
