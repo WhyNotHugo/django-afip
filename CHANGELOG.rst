@@ -11,6 +11,8 @@ releases, in reverse chronological order.
   ``TaxPayer``.
 * Invoices in the admin will show a small asterisk if their value in the
   original currency doesn't match their value in ARS.
+* The ``ReceiptPDF`` class now has a new ``client_vat_condition`` field. Newly
+  created instances must define this non-nullable field.
 
 3.3.0
 -----

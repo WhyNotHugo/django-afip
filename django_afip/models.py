@@ -21,10 +21,19 @@ logger = logging.getLogger(__name__)
 TZ_AR = pytz.timezone(pytz.country_timezones['ar'][0])
 
 
-# NOTE: If you find a VAT condition not listed here, please open an issue, and
-# a reference to where it's defined.
+# http://www.afip.gov.ar/afip/resol1415_anexo2.html
 VAT_CONDITIONS = (
     'IVA Responsable Inscripto',
+    'IVA Responsable No Inscripto',
+    'IVA Exento',
+    'No Responsable IVA',
+    'Responsable Monotributo',
+)
+# NOTE: If you find a VAT condition not listed here, please open an issue, and
+# a reference to where it's defined.
+CLIENT_VAT_CONDITIONS = (
+    'IVA Responsable Inscripto',
+    'IVA Responsable No Inscripto',
     'IVA Sujeto Exento',
     'Consumidor Final',
     'Responsable Monotributo',
@@ -1156,6 +1165,11 @@ class ReceiptPDF(models.Model):
     )
     client_address = models.TextField(
         _('client address'),
+    )
+    client_vat_condition = models.CharField(
+        max_length=48,
+        choices=((condition, condition,) for condition in VAT_CONDITIONS),
+        verbose_name=_('client vat condition'),
     )
     sales_terms = models.CharField(
         max_length=48,
