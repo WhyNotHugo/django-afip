@@ -1,13 +1,13 @@
-import io
 import logging
 import random
 import uuid
 from base64 import b64encode
 from datetime import datetime, timedelta, timezone
+from io import BytesIO
 from tempfile import NamedTemporaryFile
 
 import pytz
-from django.core.files.base import File
+from django.core.files import File
 from django.db import models
 from django.db.models import Count
 from django.utils.translation import ugettext_lazy as _
@@ -344,7 +344,7 @@ class TaxPayer(models.Model):
         Creates a file-like object that contains the CSR which can be used to
         request a new certificate from AFIP.
         """
-        csr = io.BytesIO()
+        csr = BytesIO()
         crypto.create_csr(
             self.key.file,
             self.name,
@@ -1119,12 +1119,18 @@ class ReceiptPDF(models.Model):
     """
     Printable version of a receipt.
 
-    Models all print-related data of a receipt and references generated PDF
-    files.
+    Contains all print-related data of a receipt.
 
-    All `issuing`` fields contain data for the entity issuing the Receipt
+    All ``issuing_*`` fields contain data for the entity issuing the Receipt
     (these may change from one receipt to the next if, for example, the entity
     moved).
+
+    The PDF file itself is saved into the ``pdf_file`` attribute, and is
+    generated prior to saving the model for the first time (by a pre_save
+    hook). If any attributes are changed, you should manually call
+    :meth:`~.ReceiptPDF.save_pdf` to regenerate the PDF file.
+
+    PDF generation is skipped if the receipt has not been validated.
     """
     receipt = models.OneToOneField(
         Receipt,
@@ -1136,6 +1142,7 @@ class ReceiptPDF(models.Model):
         upload_to='receipts',
         blank=True,
         null=True,
+        help_text=_('The actual file which contains the PDF data.'),
     )
     issuing_name = models.CharField(
         max_length=128,
@@ -1181,24 +1188,25 @@ class ReceiptPDF(models.Model):
 
     objects = ReceiptPDFManager()
 
-    def _check_authorized(self):
+    def save_pdf(self, save_model=True):
+        """
+        Save the receipt as a PDF related to this model.
+
+        The related :class:`~.Receipt` should be validated first, of course.
+
+        :param bool save_model: If True, immediately save this model instance.
+        """
+        from django_afip import pdf
+
         if not self.receipt.is_validated:
             raise exceptions.DjangoAfipException(
                 _('Cannot generate pdf for non-authorized receipt')
             )
 
-    def save_pdf(self):
-        """
-        Save the receipt as a PDF related to this model.
+        self.pdf_file = File(BytesIO(), name='{}.pdf'.format(uuid.uuid4().hex))
+        pdf.generate_for_receiptpdf(self, self.pdf_file)
 
-        The related :class:`~.Receipt` should be validated first, of course.
-        """
-        from . import pdf
-        self._check_authorized()
-
-        with NamedTemporaryFile(suffix='.pdf') as file_:
-            pdf.generate_receipt_pdf(self.receipt_id, file_)
-            self.pdf_file = File(file_, name='{}.pdf'.format(uuid.uuid4().hex))
+        if save_model:
             self.save()
 
     def __str__(self):

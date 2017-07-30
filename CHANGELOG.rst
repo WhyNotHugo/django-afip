@@ -13,6 +13,9 @@ releases, in reverse chronological order.
   original currency doesn't match their value in ARS.
 * The ``ReceiptPDF`` class now has a new ``client_vat_condition`` field. Newly
   created instances must define this non-nullable field.
+* ``ReceiptPDF`` instances will now auto-generate the PDF file when they are
+  saved if the receipt has been validated. Note that they are only generated
+  ONCE, and regeneration must be done manually.
 
 3.3.0
 -----

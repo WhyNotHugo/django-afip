@@ -100,3 +100,17 @@ class BarcodeGeneratorTestCase(TestCase):
 
         with open(path, 'rb') as f:
             self.assertEqual(lines, f.read().splitlines())
+
+
+class GenerateReceiptPDFSignalTestCase(TestCase):
+    def test_not_validated_receipt(self):
+        printable = fixtures.ReceiptPDFFactory()
+
+        self.assertFalse(printable.pdf_file)
+
+    def test_validated_receipt(self):
+        validation = fixtures.ReceiptValidationFactory()
+        printable = fixtures.ReceiptPDFFactory(receipt=validation.receipt)
+
+        self.assertTrue(printable.pdf_file)
+        self.assertTrue(printable.pdf_file.name.endswith('.pdf'))

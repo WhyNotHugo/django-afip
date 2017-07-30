@@ -129,7 +129,7 @@ class ReceiptValidationFactory(DjangoModelFactory):
     processed_date = make_aware(datetime(2017, 7, 2, 21, 6, 4))
     cae = '67190616790549'
     cae_expiration = make_aware(datetime(2017, 7, 12))
-    receipt = SubFactory(ReceiptFactory)
+    receipt = SubFactory(ReceiptFactory, receipt_number=17)
 
 
 class ReceiptPDFFactory(DjangoModelFactory):

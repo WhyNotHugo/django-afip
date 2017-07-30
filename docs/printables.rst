@@ -16,10 +16,9 @@ Creation of ``ReceiptPDF`` instances can generally be done with the
 :meth:`~.ReceiptPDFManager.create_for_receipt` helper method.
 ``ReceiptEntry`` instances should be created manually.
 
-The PDF file itself can then be generated via::
-
-    # Save the file as a model field into your MEDIA_ROOT directory:
-    receipt_pdf.save_pdf()
+The PDF files themselves are created the first time you save the model instance
+(via a ``pre_save`` hook). You can generate (either before saving, or because
+you need to regenerate it) by calling :meth:`.ReceiptPDF.save_pdf`.
 
 Note that the ``TaxPayerProfile`` model is merely a helper one -- it's entirely
 possible to construct ``ReceiptPDF`` manually without them.
@@ -65,3 +64,13 @@ code. If you want to override the default (you probably do), simply place a
 template with the same path/name inside your own app, and make sure it's listed
 *before* ``django_afip`` in ``INSTALLED_APPS``.
 
+Note that you may also expose receipts as plain Django media files. The URL
+will be relative or absolute depending on your media files configuration.
+
+.. code-block:: python
+
+    printable = ReceiptPDF.objects.last()
+    printable.pdf_file
+    # <FieldFile: receipts/790bc4f648e844bda7149ac517fdcf65.pdf>
+    printable.pdf_file.url
+    # '/media/receipts/790bc4f648e844bda7149ac517fdcf65.pdf'

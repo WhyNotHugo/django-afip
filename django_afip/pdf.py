@@ -42,7 +42,7 @@ def staticfile_url_fetcher(url):
 
 
 def generate_receipt_pdf(pk, target, force_html=False):
-
+    """Generates a PDF for a receipt given its ID."""
     pdf = models.ReceiptPDF.objects.select_related(
         'receipt',
         'receipt__receipt_type',
@@ -54,6 +54,24 @@ def generate_receipt_pdf(pk, target, force_html=False):
         'receipt__entries',
     ).get(
         receipt__pk=pk
+    )
+    return generate_for_receiptpdf(pdf, target, force_html)
+
+
+def generate_for_receiptpdf(pdf, target, force_html=False):
+    """Generates a PDF file for a given ReceiptPDF instance."""
+
+    # Prefetch required data in a single query:
+    pdf.receipt = models.Receipt.objects.select_related(
+        'receipt_type',
+        'document_type',
+        'validation',
+        'point_of_sales',
+        'point_of_sales__owner',
+    ).prefetch_related(
+        'entries',
+    ).get(
+        pk=pdf.receipt.id,
     )
 
     generator = ReceiptBarcodeGenerator(pdf.receipt)

@@ -8,3 +8,9 @@ from django_afip import models
 def update_certificate_expiration(sender, instance, **kwargs):
     if instance.certificate:
         instance.certificate_expiration = instance.get_certificate_expiration()
+
+
+@receiver(pre_save, sender=models.ReceiptPDF)
+def generate_receipt_pdf(sender, instance, **kwargs):
+    if not instance.pdf_file and instance.receipt.is_validated:
+        instance.save_pdf(save_model=False)
