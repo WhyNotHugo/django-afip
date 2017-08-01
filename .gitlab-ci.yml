@@ -61,6 +61,16 @@ postgres:
     TOXENV: django111-postgres
     DATABASE_URL: postgres://postgres@postgres:5432
 
+mysql:
+  <<: *unittests
+  image: python:3.6
+  services:
+    - mysql
+  variables:
+    TOXENV: django111-mysql
+    MYSQL_ALLOW_EMPTY_PASSWORD: "1"
+    DATABASE_URL: mysql://root@mysql:3306
+
 live:
   <<: *unittests
   image: python:3.6
