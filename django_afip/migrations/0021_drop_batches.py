@@ -26,9 +26,9 @@ class Migration(migrations.Migration):
             field=models.DateTimeField(verbose_name='processed date'),
         ),
         migrations.DeleteModel(
-            name='ReceiptBatch',
+            name='Validation',
         ),
         migrations.DeleteModel(
-            name='Validation',
+            name='ReceiptBatch',
         ),
     ]
