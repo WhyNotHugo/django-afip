@@ -35,7 +35,11 @@ explicitly state this (it just says "Expiration Date", their own receipt PDFs
 use this date.
 Also, not all receipts have expiration dates.
 
+It was also later confirmed via a `response`_ from AFIP that the CAE expiration
+should be used.
+
 .. _resolution 1702/04: http://www.afip.gov.ar/afip/resol170204.html
+.. _response: https://www.afip.gob.ar/genericos/cit/VerConsulta.aspx?evt=2SSMPS%2bjf%2f1c%2fsn%2bheAaSw%3d%3d
 
 Exposing receipts
 ~~~~~~~~~~~~~~~~~
