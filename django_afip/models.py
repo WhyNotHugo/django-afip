@@ -900,7 +900,8 @@ class Receipt(models.Model):
         max_digits=15,
         decimal_places=2,
         help_text=_(
-            'Must be equal to untaxed amount + exempt amount + taxes + vat.'
+            'Must be equal to the sum of net_taxed, exempt_amount, net_taxes, '
+            'and all taxes and vats.'
         )
     )
     net_untaxed = models.DecimalField(
@@ -1245,6 +1246,7 @@ class ReceiptEntry(models.Model):
         _('unit price'),
         max_digits=15,
         decimal_places=2,
+        help_text=_('Price per unit before vat or taxes.'),
     )
     vat = models.ForeignKey(
         VatType,
