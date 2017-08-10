@@ -29,6 +29,8 @@ releases, in reverse chronological order.
   development mode.
 * ``ReceiptPDF.client_address`` can now be blank, given that this field may be
   absent for certain receipt types.
+* Added ``total_vat`` and ``total_tax`` properties to ``Receipt``. This should
+  be pretty self-explanatory.
 
 3.3.0
 -----

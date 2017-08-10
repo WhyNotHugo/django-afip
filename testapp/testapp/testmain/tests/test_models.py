@@ -153,3 +153,45 @@ class ReceiptDefaultCurrencyTestCase(TestCase):
         self.assertNotEqual(receipt.currency, c1)
         self.assertEqual(receipt.currency, c2)
         self.assertNotEqual(receipt.currency, c3)
+
+
+class ReceiptTotalVatTestCase(TestCase):
+    def test_no_vat(self):
+        receipt = fixtures.ReceiptFactory()
+
+        self.assertEqual(receipt.total_vat, 0)
+
+    def test_multiple_vats(self):
+        receipt = fixtures.ReceiptFactory()
+        fixtures.VatFactory(receipt=receipt)
+        fixtures.VatFactory(receipt=receipt)
+
+        self.assertEqual(receipt.total_vat, 42)
+
+    def test_proper_filtering(self):
+        receipt = fixtures.ReceiptFactory()
+        fixtures.VatFactory(receipt=receipt)
+        fixtures.VatFactory()
+
+        self.assertEqual(receipt.total_vat, 21)
+
+
+class ReceiptTotalTaxTestCase(TestCase):
+    def test_no_tax(self):
+        receipt = fixtures.ReceiptFactory()
+
+        self.assertEqual(receipt.total_tax, 0)
+
+    def test_multiple_taxes(self):
+        receipt = fixtures.ReceiptFactory()
+        fixtures.TaxFactory(receipt=receipt)
+        fixtures.TaxFactory(receipt=receipt)
+
+        self.assertEqual(receipt.total_tax, 18)
+
+    def test_proper_filtering(self):
+        receipt = fixtures.ReceiptFactory()
+        fixtures.TaxFactory(receipt=receipt)
+        fixtures.TaxFactory()
+
+        self.assertEqual(receipt.total_tax, 9)

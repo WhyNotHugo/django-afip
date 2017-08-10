@@ -139,3 +139,43 @@ class ReceiptPDFFactory(DjangoModelFactory):
     receipt = SubFactory(ReceiptFactory)
     client_name = 'John Doe'
     client_address = '12 Green Road\nGreenville\nUK'
+
+
+class GenericAfipTypeFactory(DjangoModelFactory):
+    class Meta:
+        model = models.GenericAfipType
+
+    code = 80
+    description = 'CUIT'
+    valid_from = datetime(2017, 8, 10)
+
+
+class VatTypeFactory(GenericAfipTypeFactory):
+    class Meta:
+        model = models.VatType
+
+
+class TaxTypeFactory(GenericAfipTypeFactory):
+    class Meta:
+        model = models.TaxType
+
+
+class VatFactory(DjangoModelFactory):
+    class Meta:
+        model = models.Vat
+
+    amount = 21
+    base_amount = 100
+    receipt = SubFactory(ReceiptFactory)
+    vat_type = SubFactory(VatTypeFactory)
+
+
+class TaxFactory(DjangoModelFactory):
+    class Meta:
+        model = models.Tax
+
+    aliquot = 9
+    amount = 9
+    base_amount = 100
+    receipt = SubFactory(ReceiptFactory)
+    tax_type = SubFactory(TaxTypeFactory)

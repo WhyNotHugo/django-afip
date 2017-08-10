@@ -9,7 +9,7 @@ from tempfile import NamedTemporaryFile
 import pytz
 from django.core.files import File
 from django.db import models
-from django.db.models import Count
+from django.db.models import Count, Sum
 from django.utils.translation import ugettext_lazy as _
 from lxml import etree
 from lxml.builder import E
@@ -934,19 +934,6 @@ class Receipt(models.Model):
             'For C-type receipts, this must be zero.'
         ),
     )
-    # Runtime-calculated. Deleteable?
-    # vat_amount = models.DecimalField(
-    #     _('vat amount'),
-    #     max_digits=15,
-    #     decimal_places=2,
-    #     help_text=_('Must be equal to the sum of all Vat objects.'),
-    # )
-    # tax_amount = models.DecimalField(
-    #     _('tax amount'),
-    #     max_digits=15,
-    #     decimal_places=2,
-    #     help_text=_('Must be equal to the sum of all Tax objects.'),
-    # )
     service_start = models.DateField(
         _('service start date'),
         help_text=_(
@@ -1000,6 +987,18 @@ class Receipt(models.Model):
 
     # TODO: Not implemented: optionals
     # TODO: methods to validate totals
+
+    @property
+    def total_vat(self):
+        """Returns the sum of all Vat objects."""
+        q = Vat.objects.filter(receipt=self).aggregate(total=Sum('amount'))
+        return q['total'] or 0
+
+    @property
+    def total_tax(self):
+        """Returns the sum of all Tax objects."""
+        q = Tax.objects.filter(receipt=self).aggregate(total=Sum('amount'))
+        return q['total'] or 0
 
     @property
     def formatted_number(self):
