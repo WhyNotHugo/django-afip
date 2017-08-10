@@ -1172,6 +1172,7 @@ class ReceiptPDF(models.Model):
     )
     client_address = models.TextField(
         _('client address'),
+        blank=True,
     )
     client_vat_condition = models.CharField(
         max_length=48,

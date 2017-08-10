@@ -27,6 +27,8 @@ releases, in reverse chronological order.
   to be necessary.
 * Fix issues displaying static files in receipts when not running in
   development mode.
+* ``ReceiptPDF.client_address`` can now be blank, given that this field may be
+  absent for certain receipt types.
 
 3.3.0
 -----
