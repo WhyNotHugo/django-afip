@@ -19,9 +19,7 @@ def parse_date(datestring):
 
 
 def parse_string(string):
-    """
-    Re-encodes strings from AFIP's weird encoding to UTF-8.
-    """
+    """Re-encodes strings from AFIP's weird encoding to UTF-8."""
     try:
         return string.encode('latin-1').decode()
     except UnicodeDecodeError:

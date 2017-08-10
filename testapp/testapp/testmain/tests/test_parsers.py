@@ -33,3 +33,10 @@ class ParseDateTestCase(TestCase):
             parsers.parse_date('20170730'),
             date(2017, 7, 30),
         )
+
+
+class ParseString(TestCase):
+    def test_weirdly_encoded(self):
+        # This is the encoding AFIP sometimes uses:
+        string = 'AÃ±adir paÃ\xads'
+        self.assertEqual(parsers.parse_string(string), 'Añadir país')
