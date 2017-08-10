@@ -37,3 +37,10 @@ notes ARE provided though):
        dependencies.  Consult `their documentation
        <http://weasyprint.readthedocs.io/en/stable/install.html>`_ for clear
        and up-to-date details.
+
+Versioning
+----------
+
+We strictly follow `Semantic Versioning`_
+
+.. _Semantic Versioning: http://semver.org/
