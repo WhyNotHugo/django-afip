@@ -23,6 +23,8 @@ releases, in reverse chronological order.
   versions).
 * ``ReceiptEntry.vat`` is now blankable, making forms and admins less
   confusing.
+* Remove old monkey-patching code for the ``ssl`` module. This no longer seems
+  to be necessary.
 
 3.3.0
 -----
