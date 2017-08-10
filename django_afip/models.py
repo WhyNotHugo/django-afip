@@ -782,7 +782,7 @@ class ReceiptQuerySet(models.QuerySet):
                         )
                     )
 
-        # Remove the number from ones that vailed to validate:
+        # Remove the number from ones that failed to validate:
         self.filter(validation__isnull=True).update(receipt_number=None)
 
         return errs
