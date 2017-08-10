@@ -31,7 +31,7 @@ notes ARE provided though):
 
 .. code-block:: txt
 
-    django-afip 3.0 >= , < 4.0
+    django-afip 4.0 >= , < 5.0
 
 .. [#] Receipt PDF generation uses weasyprint, which has some additional
        dependencies.  Consult `their documentation
