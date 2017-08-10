@@ -55,7 +55,7 @@ ourselves on our production instances without any data loss).
 .. warning::
 
     If you're on a pre-v4.0.0 release, you should upgrade to v4.0.0 and then
-    further, since squashed migrations will be dropped in latter releases.
+    further, since migrations will be squashed and purged in  latter releases.
 
-    If you're working on new/non-production projects, it's safe to ignore these
-    warnings (though you'll have to drop your current DB).
+    If you're working on new/non-production projects, it's safe to ignore this
+    warning (though you'll have to drop your current DB).
