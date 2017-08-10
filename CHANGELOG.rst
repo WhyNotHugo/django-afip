@@ -25,6 +25,8 @@ releases, in reverse chronological order.
   confusing.
 * Remove old monkey-patching code for the ``ssl`` module. This no longer seems
   to be necessary.
+* Fix issues displaying static files in receipts when not running in
+  development mode.
 
 3.3.0
 -----

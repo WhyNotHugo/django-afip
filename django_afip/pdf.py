@@ -26,7 +26,7 @@ def staticfile_url_fetcher(url):
     Returns files when the staticfiles app does not returns a relative path to
     a file.
     """
-    if url.startswith('/'):
+    if url.startswith(staticfiles_storage.base_url):
         base_url = staticfiles_storage.base_url
         filename = url.replace(base_url, '', 1)
 
