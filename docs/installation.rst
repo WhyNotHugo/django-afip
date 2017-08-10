@@ -44,3 +44,22 @@ Versioning
 We strictly follow `Semantic Versioning`_
 
 .. _Semantic Versioning: http://semver.org/
+
+Upgrading
+---------
+
+Backwards compatibility may break at major release, however, we always provide
+migrations to upgrade existing installations (we actually always use those
+ourselves on our production instances without any data loss).
+
+Squashed Migrations
+~~~~~~~~~~~~~~~~~~~
+
+Version 4.0.0 provides squashed migrations. If you're running a *very old*
+version of the app, you should upgrade to 3.3.0 and then to 4.0.0 from there.
+
+If you run more recent versions, you should upgrade to v4.0.0 and then further,
+since squashed migrations will be dropped in latter releases.
+
+If you're working on new/non-production projects, it's safe to ignore these
+warnings.
