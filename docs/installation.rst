@@ -52,14 +52,10 @@ Backwards compatibility may break at major release, however, we always provide
 migrations to upgrade existing installations (we actually always use those
 ourselves on our production instances without any data loss).
 
-Squashed Migrations
-~~~~~~~~~~~~~~~~~~~
+.. warning::
 
-Version 4.0.0 provides squashed migrations. If you're running a *very old*
-version of the app, you should upgrade to 3.3.0 and then to 4.0.0 from there.
+    If you're on a pre-v4.0.0 release, you should upgrade to v4.0.0 and then
+    further, since squashed migrations will be dropped in latter releases.
 
-If you run more recent versions, you should upgrade to v4.0.0 and then further,
-since squashed migrations will be dropped in latter releases.
-
-If you're working on new/non-production projects, it's safe to ignore these
-warnings.
+    If you're working on new/non-production projects, it's safe to ignore these
+    warnings (though you'll have to drop your current DB).
