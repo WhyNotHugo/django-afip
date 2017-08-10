@@ -921,7 +921,7 @@ class Receipt(models.Model):
         help_text=_(
             'The total amount to which taxes apply. '
             'For C-type receipts, this is equal to the subtotal.'
-            ),
+        ),
     )
     exempt_amount = models.DecimalField(
         # ImpOpEx
