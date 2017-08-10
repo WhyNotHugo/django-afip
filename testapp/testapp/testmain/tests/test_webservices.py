@@ -271,5 +271,23 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
         )
         self.assertEqual(models.ReceiptValidation.objects.count(), 1)
 
+    def test_validation_with_observations(self):
+        receipt = mocks.receipt(
+            receipt_type=1,
+            document_type=80,
+            document_number='20291144404',
+        )
+
+        errs = models.Receipt.objects.all().validate()
+
+        self.assertEqual(len(errs), 0)
+        self.assertEqual(
+            receipt.validation.result,
+            models.ReceiptValidation.RESULT_APPROVED,
+        )
+        self.assertEqual(models.ReceiptValidation.objects.count(), 1)
+        self.assertEqual(models.Observation.objects.count(), 1)
+        self.assertEqual(receipt.validation.observations.count(), 1)
+
 
 # TODO: Test receipts with related_receipts

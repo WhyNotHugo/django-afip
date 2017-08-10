@@ -8,6 +8,7 @@ def receipt(
         with_tax=True,
         with_vat=True,
         receipt_type=6,
+        document_number='203012345',
      ):
     """
     Return a dummy mocked-receipt.
@@ -25,7 +26,7 @@ def receipt(
         document_type=models.DocumentType.objects.get(
             code=document_type,
         ),
-        document_number='203012345',
+        document_number=document_number,
         issued_date=date.today(),
         total_amount=total_amount,
         net_untaxed=0,

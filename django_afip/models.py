@@ -755,7 +755,7 @@ class ReceiptQuerySet(models.QuerySet):
         errs = []
         for cae_data in response.FeDetResp.FECAEDetResponse:
             if cae_data.Resultado == ReceiptValidation.RESULT_APPROVED:
-                rv = ReceiptValidation.objects.create(
+                validation = ReceiptValidation.objects.create(
                     result=cae_data.Resultado,
                     cae=cae_data.CAE,
                     cae_expiration=parsers.parse_date(cae_data.CAEFchVto),
@@ -768,11 +768,11 @@ class ReceiptQuerySet(models.QuerySet):
                 )
                 if cae_data.Observaciones:
                     for obs in cae_data.Observaciones.Obs:
-                        observation = Observation.objects.get_or_create(
+                        observation = Observation.objects.create(
                             code=obs.Code,
                             message=obs.Msg,
                         )
-                    rv.observations.add(observation)
+                    validation.observations.add(observation)
             elif cae_data.Observaciones:
                 for obs in cae_data.Observaciones.Obs:
                     errs.append(
