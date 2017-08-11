@@ -4,6 +4,11 @@ Changelog
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
+4.1.0
+-----
+* All migrations have been squashed. Please upgrade to 4.0.0 before upgrading
+  further. See the docs for details.
+
 4.0.0
 -----
 * The ``ReceiptPDF.save_pdf_to`` method has been removed.
