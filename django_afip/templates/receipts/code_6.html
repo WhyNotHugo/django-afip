@@ -9,10 +9,10 @@
     <link rel="stylesheet" href="{% static "receipts/receipt.css" %}">
   </head>
   <body>
-    <div class="invoice">
+    <div class="receipt">
 
       <header>
-        <div class="my-details group">
+        <div class="taxpayer-details group">
           <address>
             <strong>{{ pdf.issuing_name }}</strong><br>
             {{ pdf.issuing_address|linebreaksbr }}<br>
@@ -20,38 +20,59 @@
             <a href="mailto:{{ pdf.issuing_email }}">{{ pdf.issuing_email }}</a>
             <br>
             {% endif %}
-            Condición de IVA: {{ pdf.vat_condition }}<br>
+            {{ pdf.vat_condition }}<br>
           </address>
 
-          <div class="invoice-type">
-            {{ pdf.receipt.receipt_type.description }}
+          <div class="receipt-type">
+            <div class="identifier">
+              {{ pdf.receipt.receipt_type.description|slice:"-1:" }}
+            </div>
             <div class="code">
               Código {{ pdf.receipt.receipt_type.code }}
             </div>
           </div>
 
-          <div class="invoice-details">
-            {{ pdf.receipt.receipt_type.description }}<br>
-            Nº {{ pdf.receipt|receiptnumber }}
+          <div class="receipt-details">
+            <div class="receipt-type-description">
+              {{ pdf.receipt.receipt_type.description }}
+            </div>
+            <strong>Nº</strong> {{ pdf.receipt|receiptnumber }}
             <br>
-            Fecha: <time>{{ pdf.receipt.issued_date }}</time><br>
-            CUIT {{ taxpayer.cuit|format_cuit }}<br>
-            Ingresos Brutos: {{ pdf.gross_income_condition }}<br>
-            Inicio de Actividades: {{ taxpayer.active_since }}
+            <strong>Fecha de emisión:</strong> <time>{{ pdf.receipt.issued_date }}</time><br>
+            <strong>CUIT:</strong> {{ taxpayer.cuit|format_cuit }}<br>
+            <strong>Ingresos Brutos:</strong> {{ pdf.gross_income_condition }}<br>
+            <strong>Inicio de Actividades:</strong> {{ taxpayer.active_since }}
           </div>
         </div>
 
         <hr>
 
         <div class="client">
-          <strong>Facturado a:</strong><br>
-          {{ pdf.client_name }},
-          {{ pdf.receipt.document_type }}
-          {{ pdf.receipt.document_number }}<br>
-          {{ pdf.client_address|linebreaksbr }}<br>
-          Condición de IVA: {{ pdf.client_vat_condition }}<br>
-          Condición de Pago: {{ pdf.sales_terms }}
+          <div><strong>Facturado a:</strong></div>
+          <div class="sale-conditions">
+            <strong>Condición de IVA:</strong> {{ pdf.client_vat_condition }}<br>
+            <strong>Condición de Pago:</strong> {{ pdf.sales_terms }}
+          </div>
+          <div class="client-data">
+            {{ pdf.client_name }},
+            {{ pdf.receipt.document_type }}
+            {{ pdf.receipt.document_number }}<br>
+            {{ pdf.client_address|linebreaksbr }}<br>
+          </div>
         </div>
+
+        {% if not pdf.receipt.concept.code == 1 %}
+        <hr>
+        <div class="service-dates">
+          <div>
+            <strong>Periodo del servicio:</strong>
+            {{ pdf.receipt.service_start }} al {{ pdf.receipt.service_end }}
+          </div>
+          <div class="expiration">
+            <strong>Vencimiento:</strong> {{ pdf.receipt.expiration_date }}
+          </div>
+        </div>
+        {% endif %}
 
       </header>
 
@@ -98,7 +119,7 @@
           <img src="data:image/png;base64,{{barcode}}">
         </div>
 
-        Consultas de validez: 
+        Consultas de validez:
         <a href="http://www.afip.gob.ar/genericos/consultacae/">
           http://www.afip.gob.ar/genericos/consultacae/
         </a>

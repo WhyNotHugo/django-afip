@@ -1,81 +1,114 @@
 html, body {
+  font-family: "Open Sans",sans-serif;
   margin: 0;
   padding: 0;
-
-  font-family: "Open Sans",sans-serif;
 }
 
-div.invoice {
-  margin-top: 20px;
+@media print {
+    html, body {
+        /* A4: 210mm x 297mm */
+        font-size: 0.9em;
+        margin: -4mm;
+        /* width: 187mm; */
+
+        /* with -7 margin */
+        /* width: 198mm; */
+        /* height: 280mm; */
+    }
+}
+
+.receipt {
   margin-left: auto;
   margin-right: auto;
-  width: 100%;
+  margin-top: 20px;
   max-width: 960px;
   position: relative;
+  width: 100%;
 }
 
-div.group:after {
+.taxpayer-details:after {
+  clear: both;
   content: '';
   display: block;
-  clear: both;
 }
 
-header {
-  /* border: 1px solid #DDD; */
-  /* border-radius: 5px; */
-  /* padding: 10px; */
-}
-
-div.my-details > address {
-  width: 60%;
+.taxpayer-details > address {
   float: left;
+  text-align: center;
+  width: 40%;
 }
 
-div.my-details > .invoice-details {
-  width: 40%;
+.taxpayer-details img {
+  margin-bottom: 1em;
+  max-height: 40px;
+  max-width: 180px;
+}
+
+
+.taxpayer-details > .receipt-details {
   float: right;
   text-align: right;
+  width: 40%;
 }
 
-div.invoice-type {
-  position: absolute;
-  text-align: center;
-  width: 100%;
-  font-size: 28px;
-  left: 50%;
-  margin-left: -100px;
-  width: 200px;
+.receipt-type {
+    background-color: #DDD;
+    font-size: 1.8em;
+    height: 2.6em;
+    left: 50%;
+    margin-left: -1.5em;
+    position: absolute;
+    text-align: center;
+    width: 3em;
 }
 
-div.invoice-type .code {
+.receipt-type .identifier {
+    font-weight: bold;
+    margin-top: .3em;
+}
+
+.receipt-type .code {
   font-size: 0.3em;
 }
 
-div.invoice-number {
+.receipt-number {
   text-align: right;
 }
 
-div.my-name {
-  font-size: 32px;
-  text-align: center;
+.receipt-details .receipt-type-description {
+  font-size: 1.3em;
+  font-weight: bold;
 }
 
 address {
-  font-style: normal;
   float: left;
+  font-style: normal;
 }
 
-div.tax-status {
-  float: right;
-  width: 50%;
-  text-align: right;
+.sale-conditions {
+    float: right;
+}
+
+.service-dates:after {
+  clear: both;
+  content: '';
+  display: block;
+}
+
+.service-dates > div {
+    float: left;
+    width: 50%;
+}
+
+.service-dates .expiration {
+    text-align: right;
 }
 
 table {
-  width: 100%;
-  border-spacing: 0px;
   border-collapse: collapse;
+  border-spacing: 0;
   margin-bottom: 30px;
+  width: 100%;
 }
 
 th {
@@ -104,9 +137,9 @@ tfoot {
 }
 
 hr {
+  background-color: #DDD;
   border: 0;
   height: 1px;
-  background-color: #DDD;
 }
 
 a {
