@@ -26,7 +26,11 @@ def staticfile_url_fetcher(url):
     Returns files when the staticfiles app does not returns a relative path to
     a file.
     """
-    if url.startswith(staticfiles_storage.base_url):
+    # If this is an absolute URL, the defualt fetcher will solve this for us.
+    # We only need special handling in case this is a relative URL, in which
+    # case we'll assume it's some form of static-file handling with the default
+    # app.
+    if url.startswith('/'):
         base_url = staticfiles_storage.base_url
         filename = url.replace(base_url, '', 1)
 
