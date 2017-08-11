@@ -136,9 +136,15 @@ class ReceiptPDFFactory(DjangoModelFactory):
     class Meta:
         model = models.ReceiptPDF
 
-    receipt = SubFactory(ReceiptFactory)
+    client_address = 'La Rioja 123\nX5000EVX Córdoba'
     client_name = 'John Doe'
-    client_address = '12 Green Road\nGreenville\nUK'
+    client_vat_condition = 'Consumidor Final'
+    gross_income_condition = 'Convenio Multilateral'
+    issuing_address = 'Happy Street 123, CABA'
+    issuing_name = 'Alice Doe'
+    receipt = SubFactory(ReceiptFactory)
+    sales_terms = 'Contado'
+    vat_condition = 'Responsable Monotributo'
 
 
 class GenericAfipTypeFactory(DjangoModelFactory):
