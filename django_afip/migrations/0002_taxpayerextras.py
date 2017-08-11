@@ -25,8 +25,8 @@ class Migration(migrations.Migration):
                     'logo',
                     models.ImageField(
                         blank=True,
-                        help_text='A logo to use when generating printable
-                        receipts.',
+                        help_text=('A logo to use when generating printable '
+                                   'receipts.'),
                         null=True,
                         upload_to='afip/taxpayers/logos/',
                         verbose_name='pdf file',
