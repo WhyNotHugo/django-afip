@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.timezone import make_aware
 from factory import PostGenerationMethodCall, SubFactory
-from factory.django import DjangoModelFactory, FileField
+from factory.django import DjangoModelFactory, FileField, ImageField
 
 from django_afip import models
 
@@ -16,6 +16,10 @@ def _key_file():
 
 def _cert_file():
     return open(os.path.join(settings.BASE_DIR, 'test.crt'))
+
+
+def _tiny_image_file():
+    return open(os.path.join(settings.BASE_DIR, 'tiny.png'), 'rb')
 
 
 class UserFactory(DjangoModelFactory):
@@ -185,3 +189,11 @@ class TaxFactory(DjangoModelFactory):
     base_amount = 100
     receipt = SubFactory(ReceiptFactory)
     tax_type = SubFactory(TaxTypeFactory)
+
+
+class TaxPayerExtras(DjangoModelFactory):
+    class Meta:
+        model = models.TaxPayerExtras
+
+    taxpayer = SubFactory(TaxPayerFactory)
+    logo = ImageField(from_func=_tiny_image_file)

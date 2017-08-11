@@ -1,4 +1,6 @@
+import base64
 import logging
+import os
 import random
 import uuid
 from base64 import b64encode
@@ -476,6 +478,39 @@ class TaxPayerProfile(models.Model):
     class Meta:
         verbose_name = _('taxpayer profile')
         verbose_name_plural = _('taxpayer profiles')
+
+
+class TaxPayerExtras(models.Model):
+    """Holds optional extra data for taxpayers."""
+    taxpayer = models.OneToOneField(
+        TaxPayer,
+        related_name='extras',
+        verbose_name=_('taxpayer'),
+        on_delete=models.CASCADE,
+    )
+    logo = models.ImageField(
+        verbose_name=_('pdf file'),
+        upload_to='afip/taxpayers/logos/',
+        blank=True,
+        null=True,
+        help_text=_('A logo to use when generating printable receipts.'),
+    )
+
+    @property
+    def logo_as_data_uri(self):
+        """This TaxPayer's logo as a data uri."""
+        _, ext = os.path.splitext(self.logo.file.name)
+        with open(self.logo.file.name, 'rb') as f:
+            data = base64.b64encode(f.read())
+
+        return 'data:image/{};base64,{}'.format(
+            ext[1:],  # Remove the leading dot.
+            data.decode()
+        )
+
+    class Meta:
+        verbose_name = _('taxpayer extras')
+        verbose_name_plural = _('taxpayers extras')
 
 
 class PointOfSales(models.Model):

@@ -73,6 +73,8 @@ def generate_for_receiptpdf(pdf, target, force_html=False):
     ).get(
         pk=pdf.receipt.id,
     )
+    taxpayer = pdf.receipt.point_of_sales.owner
+    extras = models.TaxPayerExtras.objects.filter(taxpayer=taxpayer).first()
 
     generator = ReceiptBarcodeGenerator(pdf.receipt)
     barcode = base64.b64encode(generator.generate_barcode())
@@ -81,7 +83,8 @@ def generate_for_receiptpdf(pdf, target, force_html=False):
         pdf.receipt.receipt_type.code,
     )).render({
         'pdf': pdf,
-        'taxpayer': pdf.receipt.point_of_sales.owner,
+        'taxpayer': taxpayer,
+        'extras': extras,
         'barcode': barcode,
     })
 

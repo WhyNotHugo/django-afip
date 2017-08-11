@@ -138,6 +138,31 @@ class ReceiptPDFTestCase(TestCase):
             """,  # noqa: E501: It's just long stuff. :(
         )
 
+    def test_logo_in_html(self):
+        """Test the HTML generation view."""
+        pdf = fixtures.ReceiptPDFFactory()
+        fixtures.ReceiptValidationFactory(receipt=pdf.receipt)
+        fixtures.TaxPayerExtras(taxpayer=pdf.receipt.point_of_sales.owner)
+
+        client = Client()
+        response = client.get(
+            reverse('receipt_html_view', args=(pdf.receipt.pk,))
+        )
+
+        self.assertContains(
+            response,
+            """
+            <address>
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4QgLERgyoZWu2QAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAAEklEQVQI12P4//8/AwT8//8fACnkBft7DmIIAAAAAElFTkSuQmCC" alt="Logo"><br>
+            <strong>Alice Doe</strong><br>
+            Happy Street 123, CABA<br>
+
+            Responsable Monotributo<br>
+            </address>
+            """,  # noqa: E501: It's just long stuff. :(
+            html=True,
+        )
+
     def test_pdf_view(self):
         """
         Test the PDF generation view.

@@ -8,6 +8,8 @@ releases, in reverse chronological order.
 -----
 * All migrations have been squashed. Please upgrade to 4.0.0 before upgrading
   further. See the docs for details.
+* Support for adding custom logos to printable receipts has been added. See the
+  new ``TaxPayerExtras`` class for details.
 
 4.0.0
 -----
