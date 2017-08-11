@@ -10,7 +10,7 @@ from django.utils.timezone import now
 from factory.django import FileField
 
 from django_afip import exceptions, models
-from testapp.testmain import fixtures, mocks
+from testapp.testmain import fixtures
 from testapp.testmain.tests.testcases import (
     LiveAfipTestCase,
     PopulatedLiveAfipTestCase,
@@ -131,10 +131,21 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
     """Test ReceiptQuerySet methods."""
 
     def _good_receipt(self):
-        return mocks.receipt()
+        receipt = fixtures.ReceiptFactory(
+            point_of_sales=models.PointOfSales.objects.first(),
+        )
+        fixtures.VatFactory(vat_type__code=5, receipt=receipt)
+        fixtures.TaxFactory(tax_type__code=3, receipt=receipt)
+        return receipt
 
     def _bad_receipt(self):
-        return mocks.receipt(80)
+        receipt = fixtures.ReceiptFactory(
+            point_of_sales=models.PointOfSales.objects.first(),
+            document_type__code=80,
+        )
+        fixtures.VatFactory(vat_type__code=5, receipt=receipt)
+        fixtures.TaxFactory(tax_type__code=3, receipt=receipt)
+        return receipt
 
     def test_validate_empty(self):
         fixtures.ReceiptFactory()
@@ -247,7 +258,11 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
     def test_validation_good_without_tax(self):
         """Test validating valid receipts."""
-        receipt = mocks.receipt(with_tax=False)
+        receipt = fixtures.ReceiptFactory(
+            point_of_sales=models.PointOfSales.objects.first(),
+            total_amount=121,
+        )
+        fixtures.VatFactory(vat_type__code=5, receipt=receipt)
 
         errs = models.Receipt.objects.all().validate()
 
@@ -260,7 +275,12 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
     def test_validation_good_without_vat(self):
         """Test validating valid receipts."""
-        receipt = mocks.receipt(with_vat=False, receipt_type=11)
+        receipt = fixtures.ReceiptFactory(
+            point_of_sales=models.PointOfSales.objects.first(),
+            receipt_type__code=11,
+            total_amount=109,
+        )
+        fixtures.TaxFactory(tax_type__code=3, receipt=receipt)
 
         errs = models.Receipt.objects.all().validate()
 
@@ -272,11 +292,14 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
         self.assertEqual(models.ReceiptValidation.objects.count(), 1)
 
     def test_validation_with_observations(self):
-        receipt = mocks.receipt(
-            receipt_type=1,
-            document_type=80,
-            document_number='20291144404',
+        receipt = fixtures.ReceiptFactory(
+            document_number=20291144404,
+            document_type__code=80,
+            point_of_sales=models.PointOfSales.objects.first(),
+            receipt_type__code=1,
         )
+        fixtures.VatFactory(vat_type__code=5, receipt=receipt)
+        fixtures.TaxFactory(tax_type__code=3, receipt=receipt)
 
         errs = models.Receipt.objects.all().validate()
 

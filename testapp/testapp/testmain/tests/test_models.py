@@ -3,7 +3,7 @@ from unittest.mock import call, MagicMock, patch
 from django.test import TestCase
 
 from django_afip import exceptions, models
-from testapp.testmain import fixtures, mocks
+from testapp.testmain import fixtures
 from testapp.testmain.tests.testcases import PopulatedLiveAfipTestCase
 
 
@@ -62,26 +62,42 @@ class ReceiptTestCase(TestCase):
         self.assertTrue(self.called)
 
 
-class ReceiptValidateTestCase(PopulatedLiveAfipTestCase):
+class ReceiptSuccessfulValidateTestCase(PopulatedLiveAfipTestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.receipt = fixtures.ReceiptFactory(
+            point_of_sales=models.PointOfSales.objects.first(),
+        )
+        fixtures.VatFactory(vat_type__code=5, receipt=self.receipt)
+        fixtures.TaxFactory(tax_type__code=3, receipt=self.receipt)
 
     def test_validation(self):
         """Test validating valid receipts."""
-        receipt = mocks.receipt()
-
-        errs = receipt.validate()
+        errs = self.receipt.validate()
 
         self.assertEqual(len(errs), 0)
         self.assertEqual(
-            receipt.validation.result,
+            self.receipt.validation.result,
             models.ReceiptValidation.RESULT_APPROVED,
         )
         self.assertEqual(models.ReceiptValidation.objects.count(), 1)
 
+
+class ReceiptFailedValidateTestCase(PopulatedLiveAfipTestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.receipt = fixtures.ReceiptFactory(
+            document_type__code=80,
+            point_of_sales=models.PointOfSales.objects.first(),
+        )
+        fixtures.VatFactory(vat_type__code=5, receipt=self.receipt)
+        fixtures.TaxFactory(tax_type__code=3, receipt=self.receipt)
+
     def test_failed_validation(self):
         """Test validating valid receipts."""
-        receipt = mocks.receipt(80)
-
-        errs = receipt.validate()
+        errs = self.receipt.validate()
 
         self.assertEqual(len(errs), 1)
         # FIXME: We're not creating rejection entries
@@ -94,14 +110,13 @@ class ReceiptValidateTestCase(PopulatedLiveAfipTestCase):
 
     def test_raise_validation(self):
         """Test validating valid receipts."""
-        receipt = mocks.receipt(80)
 
         with self.assertRaisesRegex(
             exceptions.ValidationError,
             # Note: AFIP apparently edited this message and added a typo:
             'DocNro 203012345 no se encuentra registrado en los padrones',
         ):
-            receipt.validate(raise_=True)
+            self.receipt.validate(raise_=True)
 
         # FIXME: We're not creating rejection entries
         # self.assertEqual(

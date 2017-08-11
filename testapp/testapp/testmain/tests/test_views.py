@@ -1,3 +1,4 @@
+from datetime import date
 from django.test import Client, TestCase
 from django.urls import reverse
 
@@ -7,7 +8,11 @@ from testapp.testmain import fixtures
 class ReceiptPDFTestCase(TestCase):
     def test_html_view(self):
         """Test the HTML generation view."""
-        pdf = fixtures.ReceiptPDFFactory()
+        pdf = fixtures.ReceiptPDFFactory(
+            receipt__concept__code=1,
+            receipt__issued_date=date(2017, 5, 15),
+            receipt__receipt_type__code=11,
+        )
         fixtures.ReceiptValidationFactory(receipt=pdf.receipt)
 
         client = Client()
@@ -67,9 +72,7 @@ class ReceiptPDFTestCase(TestCase):
             <strong>Condición de Pago:</strong> Contado
           </div>
           <div class="client-data">
-            John Doe,
-            DNI
-            33445566<br>
+            John Doe, DNI 203012345<br>
             La Rioja 123<br />X5000EVX Córdoba<br>
           </div>
         </div>
@@ -95,7 +98,7 @@ class ReceiptPDFTestCase(TestCase):
             <td></td>
             <td></td>
             <td></td>
-            <td>100.00</td>
+            <td>130.00</td>
           </tr>
         </tfoot>
       </table>

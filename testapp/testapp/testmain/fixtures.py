@@ -4,7 +4,7 @@ from datetime import date, datetime
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.timezone import make_aware
-from factory import PostGenerationMethodCall, SubFactory
+from factory import LazyFunction, PostGenerationMethodCall, SubFactory
 from factory.django import DjangoModelFactory, FileField, ImageField
 
 from django_afip import models
@@ -39,6 +39,7 @@ class SuperUserFactory(UserFactory):
 class ConceptTypeFactory(DjangoModelFactory):
     class Meta:
         model = models.ConceptType
+        django_get_or_create = ('code',)
 
     code = '1'
     description = 'Producto'
@@ -66,6 +67,7 @@ class CurrencyTypeFactory(DjangoModelFactory):
 class ReceiptTypeFactory(DjangoModelFactory):
     class Meta:
         model = models.ReceiptType
+        django_get_or_create = ('code',)
 
     code = '11'
     description = 'Factura C'
@@ -111,17 +113,18 @@ class ReceiptFactory(DjangoModelFactory):
     class Meta:
         model = models.Receipt
 
-    concept = SubFactory(ConceptTypeFactory)
-    document_type = SubFactory(DocumentTypeFactory)
-    document_number = 33445566
+    concept = SubFactory(ConceptTypeFactory, code=1)
+    document_type = SubFactory(DocumentTypeFactory, code=96)
+    document_number = 203012345
     issued_date = datetime(2017, 5, 15)
-    total_amount = 100
+    issued_date = LazyFunction(date.today)
+    total_amount = 130
     net_untaxed = 0
     net_taxed = 100
     exempt_amount = 0
-    currency = SubFactory(CurrencyTypeFactory)
+    currency = SubFactory(CurrencyTypeFactory, code='PES')
     currency_quote = 1
-    receipt_type = SubFactory(ReceiptTypeFactory)
+    receipt_type = SubFactory(ReceiptTypeFactory, code=6)
     point_of_sales = SubFactory(PointOfSalesFactory)
 
 
