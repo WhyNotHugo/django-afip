@@ -74,17 +74,6 @@ class ReceiptPDFTestCase(TestCase):
           </div>
         </div>
 
-        <hr>
-        <div class="service-dates">
-          <div>
-            <strong>Periodo del servicio:</strong>
-            None al None
-          </div>
-          <div class="expiration">
-            <strong>Vencimiento:</strong> None
-          </div>
-        </div>
-
       </header>
 
       <hr>
