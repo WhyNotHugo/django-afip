@@ -5,7 +5,6 @@ from io import BytesIO
 
 from barcode import ITF
 from barcode.writer import ImageWriter
-from django.contrib.staticfiles.finders import find
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.template.loader import get_template
 from django.utils.functional import cached_property
@@ -34,9 +33,10 @@ def staticfile_url_fetcher(url):
         base_url = staticfiles_storage.base_url
         filename = url.replace(base_url, '', 1)
 
-        filepath = find(filename)
-        with open(filepath, 'rb') as file_:
-            data = file_.read()
+        file_ = staticfiles_storage.open(filename)
+        data = file_.read()
+        file_.close()
+
         return {
             'string': data,
             'mime_type': mimetypes.guess_type(url)[0],
