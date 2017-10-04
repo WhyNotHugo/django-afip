@@ -4,6 +4,10 @@ Changelog
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
+4.1.3
+-----
+* Fix issues reading keys and certificates from non-filesystem storages.
+
 4.1.2
 -----
 * Fix some issues rendering PDFs when not using the default static files app.

@@ -655,11 +655,13 @@ class AuthTicket(models.Model):
         return etree.tostring(request_xml, pretty_print=True)
 
     def __sign_request(self, request):
-        with open(self.owner.certificate.file.name) as cert_file:
-            cert = cert_file.read()
+        self.owner.certificate.file.open()
+        cert = self.owner.certificate.file.read().decode()
+        self.owner.certificate.file.close()
 
-        with open(self.owner.key.file.name) as key_file:
-            key = key_file.read()
+        self.owner.key.file.open()
+        key = self.owner.key.file.read()
+        self.owner.key.file.close()
 
         return crypto.create_embeded_pkcs7_signature(request, cert, key)
 
