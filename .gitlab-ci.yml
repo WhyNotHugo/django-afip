@@ -83,6 +83,7 @@ live:
     - codecov
   variables:
     TOXENV: live
+  allow_failure: true
 
 docs:
   stage: test
