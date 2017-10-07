@@ -173,7 +173,7 @@ class ReceiptPDFTestCase(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content[:10], b'%PDF-1.5\n%')
+        self.assertEqual(response.content[:7], b'%PDF-1.')
 
         headers = sorted(response.serialize_headers().decode().splitlines())
         self.assertIn('Content-Type: application/pdf', headers)
