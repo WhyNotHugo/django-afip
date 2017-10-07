@@ -117,7 +117,9 @@ class ReceiptStatusFilter(admin.SimpleListFilter):
 
 @admin.register(models.Receipt)
 class ReceiptAdmin(admin.ModelAdmin):
-
+    search_fields = (
+        'receipt_number',
+    )
     list_display = (
         'id',
         'receipt_type',
@@ -131,7 +133,7 @@ class ReceiptAdmin(admin.ModelAdmin):
     list_filter = (
         ReceiptStatusFilter,
     )
-    exclude = (
+    autocomplete_fields = (
         'related_receipts',
     )
 
@@ -139,8 +141,6 @@ class ReceiptAdmin(admin.ModelAdmin):
         'validated',
         'cae',
     ]
-
-    filter_horizontal = ('related_receipts',)
 
     inlines = (
         VatInline,

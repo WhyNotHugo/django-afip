@@ -7,6 +7,8 @@ releases, in reverse chronological order.
 4.1.5
 -----
 * The Receipt admin now includes links to each Receipt's PDF.
+* Enable editing ``related_receipts`` as auto-complete fields (Django >= 2.0
+  only).
 
 4.1.4
 -----
