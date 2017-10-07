@@ -4,6 +4,10 @@ Changelog
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
+4.1.5
+-----
+* The Receipt admin now includes links to each Receipt's PDF.
+
 4.1.4
 -----
 * Fix stylesheets for PDFs failing to load on non-filesystem storages.

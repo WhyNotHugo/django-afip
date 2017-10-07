@@ -5,7 +5,10 @@ from datetime import datetime
 from django.apps import apps
 from django.contrib import admin, messages
 from django.contrib.admin.sites import AlreadyRegistered
+from django.db.models import F
 from django.http import HttpResponse
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
 from django_afip import exceptions, models
@@ -123,6 +126,7 @@ class ReceiptAdmin(admin.ModelAdmin):
         'issued_date',
         'friendly_total_amount',
         'validated',
+        'pdf_link',
     )
     list_filter = (
         ReceiptStatusFilter,
@@ -158,6 +162,8 @@ class ReceiptAdmin(admin.ModelAdmin):
                 'validation',
                 'receipt_type',
                 'point_of_sales',
+            ).annotate(
+                pdf_id=F('receiptpdf__id'),
             )
 
     def number(self, obj):
@@ -183,6 +189,23 @@ class ReceiptAdmin(admin.ModelAdmin):
     validated.short_description = _('validated')
     validated.admin_order_field = 'validation__result'
     validated.boolean = True
+
+    def pdf_link(self, obj):
+        if not obj.pdf_id:
+            return mark_safe('<a href="{}?receipt={}">{}</a>'.format(
+                reverse(self.admin_site.name + ":afip_receiptpdf_add"),
+                obj.id,
+                _('Create'),
+            ))
+        return mark_safe('<a href="{}">{}</a>'.format(
+            reverse(
+                self.admin_site.name + ":afip_receiptpdf_change",
+                args=(obj.pdf_id,),
+            ),
+            _('Edit'),
+        ))
+    pdf_link.short_description = _('PDF')
+    pdf_link.admin_order_field = 'receiptpdf__id'
 
     def cae(self, obj):
         return obj.validation.cae
