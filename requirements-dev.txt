@@ -1,4 +1,0 @@
-coverage
-dj-database-url
-factory-boy
-freezegun

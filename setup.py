@@ -12,11 +12,22 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     long_description=open('README.rst').read(),
-    install_requires=open('requirements.txt').read().splitlines() + [
-        'Django>=1.8.4'
+    install_requires=[
+        'django>=1.10',
+        'lxml>=3.4.4',
+        'pybarcode>=0.8b1',
+        'pyopenssl>=16.2.0',
+        'pytz>=2015.4',
+        'setuptools-git>=1.1',
+        'setuptools-scm>=1.7.0',
+        'weasyprint>=0.24',
+        'wheel>=0.24.0',
+        'zeep>=1.1.0',
     ],
     extras_require={
-        'docs': ['Sphinx', 'sphinx-autobuild']
+        'docs': ['Sphinx', 'sphinx-autobuild'],
+        'postgres': ['psycopg2'],
+        'mysql': ['mysqlclient'],
     },
     use_scm_version={
         'version_scheme': 'post-release',
