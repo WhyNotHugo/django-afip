@@ -159,11 +159,11 @@ class ReceiptAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request) \
             .select_related(
-                'validation',
                 'receipt_type',
                 'point_of_sales',
             ).annotate(
                 pdf_id=F('receiptpdf__id'),
+                validation_result=F('validation__result'),
             )
 
     def number(self, obj):
@@ -179,13 +179,10 @@ class ReceiptAdmin(admin.ModelAdmin):
     friendly_total_amount.short_description = _('total amount')
 
     def validated(self, obj):
-        try:
-            return (
-                obj.validation.result ==
-                models.ReceiptValidation.RESULT_APPROVED
-            )
-        except models.ReceiptValidation.DoesNotExist:
-            return False
+        return (
+            obj.validation_result ==
+            models.ReceiptValidation.RESULT_APPROVED
+        )
     validated.short_description = _('validated')
     validated.admin_order_field = 'validation__result'
     validated.boolean = True
