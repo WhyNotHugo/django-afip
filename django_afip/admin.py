@@ -190,13 +190,13 @@ class ReceiptAdmin(admin.ModelAdmin):
     def pdf_link(self, obj):
         if not obj.pdf_id:
             return mark_safe('<a href="{}?receipt={}">{}</a>'.format(
-                reverse(self.admin_site.name + ":afip_receiptpdf_add"),
+                reverse(self.admin_site.name + ':afip_receiptpdf_add'),
                 obj.id,
                 _('Create'),
             ))
         return mark_safe('<a href="{}">{}</a>'.format(
             reverse(
-                self.admin_site.name + ":afip_receiptpdf_change",
+                self.admin_site.name + ':afip_receiptpdf_change',
                 args=(obj.pdf_id,),
             ),
             _('Edit'),
