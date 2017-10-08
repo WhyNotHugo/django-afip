@@ -214,7 +214,7 @@ class ReceiptTotalTaxTestCase(TestCase):
 
 class CurrencyTypeStrTestCase(TestCase):
     def test_success(self):
-        currency_type = models.CurrentType(
+        currency_type = models.CurrencyType(
             code='011',
             description='Pesos Uruguayos',
         )
