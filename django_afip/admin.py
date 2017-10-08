@@ -134,6 +134,8 @@ class ReceiptAdmin(admin.ModelAdmin):
         ReceiptStatusFilter,
     )
     autocomplete_fields = (
+        'currency',
+        'receipt_type',
         'related_receipts',
     )
 
@@ -334,6 +336,23 @@ class PointOfSalesAdmin(admin.ModelAdmin):
 
 @admin.register(models.CurrencyType)
 class CurrencyTypeAdmin(admin.ModelAdmin):
+    search_fields = (
+        'description',
+    )
+    list_display = (
+        'code',
+        'description',
+        'valid_from',
+        'valid_to',
+    )
+
+
+@admin.register(models.ReceiptType)
+class ReceiptTypeAdmin(admin.ModelAdmin):
+    search_fields = (
+        'code',
+        'description',
+    )
     list_display = (
         'code',
         'description',

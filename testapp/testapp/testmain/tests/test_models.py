@@ -210,3 +210,12 @@ class ReceiptTotalTaxTestCase(TestCase):
         fixtures.TaxFactory()
 
         self.assertEqual(receipt.total_tax, 9)
+
+
+class CurrencyTypeStrTestCase(TestCase):
+    def test_success(self):
+        currency_type = models.CurrentType(
+            code='011',
+            description='Pesos Uruguayos',
+        )
+        self.assertEqual(str(currency_type), 'Pesos Uruguayos (011)')

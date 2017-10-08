@@ -233,7 +233,7 @@ class CurrencyType(GenericAfipType):
     objects = GenericAfipTypeManager('FEParamGetTiposMonedas', 'Moneda')
 
     def __str__(self):
-        return self.code
+        return '{} ({})'.format(self.description, self.code)
 
     class Meta:
         verbose_name = _('currency type')
