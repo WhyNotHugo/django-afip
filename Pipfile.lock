@@ -289,12 +289,6 @@
             ],
             "version": "==4.3.0"
         },
-        "pybarcode": {
-            "hashes": [
-                "sha256:38bf4f6d1a067ff903079dd6d417f68ef458bb34373f4a08e8e9fb72ab6d91ea"
-            ],
-            "version": "==0.8b1"
-        },
         "pycparser": {
             "hashes": [
                 "sha256:99a8ca03e29851d96616ad0404b4aad7d9ee16f25c9f9708a11faf2810f7b226"
@@ -314,6 +308,13 @@
                 "sha256:abfa9a0ab055341f6e250c1a6bef395c3a06f0e4cba216eeef37f617b32c0bd7"
             ],
             "version": "==0.9.4"
+        },
+        "python-barcode": {
+            "hashes": [
+                "sha256:eb8c98fc40eeaea3291615474dc826ebae18573ad36c129b8dfdf5482ee4d3e5",
+                "sha256:576623588fcc4378909c62c5cd9bda659a26371a691c86d6830067be2e7ad0b1"
+            ],
+            "version": "==0.8"
         },
         "pytz": {
             "hashes": [
