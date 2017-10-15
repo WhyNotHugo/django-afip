@@ -184,7 +184,7 @@ class ReceiptPDFViewDownloadNameTestCase(TestCase):
     def test_download_name(self):
         fixtures.ReceiptFactory(pk=9, receipt_number=32)
 
-        view = views.ReceiptPDFDisplayView()
+        view = views.ReceiptPDFView()
         view.kwargs = {'pk': 9}
 
         self.assertEqual(view.get_download_name(), '0001-00000032.pdf')
