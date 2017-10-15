@@ -167,6 +167,13 @@
             ],
             "version": "==1.11.6"
         },
+        "django-renderpdf": {
+            "hashes": [
+                "sha256:e563a1bc2258d7131f6adc783873c3ae67197be65d8edf931cc6942dd41bfe13",
+                "sha256:0ce7104076f167a323631089b577c17d2f1585a8014eb051b5a54321ac6ccda1"
+            ],
+            "version": "==0.1.0"
+        },
         "e1839a8": {
             "editable": true,
             "path": "."

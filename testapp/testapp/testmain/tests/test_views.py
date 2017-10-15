@@ -2,6 +2,7 @@ from datetime import date
 from django.test import Client, TestCase
 from django.urls import reverse
 
+from django_afip import views
 from testapp.testmain import fixtures
 
 
@@ -16,9 +17,9 @@ class ReceiptPDFTestCase(TestCase):
         fixtures.ReceiptValidationFactory(receipt=pdf.receipt)
 
         client = Client()
-        response = client.get(
-            reverse('receipt_html_view', args=(pdf.receipt.pk,))
-        )
+        response = client.get('{}?html=true'.format(
+            reverse('receipt_displaypdf_view', args=(pdf.receipt.pk,))
+        ))
 
         self.assertHTMLEqual(
             response.content.decode(),
@@ -137,9 +138,9 @@ class ReceiptPDFTestCase(TestCase):
         fixtures.TaxPayerExtras(taxpayer=pdf.receipt.point_of_sales.owner)
 
         client = Client()
-        response = client.get(
-            reverse('receipt_html_view', args=(pdf.receipt.pk,))
-        )
+        response = client.get('{}?html=true'.format(
+            reverse('receipt_displaypdf_view', args=(pdf.receipt.pk,))
+        ))
 
         self.assertContains(
             response,
@@ -177,8 +178,13 @@ class ReceiptPDFTestCase(TestCase):
 
         headers = sorted(response.serialize_headers().decode().splitlines())
         self.assertIn('Content-Type: application/pdf', headers)
-        self.assertIn(
-            'Content-Disposition: attachment; '
-            'filename=receipt {}.pdf'.format(pdf.receipt.pk),
-            headers
-        )
+
+
+class ReceiptPDFViewDownloadNameTestCase(TestCase):
+    def test_download_name(self):
+        fixtures.ReceiptFactory(pk=9, receipt_number=32)
+
+        view = views.ReceiptPDFDisplayView()
+        view.kwargs = {'pk': 9}
+
+        self.assertEqual(view.get_download_name(), '0001-00000032.pdf')

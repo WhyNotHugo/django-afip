@@ -4,6 +4,22 @@ Changelog
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
+5.0.0
+-----
+* PDF rendering now relies on ``django_renderpdf``, rather than in-tree code,
+  and PDF views now subclass that package's ``PDFView``, meaning that all their
+  functionality is also available. This results in several changes:
+
+  * ``ReceiptHTMLView`` has been dropped. To force a view to render as an HTML,
+    add the querystring ``html=true``. If you want to disable this behaviour
+    for your subclasses, add the ``allow_force_html = False`` attribute to your
+    subclass.
+  * ``ReceiptPDFView`` now makes browsers render the file by default, rather
+    than prompting to download a file.
+  * ``ReceiptPDFDisplayView`` has been dropped in favour of the above.
+  * ``ReceiptPDFDownloadView`` prompts users to download a receipt's PDF. The
+    PDF's file name is now customizable by overriding ``get_download_name``.
+
 4.1.5
 -----
 * The Receipt admin now includes links to each Receipt's PDF.
