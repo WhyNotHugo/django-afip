@@ -21,7 +21,6 @@ setup(
         'pytz>=2015.4',
         'setuptools-git>=1.1',
         'setuptools-scm>=1.7.0',
-        'weasyprint>=0.24',
         'wheel>=0.24.0',
         'zeep>=1.1.0',
     ],
