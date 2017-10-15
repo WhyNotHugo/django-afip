@@ -1,4 +1,4 @@
-from django.db.models.signals import pre_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
 from django_afip import models
@@ -10,7 +10,7 @@ def update_certificate_expiration(sender, instance, **kwargs):
         instance.certificate_expiration = instance.get_certificate_expiration()
 
 
-@receiver(pre_save, sender=models.ReceiptPDF)
+@receiver(post_save, sender=models.ReceiptPDF)
 def generate_receipt_pdf(sender, instance, **kwargs):
     if not instance.pdf_file and instance.receipt.is_validated:
-        instance.save_pdf(save_model=False)
+        instance.save_pdf(save_model=True)

@@ -13,6 +13,7 @@ from django.core.files import File
 from django.db import models
 from django.db.models import Count, Sum
 from django.utils.translation import ugettext_lazy as _
+from django_renderpdf.helpers import render_pdf
 from lxml import etree
 from lxml.builder import E
 from zeep.exceptions import Fault
@@ -1234,7 +1235,7 @@ class ReceiptPDF(models.Model):
 
         :param bool save_model: If True, immediately save this model instance.
         """
-        from django_afip import pdf
+        from django_afip.views import ReceiptPDFView
 
         if not self.receipt.is_validated:
             raise exceptions.DjangoAfipException(
@@ -1242,7 +1243,13 @@ class ReceiptPDF(models.Model):
             )
 
         self.pdf_file = File(BytesIO(), name='{}.pdf'.format(uuid.uuid4().hex))
-        pdf.generate_for_receiptpdf(self, self.pdf_file)
+        render_pdf(
+            template='receipts/code_{}.html'.format(
+                self.receipt.receipt_type.code,
+            ),
+            file_=self.pdf_file,
+            context=ReceiptPDFView.get_context_for_pk(self.receipt_id),
+        )
 
         if save_model:
             self.save()

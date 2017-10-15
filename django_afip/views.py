@@ -1,37 +1,76 @@
-from django.http import HttpResponse
-from django.utils.translation import ugettext as _
-from django.views.generic import View
+import base64
 
-from .pdf import generate_receipt_pdf
+from django.utils.functional import cached_property
+from django_renderpdf.views import PDFView
+
+from django_afip import models, pdf
 
 
-class ReceiptHTMLView(View):
-    """Renders a receipt as HTML."""
-    def get(self, request, pk):
-        return HttpResponse(
-            generate_receipt_pdf(pk, request, True),
+class ReceiptPDFView(PDFView):
+    @cached_property
+    def receipt(self):
+        return models.Receipt.objects.select_related(
+            'receipt_type',
+            'point_of_sales',
+        ).get(
+            pk=self.kwargs['pk'],
         )
 
+    def get_download_name(self):
+        return '{}.pdf'.format(self.receipt.formatted_number)
 
-class ReceiptPDFView(View):
-    """Renders a receipt as a PDF, prompting to download it."""
+    def get_template_name(self):
+        return 'receipts/code_{}.html'.format(self.receipt.receipt_type.code)
 
-    def get(self, request, pk):
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename=' + \
-            _('receipt %s.pdf' % pk)
+    @staticmethod
+    def get_context_for_pk(pk, *args, **kwargs):
+        context = {}
 
-        generate_receipt_pdf(pk, response)
-        return response
+        receipt_pdf = models.ReceiptPDF.objects.select_related(
+            'receipt',
+            'receipt__receipt_type',
+            'receipt__document_type',
+            'receipt__validation',
+            'receipt__point_of_sales',
+            'receipt__point_of_sales__owner',
+        ).prefetch_related(
+            'receipt__entries',
+        ).get(
+            receipt__pk=pk,
+        )
+
+        # Prefetch required data in a single query:
+        receipt_pdf.receipt = models.Receipt.objects.select_related(
+            'receipt_type',
+            'document_type',
+            'validation',
+            'point_of_sales',
+            'point_of_sales__owner',
+        ).prefetch_related(
+            'entries',
+        ).get(
+            pk=receipt_pdf.receipt_id,
+        )
+        taxpayer = receipt_pdf.receipt.point_of_sales.owner
+        extras = models.TaxPayerExtras.objects.filter(
+            taxpayer=taxpayer,
+        ).first()
+
+        generator = pdf.ReceiptBarcodeGenerator(receipt_pdf.receipt)
+        barcode = base64.b64encode(generator.generate_barcode())
+
+        context['pdf'] = receipt_pdf
+        context['taxpayer'] = taxpayer
+        context['extras'] = extras
+        context['barcode'] = barcode
+
+        return context
+
+    def get_context_data(self, *args, pk=None, **kwargs):
+        context = super().get_context_data(*args, pk=pk, **kwargs)
+        context.update(self.get_context_for_pk(pk, *args, **kwargs))
+        return context
 
 
-class ReceiptPDFDisplayView(View):
-    """
-    Renders a receipt as a PDF.
-
-    Browsers should render the file, rather than prompt to download it.
-    """
-    def get(self, request, pk):
-        response = HttpResponse(content_type='application/pdf')
-        generate_receipt_pdf(pk, response)
-        return response
+class ReceiptPDFDownloadView(ReceiptPDFView):
+    prompt_download = True

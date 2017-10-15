@@ -23,19 +23,14 @@ from django_afip import views
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(
-        r'^invoices/pdfdisplay/(?P<pk>\d+)$',
-        views.ReceiptPDFDisplayView.as_view(),
-        name='receipt_pdf_view',
+        r'^invoices/pdf/(?P<pk>\d+)$',
+        views.ReceiptPDFView.as_view(),
+        name='receipt_displaypdf_view',
     ),
     url(
         r'^invoices/pdf/(?P<pk>\d+)$',
-        views.ReceiptPDFView.as_view(),
+        views.ReceiptPDFDownloadView.as_view(),
         name='receipt_pdf_view',
-    ),
-    url(
-        r'^invoices/html/(?P<pk>\d+)$',
-        views.ReceiptHTMLView.as_view(),
-        name='receipt_html_view',
     ),
     url(
         r'^media/(?P<path>.*)$',
