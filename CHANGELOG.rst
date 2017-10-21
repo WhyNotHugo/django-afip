@@ -4,6 +4,15 @@ Changelog
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
+4.1.7
+-----
+* Replace pybarcode with python-barcode, which is a fork of the former
+  currently being maintained (we no longer depend on --pre releases).
+
+4.1.6
+-----
+* Fix failing tests due to refactor introduced in 4.1.5.
+
 4.1.5
 -----
 * The Receipt admin now includes links to each Receipt's PDF.
