@@ -58,7 +58,7 @@ def create_csr(key_file, organization_name, common_name, serial_number, file_):
     req = crypto.X509Req()
     subj = req.get_subject()
 
-    subj.O = organization_name
+    subj.O = organization_name  # noqa: E741 (we can't do anything about this)
     subj.CN = common_name
     subj.serialNumber = serial_number
 
