@@ -20,6 +20,7 @@ releases, in reverse chronological order.
   * ``ReceiptPDFDownloadView`` prompts users to download a receipt's PDF. The
     PDF's file name is now customizable by overriding ``get_download_name``.
 * Allow filtering receipts [in the admin] by type.
+* Allow filtering receipts [in the admin] by issued date.
 
 4.1.7
 -----

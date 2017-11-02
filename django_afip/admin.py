@@ -158,6 +158,7 @@ class ReceiptAdmin(admin.ModelAdmin):
         'receipt_type',
         'related_receipts',
     )
+    date_hierarchy = 'issued_date'
 
     __related_fields = [
         'validated',
