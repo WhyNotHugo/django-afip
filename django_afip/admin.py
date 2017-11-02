@@ -115,6 +115,25 @@ class ReceiptStatusFilter(admin.SimpleListFilter):
             )
 
 
+class ReceiptTypeFilter(admin.SimpleListFilter):
+    title = models.ReceiptType._meta.verbose_name
+    parameter_name = 'receipt_type'
+
+    def lookups(self, request, model_admin):
+        return (
+            (receipt_type.code, receipt_type.description)
+            for receipt_type in models.ReceiptType.objects.filter(
+                receipts__isnull=False,
+            ).distinct()
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value:
+            queryset = queryset.filter(receipt_type__code=value)
+        return queryset
+
+
 @admin.register(models.Receipt)
 class ReceiptAdmin(admin.ModelAdmin):
     search_fields = (
@@ -132,6 +151,7 @@ class ReceiptAdmin(admin.ModelAdmin):
     )
     list_filter = (
         ReceiptStatusFilter,
+        ReceiptTypeFilter,
     )
     autocomplete_fields = (
         'currency',
