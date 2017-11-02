@@ -358,6 +358,7 @@ class PointOfSalesAdmin(admin.ModelAdmin):
 @admin.register(models.CurrencyType)
 class CurrencyTypeAdmin(admin.ModelAdmin):
     search_fields = (
+        'code',
         'description',
     )
     list_display = (

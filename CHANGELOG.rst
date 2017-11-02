@@ -21,6 +21,7 @@ releases, in reverse chronological order.
     PDF's file name is now customizable by overriding ``get_download_name``.
 * Allow filtering receipts [in the admin] by type.
 * Allow filtering receipts [in the admin] by issued date.
+* Allow searching for currencies by code, as well as name.
 
 4.1.7
 -----
