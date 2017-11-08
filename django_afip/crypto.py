@@ -16,7 +16,7 @@ def create_embeded_pkcs7_signature(data, cert, key):
     :type data: bytes
     :type cert: str
     :type key: str
-    """  # noqa
+    """  # noqa: E501
 
     assert isinstance(data, bytes)
     assert isinstance(cert, str)
