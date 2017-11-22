@@ -174,9 +174,6 @@ class ReceiptAdmin(admin.ModelAdmin):
         '-issued_date',
     )
 
-    def get_fields(self, request, obj=None):
-        return super().get_fields(request, obj)
-
     readonly_fields = __related_fields
 
     def get_queryset(self, request):
