@@ -22,6 +22,7 @@ releases, in reverse chronological order.
 * Allow filtering receipts [in the admin] by type.
 * Allow filtering receipts [in the admin] by issued date.
 * Allow searching for currencies by code, as well as name.
+* Drop support for Django 1.10.
 
 4.1.7
 -----
