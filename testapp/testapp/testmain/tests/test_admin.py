@@ -1,14 +1,15 @@
 from unittest import mock
 
 from django.contrib import messages
+from django.contrib.admin import site
 from django.contrib.auth.models import User
 from django.http import HttpRequest
-from django.test import Client, TestCase
+from django.test import Client, RequestFactory, TestCase
 from django.utils.translation import ugettext as _
 from factory.django import FileField
 
 from django_afip import exceptions, models
-from django_afip.admin import catch_errors
+from django_afip.admin import catch_errors, ReceiptAdmin
 from testapp.testmain import fixtures
 
 
@@ -236,3 +237,21 @@ class ReceiptFiltersAdminTestCase(TestCase):
             'type="checkbox">'.format(failed_validation_receipt.pk),
             html=True,
         )
+
+
+class ReceiptAdminGetExcludeTestCase(TestCase):
+    def test_django_111(self):
+        admin = ReceiptAdmin(models.Receipt, site)
+        request = RequestFactory().get('/admin/afip/receipt')
+        request.user = fixtures.UserFactory()
+
+        with mock.patch('django.VERSION', (1, 11, 7)):
+            self.assertNotIn('related_receipts', admin.get_fields(request))
+
+    def test_django_200(self):
+        admin = ReceiptAdmin(models.Receipt, site)
+        request = RequestFactory().get('/admin/afip/receipt')
+        request.user = fixtures.UserFactory()
+
+        with mock.patch('django.VERSION', (2, 0, 0)):
+            self.assertIn('related_receipts', admin.get_fields(request))

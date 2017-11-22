@@ -2,6 +2,7 @@ import functools
 import logging
 from datetime import datetime
 
+import django
 from django.apps import apps
 from django.contrib import admin, messages
 from django.contrib.admin.sites import AlreadyRegistered
@@ -159,6 +160,13 @@ class ReceiptAdmin(admin.ModelAdmin):
         'related_receipts',
     )
     date_hierarchy = 'issued_date'
+
+    def get_exclude(self, request, obj=None):
+        if django.VERSION < (2, 0):
+            # This field would load every single receipts for the widget which
+            # will always result in thousands of queries until an evetual OOM.
+            return ['related_receipts']
+        return []
 
     __related_fields = [
         'validated',
