@@ -16,35 +16,17 @@ flake8:
   script:
     - tox
 
-py34-django1.10:
-  <<: *unittests
-  image: python:3.4
-  variables:
-    TOXENV: django110
-
 py34-django1.11:
   <<: *unittests
   image: python:3.4
   variables:
     TOXENV: django111
 
-py35-django1.10:
-  <<: *unittests
-  image: python:3.5
-  variables:
-    TOXENV: django110
-
 py35-django1.11:
   <<: *unittests
   image: python:3.5
   variables:
     TOXENV: django111
-
-py36-django1.10:
-  <<: *unittests
-  image: python:3.6
-  variables:
-    TOXENV: django110
 
 py36-django1.11:
   <<: *unittests
