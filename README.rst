@@ -5,10 +5,6 @@ django-afip
   :target: https://gitlab.com/hobarrera/django-afip/commits/master
   :alt: build status
 
-.. image:: https://codecov.io/gl/hobarrera/django-afip/branch/master/graph/badge.svg
-  :target: https://codecov.io/gl/hobarrera/django-afip
-  :alt: coverage report
-
 .. image:: https://readthedocs.org/projects/django-afip/badge/?version=latest
   :target: http://django-afip.readthedocs.io/en/latest/?badge=latest
   :alt: Documentation Status

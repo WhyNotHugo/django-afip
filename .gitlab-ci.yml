@@ -60,9 +60,6 @@ live:
     - pip install tox
     - echo -e $AFIP_TEST_KEY > testapp/test.key
     - echo -e $AFIP_TEST_CRT > testapp/test.crt
-  after_script:
-    - pip install codecov
-    - codecov
   variables:
     TOXENV: live
   allow_failure: true
