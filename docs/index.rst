@@ -7,7 +7,7 @@ are implemented.
 
 django-afip's official location is at its GitLab_ repository.
 
-.. _GitLab: https://gitlab.com/hobarrera/django-afip
+.. _GitLab: https://gitlab.com/WhyNotHugo/django-afip
 
 Features
 --------

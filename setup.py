@@ -7,7 +7,7 @@ setup(
     description='AFIP integration for django',
     author='Hugo Osvaldo Barrera',
     author_email='hugo@barrera.io',
-    url='https://gitlab.com/hobarrera/django-afip',
+    url='https://gitlab.com/WhyNotHugo/django-afip',
     license='ISC',
     packages=find_packages(),
     include_package_data=True,

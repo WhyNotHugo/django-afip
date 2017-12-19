@@ -8,7 +8,7 @@ The preferred channel for interaction with the developers is via GitLab_,
 especially since public issues will be available for others having similar
 issues.
 
-.. _GitLab: https://gitlab.com/hobarrera/django-afip
+.. _GitLab: https://gitlab.com/WhyNotHugo/django-afip
 
 Hacking
 -------
