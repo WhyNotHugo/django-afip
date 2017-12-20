@@ -4,6 +4,10 @@ Changelog
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
+5.0.1
+-----
+* Add templates for B and C type credit notes
+
 5.0.0
 -----
 * PDF rendering now relies on ``django_renderpdf``, rather than in-tree code,
