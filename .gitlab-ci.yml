@@ -47,7 +47,7 @@ mysql:
   <<: *unittests
   image: python:3.6
   services:
-    - mysql
+    - mysql:5.7
   variables:
     TOXENV: django111-mysql
     MYSQL_ALLOW_EMPTY_PASSWORD: "1"
