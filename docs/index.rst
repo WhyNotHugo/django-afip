@@ -5,9 +5,9 @@ django-afip
 web-services (and models all related data). For the moment only WSFE and WSAA
 are implemented.
 
-django-afip's official location is at its GitLab_ repository.
+django-afip's official location is at its GitHub_ repository.
 
-.. _GitLab: https://gitlab.com/WhyNotHugo/django-afip
+.. _GitHub: https://github.com/WhyNotHugo/django-afip
 
 Features
 --------

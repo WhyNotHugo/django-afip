@@ -1,8 +1,8 @@
 django-afip
 ===========
 
-.. image:: https://gitlab.com/WhyNotHugo/django-afip/badges/master/build.svg
-  :target: https://gitlab.com/WhyNotHugo/django-afip/commits/master
+.. image:: https://travis-ci.com/WhyNotHugo/django-afip.svg?branch=master
+  :target: https://travis-ci.com/WhyNotHugo/django-afip
   :alt: build status
 
 .. image:: https://readthedocs.org/projects/django-afip/badge/?version=latest

@@ -4,11 +4,11 @@ Contributing
 Feedback
 --------
 
-The preferred channel for interaction with the developers is via GitLab_,
+The preferred channel for interaction with the developers is via GitHub_,
 especially since public issues will be available for others having similar
 issues.
 
-.. _GitLab: https://gitlab.com/WhyNotHugo/django-afip
+.. _GitHub: https://github.com/WhyNotHugo/django-afip
 
 Hacking
 -------
