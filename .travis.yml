@@ -1,0 +1,60 @@
+sudo: false
+language: python
+cache: pip
+
+services:
+  - postgresql
+  - mysql
+
+python:
+  - 3.3
+  - 3.4
+  - 3.5
+  - 3.6
+  - 3.7-dev
+  - pypy3.3-5.2-alpha1
+
+env:
+  matrix:
+    - TOXENV=django111-sqlite
+    - TOXENV=djangodev-sqlite
+    - TOXENV=django111-postgres DATABASE_URL=postgres://postgres@localhost:5432
+    - TOXENV=djangodev-postgres DATABASE_URL=postgres://postgres@localhost:5432
+    - TOXENV=django111-mysql DATABASE_URL=mysql://root@localhost:3306
+    - TOXENV=djangodev-mysql DATABASE_URL=mysql://root@localhost:3306
+
+install:
+  - pip install tox codecov
+
+script:
+  - tox
+
+after_script:
+  - codecov
+
+jobs:
+  include:
+  include:
+    - python: 3.6
+      env: TOXENV=live
+    - python: 3.6
+      env: TOXENV=flake8
+    - python: 3.6
+      env: TOXENV=docs
+
+    - stage: deploy
+      script:
+        - pip install wheel twine
+        - python setup.py sdist bdist_wheel
+        - twine upload -u $PYPI_USERNAME -p $PYPI_PASSWORD dist/*
+    - stage: deploy
+      script:
+        - pip install wheel
+        - python setup.py sdist bdist_wheel
+        - gem install dpl
+        - dpl --api-key=$RELEASES_TOKEN --provider=releases --file=dist/* --file_glob=true --skip_cleanup=true
+
+matrix:
+  allow_failures:
+    - python: 3.7-dev
+    - python: pypy3.3-5.2-alpha1
