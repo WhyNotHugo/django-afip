@@ -21,6 +21,11 @@ env:
     - TOXENV=django111-mysql DATABASE_URL=mysql://root@localhost:3306
     - TOXENV=djangodev-mysql DATABASE_URL=mysql://root@localhost:3306
 
+stages:
+  - test
+  - name: deploy
+    if: tag IS present
+
 install:
   - pip install tox codecov
 
