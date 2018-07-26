@@ -4,6 +4,13 @@ Changelog
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
+5.0.3
+-----
+
+* Fix ocasional bug rendering barcodes.
+* Officially support Django 2.0.
+* Fix some tests, and drop GitLab CI.
+
 5.0.2
 -----
 * Moved project to GitHub (this release just updates the docs and links).
