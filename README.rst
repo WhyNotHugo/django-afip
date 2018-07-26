@@ -14,6 +14,7 @@ django-afip
   :alt: version on pypi
 
 .. image:: https://img.shields.io/pypi/l/django-afip.svg
+  :target: https://github.com/WhyNotHugo/django-afip/blob/master/LICENCE
   :alt: licence
 
 **django-afip** is a django application for interacting with AFIP's
