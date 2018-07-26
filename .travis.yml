@@ -15,10 +15,13 @@ python:
 env:
   matrix:
     - TOXENV=django111-sqlite
+    - TOXENV=django20-sqlite
     - TOXENV=djangodev-sqlite
     - TOXENV=django111-postgres DATABASE_URL=postgres://postgres@localhost:5432
+    - TOXENV=django20-postgres DATABASE_URL=postgres://postgres@localhost:5432
     - TOXENV=djangodev-postgres DATABASE_URL=postgres://postgres@localhost:5432
     - TOXENV=django111-mysql DATABASE_URL=mysql://root@localhost:3306
+    - TOXENV=django20-mysql DATABASE_URL=mysql://root@localhost:3306
     - TOXENV=djangodev-mysql DATABASE_URL=mysql://root@localhost:3306
 
 stages:

@@ -41,7 +41,8 @@ notes ARE provided though):
 Versioning
 ----------
 
-We strictly follow `Semantic Versioning`_
+We strictly follow `Semantic Versioning`_. We only support version of Django
+that are currently supported upstream.
 
 .. _Semantic Versioning: http://semver.org/
 
