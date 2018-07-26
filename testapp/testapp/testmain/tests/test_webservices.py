@@ -24,7 +24,7 @@ class AuthTicketTest(TestCase):
     def test_bad_cuit(self):
         """Test using the wrong cuit for a key pair."""
 
-        taxpayer = fixtures.TaxPayerFactory(cuit=20329642339)
+        taxpayer = fixtures.AlternateTaxpayerFactory(cuit=20329642339)
         taxpayer.create_ticket('wsfe')
 
         with self.assertRaisesRegex(

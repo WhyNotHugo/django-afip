@@ -18,6 +18,14 @@ def _cert_file():
     return open(os.path.join(settings.BASE_DIR, 'test.crt'))
 
 
+def _key_file2():
+    return open(os.path.join(settings.BASE_DIR, 'test2.key'))
+
+
+def _cert_file2():
+    return open(os.path.join(settings.BASE_DIR, 'test2.crt'))
+
+
 def _tiny_image_file():
     return open(os.path.join(settings.BASE_DIR, 'tiny.png'), 'rb')
 
@@ -83,6 +91,17 @@ class TaxPayerFactory(DjangoModelFactory):
     is_sandboxed = True
     key = FileField(from_func=_key_file)
     certificate = FileField(from_func=_cert_file)
+    active_since = datetime(2011, 10, 3)
+
+
+class AlternateTaxpayerFactory(DjangoModelFactory):
+    """A taxpayer with an alternate (valid) keypair."""
+
+    name = 'John Smith'
+    cuit = 20329642330
+    is_sandboxed = True
+    key = FileField(from_func=_key_file2)
+    certificate = FileField(from_func=_cert_file2)
     active_since = datetime(2011, 10, 3)
 
 
