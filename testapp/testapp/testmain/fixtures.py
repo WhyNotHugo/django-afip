@@ -96,6 +96,8 @@ class TaxPayerFactory(DjangoModelFactory):
 
 class AlternateTaxpayerFactory(DjangoModelFactory):
     """A taxpayer with an alternate (valid) keypair."""
+    class Meta:
+        model = models.TaxPayer
 
     name = 'John Smith'
     cuit = 20329642330
