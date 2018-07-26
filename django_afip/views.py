@@ -62,7 +62,7 @@ class ReceiptPDFView(PDFView):
         context['pdf'] = receipt_pdf
         context['taxpayer'] = taxpayer
         context['extras'] = extras
-        context['barcode'] = barcode
+        context['barcode'] = barcode.decode()
 
         return context
 
