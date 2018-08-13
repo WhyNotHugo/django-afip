@@ -5,6 +5,10 @@ django-afip
   :target: https://travis-ci.com/WhyNotHugo/django-afip
   :alt: build status
 
+.. image:: https://codecov.io/gh/WhyNotHugo/django-afip/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/WhyNotHugo/django-afip
+  :alt: Build coverage
+
 .. image:: https://readthedocs.org/projects/django-afip/badge/?version=latest
   :target: http://django-afip.readthedocs.io/en/latest/?badge=latest
   :alt: Documentation Status
