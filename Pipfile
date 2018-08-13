@@ -5,9 +5,9 @@ name = "pypi"
 
 [packages]
 "e1839a8" = {path = ".", editable = true}
+django-afip = {editable = true, path = "."}
 
 [dev-packages]
-
 "dj-database-url" = "*"
 coverage = "*"
 "factory-boy" = "*"
