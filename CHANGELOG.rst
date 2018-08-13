@@ -4,6 +4,11 @@ Changelog
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
+5.0.4
+-----
+
+* Support Python 3.7.
+
 5.0.3
 -----
 
