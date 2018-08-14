@@ -10,7 +10,6 @@ python:
   - 3.6
   - 3.5
   - 3.4
-  - 3.7-dev
 
 env:
   matrix:
@@ -40,13 +39,17 @@ after_script:
 
 jobs:
   include:
-  include:
     - python: 3.6
       env: TOXENV=live
     - python: 3.6
       env: TOXENV=flake8
     - python: 3.6
       env: TOXENV=docs
+
+    - python: 3.7
+      dist: xenial
+      sudo: true
+      env: TOXENV=django20-sqlite
 
     - stage: deploy
       script:
@@ -62,5 +65,4 @@ jobs:
 
 matrix:
   allow_failures:
-    - python: 3.7-dev
     - python: pypy3.3-5.2-alpha1
