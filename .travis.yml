@@ -15,12 +15,17 @@ env:
   matrix:
     - TOXENV=django111-sqlite
     - TOXENV=django20-sqlite
+    - TOXENV=django21-sqlite
     - TOXENV=djangodev-sqlite
+
     - TOXENV=django111-postgres DATABASE_URL=postgres://postgres@localhost:5432
     - TOXENV=django20-postgres DATABASE_URL=postgres://postgres@localhost:5432
+    - TOXENV=django21-postgres DATABASE_URL=postgres://postgres@localhost:5432
     - TOXENV=djangodev-postgres DATABASE_URL=postgres://postgres@localhost:5432
+
     - TOXENV=django111-mysql DATABASE_URL=mysql://root@localhost:3306
     - TOXENV=django20-mysql DATABASE_URL=mysql://root@localhost:3306
+    - TOXENV=django21-mysql DATABASE_URL=mysql://root@localhost:3306
     - TOXENV=djangodev-mysql DATABASE_URL=mysql://root@localhost:3306
 
 stages:
@@ -50,6 +55,10 @@ jobs:
       dist: xenial
       sudo: true
       env: TOXENV=django20-sqlite
+    - python: 3.7
+      dist: xenial
+      sudo: true
+      env: TOXENV=django21-sqlite
 
     - stage: deploy
       script:

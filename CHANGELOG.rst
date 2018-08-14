@@ -7,7 +7,8 @@ releases, in reverse chronological order.
 5.0.4
 -----
 
-* Support Python 3.7.
+* Add support for Python 3.7.
+* Add support for Django 2.1.
 
 5.0.3
 -----
