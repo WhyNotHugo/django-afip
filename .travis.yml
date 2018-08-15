@@ -9,7 +9,6 @@ services:
 python:
   - 3.6
   - 3.5
-  - 3.4
 
 env:
   matrix:
@@ -44,6 +43,19 @@ after_script:
 
 jobs:
   include:
+    - python: 3.4
+      env: TOXENV=django111-sqlite
+    - python: 3.4
+      env: TOXENV=django20-sqlite
+    - python: 3.4
+      env: TOXENV=django111-mysql DATABASE_URL=mysql://root@localhost:3306
+    - python: 3.4
+    - env: TOXENV=django20-mysql DATABASE_URL=mysql://root@localhost:3306
+    - python: 3.4
+      env: TOXENV=django111-postgres DATABASE_URL=postgres://postgres@localhost:5432
+    - python: 3.4
+    - env: TOXENV=django20-postgres DATABASE_URL=postgres://postgres@localhost:5432
+
     - python: 3.6
       env: TOXENV=live
     - python: 3.6
