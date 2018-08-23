@@ -9,6 +9,7 @@ releases, in reverse chronological order.
 
 * Add support for Python 3.7.
 * Add support for Django 2.1.
+* Fix deserialization bug for AFIP metadata models.
 
 5.0.3
 -----
