@@ -122,7 +122,7 @@ class PopulationTest(LiveAfipTestCase):
         # don't mess up encoding/decoding the value we get.
         # It _WILL_ need updating if the upstream value ever changes.
         fac_c = models.ReceiptType.objects.get(code=11)
-        self.assertEqual(fac_c.description, "Factura C")
+        self.assertEqual(fac_c.description, 'Factura C')
 
 
 class TaxPayerTest(LiveAfipTestCase):
