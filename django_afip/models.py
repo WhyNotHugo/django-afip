@@ -119,7 +119,7 @@ class GenericAfipTypeManager(models.Manager):
         for result in getattr(response_xml.ResultGet, self.__type_name):
             self.get_or_create(
                 code=result.Id,
-                description=result.Desc.encode('UTF-8'),
+                description=result.Desc,
                 valid_from=parsers.parse_date(result.FchDesde),
                 valid_to=parsers.parse_date(result.FchHasta),
             )

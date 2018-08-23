@@ -114,6 +114,16 @@ class PopulationTest(LiveAfipTestCase):
         self.assertGreater(tax, 0)
         self.assertGreater(currencies, 0)
 
+    def test_metadata_deserialization(self):
+        """Test that we deserialize descriptions properly."""
+        management.call_command('afipmetadata')
+
+        # This asserting is tied to current data, but it validates that we
+        # don't mess up encoding/decoding the value we get.
+        # It _WILL_ need updating if the upstream value ever changes.
+        fac_c = models.ReceiptType.objects.get(code=11)
+        self.assertEqual(fac_c.description, "Factura C")
+
 
 class TaxPayerTest(LiveAfipTestCase):
     """Test TaxPayer methods."""
