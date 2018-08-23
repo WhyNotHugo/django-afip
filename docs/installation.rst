@@ -44,7 +44,10 @@ Versioning
 We strictly follow `Semantic Versioning`_. We only support version of Django
 that are currently supported upstream.
 
+Django-afip is compatible with all `currently supported django versions`_.
+
 .. _Semantic Versioning: http://semver.org/
+.. _currently supported django versions: https://www.djangoproject.com/download/#supported-versions
 
 Upgrading
 ---------

@@ -14,6 +14,7 @@ Features
 
 * Validate invoices and other receipt types with AFIP's WSFE service.
 * Generate valid PDF files for those receipts to send to clients.
+* Supports Django 1.11, 2.0 and 2.1.
 
 Caveats
 -------
