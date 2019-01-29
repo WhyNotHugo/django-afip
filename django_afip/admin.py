@@ -30,19 +30,19 @@ def catch_errors(f):
     def wrapper(self, request, *args, **kwargs):
         try:
             return f(self, request, *args, **kwargs)
-        except exceptions.CertificateExpired as e:
+        except exceptions.CertificateExpired:
             self.message_user(
                 request,
                 _('The AFIP Taxpayer certificate has expired.'),
                 messages.ERROR,
             )
-        except exceptions.UntrustedCertificate as e:
+        except exceptions.UntrustedCertificate:
             self.message_user(
                 request,
                 _('The AFIP Taxpayer certificate is untrusted.'),
                 messages.ERROR,
             )
-        except exceptions.CorruptCertificate as e:
+        except exceptions.CorruptCertificate:
             self.message_user(
                 request,
                 _('The AFIP Taxpayer certificate is corrupt.'),
