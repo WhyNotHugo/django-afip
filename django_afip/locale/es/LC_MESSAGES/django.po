@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-afip\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-10 18:06+0000\n"
-"PO-Revision-Date: 2017-07-02 20:40-0300\n"
+"POT-Creation-Date: 2019-01-29 04:37+0000\n"
+"PO-Revision-Date: 2019-01-29 01:38-0300\n"
 "Last-Translator: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
 "Language-Team: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
 "Language: es\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.0.2\n"
+"X-Generator: Poedit 2.2.1\n"
 
 msgid "The AFIP Taxpayer certificate has expired."
 msgstr "El certificado de contribuyente del AFIP venció."
@@ -47,6 +47,15 @@ msgstr "monto total"
 
 msgid "validated"
 msgstr "validado"
+
+msgid "Create"
+msgstr "Crear"
+
+msgid "Edit"
+msgstr "Editar"
+
+msgid "PDF"
+msgstr "PDF"
 
 msgid "cae"
 msgstr "cae"
@@ -227,6 +236,18 @@ msgstr "perfil de contribuyente"
 msgid "taxpayer profiles"
 msgstr "perfiles de contribuyentes"
 
+msgid "pdf file"
+msgstr "archivo pdf"
+
+msgid "A logo to use when generating printable receipts."
+msgstr "Logo a usar al generar imprimibles de recibos."
+
+msgid "taxpayer extras"
+msgstr "extras de contribuyente"
+
+msgid "taxpayers extras"
+msgstr "extras de contribuyentes"
+
 msgid "number"
 msgstr "número"
 
@@ -308,8 +329,8 @@ msgid ""
 "Must be equal to the sum of net_taxed, exempt_amount, net_taxes, and all "
 "taxes and vats."
 msgstr ""
-"Debe ser igual a la suma de monto no gravado, monto exento, monto gravado, "
-"y todos los tributos e ivas."
+"Debe ser igual a la suma de monto no gravado, monto exento, monto gravado, y "
+"todos los tributos e ivas."
 
 msgid "total untaxable amount"
 msgstr "monto total no gravado"
@@ -383,9 +404,6 @@ msgstr "comprobante"
 
 msgid "receipts"
 msgstr "comprobantes"
-
-msgid "pdf file"
-msgstr "archivo pdf"
 
 msgid "The actual file which contains the PDF data."
 msgstr "El archivo que contiene el PDF en sí."
@@ -493,7 +511,3 @@ msgstr "validación de comprobante"
 
 msgid "receipt validations"
 msgstr "validaciones de comprobante"
-
-#, python-format
-msgid "receipt %s.pdf"
-msgstr "comprobante %s.pdf"
