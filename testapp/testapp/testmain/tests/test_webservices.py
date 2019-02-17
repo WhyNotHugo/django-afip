@@ -302,7 +302,7 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
         )
         self.assertEqual(models.ReceiptValidation.objects.count(), 1)
 
-    @skip("Currently not working -- needs to get looked at.")
+    @skip('Currently not working -- needs to get looked at.')
     def test_validation_with_observations(self):
         receipt = fixtures.ReceiptFactory(
             document_number=20291144404,
