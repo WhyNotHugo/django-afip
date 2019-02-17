@@ -297,10 +297,10 @@ class TaxPayerAdmin(admin.ModelAdmin):
     def generate_key(self, request, queryset):
         key_count = sum(t.generate_key() for t in queryset.all())
 
-        if key_count is 1:
+        if key_count == 1:
             message = _('Key generated successfully.')
             level = messages.SUCCESS
-        elif key_count is 1:
+        elif key_count == 1:
             message = _('%d keys generated successfully.') % key_count
             level = messages.SUCCESS
         else:
