@@ -15,7 +15,6 @@ env:
     - TOXENV=django111-sqlite
     - TOXENV=django20-sqlite
     - TOXENV=django21-sqlite
-    - TOXENV=djangodev-sqlite
 
     - TOXENV=django111-postgres DATABASE_URL=postgres://postgres@localhost:5432
     - TOXENV=django20-postgres DATABASE_URL=postgres://postgres@localhost:5432
@@ -71,6 +70,10 @@ jobs:
       dist: xenial
       sudo: true
       env: TOXENV=django21-sqlite
+    - python: 3.7
+      dist: xenial
+      sudo: true
+      env: TOXENV=djangodev-sqlite
 
     - stage: deploy
       script:
