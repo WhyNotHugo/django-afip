@@ -3,9 +3,8 @@ import os
 from barcode.writer import SVGWriter
 from django.test import TestCase
 
-from django_afip import models
+from django_afip import factories, models
 from django_afip.pdf import ReceiptBarcodeGenerator
-from testapp.testmain import fixtures
 
 
 class ReceiptPDFGenerationTestCase(TestCase):
@@ -19,8 +18,8 @@ class ReceiptPDFGenerationTestCase(TestCase):
         Running this locally *will* yield the file itself, which is useful for
         manual inspection.
         """
-        pdf = fixtures.ReceiptPDFFactory(receipt__receipt_number=3)
-        fixtures.ReceiptValidationFactory(receipt=pdf.receipt)
+        pdf = factories.ReceiptPDFFactory(receipt__receipt_number=3)
+        factories.ReceiptValidationFactory(receipt=pdf.receipt)
         pdf.save_pdf()
         self.assertTrue(pdf.pdf_file.name.startswith('receipts/'))
         self.assertTrue(pdf.pdf_file.name.endswith('.pdf'))
@@ -32,9 +31,9 @@ class ReceiptPDFGenerationTestCase(TestCase):
         Confirm that attempting to generate a PDF for an unauthorized receipt
         raises.
         """
-        taxpayer = fixtures.TaxPayerFactory()
-        fixtures.TaxPayerProfileFactory(taxpayer=taxpayer)
-        receipt = fixtures.ReceiptFactory(
+        taxpayer = factories.TaxPayerFactory()
+        factories.TaxPayerProfileFactory(taxpayer=taxpayer)
+        receipt = factories.ReceiptFactory(
             receipt_number=None,
             point_of_sales__owner=taxpayer,
         )
@@ -79,11 +78,11 @@ class BarcodeGeneratorTestCase(TestCase):
         """
         Test that barcode generation matches that from a pre-generated example.
         """
-        receipt = fixtures.ReceiptFactory(
+        receipt = factories.ReceiptFactory(
             point_of_sales__number=1,
             receipt_type__code=11,
         )
-        fixtures.ReceiptValidationFactory(receipt=receipt,)
+        factories.ReceiptValidationFactory(receipt=receipt,)
 
         generator = ReceiptBarcodeGenerator(receipt)
         barcode = generator.generate_barcode(SVGWriter)
@@ -104,13 +103,13 @@ class BarcodeGeneratorTestCase(TestCase):
 
 class GenerateReceiptPDFSignalTestCase(TestCase):
     def test_not_validated_receipt(self):
-        printable = fixtures.ReceiptPDFFactory()
+        printable = factories.ReceiptPDFFactory()
 
         self.assertFalse(printable.pdf_file)
 
     def test_validated_receipt(self):
-        validation = fixtures.ReceiptValidationFactory()
-        printable = fixtures.ReceiptPDFFactory(receipt=validation.receipt)
+        validation = factories.ReceiptValidationFactory()
+        printable = factories.ReceiptPDFFactory(receipt=validation.receipt)
 
         self.assertTrue(printable.pdf_file)
         self.assertTrue(printable.pdf_file.name.endswith('.pdf'))

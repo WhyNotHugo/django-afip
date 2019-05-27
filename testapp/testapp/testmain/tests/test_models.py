@@ -2,8 +2,7 @@ from unittest.mock import call, MagicMock, patch
 
 from django.test import TestCase
 
-from django_afip import exceptions, models
-from testapp.testmain import fixtures
+from django_afip import exceptions, factories, models
 from testapp.testmain.tests.testcases import PopulatedLiveAfipTestCase
 
 
@@ -16,7 +15,7 @@ class ReceiptQuerySetTestCase(TestCase):
         )
 
     def test_validate(self):
-        receipt = fixtures.ReceiptFactory()
+        receipt = factories.ReceiptFactory()
         queryset = models.Receipt.objects.filter(pk=receipt.pk)
         ticket = MagicMock()
 
@@ -45,7 +44,7 @@ class ReceiptManagerTestCase(TestCase):
 class ReceiptTestCase(TestCase):
 
     def test_validate(self):
-        receipt = fixtures.ReceiptFactory()
+        receipt = factories.ReceiptFactory()
         ticket = MagicMock()
         self.called = False
 
@@ -66,11 +65,11 @@ class ReceiptSuccessfulValidateTestCase(PopulatedLiveAfipTestCase):
 
     def setUp(self):
         super().setUp()
-        self.receipt = fixtures.ReceiptFactory(
+        self.receipt = factories.ReceiptFactory(
             point_of_sales=models.PointOfSales.objects.first(),
         )
-        fixtures.VatFactory(vat_type__code=5, receipt=self.receipt)
-        fixtures.TaxFactory(tax_type__code=3, receipt=self.receipt)
+        factories.VatFactory(vat_type__code=5, receipt=self.receipt)
+        factories.TaxFactory(tax_type__code=3, receipt=self.receipt)
 
     def test_validation(self):
         """Test validating valid receipts."""
@@ -88,12 +87,12 @@ class ReceiptFailedValidateTestCase(PopulatedLiveAfipTestCase):
 
     def setUp(self):
         super().setUp()
-        self.receipt = fixtures.ReceiptFactory(
+        self.receipt = factories.ReceiptFactory(
             document_type__code=80,
             point_of_sales=models.PointOfSales.objects.first(),
         )
-        fixtures.VatFactory(vat_type__code=5, receipt=self.receipt)
-        fixtures.TaxFactory(tax_type__code=3, receipt=self.receipt)
+        factories.VatFactory(vat_type__code=5, receipt=self.receipt)
+        factories.TaxFactory(tax_type__code=3, receipt=self.receipt)
 
     def test_failed_validation(self):
         """Test validating valid receipts."""
@@ -128,25 +127,25 @@ class ReceiptFailedValidateTestCase(PopulatedLiveAfipTestCase):
 
 class ReceiptIsValidatedTestCase(TestCase):
     def test_not_validated(self):
-        receipt = fixtures.ReceiptFactory()
+        receipt = factories.ReceiptFactory()
         self.assertEqual(receipt.is_validated, False)
 
     def test_validated(self):
-        receipt = fixtures.ReceiptFactory(receipt_number=1)
-        fixtures.ReceiptValidationFactory(receipt=receipt)
+        receipt = factories.ReceiptFactory(receipt_number=1)
+        factories.ReceiptValidationFactory(receipt=receipt)
         self.assertEqual(receipt.is_validated, True)
 
     def test_failed_validation(self):
         # These should never really exist,but oh well:
-        receipt = fixtures.ReceiptFactory()
-        fixtures.ReceiptValidationFactory(
+        receipt = factories.ReceiptFactory()
+        factories.ReceiptValidationFactory(
             receipt=receipt,
             result=models.ReceiptValidation.RESULT_REJECTED,
         )
         self.assertEqual(receipt.is_validated, False)
 
-        receipt = fixtures.ReceiptFactory(receipt_number=1)
-        fixtures.ReceiptValidationFactory(
+        receipt = factories.ReceiptFactory(receipt_number=1)
+        factories.ReceiptValidationFactory(
             receipt=receipt,
             result=models.ReceiptValidation.RESULT_REJECTED,
         )
@@ -160,9 +159,9 @@ class ReceiptDefaultCurrencyTestCase(TestCase):
             receipt.currency
 
     def test_multieple_currencies(self):
-        c1 = fixtures.CurrencyTypeFactory(pk=2)
-        c2 = fixtures.CurrencyTypeFactory(pk=1)
-        c3 = fixtures.CurrencyTypeFactory(pk=3)
+        c1 = factories.CurrencyTypeFactory(pk=2)
+        c2 = factories.CurrencyTypeFactory(pk=1)
+        c3 = factories.CurrencyTypeFactory(pk=3)
 
         receipt = models.Receipt()
         self.assertNotEqual(receipt.currency, c1)
@@ -172,42 +171,42 @@ class ReceiptDefaultCurrencyTestCase(TestCase):
 
 class ReceiptTotalVatTestCase(TestCase):
     def test_no_vat(self):
-        receipt = fixtures.ReceiptFactory()
+        receipt = factories.ReceiptFactory()
 
         self.assertEqual(receipt.total_vat, 0)
 
     def test_multiple_vats(self):
-        receipt = fixtures.ReceiptFactory()
-        fixtures.VatFactory(receipt=receipt)
-        fixtures.VatFactory(receipt=receipt)
+        receipt = factories.ReceiptFactory()
+        factories.VatFactory(receipt=receipt)
+        factories.VatFactory(receipt=receipt)
 
         self.assertEqual(receipt.total_vat, 42)
 
     def test_proper_filtering(self):
-        receipt = fixtures.ReceiptFactory()
-        fixtures.VatFactory(receipt=receipt)
-        fixtures.VatFactory()
+        receipt = factories.ReceiptFactory()
+        factories.VatFactory(receipt=receipt)
+        factories.VatFactory()
 
         self.assertEqual(receipt.total_vat, 21)
 
 
 class ReceiptTotalTaxTestCase(TestCase):
     def test_no_tax(self):
-        receipt = fixtures.ReceiptFactory()
+        receipt = factories.ReceiptFactory()
 
         self.assertEqual(receipt.total_tax, 0)
 
     def test_multiple_taxes(self):
-        receipt = fixtures.ReceiptFactory()
-        fixtures.TaxFactory(receipt=receipt)
-        fixtures.TaxFactory(receipt=receipt)
+        receipt = factories.ReceiptFactory()
+        factories.TaxFactory(receipt=receipt)
+        factories.TaxFactory(receipt=receipt)
 
         self.assertEqual(receipt.total_tax, 18)
 
     def test_proper_filtering(self):
-        receipt = fixtures.ReceiptFactory()
-        fixtures.TaxFactory(receipt=receipt)
-        fixtures.TaxFactory()
+        receipt = factories.ReceiptFactory()
+        factories.TaxFactory(receipt=receipt)
+        factories.TaxFactory()
 
         self.assertEqual(receipt.total_tax, 9)
 

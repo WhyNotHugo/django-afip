@@ -8,9 +8,8 @@ from django.test import Client, RequestFactory, TestCase
 from django.utils.translation import ugettext as _
 from factory.django import FileField
 
-from django_afip import exceptions, models
+from django_afip import exceptions, factories, models
 from django_afip.admin import catch_errors, ReceiptAdmin
-from testapp.testmain import fixtures
 
 
 class TestCatchErrors(TestCase):
@@ -67,10 +66,10 @@ class TestCatchErrors(TestCase):
 class TestTaxPayerAdminKeyGeneration(TestCase):
 
     def setUp(self):
-        self.user = fixtures.SuperUserFactory()
+        self.user = factories.SuperUserFactory()
 
     def test_without_key(self):
-        taxpayer = fixtures.TaxPayerFactory(key=None)
+        taxpayer = factories.TaxPayerFactory(key=None)
         client = Client()
         client.force_login(self.user)
 
@@ -89,7 +88,7 @@ class TestTaxPayerAdminKeyGeneration(TestCase):
         )
 
     def test_with_key(self):
-        taxpayer = fixtures.TaxPayerFactory(key=FileField(data=b'Blah'))
+        taxpayer = factories.TaxPayerFactory(key=FileField(data=b'Blah'))
         client = Client()
         client.force_login(self.user)
 
@@ -111,10 +110,10 @@ class TestTaxPayerAdminKeyGeneration(TestCase):
 class TestTaxPayerAdminRequestGeneration(TestCase):
 
     def setUp(self):
-        self.user = fixtures.SuperUserFactory()
+        self.user = factories.SuperUserFactory()
 
     def test_with_csr(self):
-        taxpayer = fixtures.TaxPayerFactory(key=None)
+        taxpayer = factories.TaxPayerFactory(key=None)
         taxpayer.generate_key()
         client = Client()
         client.force_login(self.user)
@@ -135,7 +134,7 @@ class TestTaxPayerAdminRequestGeneration(TestCase):
         )
 
     def test_without_key(self):
-        taxpayer = fixtures.TaxPayerFactory(key=None)
+        taxpayer = factories.TaxPayerFactory(key=None)
         taxpayer.generate_key()
         client = Client()
         client.force_login(self.user)
@@ -156,8 +155,8 @@ class TestTaxPayerAdminRequestGeneration(TestCase):
         )
 
     def test_multiple_taxpayers(self):
-        taxpayer1 = fixtures.TaxPayerFactory(key__data=b'Blah')
-        taxpayer2 = fixtures.TaxPayerFactory(key__data=b'Blah')
+        taxpayer1 = factories.TaxPayerFactory(key__data=b'Blah')
+        taxpayer2 = factories.TaxPayerFactory(key__data=b'Blah')
         client = Client()
         client.force_login(self.user)
 
@@ -177,7 +176,7 @@ class ReceiptFiltersAdminTestCase(TestCase):
     """Test ReceiptAdmin methods."""
 
     def setUp(self):
-        fixtures.SuperUserFactory()
+        factories.SuperUserFactory()
 
     def test_validation_filters(self):
         """
@@ -185,12 +184,12 @@ class ReceiptFiltersAdminTestCase(TestCase):
 
         This filters receipts by the validation status.
         """
-        validated_receipt = fixtures.ReceiptFactory()
-        failed_validation_receipt = fixtures.ReceiptFactory()
-        not_validated_receipt = fixtures.ReceiptFactory()
+        validated_receipt = factories.ReceiptFactory()
+        failed_validation_receipt = factories.ReceiptFactory()
+        not_validated_receipt = factories.ReceiptFactory()
 
-        fixtures.ReceiptValidationFactory(receipt=validated_receipt)
-        fixtures.ReceiptValidationFactory(
+        factories.ReceiptValidationFactory(receipt=validated_receipt)
+        factories.ReceiptValidationFactory(
             result=models.ReceiptValidation.RESULT_REJECTED,
             receipt=failed_validation_receipt,
         )
@@ -243,7 +242,7 @@ class ReceiptAdminGetExcludeTestCase(TestCase):
     def test_django_111(self):
         admin = ReceiptAdmin(models.Receipt, site)
         request = RequestFactory().get('/admin/afip/receipt')
-        request.user = fixtures.UserFactory()
+        request.user = factories.UserFactory()
 
         with mock.patch('django.VERSION', (1, 11, 7)):
             self.assertNotIn('related_receipts', admin.get_fields(request))
@@ -251,7 +250,7 @@ class ReceiptAdminGetExcludeTestCase(TestCase):
     def test_django_200(self):
         admin = ReceiptAdmin(models.Receipt, site)
         request = RequestFactory().get('/admin/afip/receipt')
-        request.user = fixtures.UserFactory()
+        request.user = factories.UserFactory()
 
         with mock.patch('django.VERSION', (2, 0, 0)):
             self.assertIn('related_receipts', admin.get_fields(request))

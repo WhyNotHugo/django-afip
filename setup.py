@@ -28,6 +28,7 @@ setup(
         'docs': ['Sphinx', 'sphinx-autobuild'],
         'postgres': ['psycopg2'],
         'mysql': ['mysqlclient'],
+        'factories': ['factory-boy'],
     },
     use_scm_version={
         'version_scheme': 'post-release',

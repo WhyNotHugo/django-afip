@@ -5,13 +5,13 @@ from factory.django import FileField
 from freezegun import freeze_time
 from OpenSSL import crypto
 
-from testapp.testmain import fixtures
+from django_afip import factories
 
 
 class TestTaxPayerKeyManagement(TestCase):
 
     def test_key_generation(self):
-        taxpayer = fixtures.TaxPayerFactory(key=None)
+        taxpayer = factories.TaxPayerFactory(key=None)
         taxpayer.generate_key()
 
         key = taxpayer.key.file.read().decode()
@@ -23,7 +23,7 @@ class TestTaxPayerKeyManagement(TestCase):
 
     def test_dont_overwrite_keys(self):
         text = "Hello! I'm not really a key :D".encode()
-        taxpayer = fixtures.TaxPayerFactory(key=FileField(data=text))
+        taxpayer = factories.TaxPayerFactory(key=FileField(data=text))
 
         taxpayer.generate_key()
         key = taxpayer.key.read()
@@ -32,7 +32,7 @@ class TestTaxPayerKeyManagement(TestCase):
 
     def test_overwrite_keys_force(self):
         text = "Hello! I'm not really a key :D".encode()
-        taxpayer = fixtures.TaxPayerFactory(key__data=text)
+        taxpayer = factories.TaxPayerFactory(key__data=text)
 
         taxpayer.generate_key(force=True)
         key = taxpayer.key.file.read().decode()
@@ -46,7 +46,7 @@ class TestTaxPayerKeyManagement(TestCase):
 
     @freeze_time(datetime.fromtimestamp(1489537017))
     def test_csr_generation(self):
-        taxpayer = fixtures.TaxPayerFactory(key=None)
+        taxpayer = factories.TaxPayerFactory(key=None)
         taxpayer.generate_key()
 
         csr_file = taxpayer.generate_csr()
@@ -79,13 +79,13 @@ class TestTaxPayerKeyManagement(TestCase):
 
 class TaxPayerCertificateObjectTestCase(TestCase):
     def test_certificate_object(self):
-        taxpayer = fixtures.TaxPayerFactory()
+        taxpayer = factories.TaxPayerFactory()
         cert = taxpayer.certificate_object
 
         self.assertIsInstance(cert, crypto.X509)
 
     def test_null_certificate_object(self):
-        taxpayer = fixtures.TaxPayerFactory(certificate=None)
+        taxpayer = factories.TaxPayerFactory(certificate=None)
         cert = taxpayer.certificate_object
 
         self.assertIsNone(cert)
@@ -93,13 +93,13 @@ class TaxPayerCertificateObjectTestCase(TestCase):
 
 class TaxPayerExpirationTestCase(TestCase):
     def test_expiration_getter(self):
-        taxpayer = fixtures.TaxPayerFactory()
+        taxpayer = factories.TaxPayerFactory()
         expiration = taxpayer.get_certificate_expiration()
 
         self.assertIsInstance(expiration, datetime)
 
     def test_expiration_signal_update(self):
-        taxpayer = fixtures.TaxPayerFactory(certificate_expiration=None)
+        taxpayer = factories.TaxPayerFactory(certificate_expiration=None)
         taxpayer.save()
         expiration = taxpayer.certificate_expiration
 
