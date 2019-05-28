@@ -14,7 +14,6 @@ env:
   matrix:
     - TOXENV=django111-sqlite
     - TOXENV=django21-sqlite
-    - TOXENV=django22-sqlite
     # djangodev-sqlite requires a newer image, see below.
 
     - TOXENV=django111-postgres DATABASE_URL=postgres://postgres@localhost:5432
@@ -43,6 +42,16 @@ after_script:
 
 jobs:
   include:
+    # These two require a newer sqlite, which requires xenial
+    - python: 3.5
+      dist: xenial
+      sudo: true
+      env: TOXENV=django22-sqlite
+    - python: 3.6
+      dist: xenial
+      sudo: true
+      env: TOXENV=django22-sqlite
+
     - python: 3.5
       dist: xenial
       sudo: true
