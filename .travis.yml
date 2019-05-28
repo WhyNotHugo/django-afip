@@ -71,7 +71,7 @@ jobs:
 
     - python: 3.7
       dist: xenial
-      env: TOXENV=django11-sqlite
+      env: TOXENV=django111-sqlite
     - python: 3.7
       dist: xenial
       env: TOXENV=django21-sqlite
