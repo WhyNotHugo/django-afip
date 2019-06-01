@@ -57,8 +57,8 @@ def serialize_receipt(receipt):
     from django_afip import models
     f = _wsfe_factory()
     subtotals = models.Receipt.objects.filter(pk=receipt.pk).aggregate(
-        vat=Sum('vat__amount', distinct=True),
-        taxes=Sum('taxes__amount', distinct=True),
+        vat=Sum('vat__amount'),
+        taxes=Sum('taxes__amount'),
     )
 
     serialized = f.FECAEDetRequest(

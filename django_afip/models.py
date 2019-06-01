@@ -736,8 +736,8 @@ class ReceiptQuerySet(models.QuerySet):
         raises :class:`~.CannotValidateTogether`.
         """
         types = self.aggregate(
-            poses=Count('point_of_sales_id', distinct=True),
-            types=Count('receipt_type', distinct=True),
+            poses=Count('point_of_sales_id', ),
+            types=Count('receipt_type'),
         )
 
         if set(types.values()) > {1}:
