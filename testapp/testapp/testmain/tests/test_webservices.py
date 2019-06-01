@@ -10,8 +10,7 @@ from django.test import tag, TestCase
 from django.utils.timezone import now
 from factory.django import FileField
 
-from django_afip import exceptions, models
-from testapp.testmain import fixtures
+from django_afip import exceptions, factories, models
 from testapp.testmain.tests.testcases import (
     LiveAfipTestCase,
     PopulatedLiveAfipTestCase,
@@ -25,7 +24,7 @@ class AuthTicketTest(TestCase):
     def test_bad_cuit(self):
         """Test using the wrong cuit for a key pair."""
 
-        taxpayer = fixtures.AlternateTaxpayerFactory(cuit=20329642339)
+        taxpayer = factories.AlternateTaxpayerFactory(cuit=20329642339)
         taxpayer.create_ticket('wsfe')
 
         with self.assertRaisesRegex(
@@ -46,7 +45,7 @@ class AuthTicketTest(TestCase):
             spec=True,
             return_value=None,
         ):
-            taxpayer = fixtures.TaxPayerFactory(
+            taxpayer = factories.TaxPayerFactory(
                 key=FileField(data=b'Blah'),
                 certificate=FileField(data=b'Blah'),
             )
@@ -71,7 +70,7 @@ class AuthTicketTest(TestCase):
         ) as key, open(
             os.path.join(settings.BASE_DIR, 'test_expired.crt'),
         ) as crt:
-            taxpayer = fixtures.TaxPayerFactory(
+            taxpayer = factories.TaxPayerFactory(
                 key=FileField(from_file=key),
                 certificate=FileField(from_file=crt),
             )
@@ -84,7 +83,7 @@ class AuthTicketTest(TestCase):
         Test that using an untrusted ceritificate raises as expected.
         """
         # Note that we hit production with a sandbox cert here:
-        taxpayer = fixtures.TaxPayerFactory(is_sandboxed=False)
+        taxpayer = factories.TaxPayerFactory(is_sandboxed=False)
 
         with self.assertRaises(exceptions.UntrustedCertificate):
             taxpayer.create_ticket('wsfe')
@@ -142,24 +141,24 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
     """Test ReceiptQuerySet methods."""
 
     def _good_receipt(self):
-        receipt = fixtures.ReceiptFactory(
+        receipt = factories.ReceiptFactory(
             point_of_sales=models.PointOfSales.objects.first(),
         )
-        fixtures.VatFactory(vat_type__code=5, receipt=receipt)
-        fixtures.TaxFactory(tax_type__code=3, receipt=receipt)
+        factories.VatFactory(vat_type__code=5, receipt=receipt)
+        factories.TaxFactory(tax_type__code=3, receipt=receipt)
         return receipt
 
     def _bad_receipt(self):
-        receipt = fixtures.ReceiptFactory(
+        receipt = factories.ReceiptFactory(
             point_of_sales=models.PointOfSales.objects.first(),
             document_type__code=80,
         )
-        fixtures.VatFactory(vat_type__code=5, receipt=receipt)
-        fixtures.TaxFactory(tax_type__code=3, receipt=receipt)
+        factories.VatFactory(vat_type__code=5, receipt=receipt)
+        factories.TaxFactory(tax_type__code=3, receipt=receipt)
         return receipt
 
     def test_validate_empty(self):
-        fixtures.ReceiptFactory()
+        factories.ReceiptFactory()
 
         errs = models.Receipt.objects.none().validate()
 
@@ -269,11 +268,11 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
     def test_validation_good_without_tax(self):
         """Test validating valid receipts."""
-        receipt = fixtures.ReceiptFactory(
+        receipt = factories.ReceiptFactory(
             point_of_sales=models.PointOfSales.objects.first(),
             total_amount=121,
         )
-        fixtures.VatFactory(vat_type__code=5, receipt=receipt)
+        factories.VatFactory(vat_type__code=5, receipt=receipt)
 
         errs = models.Receipt.objects.all().validate()
 
@@ -286,12 +285,12 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
     def test_validation_good_without_vat(self):
         """Test validating valid receipts."""
-        receipt = fixtures.ReceiptFactory(
+        receipt = factories.ReceiptFactory(
             point_of_sales=models.PointOfSales.objects.first(),
             receipt_type__code=11,
             total_amount=109,
         )
-        fixtures.TaxFactory(tax_type__code=3, receipt=receipt)
+        factories.TaxFactory(tax_type__code=3, receipt=receipt)
 
         errs = models.Receipt.objects.all().validate()
 
@@ -304,14 +303,14 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
     @skip('Currently not working -- needs to get looked at.')
     def test_validation_with_observations(self):
-        receipt = fixtures.ReceiptFactory(
+        receipt = factories.ReceiptFactory(
             document_number=20291144404,
             document_type__code=80,
             point_of_sales=models.PointOfSales.objects.first(),
             receipt_type__code=1,
         )
-        fixtures.VatFactory(vat_type__code=5, receipt=receipt)
-        fixtures.TaxFactory(tax_type__code=3, receipt=receipt)
+        factories.VatFactory(vat_type__code=5, receipt=receipt)
+        factories.TaxFactory(tax_type__code=3, receipt=receipt)
 
         errs = models.Receipt.objects.all().validate()
 

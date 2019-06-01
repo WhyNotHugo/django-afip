@@ -1,4 +1,3 @@
-sudo: false
 language: python
 cache: pip
 
@@ -13,18 +12,17 @@ python:
 env:
   matrix:
     - TOXENV=django111-sqlite
-    - TOXENV=django20-sqlite
     - TOXENV=django21-sqlite
-    - TOXENV=djangodev-sqlite
+    # djangodev-sqlite requires a newer image, see below.
 
     - TOXENV=django111-postgres DATABASE_URL=postgres://postgres@localhost:5432
-    - TOXENV=django20-postgres DATABASE_URL=postgres://postgres@localhost:5432
     - TOXENV=django21-postgres DATABASE_URL=postgres://postgres@localhost:5432
+    - TOXENV=django22-postgres DATABASE_URL=postgres://postgres@localhost:5432
     - TOXENV=djangodev-postgres DATABASE_URL=postgres://postgres@localhost:5432
 
     - TOXENV=django111-mysql DATABASE_URL=mysql://root@localhost:3306
-    - TOXENV=django20-mysql DATABASE_URL=mysql://root@localhost:3306
     - TOXENV=django21-mysql DATABASE_URL=mysql://root@localhost:3306
+    - TOXENV=django22-mysql DATABASE_URL=mysql://root@localhost:3306
     - TOXENV=djangodev-mysql DATABASE_URL=mysql://root@localhost:3306
 
 stages:
@@ -43,34 +41,46 @@ after_script:
 
 jobs:
   include:
-    - python: 3.4
-      env: TOXENV=django111-sqlite
-    - python: 3.4
-      env: TOXENV=django20-sqlite
-    - python: 3.4
-      env: TOXENV=django111-mysql DATABASE_URL=mysql://root@localhost:3306
-    - python: 3.4
-    - env: TOXENV=django20-mysql DATABASE_URL=mysql://root@localhost:3306
-    - python: 3.4
-      env: TOXENV=django111-postgres DATABASE_URL=postgres://postgres@localhost:5432
-    - python: 3.4
-    - env: TOXENV=django20-postgres DATABASE_URL=postgres://postgres@localhost:5432
+    # These two require a newer sqlite, which requires xenial
+    - python: 3.5
+      dist: xenial
+      env: TOXENV=django22-sqlite
+    - python: 3.6
+      dist: xenial
+      env: TOXENV=django22-sqlite
 
+    - python: 3.5
+      dist: xenial
+      env: TOXENV=djangodev-sqlite
     - python: 3.6
+      dist: xenial
+      env: TOXENV=djangodev-sqlite
+    - python: 3.7
+      dist: xenial
+      env: TOXENV=djangodev-sqlite
+
+    - python: 3.7
+      dist: xenial
       env: TOXENV=live
-    - python: 3.6
+    - python: 3.7
+      dist: xenial
       env: TOXENV=flake8
-    - python: 3.6
+    - python: 3.7
+      dist: xenial
       env: TOXENV=docs
 
     - python: 3.7
       dist: xenial
-      sudo: true
-      env: TOXENV=django20-sqlite
+      env: TOXENV=django111-sqlite
     - python: 3.7
       dist: xenial
-      sudo: true
       env: TOXENV=django21-sqlite
+    - python: 3.7
+      dist: xenial
+      env: TOXENV=django22-sqlite
+    - python: 3.7
+      dist: xenial
+      env: TOXENV=djangodev-sqlite
 
     - stage: deploy
       script:
@@ -83,7 +93,3 @@ jobs:
         - python setup.py sdist bdist_wheel
         - gem install dpl
         - dpl --api-key=$RELEASES_TOKEN --provider=releases --file=dist/* --file_glob=true --skip_cleanup=true
-
-matrix:
-  allow_failures:
-    - python: pypy3.3-5.2-alpha1

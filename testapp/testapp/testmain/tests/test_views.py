@@ -3,19 +3,18 @@ from datetime import date
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from django_afip import views
-from testapp.testmain import fixtures
+from django_afip import factories, views
 
 
 class ReceiptPDFTestCase(TestCase):
     def test_html_view(self):
         """Test the HTML generation view."""
-        pdf = fixtures.ReceiptPDFFactory(
+        pdf = factories.ReceiptPDFFactory(
             receipt__concept__code=1,
             receipt__issued_date=date(2017, 5, 15),
             receipt__receipt_type__code=11,
         )
-        fixtures.ReceiptValidationFactory(receipt=pdf.receipt)
+        factories.ReceiptValidationFactory(receipt=pdf.receipt)
 
         client = Client()
         response = client.get('{}?html=true'.format(
@@ -134,9 +133,9 @@ class ReceiptPDFTestCase(TestCase):
 
     def test_logo_in_html(self):
         """Test the HTML generation view."""
-        pdf = fixtures.ReceiptPDFFactory()
-        fixtures.ReceiptValidationFactory(receipt=pdf.receipt)
-        fixtures.TaxPayerExtras(taxpayer=pdf.receipt.point_of_sales.owner)
+        pdf = factories.ReceiptPDFFactory()
+        factories.ReceiptValidationFactory(receipt=pdf.receipt)
+        factories.TaxPayerExtras(taxpayer=pdf.receipt.point_of_sales.owner)
 
         client = Client()
         response = client.get('{}?html=true'.format(
@@ -161,13 +160,13 @@ class ReceiptPDFTestCase(TestCase):
         """
         Test the PDF generation view.
         """
-        taxpayer = fixtures.TaxPayerFactory()
+        taxpayer = factories.TaxPayerFactory()
 
-        fixtures.TaxPayerProfileFactory(taxpayer=taxpayer)
-        pdf = fixtures.ReceiptPDFFactory(
+        factories.TaxPayerProfileFactory(taxpayer=taxpayer)
+        pdf = factories.ReceiptPDFFactory(
             receipt__point_of_sales__owner=taxpayer,
         )
-        fixtures.ReceiptValidationFactory(receipt=pdf.receipt)
+        factories.ReceiptValidationFactory(receipt=pdf.receipt)
 
         client = Client()
         response = client.get(
@@ -183,7 +182,7 @@ class ReceiptPDFTestCase(TestCase):
 
 class ReceiptPDFViewDownloadNameTestCase(TestCase):
     def test_download_name(self):
-        fixtures.ReceiptFactory(pk=9, receipt_number=32)
+        factories.ReceiptFactory(pk=9, receipt_number=32)
 
         view = views.ReceiptPDFView()
         view.kwargs = {'pk': 9}

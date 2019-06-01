@@ -188,6 +188,9 @@ class VatTypeFactory(GenericAfipTypeFactory):
     class Meta:
         model = models.VatType
 
+    code = 5
+    description = '21%'
+
 
 class TaxTypeFactory(GenericAfipTypeFactory):
     class Meta:

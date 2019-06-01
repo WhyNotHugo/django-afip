@@ -1,7 +1,6 @@
 from django.test import tag, TestCase
 
-from django_afip import models
-from testapp.testmain import fixtures
+from django_afip import factories, models
 
 
 @tag('live')
@@ -19,7 +18,7 @@ class LiveAfipTestCase(TestCase):
 
     def setUp(self):
         """Save a TaxPayer and Ticket into the database."""
-        LiveAfipTestCase.taxpayer = fixtures.TaxPayerFactory(pk=1)
+        LiveAfipTestCase.taxpayer = factories.TaxPayerFactory(pk=1)
 
         if not LiveAfipTestCase.ticket:
             ticket = models.AuthTicket.objects.get_any_active('wsfe')

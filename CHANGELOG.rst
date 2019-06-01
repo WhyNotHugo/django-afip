@@ -4,12 +4,16 @@ Changelog
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
-5.0.4
+6.0.0
 -----
 
 * Add support for Python 3.7.
-* Add support for Django 2.1.
+* Add support for Django 2.1 and Django 2.2
+* Dropped support for Django 2.0.
+* Dropped support for Python 3.4.
 * Fix deserialization bug for AFIP metadata models.
+* Include factories for third party usage. These are useful for third party
+  apps to reuse for their own tests.
 
 5.0.3
 -----
