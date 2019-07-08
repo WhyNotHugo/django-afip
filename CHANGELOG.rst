@@ -11,6 +11,8 @@ releases, in reverse chronological order.
   ``afip`` subdirectory inside ``MEDIA_ROOT``. This does not require any
   changes or updates; existing files will remain in their current location and
   continue to be perfectly usable.
+* Added settings to configure storages for different files we handle. See the
+  documentation for details on these new settings.
 
 6.0.0
 -----

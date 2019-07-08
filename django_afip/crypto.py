@@ -52,7 +52,7 @@ def create_key(file_):
 
 
 def create_csr(key_file, organization_name, common_name, serial_number, file_):
-    """Create a CSR for a key, and save it into ``file``."""
+    """Create a CSR for a key, and save it into ``file_``."""
     key = crypto.load_privatekey(crypto.FILETYPE_PEM, key_file.read())
 
     req = crypto.X509Req()

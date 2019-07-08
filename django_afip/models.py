@@ -9,9 +9,11 @@ from io import BytesIO
 from tempfile import NamedTemporaryFile
 
 import pytz
+from django.conf import settings
 from django.core.files import File
 from django.db import models
 from django.db.models import Count, Sum
+from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 from django_renderpdf.helpers import render_pdf
 from lxml import etree
@@ -87,6 +89,11 @@ def first_currency():
     ct = CurrencyType.objects.filter(code='PES').first()
     if ct:
         return ct.pk
+
+
+def _get_storage_from_settings(setting_name=None):
+    path = getattr(settings, setting_name, settings.DEFAULT_FILE_STORAGE)
+    return import_string(path)
 
 
 class GenericAfipTypeManager(models.Manager):
@@ -259,12 +266,14 @@ class TaxPayer(models.Model):
     key = models.FileField(
         _('key'),
         upload_to='afip/taxpayers/keys/',
+        storage=_get_storage_from_settings('AFIP_KEY_STORAGE'),
         blank=True,
         null=True,
     )
     certificate = models.FileField(
         _('certificate'),
         upload_to='afip/taxpayers/certs/',
+        storage=_get_storage_from_settings('AFIP_CERT_STORAGE'),
         blank=True,
         null=True,
     )
@@ -494,6 +503,7 @@ class TaxPayerExtras(models.Model):
     logo = models.ImageField(
         verbose_name=_('pdf file'),
         upload_to='afip/taxpayers/logos/',
+        storage=_get_storage_from_settings('AFIP_LOGO_STORAGE'),
         blank=True,
         null=True,
         help_text=_('A logo to use when generating printable receipts.'),
@@ -1180,6 +1190,7 @@ class ReceiptPDF(models.Model):
     pdf_file = models.FileField(
         verbose_name=_('pdf file'),
         upload_to='afip/receipts',
+        storage=_get_storage_from_settings('AFIP_PDF_STORAGE'),
         blank=True,
         null=True,
         help_text=_('The actual file which contains the PDF data.'),
