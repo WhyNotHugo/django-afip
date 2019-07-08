@@ -4,6 +4,14 @@ Changelog
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
+6.0.1
+-----
+
+* Store files in tidier directories. All files handled by the app will be in an
+  ``afip`` subdirectory inside ``MEDIA_ROOT``. This does not require any
+  changes or updates; existing files will remain in their current location and
+  continue to be perfectly usable.
+
 6.0.0
 -----
 

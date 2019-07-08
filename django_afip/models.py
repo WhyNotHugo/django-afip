@@ -258,11 +258,13 @@ class TaxPayer(models.Model):
     )
     key = models.FileField(
         _('key'),
+        upload_to='afip/taxpayers/keys/',
         blank=True,
         null=True,
     )
     certificate = models.FileField(
         _('certificate'),
+        upload_to='afip/taxpayers/certs/',
         blank=True,
         null=True,
     )
@@ -1177,7 +1179,7 @@ class ReceiptPDF(models.Model):
     )
     pdf_file = models.FileField(
         verbose_name=_('pdf file'),
-        upload_to='receipts',
+        upload_to='afip/receipts',
         blank=True,
         null=True,
         help_text=_('The actual file which contains the PDF data.'),
