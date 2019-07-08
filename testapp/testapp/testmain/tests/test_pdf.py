@@ -21,7 +21,7 @@ class ReceiptPDFGenerationTestCase(TestCase):
         pdf = factories.ReceiptPDFFactory(receipt__receipt_number=3)
         factories.ReceiptValidationFactory(receipt=pdf.receipt)
         pdf.save_pdf()
-        self.assertTrue(pdf.pdf_file.name.startswith('receipts/'))
+        self.assertTrue(pdf.pdf_file.name.startswith('afip/receipts/'))
         self.assertTrue(pdf.pdf_file.name.endswith('.pdf'))
 
     def test_unauthorized_receipt_generation(self):
