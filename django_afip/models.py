@@ -92,7 +92,9 @@ def first_currency():
 
 
 def _get_storage_from_settings(setting_name=None):
-    path = getattr(settings, setting_name, settings.DEFAULT_FILE_STORAGE)
+    path = getattr(settings, setting_name, None)
+    if not path:
+        return import_string(settings.DEFAULT_FILE_STORAGE)()
     return import_string(path)
 
 
