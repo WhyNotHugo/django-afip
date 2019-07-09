@@ -8,6 +8,8 @@ releases, in reverse chronological order.
 -----
 * Fix crash when retrieving points of sales and their ``issuance_type`` has
   changed.
+* Sort receipt pdfs into buckets, to avoid clogging up a single
+  directory.
 
 6.0.1
 -----

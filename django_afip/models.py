@@ -7,6 +7,7 @@ from base64 import b64encode
 from datetime import datetime, timedelta, timezone
 from io import BytesIO
 from tempfile import NamedTemporaryFile
+from uuid import uuid4
 
 import pytz
 from django.conf import settings
@@ -1184,6 +1185,22 @@ class ReceiptPDF(models.Model):
 
     PDF generation is skipped if the receipt has not been validated.
     """
+
+    def upload_to(self, filename="untitled", instance=None):
+        """
+        Returns the full path for generated receipts.
+
+        These are bucketed inside nested directories, to avoid hundreds of
+        thousands of children in single directories (which can make reading
+        them excessively slow).
+        """
+        _, extension = os.path.splitext(os.path.basename(filename))
+        uuid = uuid4().hex
+        buckets = uuid[0:2], uuid[2:4]
+        filename = ''.join([uuid4().hex, extension])
+
+        return os.path.join('afip/receipts', buckets[0], buckets[1], filename)
+
     receipt = models.OneToOneField(
         Receipt,
         verbose_name=_('receipt'),
@@ -1191,7 +1208,7 @@ class ReceiptPDF(models.Model):
     )
     pdf_file = models.FileField(
         verbose_name=_('pdf file'),
-        upload_to='afip/receipts',
+        upload_to=upload_to,
         storage=_get_storage_from_settings('AFIP_PDF_STORAGE'),
         blank=True,
         null=True,

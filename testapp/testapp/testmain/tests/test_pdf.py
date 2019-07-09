@@ -1,4 +1,5 @@
 import os
+import re
 
 from barcode.writer import SVGWriter
 from django.test import TestCase
@@ -21,7 +22,8 @@ class ReceiptPDFGenerationTestCase(TestCase):
         pdf = factories.ReceiptPDFFactory(receipt__receipt_number=3)
         factories.ReceiptValidationFactory(receipt=pdf.receipt)
         pdf.save_pdf()
-        self.assertTrue(pdf.pdf_file.name.startswith('afip/receipts/'))
+        regex = r'afip/receipts/[a-f0-9]{2}/[a-f0-9]{2}/[a-f0-9]{32}.pdf'
+        self.assertTrue(re.match(regex, pdf.pdf_file.name))
         self.assertTrue(pdf.pdf_file.name.endswith('.pdf'))
 
     def test_unauthorized_receipt_generation(self):
