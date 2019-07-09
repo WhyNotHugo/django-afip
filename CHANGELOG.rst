@@ -4,6 +4,11 @@ Changelog
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
+6.0.2
+-----
+* Fix crash when retrieving points of sales and their ``issuance_type`` has
+  changed.
+
 6.0.1
 -----
 

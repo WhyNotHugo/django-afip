@@ -416,9 +416,9 @@ class TaxPayer(models.Model):
         for pos_data in response.ResultGet.PtoVenta:
             results.append(PointOfSales.objects.update_or_create(
                 number=pos_data.Nro,
-                issuance_type=pos_data.EmisionTipo,
                 owner=self,
                 defaults={
+                    'issuance_type': pos_data.EmisionTipo,
                     'blocked': pos_data.Bloqueado == 'N',
                     'drop_date': parsers.parse_date(pos_data.FchBaja),
                 }
