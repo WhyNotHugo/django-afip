@@ -4,7 +4,7 @@ Changelog
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
-6.0.2
+7.0.0
 -----
 * Fix crash when retrieving points of sales and their ``issuance_type`` has
   changed.
@@ -12,6 +12,7 @@ releases, in reverse chronological order.
   directory.
 * Fix crash when generating PDFs and the logo is stored in a non-filesystem
   storage.
+* Dropped support for Django < 2.0
 
 6.0.1
 -----
