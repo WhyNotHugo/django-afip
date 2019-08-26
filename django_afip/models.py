@@ -1186,7 +1186,7 @@ class ReceiptPDF(models.Model):
     PDF generation is skipped if the receipt has not been validated.
     """
 
-    def upload_to(self, filename="untitled", instance=None):
+    def upload_to(self, filename='untitled', instance=None):
         """
         Returns the full path for generated receipts.
 
