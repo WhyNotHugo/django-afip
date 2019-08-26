@@ -10,6 +10,8 @@ releases, in reverse chronological order.
   changed.
 * Sort receipt pdfs into buckets, to avoid clogging up a single
   directory.
+* Fix crash when generating PDFs and the logo is stored in a non-filesystem
+  storage.
 
 6.0.1
 -----

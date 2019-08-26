@@ -516,7 +516,7 @@ class TaxPayerExtras(models.Model):
     def logo_as_data_uri(self):
         """This TaxPayer's logo as a data uri."""
         _, ext = os.path.splitext(self.logo.file.name)
-        with open(self.logo.file.name, 'rb') as f:
+        with self.logo.open() as f:
             data = base64.b64encode(f.read())
 
         return 'data:image/{};base64,{}'.format(
