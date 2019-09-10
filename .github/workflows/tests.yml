@@ -24,7 +24,7 @@ jobs:
       - name: Run tests
         run: tox
         env:
-          TOXENV: django${ matrix.django }}-${{ matrix.db }}
+          TOXENV: django${{ matrix.django }}-${{ matrix.db }}
           DB: ${{ matrix.db }}
       - name: Report coverage
         run: codecov
