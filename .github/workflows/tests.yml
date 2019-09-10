@@ -10,7 +10,7 @@ jobs:
         python: [ '3.5', '3.6', '3.7' ]
         db: [ postgres, mysql, sqlite ]
         django: [ '21', '22', 'dev' ]
-    name: Python ${{ matrix.python }}
+    name: Django ${{ matrix.django }} on python ${{ matrix.python }} with ${{ db }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@master
