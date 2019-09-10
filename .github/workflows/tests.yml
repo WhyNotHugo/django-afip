@@ -1,0 +1,36 @@
+name: Tests
+
+on: [push]
+
+jobs:
+  tests:
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        python: [ '3.5', '3.6', '3.7' ]
+        db: [ postgres, mysql, sqlite ]
+        django: [ 21, 22, dev ]
+    name: Python ${{ matrix.python }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@master
+      - name: Setup python
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python }}
+          architecture: x64
+      - name: Install test dependencies
+        run: pip install tox codecov
+      - name: Run tests
+        run: tox
+        env:
+          TOXENV: django${ matrix.django }}-${{ matrix.db }}
+          DB: ${{ matrix.db }}
+      - name: Report coverage
+        run: codecov
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+
+# TODO: live, flake8, docs
+# TODO: deploys
