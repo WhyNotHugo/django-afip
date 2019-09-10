@@ -30,7 +30,3 @@ jobs:
         run: codecov
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-
-# TODO: live, flake8, docs
-# TODO: deploys
