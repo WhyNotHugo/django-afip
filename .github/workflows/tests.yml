@@ -20,7 +20,9 @@ jobs:
           python-version: ${{ matrix.python }}
           architecture: x64
       - name: Install test dependencies
-        run: pip install tox codecov
+        run: |
+          pip install tox codecov
+          apt install libpq-dev
       - name: Run tests
         run: tox
         env:
