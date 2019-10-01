@@ -22,7 +22,7 @@ jobs:
       - name: Install test dependencies
         run: |
           pip install tox codecov
-          apt install libpq-dev
+          sudo apt install libpq-dev
       - name: Run tests
         run: tox
         env:
