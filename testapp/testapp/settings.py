@@ -70,7 +70,7 @@ database_urls = {
 }
 database_type = os.environ.get('DB', 'sqlite')
 
-DATABASES = {'default': dj_database_url.config(database_urls[database_type])}
+DATABASES = {'default': dj_database_url.parse(database_urls[database_type])}
 
 
 # Internationalization
