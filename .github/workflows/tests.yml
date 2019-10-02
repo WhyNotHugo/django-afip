@@ -32,7 +32,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   tests-live:
     runs-on: ubuntu-18.04
-    name: Live tests
+    name: live
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-python@v1
