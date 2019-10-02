@@ -13,9 +13,11 @@ jobs:
         include:
           - python: '3.8'
             django: 'dev'
+            db: [ postgres, mysql, sqlite ]
         exclude:
           - python: '3.5'
             django: 'dev'
+            db: [ postgres, mysql, sqlite ]
     name: django-${{ matrix.django }}, python${{ matrix.python }}, ${{ matrix.db }}
     steps:
       - uses: actions/checkout@master
