@@ -53,7 +53,7 @@ jobs:
       - name: Run tests
         run: tox
         env:
-          TOXENV: django22-postgres
+          TOXENV: live
           DB: postgres
       - name: Report coverage
         run: codecov
