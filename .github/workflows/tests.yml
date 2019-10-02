@@ -15,10 +15,8 @@ jobs:
         django: [ '21', ]
     name: django-${{ matrix.django }}, python${{ matrix.python }}, ${{ matrix.db }}
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@master
-      - name: Setup python
-        uses: actions/setup-python@v1
+      - uses: actions/checkout@master
+      - uses: actions/setup-python@v1
         with:
           python-version: ${{ matrix.python }}
           architecture: x64
@@ -39,10 +37,8 @@ jobs:
     runs-on: ubuntu-18.04
     name: Live tests
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@master
-      - name: Setup python
-        uses: actions/setup-python@v1
+      - uses: actions/checkout@master
+      - uses: actions/setup-python@v1
         with:
           python-version: "3.7"
           architecture: x64
