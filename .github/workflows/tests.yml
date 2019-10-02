@@ -35,3 +35,27 @@ jobs:
         run: codecov
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  tests-live:
+    runs-on: ubuntu-18.04
+    name: Live tests
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@master
+      - name: Setup python
+        uses: actions/setup-python@v1
+        with:
+          python-version: "3.7"
+          architecture: x64
+      - name: Install test dependencies
+        run: |
+          pip install tox codecov
+          sudo apt install libpq-dev libmysqlclient-dev
+      - name: Run tests
+        run: tox
+        env:
+          TOXENV: django22-postgres
+          DB: postgres
+      - name: Report coverage
+        run: codecov
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
