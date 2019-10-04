@@ -21,9 +21,15 @@ django-afip
   :target: https://github.com/WhyNotHugo/django-afip/blob/master/LICENCE
   :alt: licence
 
-**django-afip** is a django application for interacting with AFIP's
-web-services (and models all related data). For the moment only WSFE and WSAA
-are implemented.
+What's this?
+------------
+
+AFIP is Argentina's tax collection agency. For emitting invoices, taxpayers are
+required to inform AFIP of each invoice by using a dedicated SOAP-like web
+service for that.
+
+**django-afip** is a Django application implementing the necessary bits for
+Django-based applications to both store and comunícate invoicing information.
 
 Features
 --------
