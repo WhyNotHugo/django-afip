@@ -504,7 +504,7 @@ class TaxPayerExtras(models.Model):
         on_delete=models.CASCADE,
     )
     logo = models.ImageField(
-        verbose_name=_('pdf file'),
+        verbose_name=_('logo'),
         upload_to='afip/taxpayers/logos/',
         storage=_get_storage_from_settings('AFIP_LOGO_STORAGE'),
         blank=True,
