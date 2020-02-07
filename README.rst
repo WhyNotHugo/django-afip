@@ -1,3 +1,5 @@
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FWhyNotHugo%2Fdjango-afip.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FWhyNotHugo%2Fdjango-afip?ref=badge_shield)
+
 django-afip
 ===========
 
@@ -50,3 +52,6 @@ Licence
 This software is distributed under the ISC licence. See LICENCE for details.
 
 Copyright (c) 2015-2018 Hugo Osvaldo Barrera <hugo@barrera.io>
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FWhyNotHugo%2Fdjango-afip.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FWhyNotHugo%2Fdjango-afip?ref=badge_large)
