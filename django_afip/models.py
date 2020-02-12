@@ -504,7 +504,7 @@ class TaxPayerExtras(models.Model):
         on_delete=models.CASCADE,
     )
     logo = models.ImageField(
-        verbose_name=_('pdf file'),
+        verbose_name=_('logo'),
         upload_to='afip/taxpayers/logos/',
         storage=_get_storage_from_settings('AFIP_LOGO_STORAGE'),
         blank=True,
@@ -546,7 +546,7 @@ class PointOfSales(models.Model):
     issuance_type = models.CharField(
         _('issuance type'),
         max_length=24,
-        help_text='Indicates if thie POS emits using CAE and CAEA.'
+        help_text='Indicates if this POS emits using CAE and CAEA.',
     )
     blocked = models.BooleanField(
         _('blocked'),
@@ -1179,9 +1179,9 @@ class ReceiptPDF(models.Model):
     moved).
 
     The PDF file itself is saved into the ``pdf_file`` attribute, and is
-    generated prior to saving the model for the first time (by a pre_save
-    hook). If any attributes are changed, you should manually call
-    :meth:`~.ReceiptPDF.save_pdf` to regenerate the PDF file.
+    generated when saving the model for the first time. If any attributes are
+    changed, you should manually call :meth:`~.ReceiptPDF.save_pdf` to
+    regenerate the PDF file.
 
     PDF generation is skipped if the receipt has not been validated.
     """
@@ -1264,6 +1264,7 @@ class ReceiptPDF(models.Model):
         Save the receipt as a PDF related to this model.
 
         The related :class:`~.Receipt` should be validated first, of course.
+        This model instance must have been saved prior to calling this method.
 
         :param bool save_model: If True, immediately save this model instance.
         """
