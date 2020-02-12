@@ -1,8 +1,10 @@
 import os
 import re
+from io import BytesIO
 
 from barcode.writer import SVGWriter
 from django.test import TestCase
+from lxml import etree
 
 from django_afip import factories, models
 from django_afip.pdf import ReceiptBarcodeGenerator
@@ -75,6 +77,17 @@ class BarcodeGeneratorVerificationDigitTestCase(TestCase):
         )
 
 
+def make_xml_canonical(xml_lines):
+    """Returns an XML with attributes in cannonical order."""
+    parser = etree.XMLParser(remove_blank_text=True)
+
+    xml = etree.fromstring(b''.join(xml_lines), parser)
+
+    xml_bytes = BytesIO()
+    xml.getroottree().write_c14n(xml_bytes)
+    return xml_bytes.getvalue()
+
+
 class BarcodeGeneratorTestCase(TestCase):
     def test_generate_barcode(self):
         """
@@ -100,7 +113,10 @@ class BarcodeGeneratorTestCase(TestCase):
         path = os.path.join(directory, 'barcode.svg')
 
         with open(path, 'rb') as f:
-            self.assertEqual(lines, f.read().splitlines())
+            self.assertEqual(
+                make_xml_canonical(lines),
+                make_xml_canonical(f.read().splitlines()),
+            )
 
 
 class GenerateReceiptPDFSignalTestCase(TestCase):
