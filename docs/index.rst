@@ -14,7 +14,24 @@ Features
 
 * Validate invoices and other receipt types with AFIP's WSFE service.
 * Generate valid PDF files for those receipts to send to clients.
-* Supports Django 1.11, 2.0 and 2.1.
+
+Requirements
+------------
+
+It's been quite some pain dealing with older django and python versions.
+Supporting older versions doesn't allow us to use new features, and makes
+testing a lot more complex (including CI).
+
+We've therefore decided to trim the officially supported versions to:
+
+* The latest Django release, and the last LTS release.
+* The three latest Python releases (eg: 3.6, 3.7 and 3.8).
+
+Older versions of both may work, however, in case of any issues, only these
+version are supported.
+
+Note that older django-afip versions will continue to work fine on older
+django+python versions.
 
 Caveats
 -------
