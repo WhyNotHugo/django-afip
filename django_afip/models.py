@@ -546,7 +546,7 @@ class PointOfSales(models.Model):
     issuance_type = models.CharField(
         _('issuance type'),
         max_length=24,
-        help_text='Indicates if thie POS emits using CAE and CAEA.',
+        help_text='Indicates if this POS emits using CAE and CAEA.',
     )
     blocked = models.BooleanField(
         _('blocked'),
