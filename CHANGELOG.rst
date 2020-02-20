@@ -4,6 +4,14 @@ Changelog
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
+7.1.0
+-----
+* Dropped support for Python < 3.6.
+* Dropped support for Django < 2.2.
+* Add support for Django 3.0.
+* Properly include factoryboy factories so that apps can reuse them.
+* Fix some issues with migrations when using external storages.
+
 7.0.0
 -----
 * Fix crash when retrieving points of sales and their ``issuance_type`` has
