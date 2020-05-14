@@ -435,7 +435,7 @@ class TaxPayer(models.Model):
         )
 
     def __str__(self):
-        return str(self.cuit)
+        return str(self.name)
 
     class Meta:
         verbose_name = _('taxpayer')
