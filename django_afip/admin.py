@@ -3,9 +3,7 @@ import logging
 from datetime import datetime
 
 import django
-from django.apps import apps
 from django.contrib import admin, messages
-from django.contrib.admin.sites import AlreadyRegistered
 from django.db.models import F
 from django.http import HttpResponse
 from django.urls import reverse
@@ -493,9 +491,17 @@ class ReceiptValidationAdmin(admin.ModelAdmin):
     successful.boolean = True
 
 
-app = apps.get_app_config('afip')
-for model in app.get_models():
-    try:
-        admin.site.register(model)
-    except AlreadyRegistered:
-        pass
+@admin.register(models.TaxPayerProfile)
+class TaxPayerProfileAdmin(admin.ModelAdmin):
+    list_display = (
+        'taxpayer',
+        'issuing_name',
+        'issuing_email',
+    )
+
+
+admin.site.register(models.ConceptType)
+admin.site.register(models.DocumentType)
+admin.site.register(models.VatType)
+admin.site.register(models.TaxType)
+admin.site.register(models.Observation)
