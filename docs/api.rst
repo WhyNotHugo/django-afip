@@ -32,8 +32,6 @@ unless you intend to generate PDFs for receipts.
     :members:
 .. autoclass:: django_afip.models.TaxPayerProfile
     :members:
-.. autoclass:: django_afip.models.TaxPayerExtras
-    :members:
 
 Metadata models
 ---------------

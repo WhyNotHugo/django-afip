@@ -32,9 +32,14 @@ releases, in reverse chronological order.
             # You can customise the filename here.
             # This is the default behaviour:
             return f"{self.receipt.formatted_number}.pdf"
+
 * QR Codes have been implemented and replace barcodes in receipts. If you use
   custom receipt templates, you'll need to update them. The provided template
   should serve as a reference.
+* The fields from the ``TaxPayerExtras`` have moved into the ``TaxPayer``
+  model. A migration will handle copying data from table to the other for you.
+  If you have any references to this model (e.g.: forms for your users, custom
+  admins, etc), make sure you update these to point to the ``TaxPayer`` model.
 
 7.1.2
 -----

@@ -16,6 +16,7 @@ class ReceiptPDFTestCase(TestCase):
             receipt__concept__code=1,
             receipt__issued_date=date(2017, 5, 15),
             receipt__receipt_type__code=11,
+            receipt__point_of_sales__owner__logo=None,
         )
         factories.ReceiptValidationFactory(receipt=pdf.receipt)
 
@@ -140,7 +141,6 @@ class ReceiptPDFTestCase(TestCase):
         """Test the HTML generation view."""
         pdf = factories.ReceiptPDFFactory()
         factories.ReceiptValidationFactory(receipt=pdf.receipt)
-        factories.TaxPayerExtras(taxpayer=pdf.receipt.point_of_sales.owner)
 
         client = Client()
         response = client.get(

@@ -46,7 +46,7 @@ work just fine. See the django documentation for more details on storages.
     AFIP_KEY_STORAGE  # Keys for authenticating with AFIP (TaxPayer.key)
     AFIP_CERT_STORAGE  # Certs for auth'ing with AFIP (TaxPayer.certificate)
     AFIP_PDF_STORAGE  # PDFs generated for receipts (ReceiptPDF.pdf_file)
-    AFIP_LOGO_STORAGE  # Logos used in invoices (TaxPayerExtras.logo)
+    AFIP_LOGO_STORAGE  # Logos used in invoices (TaxPayer.logo)
 
 
 Versioning

@@ -14,8 +14,8 @@
       <header>
         <div class="taxpayer-details group">
           <address>
-            {% if extras and extras.logo %}
-              <img src="{{ extras.logo_as_data_uri }}" alt="Logo"><br>
+            {% if taxpayer.logo %}
+              <img src="{{ taxpayer.logo_as_data_uri }}" alt="Logo"><br>
             {% endif %}
             <strong>{{ pdf.issuing_name }}</strong><br>
             {{ pdf.issuing_address|linebreaksbr }}<br>
