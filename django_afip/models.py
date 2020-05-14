@@ -1491,6 +1491,11 @@ class ReceiptValidation(models.Model):
         on_delete=models.PROTECT,
     )
 
+    def __str__(self):
+        return _("Validation for %s. Result: %s") % (
+            self.receipt, self.get_result_display()
+        )
+
     def __repr__(self):
         return '<{} {}: {} for Receipt {}>'.format(
             self.__class__.__name__,

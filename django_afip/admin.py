@@ -92,6 +92,18 @@ class ReceiptEntryInline(admin.TabularInline):
     extra = 1
 
 
+class ReceiptValidationInline(admin.StackedInline):
+    model = models.ReceiptValidation
+    readonly_fields = (
+        'result',
+        'processed_date',
+        'cae',
+        'cae_expiration',
+        'observations',
+    )
+    extra = 0
+
+
 class ReceiptStatusFilter(admin.SimpleListFilter):
     title = _('status')
     parameter_name = 'status'
@@ -177,6 +189,7 @@ class ReceiptAdmin(admin.ModelAdmin):
         VatInline,
         TaxInline,
         ReceiptEntryInline,
+        ReceiptValidationInline,
     )
     ordering = (
         '-issued_date',
