@@ -49,4 +49,4 @@ Licence
 
 This software is distributed under the ISC licence. See LICENCE for details.
 
-Copyright (c) 2015-2018 Hugo Osvaldo Barrera <hugo@barrera.io>
+Copyright (c) 2015-2020 Hugo Osvaldo Barrera <hugo@barrera.io>
