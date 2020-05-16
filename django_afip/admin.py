@@ -3,9 +3,7 @@ import logging
 from datetime import datetime
 
 import django
-from django.apps import apps
 from django.contrib import admin, messages
-from django.contrib.admin.sites import AlreadyRegistered
 from django.db.models import F
 from django.http import HttpResponse
 from django.urls import reverse
@@ -90,6 +88,18 @@ class ReceiptEntryInline(admin.TabularInline):
         'vat',
     )
     extra = 1
+
+
+class ReceiptValidationInline(admin.StackedInline):
+    model = models.ReceiptValidation
+    readonly_fields = (
+        'result',
+        'processed_date',
+        'cae',
+        'cae_expiration',
+        'observations',
+    )
+    extra = 0
 
 
 class ReceiptStatusFilter(admin.SimpleListFilter):
@@ -177,6 +187,7 @@ class ReceiptAdmin(admin.ModelAdmin):
         VatInline,
         TaxInline,
         ReceiptEntryInline,
+        ReceiptValidationInline,
     )
     ordering = (
         '-issued_date',
@@ -388,16 +399,55 @@ class ReceiptTypeAdmin(admin.ModelAdmin):
     )
 
 
+class ReceiptHasFileFilter(admin.SimpleListFilter):
+    title = _('has file')
+    parameter_name = 'has_file'
+
+    YES = 'yes'
+    NO = 'no'
+
+    def lookups(self, request, model_admin):
+        return (
+            (self.YES, _('Yes')),
+            (self.NO, _('No')),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == self.YES:
+            return queryset.exclude(pdf_file='')
+        if self.value() == self.NO:
+            return queryset.filter(pdf_file='')
+        return queryset
+
+
 @admin.register(models.ReceiptPDF)
 class ReceiptPDFAdmin(admin.ModelAdmin):
     list_display = (
         'receipt_id',
+        'taxpayer',
+        'receipt',
         'client_name',
         'has_file',
+    )
+    list_filter = (
+        ReceiptHasFileFilter,
+        'receipt__point_of_sales__owner',
+        'receipt__receipt_type',
     )
     raw_id_fields = (
         'receipt',
     )
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related(
+            "receipt",
+            "receipt__point_of_sales__owner",
+            "receipt__receipt_type",
+        )
+
+    def taxpayer(self, obj):
+        return obj.receipt.point_of_sales.owner
+    taxpayer.short_description = models.TaxPayer._meta.verbose_name
 
     def has_file(self, obj):
         return bool(obj.pdf_file)
@@ -441,9 +491,17 @@ class ReceiptValidationAdmin(admin.ModelAdmin):
     successful.boolean = True
 
 
-app = apps.get_app_config('afip')
-for model in app.get_models():
-    try:
-        admin.site.register(model)
-    except AlreadyRegistered:
-        pass
+@admin.register(models.TaxPayerProfile)
+class TaxPayerProfileAdmin(admin.ModelAdmin):
+    list_display = (
+        'taxpayer',
+        'issuing_name',
+        'issuing_email',
+    )
+
+
+admin.site.register(models.ConceptType)
+admin.site.register(models.DocumentType)
+admin.site.register(models.VatType)
+admin.site.register(models.TaxType)
+admin.site.register(models.Observation)

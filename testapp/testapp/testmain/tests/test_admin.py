@@ -254,3 +254,59 @@ class ReceiptAdminGetExcludeTestCase(TestCase):
 
         with mock.patch('django.VERSION', (2, 0, 0)):
             self.assertIn('related_receipts', admin.get_fields(request))
+
+
+class ReceiptHasFileFilterTestCase(TestCase):
+    """Check that the has_file filter applies properly
+
+    In order to confirm that it's working, we check that the link to the
+    object's change page is present, since no matter how we reformat the rows,
+    this will always be present as long as the object is listed.
+    """
+    def setUp(self):
+        self.user = factories.SuperUserFactory()
+
+        validation = factories.ReceiptValidationFactory()
+        self.with_file = factories.ReceiptPDFFactory(
+            receipt=validation.receipt,
+        )
+        self.without_file = factories.ReceiptPDFFactory()
+
+        self.assertFalse(self.without_file.pdf_file)
+        self.assertTrue(self.with_file.pdf_file)
+
+        self.client = Client()
+        self.client.force_login(User.objects.first())
+
+    def test_filter_all(self):
+        response = self.client.get('/admin/afip/receiptpdf/')
+        self.assertContains(
+            response,
+            f'/admin/afip/receiptpdf/{self.with_file.pk}/change/'
+        )
+        self.assertContains(
+            response,
+            f'/admin/afip/receiptpdf/{self.without_file.pk}/change/'
+        )
+
+    def test_filter_with_file(self):
+        response = self.client.get('/admin/afip/receiptpdf/?has_file=yes')
+        self.assertContains(
+            response,
+            f'/admin/afip/receiptpdf/{self.with_file.pk}/change/'
+        )
+        self.assertNotContains(
+            response,
+            f'/admin/afip/receiptpdf/{self.without_file.pk}/change/'
+        )
+
+    def test_filter_without_file(self):
+        response = self.client.get('/admin/afip/receiptpdf/?has_file=no')
+        self.assertNotContains(
+            response,
+            f'/admin/afip/receiptpdf/{self.with_file.pk}/change/'
+        )
+        self.assertContains(
+            response,
+            f'/admin/afip/receiptpdf/{self.without_file.pk}/change/'
+        )

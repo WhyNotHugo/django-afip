@@ -435,7 +435,7 @@ class TaxPayer(models.Model):
         )
 
     def __str__(self):
-        return str(self.cuit)
+        return str(self.name)
 
     class Meta:
         verbose_name = _('taxpayer')
@@ -1490,6 +1490,11 @@ class ReceiptValidation(models.Model):
         help_text=_('The Receipt for which this validation applies'),
         on_delete=models.PROTECT,
     )
+
+    def __str__(self):
+        return _("Validation for %s. Result: %s") % (
+            self.receipt, self.get_result_display()
+        )
 
     def __repr__(self):
         return '<{} {}: {} for Receipt {}>'.format(
