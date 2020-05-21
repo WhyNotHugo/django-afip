@@ -40,9 +40,15 @@ Features
 Documentation
 -------------
 
-For detailed configuration, have a look at the latest docs at readthedocs_.
+The full documentation is available at https://django-afip.readthedocs.io/
 
-.. _readthedocs: https://django-afip.readthedocs.io/
+Donate
+------
+
+While some of the work done here is done for clients, much of it is done in my
+free time. If you appreciate the work done here, please consider donating_
+
+.. _donating: https://github.com/sponsors/WhyNotHugo
 
 Licence
 -------
