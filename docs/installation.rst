@@ -8,7 +8,7 @@ Dependencies should be handled by pip fine [#]_:
 
     pip install django-afip
 
-You'll then need to configure your project to use this app by adding it to your 
+You'll then need to configure your project to use this app by adding it to your
 ``settings.py``:
 
 .. code-block:: python

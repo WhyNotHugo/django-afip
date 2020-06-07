@@ -86,7 +86,7 @@ class TestTaxPayerAdminKeyGeneration(TestCase):
 
         response = client.post(
             "/admin/afip/taxpayer/",
-            data={"_selected_action": [taxpayer.id], "action": "generate_key",},
+            data={"_selected_action": [taxpayer.id], "action": "generate_key"},
             follow=True,
         )
 
@@ -105,7 +105,7 @@ class TestTaxPayerAdminKeyGeneration(TestCase):
 
         response = client.post(
             "/admin/afip/taxpayer/",
-            data={"_selected_action": [taxpayer.id], "action": "generate_key",},
+            data={"_selected_action": [taxpayer.id], "action": "generate_key"},
             follow=True,
         )
 
@@ -130,7 +130,7 @@ class TestTaxPayerAdminRequestGeneration(TestCase):
 
         response = client.post(
             "/admin/afip/taxpayer/",
-            data={"_selected_action": [taxpayer.id], "action": "generate_csr",},
+            data={"_selected_action": [taxpayer.id], "action": "generate_csr"},
             follow=True,
         )
 
@@ -151,7 +151,7 @@ class TestTaxPayerAdminRequestGeneration(TestCase):
 
         response = client.post(
             "/admin/afip/taxpayer/",
-            data={"_selected_action": [taxpayer.id], "action": "generate_csr",},
+            data={"_selected_action": [taxpayer.id], "action": "generate_csr"},
             follow=True,
         )
 

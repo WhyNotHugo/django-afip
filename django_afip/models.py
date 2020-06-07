@@ -858,14 +858,14 @@ class Receipt(models.Model):
         verbose_name=_("document type"),
         related_name="receipts",
         help_text=_(
-            "The document type of the customer to whom this receipt " "is addressed"
+            "The document type of the customer to whom this receipt is addressed"
         ),
         on_delete=models.PROTECT,
     )
     document_number = models.BigIntegerField(
         _("document number"),
         help_text=_(
-            "The document number of the customer to whom this receipt " "is addressed"
+            "The document number of the customer to whom this receipt is addressed"
         ),
     )
     # NOTE: WS will expect receipt_from and receipt_to.
