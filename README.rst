@@ -21,6 +21,10 @@ django-afip
   :target: https://github.com/WhyNotHugo/django-afip/blob/master/LICENCE
   :alt: licence
 
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+  :target: https://github.com/WhyNotHugo/django-afip/
+  :alt: code style: black
+
 What's this?
 ------------
 
