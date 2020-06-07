@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # django-afip documentation build configuration file, created by
 # sphinx-quickstart on Sun Jun 19 18:31:04 2016.

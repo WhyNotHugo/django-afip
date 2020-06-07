@@ -22,7 +22,7 @@ class TestTaxPayerKeyManagement(TestCase):
         self.assertIsInstance(loaded_key, crypto.PKey)
 
     def test_dont_overwrite_keys(self):
-        text = "Hello! I'm not really a key :D".encode()
+        text = b"Hello! I'm not really a key :D"
         taxpayer = factories.TaxPayerFactory(key=FileField(data=text))
 
         taxpayer.generate_key()
@@ -31,7 +31,7 @@ class TestTaxPayerKeyManagement(TestCase):
         self.assertEqual(text, key)
 
     def test_overwrite_keys_force(self):
-        text = "Hello! I'm not really a key :D".encode()
+        text = b"Hello! I'm not really a key :D"
         taxpayer = factories.TaxPayerFactory(key__data=text)
 
         taxpayer.generate_key(force=True)
