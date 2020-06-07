@@ -25,12 +25,12 @@ class ReceiptBarcodeGenerator:
 
         :return: list(int)
         """
-        numstring = '{:011d}{:02d}{:04d}{}{}'.format(
+        numstring = "{:011d}{:02d}{:04d}{}{}".format(
             self._receipt.point_of_sales.owner.cuit,  # 11 digits
             int(self._receipt.receipt_type.code),  # 2 digits
             self._receipt.point_of_sales.number,  # point of sales
             self._receipt.validation.cae,  # 14 digits
-            self._receipt.validation.cae_expiration.strftime('%Y%m%d'),  # 8
+            self._receipt.validation.cae_expiration.strftime("%Y%m%d"),  # 8
         )
         return [int(num) for num in numstring]
 
@@ -70,8 +70,8 @@ class ReceiptBarcodeGenerator:
 
         :return: str
         """
-        return '{}{}'.format(
-            ''.join(str(n) for n in self.numbers),
+        return "{}{}".format(
+            "".join(str(n) for n in self.numbers),
             ReceiptBarcodeGenerator.verification_digit(self.numbers),
         )
 

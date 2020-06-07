@@ -24,31 +24,31 @@ from zeep.exceptions import Fault
 from . import clients, crypto, exceptions, parsers, serializers
 
 logger = logging.getLogger(__name__)
-TZ_AR = pytz.timezone(pytz.country_timezones['ar'][0])
+TZ_AR = pytz.timezone(pytz.country_timezones["ar"][0])
 
 
 # http://www.afip.gov.ar/afip/resol1415_anexo2.html
 VAT_CONDITIONS = (
-    'IVA Responsable Inscripto',
-    'IVA Responsable No Inscripto',
-    'IVA Exento',
-    'No Responsable IVA',
-    'Responsable Monotributo',
+    "IVA Responsable Inscripto",
+    "IVA Responsable No Inscripto",
+    "IVA Exento",
+    "No Responsable IVA",
+    "Responsable Monotributo",
 )
 # NOTE: If you find a VAT condition not listed here, please open an issue, and
 # a reference to where it's defined.
 CLIENT_VAT_CONDITIONS = (
-    'IVA Responsable Inscripto',
-    'IVA Responsable No Inscripto',
-    'IVA Sujeto Exento',
-    'Consumidor Final',
-    'Responsable Monotributo',
-    'Proveedor del Exterior',
-    'Cliente del Exterior',
-    'IVA Liberado - Ley Nº 19.640',
-    'IVA Responsable Inscripto - Agente de Percepción',
-    'Monotributista Social',
-    'IVA no alcanzado',
+    "IVA Responsable Inscripto",
+    "IVA Responsable No Inscripto",
+    "IVA Sujeto Exento",
+    "Consumidor Final",
+    "Responsable Monotributo",
+    "Proveedor del Exterior",
+    "Cliente del Exterior",
+    "IVA Liberado - Ley Nº 19.640",
+    "IVA Responsable Inscripto - Agente de Percepción",
+    "Monotributista Social",
+    "IVA no alcanzado",
 )
 
 
@@ -87,7 +87,7 @@ def first_currency():
     an instance), else migrations break. This helper method exists solely for
     that purpose.
     """
-    ct = CurrencyType.objects.filter(code='PES').first()
+    ct = CurrencyType.objects.filter(code="PES").first()
     if ct:
         return ct.pk
 
@@ -119,8 +119,8 @@ class GenericAfipTypeManager(models.Manager):
 
         If no ticket is provided, the most recent available one will be used.
         """
-        ticket = ticket or AuthTicket.objects.get_any_active('wsfe')
-        client = clients.get_client('wsfe', ticket.owner.is_sandboxed)
+        ticket = ticket or AuthTicket.objects.get_any_active("wsfe")
+        client = clients.get_client("wsfe", ticket.owner.is_sandboxed)
         service = getattr(client.service, self.__service_name)
         response_xml = service(serializers.serialize_ticket(ticket))
 
@@ -138,24 +138,10 @@ class GenericAfipTypeManager(models.Manager):
 class GenericAfipType(models.Model):
     """An abstract class for several of AFIP's metadata types."""
 
-    code = models.CharField(
-        _('code'),
-        max_length=3,
-    )
-    description = models.CharField(
-        _('description'),
-        max_length=250,
-    )
-    valid_from = models.DateField(
-        _('valid from'),
-        null=True,
-        blank=True,
-    )
-    valid_to = models.DateField(
-        _('valid until'),
-        null=True,
-        blank=True,
-    )
+    code = models.CharField(_("code"), max_length=3,)
+    description = models.CharField(_("description"), max_length=250,)
+    valid_from = models.DateField(_("valid from"), null=True, blank=True,)
+    valid_to = models.DateField(_("valid until"), null=True, blank=True,)
 
     def __str__(self):
         return self.description
@@ -171,11 +157,11 @@ class ReceiptType(GenericAfipType):
     See the AFIP's documentation for details on each receipt type.
     """
 
-    objects = GenericAfipTypeManager('FEParamGetTiposCbte', 'CbteTipo')
+    objects = GenericAfipTypeManager("FEParamGetTiposCbte", "CbteTipo")
 
     class Meta:
-        verbose_name = _('receipt type')
-        verbose_name_plural = _('receipt types')
+        verbose_name = _("receipt type")
+        verbose_name_plural = _("receipt types")
 
 
 class ConceptType(GenericAfipType):
@@ -185,11 +171,11 @@ class ConceptType(GenericAfipType):
     See the AFIP's documentation for details on each concept type.
     """
 
-    objects = GenericAfipTypeManager('FEParamGetTiposConcepto', 'ConceptoTipo')
+    objects = GenericAfipTypeManager("FEParamGetTiposConcepto", "ConceptoTipo")
 
     class Meta:
-        verbose_name = _('concept type')
-        verbose_name_plural = _('concept types')
+        verbose_name = _("concept type")
+        verbose_name_plural = _("concept types")
 
 
 class DocumentType(GenericAfipType):
@@ -199,11 +185,11 @@ class DocumentType(GenericAfipType):
     See the AFIP's documentation for details on each document type.
     """
 
-    objects = GenericAfipTypeManager('FEParamGetTiposDoc', 'DocTipo')
+    objects = GenericAfipTypeManager("FEParamGetTiposDoc", "DocTipo")
 
     class Meta:
-        verbose_name = _('document type')
-        verbose_name_plural = _('document types')
+        verbose_name = _("document type")
+        verbose_name_plural = _("document types")
 
 
 class VatType(GenericAfipType):
@@ -213,11 +199,11 @@ class VatType(GenericAfipType):
     See the AFIP's documentation for details on each VAT type.
     """
 
-    objects = GenericAfipTypeManager('FEParamGetTiposIva', 'IvaTipo')
+    objects = GenericAfipTypeManager("FEParamGetTiposIva", "IvaTipo")
 
     class Meta:
-        verbose_name = _('vat type')
-        verbose_name_plural = _('vat types')
+        verbose_name = _("vat type")
+        verbose_name_plural = _("vat types")
 
 
 class TaxType(GenericAfipType):
@@ -227,11 +213,11 @@ class TaxType(GenericAfipType):
     See the AFIP's documentation for details on each tax type.
     """
 
-    objects = GenericAfipTypeManager('FEParamGetTiposTributos', 'TributoTipo')
+    objects = GenericAfipTypeManager("FEParamGetTiposTributos", "TributoTipo")
 
     class Meta:
-        verbose_name = _('tax type')
-        verbose_name_plural = _('tax types')
+        verbose_name = _("tax type")
+        verbose_name_plural = _("tax types")
 
 
 class CurrencyType(GenericAfipType):
@@ -241,14 +227,14 @@ class CurrencyType(GenericAfipType):
     See the AFIP's documentation for details on each currency type.
     """
 
-    objects = GenericAfipTypeManager('FEParamGetTiposMonedas', 'Moneda')
+    objects = GenericAfipTypeManager("FEParamGetTiposMonedas", "Moneda")
 
     def __str__(self):
-        return '{} ({})'.format(self.description, self.code)
+        return "{} ({})".format(self.description, self.code)
 
     class Meta:
-        verbose_name = _('currency type')
-        verbose_name_plural = _('currency types')
+        verbose_name = _("currency type")
+        verbose_name_plural = _("currency types")
 
 
 class TaxPayer(models.Model):
@@ -262,47 +248,45 @@ class TaxPayer(models.Model):
     """
 
     name = models.CharField(
-        _('name'),
+        _("name"),
         max_length=32,
-        help_text=_('A friendly name to recognize this taxpayer.'),
+        help_text=_("A friendly name to recognize this taxpayer."),
     )
     key = models.FileField(
-        _('key'),
-        upload_to='afip/taxpayers/keys/',
-        storage=_get_storage_from_settings('AFIP_KEY_STORAGE'),
+        _("key"),
+        upload_to="afip/taxpayers/keys/",
+        storage=_get_storage_from_settings("AFIP_KEY_STORAGE"),
         blank=True,
         null=True,
     )
     certificate = models.FileField(
-        _('certificate'),
-        upload_to='afip/taxpayers/certs/',
-        storage=_get_storage_from_settings('AFIP_CERT_STORAGE'),
+        _("certificate"),
+        upload_to="afip/taxpayers/certs/",
+        storage=_get_storage_from_settings("AFIP_CERT_STORAGE"),
         blank=True,
         null=True,
     )
-    cuit = models.BigIntegerField(
-        _('cuit'),
-    )
+    cuit = models.BigIntegerField(_("cuit"),)
     is_sandboxed = models.BooleanField(
-        _('is sandboxed'),
+        _("is sandboxed"),
         help_text=_(
-            'Indicates if this taxpayer interacts with the sandbox servers '
-            'rather than the production servers'
-        )
+            "Indicates if this taxpayer interacts with the sandbox servers "
+            "rather than the production servers"
+        ),
     )
     certificate_expiration = models.DateTimeField(
-        _('certificate expiration'),
+        _("certificate expiration"),
         editable=False,
         null=True,  # Either no cert, or and old TaxPayer
         help_text=_(
-            'Stores expiration for the current certificate. Note that this '
-            'field is updated pre-save, so the value may be invalid for '
-            'unsaved models.'
+            "Stores expiration for the current certificate. Note that this "
+            "field is updated pre-save, so the value may be invalid for "
+            "unsaved models."
         ),
     )
     active_since = models.DateField(
-        _('active since'),
-        help_text=_('Date since which this taxpayer has been legally active.'),
+        _("active since"),
+        help_text=_("Date since which this taxpayer has been legally active."),
     )
 
     @property
@@ -329,7 +313,7 @@ class TaxPayer(models.Model):
         requires reading and parsing the entire certificate).
         """
         datestring = self.certificate_object.get_notAfter().decode()
-        dt = datetime.strptime(datestring, '%Y%m%d%H%M%SZ')
+        dt = datetime.strptime(datestring, "%Y%m%d%H%M%SZ")
         return dt.replace(tzinfo=timezone.utc)
 
     def generate_key(self, force=False):
@@ -342,19 +326,17 @@ class TaxPayer(models.Model):
         Returns True if and only if a key was created.
         """
         if self.key and not force:
-            logger.warning(
-                'Tried to generate key for a taxpayer that already had one'
-            )
+            logger.warning("Tried to generate key for a taxpayer that already had one")
             return False
 
-        with NamedTemporaryFile(suffix='.key') as file_:
+        with NamedTemporaryFile(suffix=".key") as file_:
             crypto.create_key(file_)
-            self.key = File(file_, name='{}.key'.format(uuid.uuid4().hex))
+            self.key = File(file_, name="{}.key".format(uuid.uuid4().hex))
             self.save()
 
         return True
 
-    def generate_csr(self, basename='djangoafip'):
+    def generate_csr(self, basename="djangoafip"):
         """
         Creates a CSR for this TaxPayer's key
 
@@ -365,8 +347,8 @@ class TaxPayer(models.Model):
         crypto.create_csr(
             self.key.file,
             self.name,
-            '{}{}'.format(basename, int(datetime.now().timestamp())),
-            'CUIT {}'.format(self.cuit),
+            "{}{}".format(basename, int(datetime.now().timestamp())),
+            "CUIT {}".format(self.cuit),
             csr,
         )
         csr.seek(0)
@@ -380,9 +362,9 @@ class TaxPayer(models.Model):
 
     def get_ticket(self, service):
         """Return an existing AuthTicket for a given service."""
-        return self.auth_tickets \
-            .filter(expires__gt=datetime.now(timezone.utc), service=service) \
-            .last()
+        return self.auth_tickets.filter(
+            expires__gt=datetime.now(timezone.utc), service=service
+        ).last()
 
     def get_or_create_ticket(self, service):
         """
@@ -405,9 +387,9 @@ class TaxPayer(models.Model):
 
         Returns a list of tuples with the format (pos, created,).
         """
-        ticket = ticket or self.get_or_create_ticket('wsfe')
+        ticket = ticket or self.get_or_create_ticket("wsfe")
 
-        client = clients.get_client('wsfe', self.is_sandboxed)
+        client = clients.get_client("wsfe", self.is_sandboxed)
         response = client.service.FEParamGetPtosVenta(
             serializers.serialize_ticket(ticket),
         )
@@ -415,31 +397,29 @@ class TaxPayer(models.Model):
 
         results = []
         for pos_data in response.ResultGet.PtoVenta:
-            results.append(PointOfSales.objects.update_or_create(
-                number=pos_data.Nro,
-                owner=self,
-                defaults={
-                    'issuance_type': pos_data.EmisionTipo,
-                    'blocked': pos_data.Bloqueado == 'N',
-                    'drop_date': parsers.parse_date(pos_data.FchBaja),
-                }
-            ))
+            results.append(
+                PointOfSales.objects.update_or_create(
+                    number=pos_data.Nro,
+                    owner=self,
+                    defaults={
+                        "issuance_type": pos_data.EmisionTipo,
+                        "blocked": pos_data.Bloqueado == "N",
+                        "drop_date": parsers.parse_date(pos_data.FchBaja),
+                    },
+                )
+            )
 
         return results
 
     def __repr__(self):
-        return '<TaxPayer {}: {}, CUIT {}>'.format(
-            self.pk,
-            self.name,
-            self.cuit,
-        )
+        return "<TaxPayer {}: {}, CUIT {}>".format(self.pk, self.name, self.cuit,)
 
     def __str__(self):
         return str(self.name)
 
     class Meta:
-        verbose_name = _('taxpayer')
-        verbose_name_plural = _('taxpayers')
+        verbose_name = _("taxpayer")
+        verbose_name_plural = _("taxpayers")
 
 
 class TaxPayerProfile(models.Model):
@@ -455,61 +435,53 @@ class TaxPayerProfile(models.Model):
 
     taxpayer = models.OneToOneField(
         TaxPayer,
-        related_name='profile',
-        verbose_name=_('taxpayer'),
+        related_name="profile",
+        verbose_name=_("taxpayer"),
         on_delete=models.CASCADE,
     )
-    issuing_name = models.CharField(
-        max_length=128,
-        verbose_name=_('issuing name'),
-    )
-    issuing_address = models.TextField(
-        _('issuing address'),
-    )
+    issuing_name = models.CharField(max_length=128, verbose_name=_("issuing name"),)
+    issuing_address = models.TextField(_("issuing address"),)
     issuing_email = models.CharField(
-        max_length=128,
-        verbose_name=_('issuing email'),
-        blank=True,
-        null=True,
+        max_length=128, verbose_name=_("issuing email"), blank=True, null=True,
     )
     vat_condition = models.CharField(
         max_length=48,
         choices=((condition, condition,) for condition in VAT_CONDITIONS),
-        verbose_name=_('vat condition'),
+        verbose_name=_("vat condition"),
     )
     gross_income_condition = models.CharField(
-        max_length=48,
-        verbose_name=_('gross income condition'),
+        max_length=48, verbose_name=_("gross income condition"),
     )
     sales_terms = models.CharField(
         max_length=48,
-        verbose_name=_('sales terms'),
+        verbose_name=_("sales terms"),
         help_text=_(
-            'The terms of the sale printed onto receipts by default '
-            '(eg: single payment, checking account, etc).'
+            "The terms of the sale printed onto receipts by default "
+            "(eg: single payment, checking account, etc)."
         ),
     )
 
     class Meta:
-        verbose_name = _('taxpayer profile')
-        verbose_name_plural = _('taxpayer profiles')
+        verbose_name = _("taxpayer profile")
+        verbose_name_plural = _("taxpayer profiles")
 
 
 class TaxPayerExtras(models.Model):
     """Holds optional extra data for taxpayers."""
+
     taxpayer = models.OneToOneField(
         TaxPayer,
-        related_name='extras',
-        verbose_name=_('taxpayer'),
+        related_name="extras",
+        verbose_name=_("taxpayer"),
         on_delete=models.CASCADE,
     )
     logo = models.ImageField(
-        verbose_name=_('logo'),
-        upload_to='afip/taxpayers/logos/',
-        storage=_get_storage_from_settings('AFIP_LOGO_STORAGE'),
+        verbose_name=_("logo"),
+        upload_to="afip/taxpayers/logos/",
+        storage=_get_storage_from_settings("AFIP_LOGO_STORAGE"),
         blank=True,
         null=True,
-        help_text=_('A logo to use when generating printable receipts.'),
+        help_text=_("A logo to use when generating printable receipts."),
     )
 
     @property
@@ -519,14 +491,13 @@ class TaxPayerExtras(models.Model):
         with self.logo.open() as f:
             data = base64.b64encode(f.read())
 
-        return 'data:image/{};base64,{}'.format(
-            ext[1:],  # Remove the leading dot.
-            data.decode()
+        return "data:image/{};base64,{}".format(
+            ext[1:], data.decode()  # Remove the leading dot.
         )
 
     class Meta:
-        verbose_name = _('taxpayer extras')
-        verbose_name_plural = _('taxpayers extras')
+        verbose_name = _("taxpayer extras")
+        verbose_name_plural = _("taxpayers extras")
 
 
 class PointOfSales(models.Model):
@@ -540,27 +511,20 @@ class PointOfSales(models.Model):
     Note that deleting or altering these models will not affect upstream point
     of sales.
     """
-    number = models.PositiveSmallIntegerField(
-        _('number'),
-    )
+
+    number = models.PositiveSmallIntegerField(_("number"),)
     issuance_type = models.CharField(
-        _('issuance type'),
+        _("issuance type"),
         max_length=24,
-        help_text='Indicates if this POS emits using CAE and CAEA.',
+        help_text="Indicates if this POS emits using CAE and CAEA.",
     )
-    blocked = models.BooleanField(
-        _('blocked'),
-    )
-    drop_date = models.DateField(
-        _('drop date'),
-        null=True,
-        blank=True,
-    )
+    blocked = models.BooleanField(_("blocked"),)
+    drop_date = models.DateField(_("drop date"), null=True, blank=True,)
 
     owner = models.ForeignKey(
         TaxPayer,
-        related_name='points_of_sales',
-        verbose_name=_('owner'),
+        related_name="points_of_sales",
+        verbose_name=_("owner"),
         on_delete=models.CASCADE,
     )
 
@@ -568,15 +532,12 @@ class PointOfSales(models.Model):
         return str(self.number)
 
     class Meta:
-        unique_together = (
-            ('number', 'owner'),
-        )
-        verbose_name = _('point of sales')
-        verbose_name_plural = _('points of sales')
+        unique_together = (("number", "owner"),)
+        verbose_name = _("point of sales")
+        verbose_name_plural = _("points of sales")
 
 
 class AuthTicketManager(models.Manager):
-
     def get_any_active(self, service):
         ticket = AuthTicket.objects.filter(
             token__isnull=False,
@@ -586,11 +547,11 @@ class AuthTicketManager(models.Manager):
         if ticket:
             return ticket
 
-        taxpayer = TaxPayer.objects.order_by('?').first()
+        taxpayer = TaxPayer.objects.order_by("?").first()
 
         if not taxpayer:
             raise exceptions.AuthenticationError(
-                _('There are no taxpayers to generate a ticket.'),
+                _("There are no taxpayers to generate a ticket."),
             )
 
         return taxpayer.create_ticket(service)
@@ -618,55 +579,36 @@ class AuthTicket(models.Model):
 
     owner = models.ForeignKey(
         TaxPayer,
-        verbose_name=_('owner'),
-        related_name='auth_tickets',
+        verbose_name=_("owner"),
+        related_name="auth_tickets",
         on_delete=models.CASCADE,
     )
-    unique_id = models.IntegerField(
-        _('unique id'),
-        default=default_unique_id,
-    )
-    generated = models.DateTimeField(
-        _('generated'),
-        default=default_generated,
-    )
-    expires = models.DateTimeField(
-        _('expires'),
-        default=default_expires,
-    )
+    unique_id = models.IntegerField(_("unique id"), default=default_unique_id,)
+    generated = models.DateTimeField(_("generated"), default=default_generated,)
+    expires = models.DateTimeField(_("expires"), default=default_expires,)
     service = models.CharField(
-        _('service'),
+        _("service"),
         max_length=6,
-        help_text=_('Service for which this ticket has been authorized'),
+        help_text=_("Service for which this ticket has been authorized"),
     )
 
-    token = models.TextField(
-        _('token'),
-    )
-    signature = models.TextField(
-        _('signature'),
-    )
+    token = models.TextField(_("token"),)
+    signature = models.TextField(_("signature"),)
 
     objects = AuthTicketManager()
 
-    TOKEN_XPATH = '/loginTicketResponse/credentials/token'
-    SIGN_XPATH = '/loginTicketResponse/credentials/sign'
+    TOKEN_XPATH = "/loginTicketResponse/credentials/token"
+    SIGN_XPATH = "/loginTicketResponse/credentials/sign"
 
     def __create_request_xml(self):
-        request_xml = (
-            E.loginTicketRequest(
-                {'version': '1.0'},
-                E.header(
-                    E.uniqueId(str(self.unique_id)),
-                    E.generationTime(
-                        serializers.serialize_datetime(self.generated)
-                    ),
-                    E.expirationTime(
-                        serializers.serialize_datetime(self.expires)
-                    ),
-                ),
-                E.service(self.service)
-            )
+        request_xml = E.loginTicketRequest(
+            {"version": "1.0"},
+            E.header(
+                E.uniqueId(str(self.unique_id)),
+                E.generationTime(serializers.serialize_datetime(self.generated)),
+                E.expirationTime(serializers.serialize_datetime(self.expires)),
+            ),
+            E.service(self.service),
         )
         return etree.tostring(request_xml, pretty_print=True)
 
@@ -687,16 +629,16 @@ class AuthTicket(models.Model):
         request = self.__sign_request(request)
         request = b64encode(request).decode()
 
-        client = clients.get_client('wsaa', self.owner.is_sandboxed)
+        client = clients.get_client("wsaa", self.owner.is_sandboxed)
         try:
             raw_response = client.service.loginCms(request)
         except Fault as e:
-            if str(e) == 'Certificado expirado':
+            if str(e) == "Certificado expirado":
                 raise exceptions.CertificateExpired(str(e)) from e
-            if str(e) == 'Certificado no emitido por AC de confianza':
+            if str(e) == "Certificado no emitido por AC de confianza":
                 raise exceptions.UntrustedCertificate(str(e)) from e
             raise exceptions.AuthenticationError(str(e)) from e
-        response = etree.fromstring(raw_response.encode('utf-8'))
+        response = etree.fromstring(raw_response.encode("utf-8"))
 
         self.token = response.xpath(self.TOKEN_XPATH)[0].text
         self.signature = response.xpath(self.SIGN_XPATH)[0].text
@@ -707,8 +649,8 @@ class AuthTicket(models.Model):
         return str(self.unique_id)
 
     class Meta:
-        verbose_name = _('authorization ticket')
-        verbose_name_plural = _('authorization tickets')
+        verbose_name = _("authorization ticket")
+        verbose_name_plural = _("authorization tickets")
 
 
 class ReceiptQuerySet(models.QuerySet):
@@ -723,19 +665,18 @@ class ReceiptQuerySet(models.QuerySet):
         WARNING: Don't call the method manually unless you know what you're
         doing!
         """
-        first = self.select_related('point_of_sales', 'receipt_type').first()
+        first = self.select_related("point_of_sales", "receipt_type").first()
 
-        next_num = Receipt.objects.fetch_last_receipt_number(
-            first.point_of_sales,
-            first.receipt_type,
-        ) + 1
+        next_num = (
+            Receipt.objects.fetch_last_receipt_number(
+                first.point_of_sales, first.receipt_type,
+            )
+            + 1
+        )
 
         for receipt in self.filter(receipt_number__isnull=True):
             # Atomically update receipt number
-            Receipt.objects.filter(
-                pk=receipt.id,
-                receipt_number__isnull=True,
-            ).update(
+            Receipt.objects.filter(pk=receipt.id, receipt_number__isnull=True,).update(
                 receipt_number=next_num,
             )
             next_num += 1
@@ -751,8 +692,7 @@ class ReceiptQuerySet(models.QuerySet):
         raises :class:`~.CannotValidateTogether`.
         """
         types = self.aggregate(
-            poses=Count('point_of_sales_id', ),
-            types=Count('receipt_type'),
+            poses=Count("point_of_sales_id",), types=Count("receipt_type"),
         )
 
         if set(types.values()) > {1}:
@@ -787,19 +727,14 @@ class ReceiptQuerySet(models.QuerySet):
         qs = self.filter(validation__isnull=True).check_groupable()
         if qs.count() == 0:
             return []
-        qs.order_by('issued_date', 'id')._assign_numbers()
+        qs.order_by("issued_date", "id")._assign_numbers()
 
         return qs._validate(ticket)
 
     def _validate(self, ticket=None):
         first = self.first()
-        ticket = (
-            ticket or
-            first.point_of_sales.owner.get_or_create_ticket('wsfe')
-        )
-        client = clients.get_client(
-            'wsfe', first.point_of_sales.owner.is_sandboxed
-        )
+        ticket = ticket or first.point_of_sales.owner.get_or_create_ticket("wsfe")
+        client = clients.get_client("wsfe", first.point_of_sales.owner.is_sandboxed)
         response = client.service.FECAESolicitar(
             serializers.serialize_ticket(ticket),
             serializers.serialize_multiple_receipts(self),
@@ -812,9 +747,7 @@ class ReceiptQuerySet(models.QuerySet):
                     result=cae_data.Resultado,
                     cae=cae_data.CAE,
                     cae_expiration=parsers.parse_date(cae_data.CAEFchVto),
-                    receipt=self.get(
-                        receipt_number=cae_data.CbteDesde,
-                    ),
+                    receipt=self.get(receipt_number=cae_data.CbteDesde,),
                     processed_date=parsers.parse_datetime(
                         response.FeCabResp.FchProceso,
                     ),
@@ -822,17 +755,13 @@ class ReceiptQuerySet(models.QuerySet):
                 if cae_data.Observaciones:
                     for obs in cae_data.Observaciones.Obs:
                         observation = Observation.objects.create(
-                            code=obs.Code,
-                            message=obs.Msg,
+                            code=obs.Code, message=obs.Msg,
                         )
                     validation.observations.add(observation)
             elif cae_data.Observaciones:
                 for obs in cae_data.Observaciones.Obs:
                     errs.append(
-                        'Error {}: {}'.format(
-                            obs.Code,
-                            parsers.parse_string(obs.Msg),
-                        )
+                        "Error {}: {}".format(obs.Code, parsers.parse_string(obs.Msg),)
                     )
 
         # Remove the number from ones that failed to validate:
@@ -850,10 +779,10 @@ class ReceiptManager(models.Manager):
 
     def fetch_last_receipt_number(self, point_of_sales, receipt_type):
         """Returns the number for the last validated receipt."""
-        client = clients.get_client('wsfe', point_of_sales.owner.is_sandboxed)
+        client = clients.get_client("wsfe", point_of_sales.owner.is_sandboxed)
         response_xml = client.service.FECompUltimoAutorizado(
             serializers.serialize_ticket(
-                point_of_sales.owner.get_or_create_ticket('wsfe')
+                point_of_sales.owner.get_or_create_ticket("wsfe")
             ),
             point_of_sales.number,
             receipt_type.code,
@@ -879,7 +808,7 @@ class ReceiptManager(models.Manager):
 
     def get_queryset(self):
         return ReceiptQuerySet(self.model, using=self._db).select_related(
-            'receipt_type',
+            "receipt_type",
         )
 
 
@@ -898,143 +827,130 @@ class Receipt(models.Model):
     If the taxpayer has taxes or pays VAT, you need to attach :class:`~.Tax`
     and/or :class:`~.Vat` instances to the Receipt.
     """
+
     point_of_sales = models.ForeignKey(
         PointOfSales,
-        related_name='receipts',
-        verbose_name=_('point of sales'),
+        related_name="receipts",
+        verbose_name=_("point of sales"),
         on_delete=models.PROTECT,
     )
     receipt_type = models.ForeignKey(
         ReceiptType,
-        related_name='receipts',
-        verbose_name=_('receipt type'),
+        related_name="receipts",
+        verbose_name=_("receipt type"),
         on_delete=models.PROTECT,
     )
     concept = models.ForeignKey(
         ConceptType,
-        verbose_name=_('concept'),
-        related_name='receipts',
+        verbose_name=_("concept"),
+        related_name="receipts",
         on_delete=models.PROTECT,
     )
     document_type = models.ForeignKey(
         DocumentType,
-        verbose_name=_('document type'),
-        related_name='receipts',
+        verbose_name=_("document type"),
+        related_name="receipts",
         help_text=_(
-            'The document type of the customer to whom this receipt '
-            'is addressed'
+            "The document type of the customer to whom this receipt " "is addressed"
         ),
         on_delete=models.PROTECT,
     )
     document_number = models.BigIntegerField(
-        _('document number'),
+        _("document number"),
         help_text=_(
-            'The document number of the customer to whom this receipt '
-            'is addressed'
-        )
+            "The document number of the customer to whom this receipt " "is addressed"
+        ),
     )
     # NOTE: WS will expect receipt_from and receipt_to.
     receipt_number = models.PositiveIntegerField(
-        _('receipt number'),
+        _("receipt number"),
         null=True,
         blank=True,
         help_text=_(
-            'If left blank, the next valid number will assigned when '
-            'validating the receipt.'
-        )
+            "If left blank, the next valid number will assigned when "
+            "validating the receipt."
+        ),
     )
     issued_date = models.DateField(
-        verbose_name=_('issued date'),
-        help_text=_('Can diverge up to 5 days for good, or 10 days otherwise'),
+        verbose_name=_("issued date"),
+        help_text=_("Can diverge up to 5 days for good, or 10 days otherwise"),
     )
     total_amount = models.DecimalField(
         # ImpTotal
-        _('total amount'),
+        _("total amount"),
         max_digits=15,
         decimal_places=2,
         help_text=_(
-            'Must be equal to the sum of net_taxed, exempt_amount, net_taxes, '
-            'and all taxes and vats.'
-        )
+            "Must be equal to the sum of net_taxed, exempt_amount, net_taxes, "
+            "and all taxes and vats."
+        ),
     )
     net_untaxed = models.DecimalField(
         # ImpTotConc
-        _('total untaxable amount'),
+        _("total untaxable amount"),
         max_digits=15,
         decimal_places=2,
         help_text=_(
-            'The total amount to which taxes do not apply. '
-            'For C-type receipts, this must be zero.'
+            "The total amount to which taxes do not apply. "
+            "For C-type receipts, this must be zero."
         ),
     )
     net_taxed = models.DecimalField(
         # ImpNeto
-        _('total taxable amount'),
+        _("total taxable amount"),
         max_digits=15,
         decimal_places=2,
         help_text=_(
-            'The total amount to which taxes apply. '
-            'For C-type receipts, this is equal to the subtotal.'
+            "The total amount to which taxes apply. "
+            "For C-type receipts, this is equal to the subtotal."
         ),
     )
     exempt_amount = models.DecimalField(
         # ImpOpEx
         # Sólo para emisores que son IVA exento
-        _('exempt amount'),
+        _("exempt amount"),
         max_digits=15,
         decimal_places=2,
         help_text=_(
-            'Only for categories which are tax-exempt. '
-            'For C-type receipts, this must be zero.'
+            "Only for categories which are tax-exempt. "
+            "For C-type receipts, this must be zero."
         ),
     )
     service_start = models.DateField(
-        _('service start date'),
-        help_text=_(
-            'Date on which a service started. No applicable for goods.'
-        ),
+        _("service start date"),
+        help_text=_("Date on which a service started. No applicable for goods."),
         null=True,
         blank=True,
     )
     service_end = models.DateField(
-        _('service end date'),
-        help_text=_(
-            'Date on which a service ended. No applicable for goods.'
-        ),
+        _("service end date"),
+        help_text=_("Date on which a service ended. No applicable for goods."),
         null=True,
         blank=True,
     )
     expiration_date = models.DateField(
-        _('receipt expiration date'),
-        help_text=_(
-            'Date on which this receipt expires. No applicable for goods.'
-        ),
+        _("receipt expiration date"),
+        help_text=_("Date on which this receipt expires. No applicable for goods."),
         null=True,
         blank=True,
     )
     currency = models.ForeignKey(
         CurrencyType,
-        verbose_name=_('currency'),
-        related_name='documents',
-        help_text=_(
-            'Currency in which this receipt is issued.',
-        ),
+        verbose_name=_("currency"),
+        related_name="documents",
+        help_text=_("Currency in which this receipt is issued.",),
         on_delete=models.PROTECT,
         default=first_currency,
     )
     currency_quote = models.DecimalField(
-        _('currency quote'),
+        _("currency quote"),
         max_digits=10,
         decimal_places=6,
         default=1,
-        help_text=_(
-            'Quote of the day for the currency used in the receipt',
-        ),
+        help_text=_("Quote of the day for the currency used in the receipt",),
     )
     related_receipts = models.ManyToManyField(
-        'Receipt',
-        verbose_name=_('related receipts'),
-        blank=True,
+        "Receipt", verbose_name=_("related receipts"), blank=True,
     )
 
     objects = ReceiptManager()
@@ -1045,21 +961,20 @@ class Receipt(models.Model):
     @property
     def total_vat(self):
         """Returns the sum of all Vat objects."""
-        q = Vat.objects.filter(receipt=self).aggregate(total=Sum('amount'))
-        return q['total'] or 0
+        q = Vat.objects.filter(receipt=self).aggregate(total=Sum("amount"))
+        return q["total"] or 0
 
     @property
     def total_tax(self):
         """Returns the sum of all Tax objects."""
-        q = Tax.objects.filter(receipt=self).aggregate(total=Sum('amount'))
-        return q['total'] or 0
+        q = Tax.objects.filter(receipt=self).aggregate(total=Sum("amount"))
+        return q["total"] or 0
 
     @property
     def formatted_number(self):
         if self.receipt_number:
-            return '{:04d}-{:08d}'.format(
-                self.point_of_sales.number,
-                self.receipt_number,
+            return "{:04d}-{:08d}".format(
+                self.point_of_sales.number, self.receipt_number,
             )
         return None
 
@@ -1111,31 +1026,25 @@ class Receipt(models.Model):
         return rv
 
     def __repr__(self):
-        return '<Receipt {}: {} {} for {}>'.format(
-            self.pk,
-            self.receipt_type,
-            self.receipt_number,
-            self.point_of_sales.owner,
+        return "<Receipt {}: {} {} for {}>".format(
+            self.pk, self.receipt_type, self.receipt_number, self.point_of_sales.owner,
         )
 
     def __str__(self):
         if self.receipt_number:
-            return '{} {}'.format(self.receipt_type, self.formatted_number)
+            return "{} {}".format(self.receipt_type, self.formatted_number)
         else:
-            return _('Unnumbered %s') % self.receipt_type
+            return _("Unnumbered %s") % self.receipt_type
 
     class Meta:
-        ordering = ('issued_date',)
-        verbose_name = _('receipt')
-        verbose_name_plural = _('receipts')
-        unique_together = (
-            ('point_of_sales', 'receipt_type', 'receipt_number',)
-        )
+        ordering = ("issued_date",)
+        verbose_name = _("receipt")
+        verbose_name_plural = _("receipts")
+        unique_together = [["point_of_sales", "receipt_type", "receipt_number"]]
         # TODO: index_together...
 
 
 class ReceiptPDFManager(models.Manager):
-
     def create_for_receipt(self, receipt, **kwargs):
         """
         Creates a ReceiptPDF object for a given receipt. Does not actually
@@ -1153,7 +1062,7 @@ class ReceiptPDFManager(models.Manager):
             )
         except TaxPayerProfile.DoesNotExist:
             raise exceptions.DjangoAfipException(
-                'Cannot generate a PDF for taxpayer with no profile',
+                "Cannot generate a PDF for taxpayer with no profile",
             )
         pdf = ReceiptPDF.objects.create(
             receipt=receipt,
@@ -1186,7 +1095,7 @@ class ReceiptPDF(models.Model):
     PDF generation is skipped if the receipt has not been validated.
     """
 
-    def upload_to(self, filename='untitled', instance=None):
+    def upload_to(self, filename="untitled", instance=None):
         """
         Returns the full path for generated receipts.
 
@@ -1197,64 +1106,45 @@ class ReceiptPDF(models.Model):
         _, extension = os.path.splitext(os.path.basename(filename))
         uuid = uuid4().hex
         buckets = uuid[0:2], uuid[2:4]
-        filename = ''.join([uuid4().hex, extension])
+        filename = "".join([uuid4().hex, extension])
 
-        return os.path.join('afip/receipts', buckets[0], buckets[1], filename)
+        return os.path.join("afip/receipts", buckets[0], buckets[1], filename)
 
     receipt = models.OneToOneField(
-        Receipt,
-        verbose_name=_('receipt'),
-        on_delete=models.PROTECT,
+        Receipt, verbose_name=_("receipt"), on_delete=models.PROTECT,
     )
     pdf_file = models.FileField(
-        verbose_name=_('pdf file'),
+        verbose_name=_("pdf file"),
         upload_to=upload_to,
-        storage=_get_storage_from_settings('AFIP_PDF_STORAGE'),
+        storage=_get_storage_from_settings("AFIP_PDF_STORAGE"),
         blank=True,
         null=True,
-        help_text=_('The actual file which contains the PDF data.'),
+        help_text=_("The actual file which contains the PDF data."),
     )
-    issuing_name = models.CharField(
-        max_length=128,
-        verbose_name=_('issuing name'),
-    )
-    issuing_address = models.TextField(
-        _('issuing address'),
-    )
+    issuing_name = models.CharField(max_length=128, verbose_name=_("issuing name"),)
+    issuing_address = models.TextField(_("issuing address"),)
     issuing_email = models.CharField(
-        max_length=128,
-        verbose_name=_('issuing email'),
-        blank=True,
-        null=True,
+        max_length=128, verbose_name=_("issuing email"), blank=True, null=True,
     )
     vat_condition = models.CharField(
         max_length=48,
         choices=((condition, condition,) for condition in VAT_CONDITIONS),
-        verbose_name=_('vat condition'),
+        verbose_name=_("vat condition"),
     )
     gross_income_condition = models.CharField(
-        max_length=48,
-        verbose_name=_('gross income condition'),
+        max_length=48, verbose_name=_("gross income condition"),
     )
-    client_name = models.CharField(
-        max_length=128,
-        verbose_name=_('client name'),
-    )
-    client_address = models.TextField(
-        _('client address'),
-        blank=True,
-    )
+    client_name = models.CharField(max_length=128, verbose_name=_("client name"),)
+    client_address = models.TextField(_("client address"), blank=True,)
     client_vat_condition = models.CharField(
         max_length=48,
         choices=((cond, cond,) for cond in CLIENT_VAT_CONDITIONS),
-        verbose_name=_('client vat condition'),
+        verbose_name=_("client vat condition"),
     )
     sales_terms = models.CharField(
         max_length=48,
-        verbose_name=_('sales terms'),
-        help_text=_(
-            'Should be something like "Cash", "Payable in 30 days", etc'
-        ),
+        verbose_name=_("sales terms"),
+        help_text=_('Should be something like "Cash", "Payable in 30 days", etc'),
     )
 
     objects = ReceiptPDFManager()
@@ -1272,14 +1162,12 @@ class ReceiptPDF(models.Model):
 
         if not self.receipt.is_validated:
             raise exceptions.DjangoAfipException(
-                _('Cannot generate pdf for non-authorized receipt')
+                _("Cannot generate pdf for non-authorized receipt")
             )
 
-        self.pdf_file = File(BytesIO(), name='{}.pdf'.format(uuid.uuid4().hex))
+        self.pdf_file = File(BytesIO(), name="{}.pdf".format(uuid.uuid4().hex))
         render_pdf(
-            template='receipts/code_{}.html'.format(
-                self.receipt.receipt_type.code,
-            ),
+            template="receipts/code_{}.html".format(self.receipt.receipt_type.code,),
             file_=self.pdf_file,
             context=ReceiptPDFView.get_context_for_pk(self.receipt_id),
         )
@@ -1288,11 +1176,11 @@ class ReceiptPDF(models.Model):
             self.save()
 
     def __str__(self):
-        return _('Receipt PDF for %s') % self.receipt_id
+        return _("Receipt PDF for %s") % self.receipt_id
 
     class Meta:
-        verbose_name = _('receipt pdf')
-        verbose_name_plural = _('receipt pdfs')
+        verbose_name = _("receipt pdf")
+        verbose_name_plural = _("receipt pdfs")
 
 
 class ReceiptEntry(models.Model):
@@ -1308,27 +1196,22 @@ class ReceiptEntry(models.Model):
 
     receipt = models.ForeignKey(
         Receipt,
-        related_name='entries',
-        verbose_name=_('receipt'),
+        related_name="entries",
+        verbose_name=_("receipt"),
         on_delete=models.PROTECT,
     )
-    description = models.CharField(
-        max_length=128,
-        verbose_name=_('description'),
-    )
-    quantity = models.PositiveSmallIntegerField(
-        _('quantity'),
-    )
+    description = models.CharField(max_length=128, verbose_name=_("description"),)
+    quantity = models.PositiveSmallIntegerField(_("quantity"),)
     unit_price = models.DecimalField(
-        _('unit price'),
+        _("unit price"),
         max_digits=15,
         decimal_places=2,
-        help_text=_('Price per unit before vat or taxes.'),
+        help_text=_("Price per unit before vat or taxes."),
     )
     vat = models.ForeignKey(
         VatType,
-        related_name='receipt_entries',
-        verbose_name=_('vat'),
+        related_name="receipt_entries",
+        verbose_name=_("vat"),
         blank=True,
         null=True,
         on_delete=models.PROTECT,
@@ -1340,42 +1223,25 @@ class ReceiptEntry(models.Model):
         return self.quantity * self.unit_price
 
     class Meta:
-        verbose_name = _('receipt entry')
-        verbose_name_plural = _('receipt entries')
+        verbose_name = _("receipt entry")
+        verbose_name_plural = _("receipt entries")
 
 
 class Tax(models.Model):
     """A tax (type+amount) for a specific Receipt."""
 
     tax_type = models.ForeignKey(
-        TaxType,
-        verbose_name=_('tax type'),
-        on_delete=models.PROTECT,
+        TaxType, verbose_name=_("tax type"), on_delete=models.PROTECT,
     )
-    description = models.CharField(
-        _('description'),
-        max_length=80,
-    )
+    description = models.CharField(_("description"), max_length=80,)
     base_amount = models.DecimalField(
-        _('base amount'),
-        max_digits=15,
-        decimal_places=2,
+        _("base amount"), max_digits=15, decimal_places=2,
     )
-    aliquot = models.DecimalField(
-        _('aliquot'),
-        max_digits=5,
-        decimal_places=2,
-    )
-    amount = models.DecimalField(
-        _('amount'),
-        max_digits=15,
-        decimal_places=2,
-    )
+    aliquot = models.DecimalField(_("aliquot"), max_digits=5, decimal_places=2,)
+    amount = models.DecimalField(_("amount"), max_digits=15, decimal_places=2,)
 
     receipt = models.ForeignKey(
-        Receipt,
-        related_name='taxes',
-        on_delete=models.PROTECT,
+        Receipt, related_name="taxes", on_delete=models.PROTECT,
     )
 
     def compute_amount(self):
@@ -1384,38 +1250,26 @@ class Tax(models.Model):
         return self.amount
 
     class Meta:
-        verbose_name = _('tax')
-        verbose_name_plural = _('taxes')
+        verbose_name = _("tax")
+        verbose_name_plural = _("taxes")
 
 
 class Vat(models.Model):
     """A VAT (type+amount) for a specific Receipt."""
 
     vat_type = models.ForeignKey(
-        VatType,
-        verbose_name=_('vat type'),
-        on_delete=models.PROTECT,
+        VatType, verbose_name=_("vat type"), on_delete=models.PROTECT,
     )
     base_amount = models.DecimalField(
-        _('base amount'),
-        max_digits=15,
-        decimal_places=2,
+        _("base amount"), max_digits=15, decimal_places=2,
     )
-    amount = models.DecimalField(
-        _('amount'),
-        max_digits=15,
-        decimal_places=2,
-    )
+    amount = models.DecimalField(_("amount"), max_digits=15, decimal_places=2,)
 
-    receipt = models.ForeignKey(
-        Receipt,
-        related_name='vat',
-        on_delete=models.PROTECT,
-    )
+    receipt = models.ForeignKey(Receipt, related_name="vat", on_delete=models.PROTECT,)
 
     class Meta:
-        verbose_name = _('vat')
-        verbose_name_plural = _('vat')
+        verbose_name = _("vat")
+        verbose_name_plural = _("vat")
 
 
 class Observation(models.Model):
@@ -1425,17 +1279,13 @@ class Observation(models.Model):
     AFIP seems to assign re-used codes to Observation, so we actually store
     them as separate objects, and link to them from failed validations.
     """
-    code = models.PositiveSmallIntegerField(
-        _('code'),
-    )
-    message = models.CharField(
-        _('message'),
-        max_length=255,
-    )
+
+    code = models.PositiveSmallIntegerField(_("code"),)
+    message = models.CharField(_("message"), max_length=255,)
 
     class Meta:
-        verbose_name = _('observation')
-        verbose_name_plural = _('observations')
+        verbose_name = _("observation")
+        verbose_name_plural = _("observations")
 
 
 class ReceiptValidation(models.Model):
@@ -1448,62 +1298,53 @@ class ReceiptValidation(models.Model):
     The ``observation`` field may contain any data returned by AFIP regarding
     validation failure.
     """
-    RESULT_APPROVED = 'A'
-    RESULT_REJECTED = 'R'
+
+    RESULT_APPROVED = "A"
+    RESULT_REJECTED = "R"
 
     # TODO: replace this with a `successful` boolean field.
     result = models.CharField(
-        _('result'),
+        _("result"),
         max_length=1,
-        choices=(
-            (RESULT_APPROVED, _('approved')),
-            (RESULT_REJECTED, _('rejected')),
-        ),
-        help_text=_('Indicates whether the validation was succesful or not'),
+        choices=((RESULT_APPROVED, _("approved")), (RESULT_REJECTED, _("rejected")),),
+        help_text=_("Indicates whether the validation was succesful or not"),
     )
-    processed_date = models.DateTimeField(
-        _('processed date'),
-    )
+    processed_date = models.DateTimeField(_("processed date"),)
     cae = models.CharField(
-        _('cae'),
-        max_length=14,
-        help_text=_('The CAE as returned by the AFIP'),
+        _("cae"), max_length=14, help_text=_("The CAE as returned by the AFIP"),
     )
     cae_expiration = models.DateField(
-        _('cae expiration'),
-        help_text=_('The CAE expiration as returned by the AFIP'),
+        _("cae expiration"), help_text=_("The CAE expiration as returned by the AFIP"),
     )
     observations = models.ManyToManyField(
         Observation,
-        verbose_name=_('observations'),
-        related_name='validations',
+        verbose_name=_("observations"),
+        related_name="validations",
         help_text=_(
-            'The observations as returned by the AFIP. These are generally '
-            'present for failed validations.'
+            "The observations as returned by the AFIP. These are generally "
+            "present for failed validations."
         ),
     )
 
     receipt = models.OneToOneField(
         Receipt,
-        related_name='validation',
-        verbose_name=_('receipt'),
-        help_text=_('The Receipt for which this validation applies'),
+        related_name="validation",
+        verbose_name=_("receipt"),
+        help_text=_("The Receipt for which this validation applies"),
         on_delete=models.PROTECT,
     )
 
     def __str__(self):
         return _("Validation for %s. Result: %s") % (
-            self.receipt, self.get_result_display()
+            self.receipt,
+            self.get_result_display(),
         )
 
     def __repr__(self):
-        return '<{} {}: {} for Receipt {}>'.format(
-            self.__class__.__name__,
-            self.pk,
-            self.result,
-            self.receipt_id,
+        return "<{} {}: {} for Receipt {}>".format(
+            self.__class__.__name__, self.pk, self.result, self.receipt_id,
         )
 
     class Meta:
-        verbose_name = _('receipt validation')
-        verbose_name_plural = _('receipt validations')
+        verbose_name = _("receipt validation")
+        verbose_name_plural = _("receipt validations")

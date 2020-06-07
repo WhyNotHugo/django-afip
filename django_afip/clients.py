@@ -1,21 +1,19 @@
-__all__ = (
-    'get_client',
-)
+__all__ = ("get_client",)
 
 import pytz
 from zeep import Client
 from zeep.cache import SqliteCache
 from zeep.transports import Transport
 
-TZ_AR = pytz.timezone(pytz.country_timezones['ar'][0])
+TZ_AR = pytz.timezone(pytz.country_timezones["ar"][0])
 
 
 transport = Transport(cache=SqliteCache(timeout=86400))
 wsdls = {
-    ('wsaa', False): 'https://wsaa.afip.gov.ar/ws/services/LoginCms?wsdl',
-    ('wsfe', False): 'https://servicios1.afip.gov.ar/wsfev1/service.asmx?WSDL',
-    ('wsaa', True): 'https://wsaahomo.afip.gov.ar/ws/services/LoginCms?wsdl',
-    ('wsfe', True): 'https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL',
+    ("wsaa", False): "https://wsaa.afip.gov.ar/ws/services/LoginCms?wsdl",
+    ("wsfe", False): "https://servicios1.afip.gov.ar/wsfev1/service.asmx?WSDL",
+    ("wsaa", True): "https://wsaahomo.afip.gov.ar/ws/services/LoginCms?wsdl",
+    ("wsfe", True): "https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL",
 }
 
 cached_clients = {}
@@ -36,7 +34,10 @@ def get_client(service_name, sandbox=False):
     :returns: A zeep client to communicate with an AFIP webservice.
     :rtype: zeep.Client
     """
-    key = (service_name.lower(), sandbox,)
+    key = (
+        service_name.lower(),
+        sandbox,
+    )
 
     try:
         if key not in cached_clients:
@@ -44,4 +45,4 @@ def get_client(service_name, sandbox=False):
 
         return cached_clients[key]
     except KeyError:
-        raise ValueError('Unknown service name, {}'.format(service_name))
+        raise ValueError("Unknown service name, {}".format(service_name))

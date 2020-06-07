@@ -21,20 +21,16 @@ from django.views.static import serve
 from django_afip import views
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
+    url(r"^admin/", admin.site.urls),
     url(
-        r'^invoices/pdf/(?P<pk>\d+)$',
+        r"^invoices/pdf/(?P<pk>\d+)$",
         views.ReceiptPDFView.as_view(),
-        name='receipt_displaypdf_view',
+        name="receipt_displaypdf_view",
     ),
     url(
-        r'^invoices/pdf/(?P<pk>\d+)$',
+        r"^invoices/pdf/(?P<pk>\d+)$",
         views.ReceiptPDFDownloadView.as_view(),
-        name='receipt_pdf_view',
+        name="receipt_pdf_view",
     ),
-    url(
-        r'^media/(?P<path>.*)$',
-        serve,
-        {'document_root': settings.MEDIA_ROOT},
-    ),
+    url(r"^media/(?P<path>.*)$", serve, {"document_root": settings.MEDIA_ROOT},),
 ]

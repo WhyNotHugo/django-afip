@@ -3,7 +3,7 @@ from django.test import tag, TestCase
 from django_afip import factories, models
 
 
-@tag('live')
+@tag("live")
 class LiveAfipTestCase(TestCase):
     """
     Base class for AFIP-WS related tests.
@@ -21,7 +21,7 @@ class LiveAfipTestCase(TestCase):
         LiveAfipTestCase.taxpayer = factories.TaxPayerFactory(pk=1)
 
         if not LiveAfipTestCase.ticket:
-            ticket = models.AuthTicket.objects.get_any_active('wsfe')
+            ticket = models.AuthTicket.objects.get_any_active("wsfe")
             LiveAfipTestCase.ticket = ticket
 
         LiveAfipTestCase.ticket.save()

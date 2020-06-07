@@ -24,11 +24,10 @@ def process_docstring(app, what, name, obj, options, lines):
         fields = obj._meta.get_fields()
 
         for field in fields:
-            if field.name == 'id':
+            if field.name == "id":
                 continue
 
-            if not hasattr(field, 'help_text') and \
-               not hasattr(field, 'verbose'):
+            if not hasattr(field, "help_text") and not hasattr(field, "verbose"):
                 # XXX: log these?
                 continue
 
@@ -38,25 +37,22 @@ def process_docstring(app, what, name, obj, options, lines):
             if help_text:
                 # Add the model field to the end of the docstring as a param
                 # using the help text as the description
-                lines.append(':param {}: {}'.format(field.attname, help_text))
+                lines.append(":param {}: {}".format(field.attname, help_text))
             else:
                 # Add the model field to the end of the docstring as a param
                 # using the verbose name as the description
-                lines.append(':param {}: {}'.format(field.attname, verbose_name))
+                lines.append(":param {}: {}".format(field.attname, verbose_name))
 
             # Add the field's type to the docstring
             if isinstance(field, models.ForeignKey):
                 to = field.remote_field.model
-                lines.append(':type {}: {} to :class:`~{}.{}`'.format(
-                    field.attname,
-                    type(field).__name__,
-                    to.__module__,
-                    to.__name__
-                ))
-            else:
-                lines.append(':type {}: {}'.format(
-                    field.attname, type(field).__name__)
+                lines.append(
+                    ":type {}: {} to :class:`~{}.{}`".format(
+                        field.attname, type(field).__name__, to.__module__, to.__name__
+                    )
                 )
+            else:
+                lines.append(":type {}: {}".format(field.attname, type(field).__name__))
 
     # Return the extended docstring
     return lines
@@ -64,4 +60,4 @@ def process_docstring(app, what, name, obj, options, lines):
 
 def setup(app):
     """Register the docstring processor with sphinx."""
-    app.connect('autodoc-process-docstring', process_docstring)
+    app.connect("autodoc-process-docstring", process_docstring)
