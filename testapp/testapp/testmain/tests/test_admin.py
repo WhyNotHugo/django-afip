@@ -4,12 +4,17 @@ from django.contrib import messages
 from django.contrib.admin import site
 from django.contrib.auth.models import User
 from django.http import HttpRequest
-from django.test import Client, RequestFactory, TestCase
+from django.test import Client
+from django.test import RequestFactory
+from django.test import TestCase
 from django.utils.translation import ugettext as _
 from factory.django import FileField
 
-from django_afip import exceptions, factories, models
-from django_afip.admin import catch_errors, ReceiptAdmin
+from django_afip import exceptions
+from django_afip import factories
+from django_afip import models
+from django_afip.admin import catch_errors
+from django_afip.admin import ReceiptAdmin
 
 
 class TestCatchErrors(TestCase):

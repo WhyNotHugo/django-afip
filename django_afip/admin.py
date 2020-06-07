@@ -3,14 +3,16 @@ import logging
 from datetime import datetime
 
 import django
-from django.contrib import admin, messages
+from django.contrib import admin
+from django.contrib import messages
 from django.db.models import F
 from django.http import HttpResponse
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
-from django_afip import exceptions, models
+from django_afip import exceptions
+from django_afip import models
 
 
 logger = logging.getLogger(__name__)

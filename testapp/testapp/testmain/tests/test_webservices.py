@@ -1,21 +1,22 @@
 """Tests for AFIP-WS related classes."""
-
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
+from datetime import timedelta
 from unittest import skip
 from unittest.mock import patch
 
 from django.conf import settings
 from django.core import management
-from django.test import tag, TestCase
+from django.test import tag
+from django.test import TestCase
 from django.utils.timezone import now
 from factory.django import FileField
 
-from django_afip import exceptions, factories, models
-from testapp.testmain.tests.testcases import (
-    LiveAfipTestCase,
-    PopulatedLiveAfipTestCase,
-)
+from django_afip import exceptions
+from django_afip import factories
+from django_afip import models
+from testapp.testmain.tests.testcases import LiveAfipTestCase
+from testapp.testmain.tests.testcases import PopulatedLiveAfipTestCase
 
 
 @tag("live")

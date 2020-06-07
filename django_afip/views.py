@@ -3,7 +3,8 @@ import base64
 from django.utils.functional import cached_property
 from django_renderpdf.views import PDFView
 
-from django_afip import models, pdf
+from django_afip import models
+from django_afip import pdf
 
 
 class ReceiptPDFView(PDFView):

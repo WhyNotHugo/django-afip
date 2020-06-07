@@ -1,9 +1,11 @@
 from datetime import date
 
-from django.test import Client, TestCase
+from django.test import Client
+from django.test import TestCase
 from django.urls import reverse
 
-from django_afip import factories, views
+from django_afip import factories
+from django_afip import views
 
 
 class ReceiptPDFTestCase(TestCase):

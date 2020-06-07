@@ -6,7 +6,8 @@ from barcode.writer import SVGWriter
 from django.test import TestCase
 from lxml import etree
 
-from django_afip import factories, models
+from django_afip import factories
+from django_afip import models
 from django_afip.pdf import ReceiptBarcodeGenerator
 
 

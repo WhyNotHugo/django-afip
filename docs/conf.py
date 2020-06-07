@@ -11,10 +11,11 @@
 #
 # All configuration values have a default; values that are commented out
 # serve to show the default.
-
 import os
 import sys
-from os.path import abspath, dirname, join
+from os.path import abspath
+from os.path import dirname
+from os.path import join
 
 import django
 

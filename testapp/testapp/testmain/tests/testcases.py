@@ -1,6 +1,8 @@
-from django.test import tag, TestCase
+from django.test import tag
+from django.test import TestCase
 
-from django_afip import factories, models
+from django_afip import factories
+from django_afip import models
 
 
 @tag("live")

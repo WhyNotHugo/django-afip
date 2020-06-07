@@ -1,4 +1,5 @@
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_save
+from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
 from django_afip import models

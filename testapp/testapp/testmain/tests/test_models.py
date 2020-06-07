@@ -1,8 +1,12 @@
-from unittest.mock import call, MagicMock, patch
+from unittest.mock import call
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
 from django.test import TestCase
 
-from django_afip import exceptions, factories, models
+from django_afip import exceptions
+from django_afip import factories
+from django_afip import models
 from testapp.testmain.tests.testcases import PopulatedLiveAfipTestCase
 
 

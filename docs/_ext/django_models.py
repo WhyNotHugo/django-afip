@@ -3,7 +3,6 @@ Automatically list fields from django models.
 
 Based on https://djangosnippets.org/snippets/2533/
 """
-
 import inspect
 
 from django.db import models
