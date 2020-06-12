@@ -1,9 +1,11 @@
 from datetime import date
 
-from django.test import Client, TestCase
+from django.test import Client
+from django.test import TestCase
 from django.urls import reverse
 
-from django_afip import factories, views
+from django_afip import factories
+from django_afip import views
 
 
 class ReceiptPDFTestCase(TestCase):
@@ -17,9 +19,11 @@ class ReceiptPDFTestCase(TestCase):
         factories.ReceiptValidationFactory(receipt=pdf.receipt)
 
         client = Client()
-        response = client.get('{}?html=true'.format(
-            reverse('receipt_displaypdf_view', args=(pdf.receipt.pk,))
-        ))
+        response = client.get(
+            "{}?html=true".format(
+                reverse("receipt_displaypdf_view", args=(pdf.receipt.pk,))
+            )
+        )
 
         self.assertHTMLEqual(
             response.content.decode(),
@@ -138,9 +142,11 @@ class ReceiptPDFTestCase(TestCase):
         factories.TaxPayerExtras(taxpayer=pdf.receipt.point_of_sales.owner)
 
         client = Client()
-        response = client.get('{}?html=true'.format(
-            reverse('receipt_displaypdf_view', args=(pdf.receipt.pk,))
-        ))
+        response = client.get(
+            "{}?html=true".format(
+                reverse("receipt_displaypdf_view", args=(pdf.receipt.pk,))
+            )
+        )
 
         self.assertContains(
             response,
@@ -163,21 +169,17 @@ class ReceiptPDFTestCase(TestCase):
         taxpayer = factories.TaxPayerFactory()
 
         factories.TaxPayerProfileFactory(taxpayer=taxpayer)
-        pdf = factories.ReceiptPDFFactory(
-            receipt__point_of_sales__owner=taxpayer,
-        )
+        pdf = factories.ReceiptPDFFactory(receipt__point_of_sales__owner=taxpayer,)
         factories.ReceiptValidationFactory(receipt=pdf.receipt)
 
         client = Client()
-        response = client.get(
-            reverse('receipt_pdf_view', args=(pdf.receipt.pk,))
-        )
+        response = client.get(reverse("receipt_pdf_view", args=(pdf.receipt.pk,)))
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content[:7], b'%PDF-1.')
+        self.assertEqual(response.content[:7], b"%PDF-1.")
 
         headers = sorted(response.serialize_headers().decode().splitlines())
-        self.assertIn('Content-Type: application/pdf', headers)
+        self.assertIn("Content-Type: application/pdf", headers)
 
 
 class ReceiptPDFViewDownloadNameTestCase(TestCase):
@@ -185,6 +187,6 @@ class ReceiptPDFViewDownloadNameTestCase(TestCase):
         factories.ReceiptFactory(pk=9, receipt_number=32)
 
         view = views.ReceiptPDFView()
-        view.kwargs = {'pk': 9}
+        view.kwargs = {"pk": 9}
 
-        self.assertEqual(view.get_download_name(), '0001-00000032.pdf')
+        self.assertEqual(view.get_download_name(), "0001-00000032.pdf")

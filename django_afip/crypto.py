@@ -63,7 +63,7 @@ def create_csr(key_file, organization_name, common_name, serial_number, file_):
     subj.serialNumber = serial_number
 
     req.set_pubkey(key)
-    req.sign(key, 'md5')
+    req.sign(key, "md5")
 
     file_.write(crypto.dump_certificate_request(crypto.FILETYPE_PEM, req))
 

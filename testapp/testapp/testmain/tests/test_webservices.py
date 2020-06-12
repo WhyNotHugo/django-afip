@@ -1,23 +1,25 @@
 """Tests for AFIP-WS related classes."""
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
+from datetime import timedelta
 from unittest import skip
 from unittest.mock import patch
 
 from django.conf import settings
 from django.core import management
-from django.test import tag, TestCase
+from django.test import tag
+from django.test import TestCase
 from django.utils.timezone import now
 from factory.django import FileField
 
-from django_afip import exceptions, factories, models
-from testapp.testmain.tests.testcases import (
-    LiveAfipTestCase,
-    PopulatedLiveAfipTestCase,
-)
+from django_afip import exceptions
+from django_afip import factories
+from django_afip import models
+from testapp.testmain.tests.testcases import LiveAfipTestCase
+from testapp.testmain.tests.testcases import PopulatedLiveAfipTestCase
 
 
-@tag('live')
+@tag("live")
 class AuthTicketTest(TestCase):
     """Test AuthTicket methods."""
 
@@ -25,12 +27,12 @@ class AuthTicketTest(TestCase):
         """Test using the wrong cuit for a key pair."""
 
         taxpayer = factories.AlternateTaxpayerFactory(cuit=20329642339)
-        taxpayer.create_ticket('wsfe')
+        taxpayer.create_ticket("wsfe")
 
         with self.assertRaisesRegex(
             exceptions.AfipException,
             # Note: AFIP apparently edited this message and added a typo:
-            'ValidacionDeToken: No apareci[oó] CUIT en lista de relaciones:',
+            "ValidacionDeToken: No apareci[oó] CUIT en lista de relaciones:",
         ):
             models.populate_all()
 
@@ -41,17 +43,16 @@ class AuthTicketTest(TestCase):
         # systems may have very old TaxPayers, externally created, or other
         # stuff, so this scenario might still be possible.
         with patch(
-            'django_afip.models.TaxPayer.get_certificate_expiration',
+            "django_afip.models.TaxPayer.get_certificate_expiration",
             spec=True,
             return_value=None,
         ):
             taxpayer = factories.TaxPayerFactory(
-                key=FileField(data=b'Blah'),
-                certificate=FileField(data=b'Blah'),
+                key=FileField(data=b"Blah"), certificate=FileField(data=b"Blah"),
             )
 
         with self.assertRaises(exceptions.CorruptCertificate) as e:
-            taxpayer.create_ticket('wsfe')
+            taxpayer.create_ticket("wsfe")
 
         self.assertNotIsInstance(e, exceptions.AfipException)
 
@@ -59,24 +60,21 @@ class AuthTicketTest(TestCase):
         """Test that no TaxPayers raises an understandable error."""
         with self.assertRaisesMessage(
             exceptions.AuthenticationError,
-            'There are no taxpayers to generate a ticket.',
+            "There are no taxpayers to generate a ticket.",
         ):
-            models.AuthTicket.objects.get_any_active('wsfe')
+            models.AuthTicket.objects.get_any_active("wsfe")
 
     def test_expired_certificate_exception(self):
         """Test that using an expired ceritificate raises as expected."""
-        with open(
-            os.path.join(settings.BASE_DIR, 'test_expired.key'),
-        ) as key, open(
-            os.path.join(settings.BASE_DIR, 'test_expired.crt'),
+        with open(os.path.join(settings.BASE_DIR, "test_expired.key"),) as key, open(
+            os.path.join(settings.BASE_DIR, "test_expired.crt"),
         ) as crt:
             taxpayer = factories.TaxPayerFactory(
-                key=FileField(from_file=key),
-                certificate=FileField(from_file=crt),
+                key=FileField(from_file=key), certificate=FileField(from_file=crt),
             )
 
         with self.assertRaises(exceptions.CertificateExpired):
-            taxpayer.create_ticket('wsfe')
+            taxpayer.create_ticket("wsfe")
 
     def test_untrusted_certificate_exception(self):
         """
@@ -86,7 +84,7 @@ class AuthTicketTest(TestCase):
         taxpayer = factories.TaxPayerFactory(is_sandboxed=False)
 
         with self.assertRaises(exceptions.UntrustedCertificate):
-            taxpayer.create_ticket('wsfe')
+            taxpayer.create_ticket("wsfe")
 
 
 class PopulationTest(LiveAfipTestCase):
@@ -98,7 +96,7 @@ class PopulationTest(LiveAfipTestCase):
 
     def test_population_command(self):
         """Test the afipmetadata command."""
-        management.call_command('afipmetadata')
+        management.call_command("afipmetadata")
 
         receipts = models.ReceiptType.objects.count()
         concepts = models.ConceptType.objects.count()
@@ -116,13 +114,13 @@ class PopulationTest(LiveAfipTestCase):
 
     def test_metadata_deserialization(self):
         """Test that we deserialize descriptions properly."""
-        management.call_command('afipmetadata')
+        management.call_command("afipmetadata")
 
         # This asserting is tied to current data, but it validates that we
         # don't mess up encoding/decoding the value we get.
         # It _WILL_ need updating if the upstream value ever changes.
         fac_c = models.ReceiptType.objects.get(code=11)
-        self.assertEqual(fac_c.description, 'Factura C')
+        self.assertEqual(fac_c.description, "Factura C")
 
 
 class TaxPayerTest(LiveAfipTestCase):
@@ -150,8 +148,7 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
     def _bad_receipt(self):
         receipt = factories.ReceiptFactory(
-            point_of_sales=models.PointOfSales.objects.first(),
-            document_type__code=80,
+            point_of_sales=models.PointOfSales.objects.first(), document_type__code=80,
         )
         factories.VatFactory(vat_type__code=5, receipt=receipt)
         factories.TaxFactory(tax_type__code=3, receipt=receipt)
@@ -175,16 +172,13 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
         self.assertEqual(len(errs), 0)
         self.assertEqual(
-            r1.validation.result,
-            models.ReceiptValidation.RESULT_APPROVED,
+            r1.validation.result, models.ReceiptValidation.RESULT_APPROVED,
         )
         self.assertEqual(
-            r2.validation.result,
-            models.ReceiptValidation.RESULT_APPROVED,
+            r2.validation.result, models.ReceiptValidation.RESULT_APPROVED,
         )
         self.assertEqual(
-            r3.validation.result,
-            models.ReceiptValidation.RESULT_APPROVED,
+            r3.validation.result, models.ReceiptValidation.RESULT_APPROVED,
         )
         self.assertEqual(models.ReceiptValidation.objects.count(), 3)
 
@@ -199,9 +193,9 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
         self.assertEqual(len(errs), 1)
         self.assertEqual(
             errs[0],
-            'Error 10015: Factura B (CbteDesde igual a CbteHasta), DocTipo: '
-            '80, DocNro 203012345 no se encuentra registrado en los padrones '
-            'de AFIP y no corresponde a una cuit pais.'
+            "Error 10015: Factura B (CbteDesde igual a CbteHasta), DocTipo: "
+            "80, DocNro 203012345 no se encuentra registrado en los padrones "
+            "de AFIP y no corresponde a una cuit pais.",
         )
         self.assertQuerysetEqual(models.ReceiptValidation.objects.all(), [])
 
@@ -222,14 +216,12 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
         self.assertEqual(len(errs), 1)
         self.assertEqual(
             errs[0],
-            'Error 10015: Factura B (CbteDesde igual a CbteHasta), DocTipo: '
-            '80, DocNro 203012345 no se encuentra registrado en los padrones '
-            'de AFIP y no corresponde a una cuit pais.'
+            "Error 10015: Factura B (CbteDesde igual a CbteHasta), DocTipo: "
+            "80, DocNro 203012345 no se encuentra registrado en los padrones "
+            "de AFIP y no corresponde a una cuit pais.",
         )
         self.assertQuerysetEqual(
-            models.ReceiptValidation.objects.all(),
-            [r1.pk],
-            lambda rv: rv.receipt_id,
+            models.ReceiptValidation.objects.all(), [r1.pk], lambda rv: rv.receipt_id,
         )
 
     def test_validation_validated(self):
@@ -237,7 +229,7 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
         receipt = self._good_receipt()
         models.ReceiptValidation.objects.create(
             result=models.ReceiptValidation.RESULT_APPROVED,
-            cae='123',
+            cae="123",
             cae_expiration=now(),
             receipt=receipt,
             processed_date=now(),
@@ -261,16 +253,14 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
         self.assertEqual(len(errs), 0)
         self.assertEqual(
-            receipt.validation.result,
-            models.ReceiptValidation.RESULT_APPROVED,
+            receipt.validation.result, models.ReceiptValidation.RESULT_APPROVED,
         )
         self.assertEqual(models.ReceiptValidation.objects.count(), 1)
 
     def test_validation_good_without_tax(self):
         """Test validating valid receipts."""
         receipt = factories.ReceiptFactory(
-            point_of_sales=models.PointOfSales.objects.first(),
-            total_amount=121,
+            point_of_sales=models.PointOfSales.objects.first(), total_amount=121,
         )
         factories.VatFactory(vat_type__code=5, receipt=receipt)
 
@@ -278,8 +268,7 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
         self.assertEqual(len(errs), 0)
         self.assertEqual(
-            receipt.validation.result,
-            models.ReceiptValidation.RESULT_APPROVED,
+            receipt.validation.result, models.ReceiptValidation.RESULT_APPROVED,
         )
         self.assertEqual(models.ReceiptValidation.objects.count(), 1)
 
@@ -296,12 +285,11 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
         self.assertEqual(len(errs), 0)
         self.assertEqual(
-            receipt.validation.result,
-            models.ReceiptValidation.RESULT_APPROVED,
+            receipt.validation.result, models.ReceiptValidation.RESULT_APPROVED,
         )
         self.assertEqual(models.ReceiptValidation.objects.count(), 1)
 
-    @skip('Currently not working -- needs to get looked at.')
+    @skip("Currently not working -- needs to get looked at.")
     def test_validation_with_observations(self):
         receipt = factories.ReceiptFactory(
             document_number=20291144404,
@@ -316,8 +304,7 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
         self.assertEqual(len(errs), 0)
         self.assertEqual(
-            receipt.validation.result,
-            models.ReceiptValidation.RESULT_APPROVED,
+            receipt.validation.result, models.ReceiptValidation.RESULT_APPROVED,
         )
         self.assertEqual(models.ReceiptValidation.objects.count(), 1)
         self.assertEqual(models.Observation.objects.count(), 1)

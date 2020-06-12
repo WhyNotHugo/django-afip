@@ -1,42 +1,47 @@
 import os
-from datetime import date, datetime
+from datetime import date
+from datetime import datetime
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.timezone import make_aware
-from factory import LazyFunction, PostGenerationMethodCall, SubFactory
-from factory.django import DjangoModelFactory, FileField, ImageField
+from factory import LazyFunction
+from factory import PostGenerationMethodCall
+from factory import SubFactory
+from factory.django import DjangoModelFactory
+from factory.django import FileField
+from factory.django import ImageField
 
 from django_afip import models
 
 
 def _key_file():
-    return open(os.path.join(settings.BASE_DIR, 'test.key'))
+    return open(os.path.join(settings.BASE_DIR, "test.key"))
 
 
 def _cert_file():
-    return open(os.path.join(settings.BASE_DIR, 'test.crt'))
+    return open(os.path.join(settings.BASE_DIR, "test.crt"))
 
 
 def _key_file2():
-    return open(os.path.join(settings.BASE_DIR, 'test2.key'))
+    return open(os.path.join(settings.BASE_DIR, "test2.key"))
 
 
 def _cert_file2():
-    return open(os.path.join(settings.BASE_DIR, 'test2.crt'))
+    return open(os.path.join(settings.BASE_DIR, "test2.crt"))
 
 
 def _tiny_image_file():
-    return open(os.path.join(settings.BASE_DIR, 'tiny.png'), 'rb')
+    return open(os.path.join(settings.BASE_DIR, "tiny.png"), "rb")
 
 
 class UserFactory(DjangoModelFactory):
     class Meta:
         model = User
 
-    username = 'john doe'
-    email = 'john@doe.co'
-    password = PostGenerationMethodCall('set_password', '123')
+    username = "john doe"
+    email = "john@doe.co"
+    password = PostGenerationMethodCall("set_password", "123")
 
 
 class SuperUserFactory(UserFactory):
@@ -47,10 +52,10 @@ class SuperUserFactory(UserFactory):
 class ConceptTypeFactory(DjangoModelFactory):
     class Meta:
         model = models.ConceptType
-        django_get_or_create = ('code',)
+        django_get_or_create = ("code",)
 
-    code = '1'
-    description = 'Producto'
+    code = "1"
+    description = "Producto"
     valid_from = date(2010, 9, 17)
 
 
@@ -58,8 +63,8 @@ class DocumentTypeFactory(DjangoModelFactory):
     class Meta:
         model = models.DocumentType
 
-    code = '96'
-    description = 'DNI'
+    code = "96"
+    description = "DNI"
     valid_from = date(2008, 7, 25)
 
 
@@ -67,18 +72,18 @@ class CurrencyTypeFactory(DjangoModelFactory):
     class Meta:
         model = models.CurrencyType
 
-    code = 'PES'
-    description = 'Pesos Argentinos'
+    code = "PES"
+    description = "Pesos Argentinos"
     valid_from = date(2009, 4, 3)
 
 
 class ReceiptTypeFactory(DjangoModelFactory):
     class Meta:
         model = models.ReceiptType
-        django_get_or_create = ('code',)
+        django_get_or_create = ("code",)
 
-    code = '11'
-    description = 'Factura C'
+    code = "11"
+    description = "Factura C"
     valid_from = date(2011, 3, 30)
 
 
@@ -86,7 +91,7 @@ class TaxPayerFactory(DjangoModelFactory):
     class Meta:
         model = models.TaxPayer
 
-    name = 'John Smith'
+    name = "John Smith"
     cuit = 20329642330
     is_sandboxed = True
     key = FileField(from_func=_key_file)
@@ -96,10 +101,11 @@ class TaxPayerFactory(DjangoModelFactory):
 
 class AlternateTaxpayerFactory(DjangoModelFactory):
     """A taxpayer with an alternate (valid) keypair."""
+
     class Meta:
         model = models.TaxPayer
 
-    name = 'John Smith'
+    name = "John Smith"
     cuit = 20329642330
     is_sandboxed = True
     key = FileField(from_func=_key_file2)
@@ -112,12 +118,12 @@ class TaxPayerProfileFactory(DjangoModelFactory):
         model = models.TaxPayerProfile
 
     taxpayer = SubFactory(TaxPayerFactory)
-    issuing_name = 'Red Company Inc.'
-    issuing_address = '100 Red Av\nRedsville\nUK'
-    issuing_email = 'billing@example.com'
-    vat_condition = 'Exempt'
-    gross_income_condition = 'Exempt'
-    sales_terms = 'Credit Card'
+    issuing_name = "Red Company Inc."
+    issuing_address = "100 Red Av\nRedsville\nUK"
+    issuing_email = "billing@example.com"
+    vat_condition = "Exempt"
+    gross_income_condition = "Exempt"
+    sales_terms = "Credit Card"
 
 
 class PointOfSalesFactory(DjangoModelFactory):
@@ -125,7 +131,7 @@ class PointOfSalesFactory(DjangoModelFactory):
         model = models.PointOfSales
 
     number = 1
-    issuance_type = 'CAE'
+    issuance_type = "CAE"
     blocked = False
     owner = SubFactory(TaxPayerFactory)
 
@@ -143,7 +149,7 @@ class ReceiptFactory(DjangoModelFactory):
     net_untaxed = 0
     net_taxed = 100
     exempt_amount = 0
-    currency = SubFactory(CurrencyTypeFactory, code='PES')
+    currency = SubFactory(CurrencyTypeFactory, code="PES")
     currency_quote = 1
     receipt_type = SubFactory(ReceiptTypeFactory, code=6)
     point_of_sales = SubFactory(PointOfSalesFactory)
@@ -155,7 +161,7 @@ class ReceiptValidationFactory(DjangoModelFactory):
 
     result = models.ReceiptValidation.RESULT_APPROVED
     processed_date = make_aware(datetime(2017, 7, 2, 21, 6, 4))
-    cae = '67190616790549'
+    cae = "67190616790549"
     cae_expiration = make_aware(datetime(2017, 7, 12))
     receipt = SubFactory(ReceiptFactory, receipt_number=17)
 
@@ -164,15 +170,15 @@ class ReceiptPDFFactory(DjangoModelFactory):
     class Meta:
         model = models.ReceiptPDF
 
-    client_address = 'La Rioja 123\nX5000EVX Córdoba'
-    client_name = 'John Doe'
-    client_vat_condition = 'Consumidor Final'
-    gross_income_condition = 'Convenio Multilateral'
-    issuing_address = 'Happy Street 123, CABA'
-    issuing_name = 'Alice Doe'
+    client_address = "La Rioja 123\nX5000EVX Córdoba"
+    client_name = "John Doe"
+    client_vat_condition = "Consumidor Final"
+    gross_income_condition = "Convenio Multilateral"
+    issuing_address = "Happy Street 123, CABA"
+    issuing_name = "Alice Doe"
     receipt = SubFactory(ReceiptFactory)
-    sales_terms = 'Contado'
-    vat_condition = 'Responsable Monotributo'
+    sales_terms = "Contado"
+    vat_condition = "Responsable Monotributo"
 
 
 class GenericAfipTypeFactory(DjangoModelFactory):
@@ -180,7 +186,7 @@ class GenericAfipTypeFactory(DjangoModelFactory):
         model = models.GenericAfipType
 
     code = 80
-    description = 'CUIT'
+    description = "CUIT"
     valid_from = datetime(2017, 8, 10)
 
 
@@ -189,7 +195,7 @@ class VatTypeFactory(GenericAfipTypeFactory):
         model = models.VatType
 
     code = 5
-    description = '21%'
+    description = "21%"
 
 
 class TaxTypeFactory(GenericAfipTypeFactory):
