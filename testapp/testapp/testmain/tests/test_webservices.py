@@ -310,5 +310,20 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
         self.assertEqual(models.Observation.objects.count(), 1)
         self.assertEqual(receipt.validation.observations.count(), 1)
 
+    def test_credit_note(self):
+        """Test validating valid a credit note."""
+        # Create an invoice (code=6) and validate it...
+        invoice = self._good_receipt()
 
-# TODO: Test receipts with related_receipts
+        errs = models.Receipt.objects.filter(pk=invoice.pk).validate()
+        self.assertEqual(len(errs), 0)
+        self.assertEqual(models.ReceiptValidation.objects.count(), 1)
+
+        # Now create a credit note (code=8) and validate it...
+        credit = self._good_receipt()
+        credit.receipt_type = factories.ReceiptTypeFactory(code=8)
+        credit.related_receipts.set([invoice])
+
+        errs = models.Receipt.objects.filter(pk=credit.pk).validate()
+        self.assertEqual(len(errs), 0)
+        self.assertEqual(models.ReceiptValidation.objects.count(), 2)
