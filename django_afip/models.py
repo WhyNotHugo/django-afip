@@ -468,6 +468,9 @@ class TaxPayerProfile(models.Model):
         ),
     )
 
+    def __str__(self):
+        return f"<TaxPayerProfile for TaxPayer {self.pk}>"
+
     class Meta:
         verbose_name = _("taxpayer profile")
         verbose_name_plural = _("taxpayer profiles")
@@ -1079,7 +1082,7 @@ class ReceiptPDFManager(models.Manager):
             vat_condition=profile.vat_condition,
             gross_income_condition=profile.gross_income_condition,
             sales_terms=profile.sales_terms,
-            **kwargs
+            **kwargs,
         )
         return pdf
 
