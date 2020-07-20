@@ -3,14 +3,50 @@ __all__ = (
 )
 
 import pytz
+from django.utils.functional import LazyObject
+from requests import Session
+from requests.adapters import HTTPAdapter
+from urllib3.util.ssl_ import create_urllib3_context, DEFAULT_CIPHERS
 from zeep import Client
 from zeep.cache import SqliteCache
 from zeep.transports import Transport
 
-TZ_AR = pytz.timezone(pytz.country_timezones['ar'][0])
+TZ_AR = pytz.timezone(pytz.country_timezones["ar"][0])
+CIPHERS = DEFAULT_CIPHERS + "HIGH:!DH:!aNULL"
 
 
-transport = Transport(cache=SqliteCache(timeout=86400))
+class AFIPAdapter(HTTPAdapter):
+    """An adapter with reduced security so it'll work with AFIP."""
+
+    def init_poolmanager(self, *args, **kwargs):
+        context = create_urllib3_context(ciphers=CIPHERS)
+        kwargs["ssl_context"] = context
+        return super().init_poolmanager(*args, **kwargs)
+
+    def proxy_manager_for(self, *args, **kwargs):
+        context = create_urllib3_context(ciphers=CIPHERS)
+        kwargs["ssl_context"] = context
+        return super().proxy_manager_for(*args, **kwargs)
+
+
+class LazyTransport(LazyObject):
+    """A lazy-initialized Zeep transport.
+
+    This transport does two non-default things:
+    - Reduces TLS security. Sadly, AFIP only has insecure endpoints, so we're forced to
+      reduce security to talk to them.
+    - Cache the WSDL file for a whole day.
+    """
+
+    def _setup(self):
+        """Initialise this lazy object with a celery app instance."""
+        session = Session()
+        session.mount("https://servicios1.afip.gov.ar", AFIPAdapter())
+
+        self._wrapped = Transport(cache=SqliteCache(timeout=86400), session=session)
+
+
+transport = LazyTransport()
 wsdls = {
     ('wsaa', False): 'https://wsaa.afip.gov.ar/ws/services/LoginCms?wsdl',
     ('wsfe', False): 'https://servicios1.afip.gov.ar/wsfev1/service.asmx?WSDL',
