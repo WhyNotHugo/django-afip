@@ -4,6 +4,14 @@ Changelog
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
+8.0.0
+-----
+* Receipts now show validation details in the admin.
+* The ``__str__`` for ``TaxPayer`` has changed. If you relied on this for rendering
+  content, please updated those references to ``taxpayer.cuit``.
+* Python 3.6 to 3.9 are supported.
+* Django 2.2 to 3.1 are supported.
+
 7.1.2
 -----
 * Override the TLS configuration for test servers too (7.1.1 only covered
