@@ -4,6 +4,17 @@ Changelog
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
+7.1.2
+-----
+* Override the TLS configuration for test servers too (7.1.1 only covered
+  production servers).
+
+7.1.1
+-----
+* Override the TLS configuration for AFIP's servers (and only those). They have
+  worsened their security configuration, and it's now seen as insecure by
+  default on many environments.
+
 7.1.0
 -----
 * Dropped support for Python < 3.6.
