@@ -17,6 +17,10 @@ django-afip
   :target: https://pypi.python.org/pypi/django-afip
   :alt: version on pypi
 
+.. image:: https://img.shields.io/pypi/dm/django-afip.svg
+  :target: https://pypi.python.org/pypi/django-afip
+  :alt: downloads
+
 .. image:: https://img.shields.io/pypi/l/django-afip.svg
   :target: https://github.com/WhyNotHugo/django-afip/blob/master/LICENCE
   :alt: licence
