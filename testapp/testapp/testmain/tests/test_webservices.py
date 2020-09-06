@@ -5,9 +5,9 @@ from datetime import timedelta
 from unittest import skip
 from unittest.mock import patch
 
+import pytest
 from django.conf import settings
 from django.core import management
-from django.test import tag
 from django.test import TestCase
 from django.utils.timezone import now
 from factory.django import FileField
@@ -19,7 +19,7 @@ from testapp.testmain.tests.testcases import LiveAfipTestCase
 from testapp.testmain.tests.testcases import PopulatedLiveAfipTestCase
 
 
-@tag("live")
+@pytest.mark.live
 class AuthTicketTest(TestCase):
     """Test AuthTicket methods."""
 

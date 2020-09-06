@@ -1,11 +1,11 @@
-from django.test import tag
+import pytest
 from django.test import TestCase
 
 from django_afip import factories
 from django_afip import models
 
 
-@tag("live")
+@pytest.mark.live
 class LiveAfipTestCase(TestCase):
     """
     Base class for AFIP-WS related tests.
