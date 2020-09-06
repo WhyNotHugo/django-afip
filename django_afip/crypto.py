@@ -5,18 +5,14 @@ from django_afip import exceptions
 PKCS7_NOSIGS = 0x4  # defined in pkcs7.h
 
 
-def create_embeded_pkcs7_signature(data, cert, key):
+def create_embeded_pkcs7_signature(data: bytes, cert: str, key: str):
     """
-    Creates an embeded ("nodetached") pkcs7 signature.
+    Creates an embedded ("nodetached") PKCS7 signature.
 
     This is equivalent to the output of::
 
         openssl smime -sign -signer cert -inkey key -outform DER -nodetach < data
-
-    :type data: bytes
-    :type cert: str
-    :type key: str
-    """  # noqa: E501
+    """
 
     assert isinstance(data, bytes)
     assert isinstance(cert, str)
