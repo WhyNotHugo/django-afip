@@ -13,6 +13,7 @@ setup(
     include_package_data=True,
     long_description=open("README.rst").read(),
     install_requires=[
+        "cryptography<3.1",
         "django>=2.0.0",
         "django_renderpdf>=0.1.0",
         "lxml>=3.4.4",
