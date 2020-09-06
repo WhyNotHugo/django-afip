@@ -11,7 +11,8 @@ class AfipException(DjangoAfipException):
         Exception.__init__(
             self,
             "Error {}: {}".format(
-                response.Errors.Err[0].Code, response.Errors.Err[0].Msg,
+                response.Errors.Err[0].Code,
+                response.Errors.Err[0].Msg,
             ),
         )
 

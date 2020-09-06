@@ -31,7 +31,8 @@ class ParseDateTestCase(TestCase):
 
     def test_parse_dates(self):
         self.assertEqual(
-            parsers.parse_date("20170730"), date(2017, 7, 30),
+            parsers.parse_date("20170730"),
+            date(2017, 7, 30),
         )
 
 

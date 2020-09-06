@@ -25,7 +25,9 @@ def serialize_date(date):
 
 def serialize_ticket(ticket):
     return _wsfe_factory().FEAuthRequest(
-        Token=ticket.token, Sign=ticket.signature, Cuit=ticket.owner.cuit,
+        Token=ticket.token,
+        Sign=ticket.signature,
+        Cuit=ticket.owner.cuit,
     )
 
 
@@ -56,7 +58,8 @@ def serialize_receipt(receipt):
 
     f = _wsfe_factory()
     subtotals = models.Receipt.objects.filter(pk=receipt.pk).aggregate(
-        vat=Sum("vat__amount"), taxes=Sum("taxes__amount"),
+        vat=Sum("vat__amount"),
+        taxes=Sum("taxes__amount"),
     )
 
     serialized = f.FECAEDetRequest(
@@ -76,7 +79,7 @@ def serialize_receipt(receipt):
         MonId=receipt.currency.code,
         MonCotiz=receipt.currency_quote,
     )
-    if int(receipt.concept.code) in (2, 3,):
+    if int(receipt.concept.code) in (2, 3):
         serialized.FchServDesde = serialize_date(receipt.service_start)
         serialized.FchServHasta = serialize_date(receipt.service_end)
         serialized.FchVtoPago = serialize_date(receipt.expiration_date)
@@ -114,5 +117,7 @@ def serialize_tax(tax):
 
 def serialize_vat(vat):
     return _wsfe_factory().AlicIva(
-        Id=vat.vat_type.code, BaseImp=vat.base_amount, Importe=vat.amount,
+        Id=vat.vat_type.code,
+        BaseImp=vat.base_amount,
+        Importe=vat.amount,
     )

@@ -39,7 +39,8 @@ class ReceiptPDFGenerationTestCase(TestCase):
         taxpayer = factories.TaxPayerFactory()
         factories.TaxPayerProfileFactory(taxpayer=taxpayer)
         receipt = factories.ReceiptFactory(
-            receipt_number=None, point_of_sales__owner=taxpayer,
+            receipt_number=None,
+            point_of_sales__owner=taxpayer,
         )
         pdf = models.ReceiptPDF.objects.create_for_receipt(
             receipt=receipt,
@@ -56,16 +57,19 @@ class BarcodeGeneratorVerificationDigitTestCase(TestCase):
     def assert_verification_digit(self, number, digit):
         number = [int(n) for n in number]
         self.assertEqual(
-            ReceiptBarcodeGenerator.verification_digit(number), digit,
+            ReceiptBarcodeGenerator.verification_digit(number),
+            digit,
         )
 
     def test_verfification_digit(self):
         self.assert_verification_digit("01234567890", 5)
         self.assert_verification_digit(
-            "123456789012345678901234567890123456789", 0,
+            "123456789012345678901234567890123456789",
+            0,
         )
         self.assert_verification_digit(
-            "111111111112233334444444444444455555555", 3,
+            "111111111112233334444444444444455555555",
+            3,
         )
         self.assert_verification_digit("202468793631100026719363618010820170512", 9)
 
@@ -87,9 +91,12 @@ class BarcodeGeneratorTestCase(TestCase):
         Test that barcode generation matches that from a pre-generated example.
         """
         receipt = factories.ReceiptFactory(
-            point_of_sales__number=1, receipt_type__code=11,
+            point_of_sales__number=1,
+            receipt_type__code=11,
         )
-        factories.ReceiptValidationFactory(receipt=receipt,)
+        factories.ReceiptValidationFactory(
+            receipt=receipt,
+        )
 
         generator = ReceiptBarcodeGenerator(receipt)
         barcode = generator.generate_barcode(SVGWriter)
@@ -107,7 +114,8 @@ class BarcodeGeneratorTestCase(TestCase):
 
         with open(path, "rb") as f:
             self.assertEqual(
-                make_xml_canonical(lines), make_xml_canonical(f.read().splitlines()),
+                make_xml_canonical(lines),
+                make_xml_canonical(f.read().splitlines()),
             )
 
 

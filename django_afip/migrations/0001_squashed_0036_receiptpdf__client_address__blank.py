@@ -1041,6 +1041,7 @@ class Migration(migrations.Migration):
             unique_together={("point_of_sales", "receipt_type", "receipt_number")},
         ),
         migrations.AlterUniqueTogether(
-            name="pointofsales", unique_together={("number", "owner")},
+            name="pointofsales",
+            unique_together={("number", "owner")},
         ),
     ]

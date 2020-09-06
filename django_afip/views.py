@@ -11,8 +11,11 @@ class ReceiptPDFView(PDFView):
     @cached_property
     def receipt(self):
         return models.Receipt.objects.select_related(
-            "receipt_type", "point_of_sales",
-        ).get(pk=self.kwargs["pk"],)
+            "receipt_type",
+            "point_of_sales",
+        ).get(
+            pk=self.kwargs["pk"],
+        )
 
     def get_download_name(self):
         return "{}.pdf".format(self.receipt.formatted_number)
@@ -33,8 +36,12 @@ class ReceiptPDFView(PDFView):
                 "receipt__point_of_sales",
                 "receipt__point_of_sales__owner",
             )
-            .prefetch_related("receipt__entries",)
-            .get(receipt__pk=pk,)
+            .prefetch_related(
+                "receipt__entries",
+            )
+            .get(
+                receipt__pk=pk,
+            )
         )
 
         # Prefetch required data in a single query:
@@ -46,11 +53,17 @@ class ReceiptPDFView(PDFView):
                 "point_of_sales",
                 "point_of_sales__owner",
             )
-            .prefetch_related("entries",)
-            .get(pk=receipt_pdf.receipt_id,)
+            .prefetch_related(
+                "entries",
+            )
+            .get(
+                pk=receipt_pdf.receipt_id,
+            )
         )
         taxpayer = receipt_pdf.receipt.point_of_sales.owner
-        extras = models.TaxPayerExtras.objects.filter(taxpayer=taxpayer,).first()
+        extras = models.TaxPayerExtras.objects.filter(
+            taxpayer=taxpayer,
+        ).first()
 
         generator = pdf.ReceiptBarcodeGenerator(receipt_pdf.receipt)
         barcode = base64.b64encode(generator.generate_barcode())

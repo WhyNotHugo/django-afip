@@ -169,7 +169,9 @@ class ReceiptPDFTestCase(TestCase):
         taxpayer = factories.TaxPayerFactory()
 
         factories.TaxPayerProfileFactory(taxpayer=taxpayer)
-        pdf = factories.ReceiptPDFFactory(receipt__point_of_sales__owner=taxpayer,)
+        pdf = factories.ReceiptPDFFactory(
+            receipt__point_of_sales__owner=taxpayer,
+        )
         factories.ReceiptValidationFactory(receipt=pdf.receipt)
 
         client = Client()

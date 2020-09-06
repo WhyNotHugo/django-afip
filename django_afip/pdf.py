@@ -20,7 +20,7 @@ class ReceiptBarcodeGenerator:
 
     @cached_property
     def numbers(self):
-        """"
+        """
         Returns the barcode's number without the verification digit.
 
         :return: list(int)

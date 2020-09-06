@@ -48,7 +48,8 @@ class AuthTicketTest(TestCase):
             return_value=None,
         ):
             taxpayer = factories.TaxPayerFactory(
-                key=FileField(data=b"Blah"), certificate=FileField(data=b"Blah"),
+                key=FileField(data=b"Blah"),
+                certificate=FileField(data=b"Blah"),
             )
 
         with self.assertRaises(exceptions.CorruptCertificate) as e:
@@ -70,7 +71,8 @@ class AuthTicketTest(TestCase):
             os.path.join(settings.BASE_DIR, "test_expired.crt"),
         ) as crt:
             taxpayer = factories.TaxPayerFactory(
-                key=FileField(from_file=key), certificate=FileField(from_file=crt),
+                key=FileField(from_file=key),
+                certificate=FileField(from_file=crt),
             )
 
         with self.assertRaises(exceptions.CertificateExpired):
@@ -148,7 +150,8 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
     def _bad_receipt(self):
         receipt = factories.ReceiptFactory(
-            point_of_sales=models.PointOfSales.objects.first(), document_type__code=80,
+            point_of_sales=models.PointOfSales.objects.first(),
+            document_type__code=80,
         )
         factories.VatFactory(vat_type__code=5, receipt=receipt)
         factories.TaxFactory(tax_type__code=3, receipt=receipt)
@@ -172,13 +175,16 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
         self.assertEqual(len(errs), 0)
         self.assertEqual(
-            r1.validation.result, models.ReceiptValidation.RESULT_APPROVED,
+            r1.validation.result,
+            models.ReceiptValidation.RESULT_APPROVED,
         )
         self.assertEqual(
-            r2.validation.result, models.ReceiptValidation.RESULT_APPROVED,
+            r2.validation.result,
+            models.ReceiptValidation.RESULT_APPROVED,
         )
         self.assertEqual(
-            r3.validation.result, models.ReceiptValidation.RESULT_APPROVED,
+            r3.validation.result,
+            models.ReceiptValidation.RESULT_APPROVED,
         )
         self.assertEqual(models.ReceiptValidation.objects.count(), 3)
 
@@ -221,7 +227,9 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
             "de AFIP y no corresponde a una cuit pais.",
         )
         self.assertQuerysetEqual(
-            models.ReceiptValidation.objects.all(), [r1.pk], lambda rv: rv.receipt_id,
+            models.ReceiptValidation.objects.all(),
+            [r1.pk],
+            lambda rv: rv.receipt_id,
         )
 
     def test_validation_validated(self):
@@ -253,14 +261,16 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
         self.assertEqual(len(errs), 0)
         self.assertEqual(
-            receipt.validation.result, models.ReceiptValidation.RESULT_APPROVED,
+            receipt.validation.result,
+            models.ReceiptValidation.RESULT_APPROVED,
         )
         self.assertEqual(models.ReceiptValidation.objects.count(), 1)
 
     def test_validation_good_without_tax(self):
         """Test validating valid receipts."""
         receipt = factories.ReceiptFactory(
-            point_of_sales=models.PointOfSales.objects.first(), total_amount=121,
+            point_of_sales=models.PointOfSales.objects.first(),
+            total_amount=121,
         )
         factories.VatFactory(vat_type__code=5, receipt=receipt)
 
@@ -268,7 +278,8 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
         self.assertEqual(len(errs), 0)
         self.assertEqual(
-            receipt.validation.result, models.ReceiptValidation.RESULT_APPROVED,
+            receipt.validation.result,
+            models.ReceiptValidation.RESULT_APPROVED,
         )
         self.assertEqual(models.ReceiptValidation.objects.count(), 1)
 
@@ -285,7 +296,8 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
         self.assertEqual(len(errs), 0)
         self.assertEqual(
-            receipt.validation.result, models.ReceiptValidation.RESULT_APPROVED,
+            receipt.validation.result,
+            models.ReceiptValidation.RESULT_APPROVED,
         )
         self.assertEqual(models.ReceiptValidation.objects.count(), 1)
 
@@ -304,7 +316,8 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
         self.assertEqual(len(errs), 0)
         self.assertEqual(
-            receipt.validation.result, models.ReceiptValidation.RESULT_APPROVED,
+            receipt.validation.result,
+            models.ReceiptValidation.RESULT_APPROVED,
         )
         self.assertEqual(models.ReceiptValidation.objects.count(), 1)
         self.assertEqual(models.Observation.objects.count(), 1)

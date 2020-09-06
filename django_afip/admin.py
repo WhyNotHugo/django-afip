@@ -44,7 +44,9 @@ def catch_errors(f):
             )
         except exceptions.CorruptCertificate:
             self.message_user(
-                request, _("The AFIP Taxpayer certificate is corrupt."), messages.ERROR,
+                request,
+                _("The AFIP Taxpayer certificate is corrupt."),
+                messages.ERROR,
             )
         except exceptions.AuthenticationError as e:
             logger.exception("AFIP auth failed")
@@ -195,9 +197,13 @@ class ReceiptAdmin(admin.ModelAdmin):
         return (
             super()
             .get_queryset(request)
-            .select_related("receipt_type", "point_of_sales",)
+            .select_related(
+                "receipt_type",
+                "point_of_sales",
+            )
             .annotate(
-                pdf_id=F("receiptpdf__id"), validation_result=F("validation__result"),
+                pdf_id=F("receiptpdf__id"),
+                validation_result=F("validation__result"),
             )
         )
 
@@ -255,7 +261,9 @@ class ReceiptAdmin(admin.ModelAdmin):
         errs = queryset.validate()
         if errs:
             self.message_user(
-                request, _("Receipt validation failed: %s") % errs, messages.ERROR,
+                request,
+                _("Receipt validation failed: %s") % errs,
+                messages.ERROR,
             )
 
     validate.short_description = _("Validate")
@@ -320,7 +328,9 @@ class TaxPayerAdmin(admin.ModelAdmin):
             level = messages.ERROR
 
         self.message_user(
-            request, message=message, level=level,
+            request,
+            message=message,
+            level=level,
         )
 
     generate_key.short_description = _("Generate key")
@@ -340,7 +350,8 @@ class TaxPayerAdmin(admin.ModelAdmin):
 
         csr = taxpayer.generate_csr()
         filename = "cuit-{}-{}.csr".format(
-            taxpayer.cuit, int(datetime.now().timestamp()),
+            taxpayer.cuit,
+            int(datetime.now().timestamp()),
         )
 
         response = HttpResponse(content_type="application/pkcs10")
@@ -440,7 +451,9 @@ class ReceiptPDFAdmin(admin.ModelAdmin):
             super()
             .get_queryset(request)
             .select_related(
-                "receipt", "receipt__point_of_sales__owner", "receipt__receipt_type",
+                "receipt",
+                "receipt__point_of_sales__owner",
+                "receipt__receipt_type",
             )
         )
 

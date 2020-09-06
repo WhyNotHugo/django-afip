@@ -17,5 +17,9 @@ urlpatterns = [
         views.ReceiptPDFDownloadView.as_view(),
         name="receipt_pdf_view",
     ),
-    path("media/<path>", serve, {"document_root": settings.MEDIA_ROOT},),
+    path(
+        "media/<path>",
+        serve,
+        {"document_root": settings.MEDIA_ROOT},
+    ),
 ]

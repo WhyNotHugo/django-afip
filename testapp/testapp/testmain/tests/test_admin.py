@@ -95,7 +95,8 @@ class TestTaxPayerAdminKeyGeneration(TestCase):
 
         taxpayer.refresh_from_db()
         self.assertIn(
-            "-----BEGIN PRIVATE KEY-----", taxpayer.key.file.read().decode(),
+            "-----BEGIN PRIVATE KEY-----",
+            taxpayer.key.file.read().decode(),
         )
 
     def test_with_key(self):
@@ -111,7 +112,8 @@ class TestTaxPayerAdminKeyGeneration(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(
-            response, "No keys generated; Taxpayers already had keys.",
+            response,
+            "No keys generated; Taxpayers already had keys.",
         )
 
         taxpayer.refresh_from_db()
@@ -140,7 +142,8 @@ class TestTaxPayerAdminRequestGeneration(TestCase):
             response.serialize_headers().splitlines(),
         )
         self.assertContains(
-            response, "-----BEGIN CERTIFICATE REQUEST-----",
+            response,
+            "-----BEGIN CERTIFICATE REQUEST-----",
         )
 
     def test_without_key(self):
@@ -161,7 +164,8 @@ class TestTaxPayerAdminRequestGeneration(TestCase):
             response.serialize_headers().splitlines(),
         )
         self.assertContains(
-            response, "-----BEGIN CERTIFICATE REQUEST-----",
+            response,
+            "-----BEGIN CERTIFICATE REQUEST-----",
         )
 
     def test_multiple_taxpayers(self):
@@ -181,7 +185,8 @@ class TestTaxPayerAdminRequestGeneration(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(
-            response, "Can only generate CSR for one taxpayer at a time",
+            response,
+            "Can only generate CSR for one taxpayer at a time",
         )
 
 
@@ -281,7 +286,9 @@ class ReceiptHasFileFilterTestCase(TestCase):
         self.user = factories.SuperUserFactory()
 
         validation = factories.ReceiptValidationFactory()
-        self.with_file = factories.ReceiptPDFFactory(receipt=validation.receipt,)
+        self.with_file = factories.ReceiptPDFFactory(
+            receipt=validation.receipt,
+        )
         self.without_file = factories.ReceiptPDFFactory()
 
         self.assertFalse(self.without_file.pdf_file)

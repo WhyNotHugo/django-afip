@@ -145,10 +145,24 @@ class GenericAfipTypeManager(models.Manager):
 class GenericAfipType(models.Model):
     """An abstract class for several of AFIP's metadata types."""
 
-    code = models.CharField(_("code"), max_length=3,)
-    description = models.CharField(_("description"), max_length=250,)
-    valid_from = models.DateField(_("valid from"), null=True, blank=True,)
-    valid_to = models.DateField(_("valid until"), null=True, blank=True,)
+    code = models.CharField(
+        _("code"),
+        max_length=3,
+    )
+    description = models.CharField(
+        _("description"),
+        max_length=250,
+    )
+    valid_from = models.DateField(
+        _("valid from"),
+        null=True,
+        blank=True,
+    )
+    valid_to = models.DateField(
+        _("valid until"),
+        null=True,
+        blank=True,
+    )
 
     def __str__(self):
         return self.description
@@ -273,7 +287,9 @@ class TaxPayer(models.Model):
         blank=True,
         null=True,
     )
-    cuit = models.BigIntegerField(_("cuit"),)
+    cuit = models.BigIntegerField(
+        _("cuit"),
+    )
     is_sandboxed = models.BooleanField(
         _("is sandboxed"),
         help_text=_(
@@ -419,7 +435,11 @@ class TaxPayer(models.Model):
         return results
 
     def __repr__(self):
-        return "<TaxPayer {}: {}, CUIT {}>".format(self.pk, self.name, self.cuit,)
+        return "<TaxPayer {}: {}, CUIT {}>".format(
+            self.pk,
+            self.name,
+            self.cuit,
+        )
 
     def __str__(self):
         return str(self.name)
@@ -446,18 +466,33 @@ class TaxPayerProfile(models.Model):
         verbose_name=_("taxpayer"),
         on_delete=models.CASCADE,
     )
-    issuing_name = models.CharField(max_length=128, verbose_name=_("issuing name"),)
-    issuing_address = models.TextField(_("issuing address"),)
+    issuing_name = models.CharField(
+        max_length=128,
+        verbose_name=_("issuing name"),
+    )
+    issuing_address = models.TextField(
+        _("issuing address"),
+    )
     issuing_email = models.CharField(
-        max_length=128, verbose_name=_("issuing email"), blank=True, null=True,
+        max_length=128,
+        verbose_name=_("issuing email"),
+        blank=True,
+        null=True,
     )
     vat_condition = models.CharField(
         max_length=48,
-        choices=((condition, condition,) for condition in VAT_CONDITIONS),
+        choices=(
+            (
+                condition,
+                condition,
+            )
+            for condition in VAT_CONDITIONS
+        ),
         verbose_name=_("vat condition"),
     )
     gross_income_condition = models.CharField(
-        max_length=48, verbose_name=_("gross income condition"),
+        max_length=48,
+        verbose_name=_("gross income condition"),
     )
     sales_terms = models.CharField(
         max_length=48,
@@ -522,14 +557,22 @@ class PointOfSales(models.Model):
     of sales.
     """
 
-    number = models.PositiveSmallIntegerField(_("number"),)
+    number = models.PositiveSmallIntegerField(
+        _("number"),
+    )
     issuance_type = models.CharField(
         _("issuance type"),
         max_length=24,
         help_text="Indicates if this POS emits using CAE and CAEA.",
     )
-    blocked = models.BooleanField(_("blocked"),)
-    drop_date = models.DateField(_("drop date"), null=True, blank=True,)
+    blocked = models.BooleanField(
+        _("blocked"),
+    )
+    drop_date = models.DateField(
+        _("drop date"),
+        null=True,
+        blank=True,
+    )
 
     owner = models.ForeignKey(
         TaxPayer,
@@ -593,17 +636,30 @@ class AuthTicket(models.Model):
         related_name="auth_tickets",
         on_delete=models.CASCADE,
     )
-    unique_id = models.IntegerField(_("unique id"), default=default_unique_id,)
-    generated = models.DateTimeField(_("generated"), default=default_generated,)
-    expires = models.DateTimeField(_("expires"), default=default_expires,)
+    unique_id = models.IntegerField(
+        _("unique id"),
+        default=default_unique_id,
+    )
+    generated = models.DateTimeField(
+        _("generated"),
+        default=default_generated,
+    )
+    expires = models.DateTimeField(
+        _("expires"),
+        default=default_expires,
+    )
     service = models.CharField(
         _("service"),
         max_length=6,
         help_text=_("Service for which this ticket has been authorized"),
     )
 
-    token = models.TextField(_("token"),)
-    signature = models.TextField(_("signature"),)
+    token = models.TextField(
+        _("token"),
+    )
+    signature = models.TextField(
+        _("signature"),
+    )
 
     objects = AuthTicketManager()
 
@@ -679,7 +735,8 @@ class ReceiptQuerySet(models.QuerySet):
 
         next_num = (
             Receipt.objects.fetch_last_receipt_number(
-                first.point_of_sales, first.receipt_type,
+                first.point_of_sales,
+                first.receipt_type,
             )
             + 1
         )
@@ -702,7 +759,10 @@ class ReceiptQuerySet(models.QuerySet):
         raises :class:`~.CannotValidateTogether`.
         """
         types = self.aggregate(
-            poses=Count("point_of_sales_id",), types=Count("receipt_type"),
+            poses=Count(
+                "point_of_sales_id",
+            ),
+            types=Count("receipt_type"),
         )
 
         if set(types.values()) > {1}:
@@ -757,7 +817,9 @@ class ReceiptQuerySet(models.QuerySet):
                     result=cae_data.Resultado,
                     cae=cae_data.CAE,
                     cae_expiration=parsers.parse_date(cae_data.CAEFchVto),
-                    receipt=self.get(receipt_number=cae_data.CbteDesde,),
+                    receipt=self.get(
+                        receipt_number=cae_data.CbteDesde,
+                    ),
                     processed_date=parsers.parse_datetime(
                         response.FeCabResp.FchProceso,
                     ),
@@ -765,13 +827,17 @@ class ReceiptQuerySet(models.QuerySet):
                 if cae_data.Observaciones:
                     for obs in cae_data.Observaciones.Obs:
                         observation = Observation.objects.create(
-                            code=obs.Code, message=obs.Msg,
+                            code=obs.Code,
+                            message=obs.Msg,
                         )
                     validation.observations.add(observation)
             elif cae_data.Observaciones:
                 for obs in cae_data.Observaciones.Obs:
                     errs.append(
-                        "Error {}: {}".format(obs.Code, parsers.parse_string(obs.Msg),)
+                        "Error {}: {}".format(
+                            obs.Code,
+                            parsers.parse_string(obs.Msg),
+                        )
                     )
 
         # Remove the number from ones that failed to validate:
@@ -948,7 +1014,9 @@ class Receipt(models.Model):
         CurrencyType,
         verbose_name=_("currency"),
         related_name="documents",
-        help_text=_("Currency in which this receipt is issued.",),
+        help_text=_(
+            "Currency in which this receipt is issued.",
+        ),
         on_delete=models.PROTECT,
         default=first_currency,
     )
@@ -957,10 +1025,14 @@ class Receipt(models.Model):
         max_digits=10,
         decimal_places=6,
         default=1,
-        help_text=_("Quote of the day for the currency used in the receipt",),
+        help_text=_(
+            "Quote of the day for the currency used in the receipt",
+        ),
     )
     related_receipts = models.ManyToManyField(
-        "Receipt", verbose_name=_("related receipts"), blank=True,
+        "Receipt",
+        verbose_name=_("related receipts"),
+        blank=True,
     )
 
     objects = ReceiptManager()
@@ -984,7 +1056,8 @@ class Receipt(models.Model):
     def formatted_number(self):
         if self.receipt_number:
             return "{:04d}-{:08d}".format(
-                self.point_of_sales.number, self.receipt_number,
+                self.point_of_sales.number,
+                self.receipt_number,
             )
         return None
 
@@ -1037,7 +1110,10 @@ class Receipt(models.Model):
 
     def __repr__(self):
         return "<Receipt {}: {} {} for {}>".format(
-            self.pk, self.receipt_type, self.receipt_number, self.point_of_sales.owner,
+            self.pk,
+            self.receipt_type,
+            self.receipt_number,
+            self.point_of_sales.owner,
         )
 
     def __str__(self):
@@ -1121,7 +1197,9 @@ class ReceiptPDF(models.Model):
         return os.path.join("afip/receipts", buckets[0], buckets[1], filename)
 
     receipt = models.OneToOneField(
-        Receipt, verbose_name=_("receipt"), on_delete=models.PROTECT,
+        Receipt,
+        verbose_name=_("receipt"),
+        on_delete=models.PROTECT,
     )
     pdf_file = models.FileField(
         verbose_name=_("pdf file"),
@@ -1131,24 +1209,51 @@ class ReceiptPDF(models.Model):
         null=True,
         help_text=_("The actual file which contains the PDF data."),
     )
-    issuing_name = models.CharField(max_length=128, verbose_name=_("issuing name"),)
-    issuing_address = models.TextField(_("issuing address"),)
+    issuing_name = models.CharField(
+        max_length=128,
+        verbose_name=_("issuing name"),
+    )
+    issuing_address = models.TextField(
+        _("issuing address"),
+    )
     issuing_email = models.CharField(
-        max_length=128, verbose_name=_("issuing email"), blank=True, null=True,
+        max_length=128,
+        verbose_name=_("issuing email"),
+        blank=True,
+        null=True,
     )
     vat_condition = models.CharField(
         max_length=48,
-        choices=((condition, condition,) for condition in VAT_CONDITIONS),
+        choices=(
+            (
+                condition,
+                condition,
+            )
+            for condition in VAT_CONDITIONS
+        ),
         verbose_name=_("vat condition"),
     )
     gross_income_condition = models.CharField(
-        max_length=48, verbose_name=_("gross income condition"),
+        max_length=48,
+        verbose_name=_("gross income condition"),
     )
-    client_name = models.CharField(max_length=128, verbose_name=_("client name"),)
-    client_address = models.TextField(_("client address"), blank=True,)
+    client_name = models.CharField(
+        max_length=128,
+        verbose_name=_("client name"),
+    )
+    client_address = models.TextField(
+        _("client address"),
+        blank=True,
+    )
     client_vat_condition = models.CharField(
         max_length=48,
-        choices=((cond, cond,) for cond in CLIENT_VAT_CONDITIONS),
+        choices=(
+            (
+                cond,
+                cond,
+            )
+            for cond in CLIENT_VAT_CONDITIONS
+        ),
         verbose_name=_("client vat condition"),
     )
     sales_terms = models.CharField(
@@ -1177,7 +1282,9 @@ class ReceiptPDF(models.Model):
 
         self.pdf_file = File(BytesIO(), name="{}.pdf".format(uuid.uuid4().hex))
         render_pdf(
-            template="receipts/code_{}.html".format(self.receipt.receipt_type.code,),
+            template="receipts/code_{}.html".format(
+                self.receipt.receipt_type.code,
+            ),
             file_=self.pdf_file,
             context=ReceiptPDFView.get_context_for_pk(self.receipt_id),
         )
@@ -1210,8 +1317,13 @@ class ReceiptEntry(models.Model):
         verbose_name=_("receipt"),
         on_delete=models.PROTECT,
     )
-    description = models.CharField(max_length=128, verbose_name=_("description"),)
-    quantity = models.PositiveSmallIntegerField(_("quantity"),)
+    description = models.CharField(
+        max_length=128,
+        verbose_name=_("description"),
+    )
+    quantity = models.PositiveSmallIntegerField(
+        _("quantity"),
+    )
     unit_price = models.DecimalField(
         _("unit price"),
         max_digits=15,
@@ -1241,17 +1353,34 @@ class Tax(models.Model):
     """A tax (type+amount) for a specific Receipt."""
 
     tax_type = models.ForeignKey(
-        TaxType, verbose_name=_("tax type"), on_delete=models.PROTECT,
+        TaxType,
+        verbose_name=_("tax type"),
+        on_delete=models.PROTECT,
     )
-    description = models.CharField(_("description"), max_length=80,)
+    description = models.CharField(
+        _("description"),
+        max_length=80,
+    )
     base_amount = models.DecimalField(
-        _("base amount"), max_digits=15, decimal_places=2,
+        _("base amount"),
+        max_digits=15,
+        decimal_places=2,
     )
-    aliquot = models.DecimalField(_("aliquot"), max_digits=5, decimal_places=2,)
-    amount = models.DecimalField(_("amount"), max_digits=15, decimal_places=2,)
+    aliquot = models.DecimalField(
+        _("aliquot"),
+        max_digits=5,
+        decimal_places=2,
+    )
+    amount = models.DecimalField(
+        _("amount"),
+        max_digits=15,
+        decimal_places=2,
+    )
 
     receipt = models.ForeignKey(
-        Receipt, related_name="taxes", on_delete=models.PROTECT,
+        Receipt,
+        related_name="taxes",
+        on_delete=models.PROTECT,
     )
 
     def compute_amount(self):
@@ -1268,14 +1397,26 @@ class Vat(models.Model):
     """A VAT (type+amount) for a specific Receipt."""
 
     vat_type = models.ForeignKey(
-        VatType, verbose_name=_("vat type"), on_delete=models.PROTECT,
+        VatType,
+        verbose_name=_("vat type"),
+        on_delete=models.PROTECT,
     )
     base_amount = models.DecimalField(
-        _("base amount"), max_digits=15, decimal_places=2,
+        _("base amount"),
+        max_digits=15,
+        decimal_places=2,
     )
-    amount = models.DecimalField(_("amount"), max_digits=15, decimal_places=2,)
+    amount = models.DecimalField(
+        _("amount"),
+        max_digits=15,
+        decimal_places=2,
+    )
 
-    receipt = models.ForeignKey(Receipt, related_name="vat", on_delete=models.PROTECT,)
+    receipt = models.ForeignKey(
+        Receipt,
+        related_name="vat",
+        on_delete=models.PROTECT,
+    )
 
     class Meta:
         verbose_name = _("vat")
@@ -1290,8 +1431,13 @@ class Observation(models.Model):
     them as separate objects, and link to them from failed validations.
     """
 
-    code = models.PositiveSmallIntegerField(_("code"),)
-    message = models.CharField(_("message"), max_length=255,)
+    code = models.PositiveSmallIntegerField(
+        _("code"),
+    )
+    message = models.CharField(
+        _("message"),
+        max_length=255,
+    )
 
     class Meta:
         verbose_name = _("observation")
@@ -1316,15 +1462,23 @@ class ReceiptValidation(models.Model):
     result = models.CharField(
         _("result"),
         max_length=1,
-        choices=((RESULT_APPROVED, _("approved")), (RESULT_REJECTED, _("rejected")),),
+        choices=(
+            (RESULT_APPROVED, _("approved")),
+            (RESULT_REJECTED, _("rejected")),
+        ),
         help_text=_("Indicates whether the validation was succesful or not"),
     )
-    processed_date = models.DateTimeField(_("processed date"),)
+    processed_date = models.DateTimeField(
+        _("processed date"),
+    )
     cae = models.CharField(
-        _("cae"), max_length=14, help_text=_("The CAE as returned by the AFIP"),
+        _("cae"),
+        max_length=14,
+        help_text=_("The CAE as returned by the AFIP"),
     )
     cae_expiration = models.DateField(
-        _("cae expiration"), help_text=_("The CAE expiration as returned by the AFIP"),
+        _("cae expiration"),
+        help_text=_("The CAE expiration as returned by the AFIP"),
     )
     observations = models.ManyToManyField(
         Observation,
@@ -1352,7 +1506,10 @@ class ReceiptValidation(models.Model):
 
     def __repr__(self):
         return "<{} {}: {} for Receipt {}>".format(
-            self.__class__.__name__, self.pk, self.result, self.receipt_id,
+            self.__class__.__name__,
+            self.pk,
+            self.result,
+            self.receipt_id,
         )
 
     class Meta:

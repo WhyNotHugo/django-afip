@@ -9,7 +9,9 @@ register = template.Library()
 @register.filter
 def receiptnumber(receipt):
     warnings.warn(
-        "Use receipt.formatted_number instead.", DeprecationWarning, stacklevel=2,
+        "Use receipt.formatted_number instead.",
+        DeprecationWarning,
+        stacklevel=2,
     )
     return receipt.formatted_number
 
