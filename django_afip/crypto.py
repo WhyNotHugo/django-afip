@@ -2,8 +2,6 @@ from OpenSSL import crypto
 
 from django_afip import exceptions
 
-PKCS7_NOSIGS = 0x4  # defined in pkcs7.h
-
 
 def create_embeded_pkcs7_signature(data: bytes, cert: str, key: str):
     """
@@ -25,7 +23,7 @@ def create_embeded_pkcs7_signature(data: bytes, cert: str, key: str):
 
     bio_in = crypto._new_mem_buf(data)
     pkcs7 = crypto._lib.PKCS7_sign(
-        signcert._x509, pkey._pkey, crypto._ffi.NULL, bio_in, PKCS7_NOSIGS
+        signcert._x509, pkey._pkey, crypto._ffi.NULL, bio_in, 0
     )
     bio_out = crypto._new_mem_buf()
     crypto._lib.i2d_PKCS7_bio(bio_out, pkcs7)
