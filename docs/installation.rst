@@ -25,6 +25,11 @@ Make sure to run all migrations after you've added the app:
 
     python manage.py migrate afip
 
+.. [#] Receipt PDF generation uses weasyprint, which has some additional
+       dependencies.  Consult `their documentation
+       <http://weasyprint.readthedocs.io/en/stable/install.html>`_ for clear
+       and up-to-date details.
+
 Configuration
 -------------
 
@@ -53,12 +58,7 @@ notes ARE provided though):
 
 .. code-block:: txt
 
-    django-afip 4.0 >= , < 5.0
-
-.. [#] Receipt PDF generation uses weasyprint, which has some additional
-       dependencies.  Consult `their documentation
-       <http://weasyprint.readthedocs.io/en/stable/install.html>`_ for clear
-       and up-to-date details.
+    django-afip>=4.0,< 5.0
 
 We strictly follow `Semantic Versioning`_. We only support version of Django
 that are currently supported upstream.
@@ -72,8 +72,8 @@ Upgrading
 ---------
 
 Backwards compatibility may break at major release, however, we always provide
-migrations to upgrade existing installations (we actually always use those
-ourselves on our production instances without any data loss).
+migrations to upgrade existing installations (I actually always use those
+on multiple production instances without any data loss).
 
 .. warning::
 

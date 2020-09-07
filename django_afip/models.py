@@ -346,6 +346,9 @@ class TaxPayer(models.Model):
         Creates a key file for this TaxPayer if it does not have one, and
         immediately saves it.
 
+        A new key will not be generated if one is already set, unless the ``force``
+        parameter is true. This is to prevent overwriting a potentially in-use key.
+
         Returns True if and only if a key was created.
         """
         if self.key and not force:
