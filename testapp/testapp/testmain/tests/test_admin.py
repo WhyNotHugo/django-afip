@@ -7,7 +7,7 @@ from django.http import HttpRequest
 from django.test import Client
 from django.test import RequestFactory
 from django.test import TestCase
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from factory.django import FileField
 
 from django_afip import exceptions

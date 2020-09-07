@@ -9,7 +9,7 @@ from django.db.models import F
 from django.http import HttpResponse
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from django_afip import exceptions
 from django_afip import models
