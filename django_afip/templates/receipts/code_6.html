@@ -39,7 +39,7 @@
             <div class="receipt-type-description">
               {{ pdf.receipt.receipt_type.description }}
             </div>
-            <strong>Nº</strong> {{ pdf.receipt|receiptnumber }}
+            <strong>Nº</strong> {{ pdf.receipt.formatted_number }}
             <br>
             <strong>Fecha de emisión:</strong> <time>{{ pdf.receipt.issued_date }}</time><br>
             <strong>CUIT:</strong> {{ taxpayer.cuit|format_cuit }}<br>

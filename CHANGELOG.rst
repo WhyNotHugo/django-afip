@@ -11,6 +11,8 @@ releases, in reverse chronological order.
   content, please updated those references to ``taxpayer.cuit``.
 * Python 3.6 to 3.9 are supported.
 * Django 2.2 to 3.1 are supported.
+* The template tag ``receiptnumber`` (which was deprecated in 3.0.0) has been removed.
+  Use ``Receipt.formatted_number`` instead.
 
 7.1.2
 -----
