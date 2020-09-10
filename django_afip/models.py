@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import base64
 import logging
 import os
@@ -7,15 +9,14 @@ from datetime import timedelta
 from datetime import timezone
 from io import BytesIO
 from tempfile import NamedTemporaryFile
-from typing import List
-from typing import Optional
-from typing import Type
+from typing import BinaryIO
 from uuid import uuid4
 
 import pytz
 from django.conf import settings
 from django.core import management
 from django.core.files import File
+from django.core.files.storage import Storage
 from django.db import models
 from django.db.models import Count
 from django.db.models import Sum
@@ -24,6 +25,9 @@ from django.utils.translation import gettext_lazy as _
 from django_renderpdf.helpers import render_pdf
 from lxml import etree
 from lxml.builder import E
+from OpenSSL.crypto import FILETYPE_PEM
+from OpenSSL.crypto import X509
+from OpenSSL.crypto import load_certificate
 from zeep.exceptions import Fault
 
 from . import clients
@@ -60,7 +64,7 @@ CLIENT_VAT_CONDITIONS = (
 )
 
 
-def load_metadata():
+def load_metadata() -> None:
     """Loads metadata from fixtures into the database."""
 
     for model in GenericAfipType.SUBCLASSES:
@@ -68,9 +72,8 @@ def load_metadata():
         management.call_command("loaddata", label, app="afip")
 
 
-def check_response(response):
-    """
-    Check that a response is not an error.
+def check_response(response) -> None:
+    """Check that a response is not an error.
 
     AFIP allows us to create valid tickets with invalid key/CUIT pairs, so we
     can end up with tickets that fail on any service.
@@ -85,9 +88,8 @@ def check_response(response):
         raise exceptions.AfipException(response)
 
 
-def first_currency():
-    """
-    Returns the id for the first currency
+def first_currency() -> int | None:
+    """Returns the id for the first currency
 
     The `default` parameter of a foreign key *MUST* be a primary key (and not
     an instance), else migrations break. This helper method exists solely for
@@ -98,7 +100,7 @@ def first_currency():
         return ct.pk
 
 
-def _get_storage_from_settings(setting_name=None):
+def _get_storage_from_settings(setting_name: str) -> Storage:
     path = getattr(settings, setting_name, None)
     if not path:
         return import_string(settings.DEFAULT_FILE_STORAGE)()
@@ -108,9 +110,8 @@ def _get_storage_from_settings(setting_name=None):
 class GenericAfipTypeManager(models.Manager):
     """Default Manager for GenericAfipType."""
 
-    def __init__(self, service_name, type_name):
-        """
-        Create a new Manager instance for a GenericAfipType.
+    def __init__(self, service_name: str, type_name: str):
+        """Create a new Manager instance for a GenericAfipType.
 
         This should generally only be required to manually populate a single
         type with upstream data.
@@ -119,13 +120,11 @@ class GenericAfipTypeManager(models.Manager):
         self.__service_name = service_name
         self.__type_name = type_name
 
-    def populate(self, ticket=None):
+    def populate(self, ticket: AuthTicket = None) -> None:
         """Fetch and save data for this model from AFIP's WS.
 
         Direct usage of this method is discouraged, use
         :func:`~.models.load_metadata` instead.
-
-        If no ticket is provided, the most recent available one will be used.
         """
         ticket = ticket or AuthTicket.objects.get_any_active("wsfe")
         client = clients.get_client("wsfe", ticket.owner.is_sandboxed)
@@ -142,10 +141,10 @@ class GenericAfipTypeManager(models.Manager):
                 valid_to=parsers.parse_date(result.FchHasta),
             )
 
-    def get_by_natural_key(self, code):
+    def get_by_natural_key(self, code: str) -> GenericAfipType:
         return self.get(code=code)
 
-    def exists_by_natural_key(self, code):
+    def exists_by_natural_key(self, code: str) -> bool:
         return self.filter(code=code).exists()
 
 
@@ -156,7 +155,7 @@ class GenericAfipType(models.Model):
     not create subclasses of this model unless you really know what you're doing.
     """
 
-    SUBCLASSES: List[Type] = []
+    SUBCLASSES: list[type[models.Model]] = []
 
     def __init_subclass__(cls, **kwargs):
         """Keeps a registry of known subclasses."""
@@ -182,10 +181,10 @@ class GenericAfipType(models.Model):
         blank=True,
     )
 
-    def natural_key(self):
+    def natural_key(self) -> tuple[str]:
         return (self.code,)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.description
 
     class Meta:
@@ -193,8 +192,7 @@ class GenericAfipType(models.Model):
 
 
 class ReceiptType(GenericAfipType):
-    """
-    An AFIP receipt type.
+    """An AFIP receipt type.
 
     See the AFIP's documentation for details on each receipt type.
     """
@@ -207,8 +205,7 @@ class ReceiptType(GenericAfipType):
 
 
 class ConceptType(GenericAfipType):
-    """
-    An AFIP concept type.
+    """An AFIP concept type.
 
     See the AFIP's documentation for details on each concept type.
     """
@@ -221,8 +218,7 @@ class ConceptType(GenericAfipType):
 
 
 class DocumentType(GenericAfipType):
-    """
-    An AFIP document type.
+    """An AFIP document type.
 
     See the AFIP's documentation for details on each document type.
     """
@@ -235,8 +231,7 @@ class DocumentType(GenericAfipType):
 
 
 class VatType(GenericAfipType):
-    """
-    An AFIP VAT type.
+    """An AFIP VAT type.
 
     See the AFIP's documentation for details on each VAT type.
     """
@@ -249,8 +244,7 @@ class VatType(GenericAfipType):
 
 
 class TaxType(GenericAfipType):
-    """
-    An AFIP tax type.
+    """An AFIP tax type.
 
     See the AFIP's documentation for details on each tax type.
     """
@@ -263,15 +257,14 @@ class TaxType(GenericAfipType):
 
 
 class CurrencyType(GenericAfipType):
-    """
-    An AFIP curreny type.
+    """An AFIP curreny type.
 
     See the AFIP's documentation for details on each currency type.
     """
 
     objects = GenericAfipTypeManager("FEParamGetTiposMonedas", "Moneda")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.description} ({self.code})"
 
     class Meta:
@@ -280,8 +273,7 @@ class CurrencyType(GenericAfipType):
 
 
 class TaxPayer(models.Model):
-    """
-    Represents an AFIP TaxPayer.
+    """Represents an AFIP TaxPayer.
 
     Note that multiple instances of this object can actually represent the same
     taxpayer, each using a different key.
@@ -298,14 +290,14 @@ class TaxPayer(models.Model):
         help_text=_("A friendly name to recognize this taxpayer."),
     )
     key = models.FileField(
-        _("key"),
+        verbose_name=_("key"),
         upload_to="afip/taxpayers/keys/",
         storage=_get_storage_from_settings("AFIP_KEY_STORAGE"),
         blank=True,
         null=True,
     )
     certificate = models.FileField(
-        _("certificate"),
+        verbose_name=_("certificate"),
         upload_to="afip/taxpayers/certs/",
         storage=_get_storage_from_settings("AFIP_CERT_STORAGE"),
         blank=True,
@@ -344,7 +336,7 @@ class TaxPayer(models.Model):
     )
 
     @property
-    def logo_as_data_uri(self):
+    def logo_as_data_uri(self) -> str:
         """This TaxPayer's logo as a data uri."""
         _, ext = os.path.splitext(self.logo.file.name)
         with self.logo.open() as f:
@@ -355,14 +347,19 @@ class TaxPayer(models.Model):
         )
 
     @property
-    def certificate_object(self):
-        """Return the certificate as an OpenSSL object."""
+    def certificate_object(self) -> X509 | None:
+        """Returns the certificate as an OpenSSL object
+
+        Returns the certificate as an OpenSSL object (rather than as a file
+        object).
+        """
+
         if not self.certificate:
             return None
         self.certificate.seek(0)
-        return crypto.parse_certificate(self.certificate.read())
+        return load_certificate(FILETYPE_PEM, self.certificate.read())
 
-    def get_certificate_expiration(self):
+    def get_certificate_expiration(self) -> datetime | None:
         """
         Gets the certificate expiration from the certificate
 
@@ -372,11 +369,17 @@ class TaxPayer(models.Model):
         is saved, so you should generally prefer that method (since this one
         requires reading and parsing the entire certificate).
         """
-        datestring = self.certificate_object.get_notAfter().decode()
+        cert = self.certificate_object
+        if not cert:
+            return None
+        not_after = cert.get_notAfter()
+        if not not_after:
+            return None
+        datestring = not_after.decode()
         dt = datetime.strptime(datestring, "%Y%m%d%H%M%SZ")
         return dt.replace(tzinfo=timezone.utc)
 
-    def generate_key(self, force=False):
+    def generate_key(self, force=False) -> bool:
         """
         Creates a key file for this TaxPayer
 
@@ -399,7 +402,7 @@ class TaxPayer(models.Model):
 
         return True
 
-    def generate_csr(self, basename="djangoafip"):
+    def generate_csr(self, basename="djangoafip") -> BinaryIO:
         """
         Creates a CSR for this TaxPayer's key
 
@@ -417,19 +420,20 @@ class TaxPayer(models.Model):
         csr.seek(0)
         return csr
 
-    def create_ticket(self, service):
+    def create_ticket(self, service: str) -> AuthTicket:
         """Create an AuthTicket for a given service."""
         ticket = AuthTicket(owner=self, service=service)
         ticket.authorize()
         return ticket
 
-    def get_ticket(self, service):
-        """Return an existing AuthTicket for a given service."""
+    def get_ticket(self, service: str) -> AuthTicket | None:
+        """Return an existing AuthTicket for a given service, if any."""
         return self.auth_tickets.filter(
-            expires__gt=datetime.now(timezone.utc), service=service
+            expires__gt=datetime.now(timezone.utc),
+            service=service,
         ).last()
 
-    def get_or_create_ticket(self, service):
+    def get_or_create_ticket(self, service: str) -> AuthTicket:
         """
         Return or create a new AuthTicket for a given serivce.
 
@@ -441,7 +445,7 @@ class TaxPayer(models.Model):
         """
         return self.get_ticket(service) or self.create_ticket(service)
 
-    def fetch_points_of_sales(self, ticket=None):
+    def fetch_points_of_sales(self, ticket: AuthTicket = None) -> list[PointOfSales]:
         """
         Fetch all point of sales objects.
 
@@ -474,14 +478,14 @@ class TaxPayer(models.Model):
 
         return results
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<TaxPayer {}: {}, CUIT {}>".format(
             self.pk,
             self.name,
             self.cuit,
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.name)
 
     class Meta:
@@ -546,7 +550,7 @@ class TaxPayerProfile(models.Model):
         ),
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"<TaxPayerProfile for TaxPayer {self.pk}>"
 
     class Meta:
@@ -590,7 +594,7 @@ class PointOfSales(models.Model):
         on_delete=models.CASCADE,
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.number)
 
     class Meta:
@@ -600,7 +604,7 @@ class PointOfSales(models.Model):
 
 
 class AuthTicketManager(models.Manager):
-    def get_any_active(self, service: str):
+    def get_any_active(self, service: str) -> AuthTicket:
         """Return a valid, active ticket for a given service."""
         ticket = AuthTicket.objects.filter(
             token__isnull=False,
@@ -620,18 +624,18 @@ class AuthTicketManager(models.Manager):
         return taxpayer.create_ticket(service)
 
 
-def default_generated():
+def default_generated() -> datetime:
     """The default generated date for new tickets."""
     return datetime.now(TZ_AR)
 
 
-def default_expires():
+def default_expires() -> datetime:
     """The default expiration date for new tickets."""
     tomorrow = datetime.now(TZ_AR) + timedelta(hours=12)
     return tomorrow
 
 
-def default_unique_id():
+def default_unique_id() -> int:
     """A random unique id for new tickets."""
     return random.randint(0, 2147483647)
 
@@ -681,7 +685,7 @@ class AuthTicket(models.Model):
     TOKEN_XPATH = "/loginTicketResponse/credentials/token"
     SIGN_XPATH = "/loginTicketResponse/credentials/sign"
 
-    def __create_request_xml(self):
+    def __create_request_xml(self) -> bytes:
         request_xml = E.loginTicketRequest(
             {"version": "1.0"},
             E.header(
@@ -691,9 +695,10 @@ class AuthTicket(models.Model):
             ),
             E.service(self.service),
         )
+        # Hint: tostring returns bytes.
         return etree.tostring(request_xml, pretty_print=True)
 
-    def __sign_request(self, request):
+    def __sign_request(self, request: bytes) -> bytes:
         with self.owner.certificate.file.open("rb") as f:
             cert = f.read()
 
@@ -702,11 +707,11 @@ class AuthTicket(models.Model):
 
         return crypto.create_embeded_pkcs7_signature(request, cert, key)
 
-    def authorize(self):
+    def authorize(self) -> None:
         """Send this ticket to AFIP for authorization."""
-        request = self.__create_request_xml()
-        request = self.__sign_request(request)
-        request = base64.b64encode(request).decode()
+        request_xml = self.__create_request_xml()
+        signed_request = self.__sign_request(request_xml)
+        request = base64.b64encode(signed_request).decode()
 
         client = clients.get_client("wsaa", self.owner.is_sandboxed)
         try:
@@ -724,7 +729,7 @@ class AuthTicket(models.Model):
 
         self.save()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.unique_id)
 
     class Meta:
@@ -735,7 +740,7 @@ class AuthTicket(models.Model):
 class ReceiptQuerySet(models.QuerySet):
     """The default queryset obtains when querying via :class:`~.ReceiptManager`."""
 
-    def _assign_numbers(self):
+    def _assign_numbers(self) -> None:
         """Assign numbers in preparation for validating these receipts.
 
         WARNING: Don't call the method manually unless you know what you're
@@ -758,7 +763,7 @@ class ReceiptQuerySet(models.QuerySet):
             )
             next_num += 1
 
-    def check_groupable(self):
+    def check_groupable(self) -> ReceiptQuerySet:
         """Check that all receipts returned by this queryset are groupable.
 
         "Groupable" means that they can be validated together: they have the
@@ -779,7 +784,7 @@ class ReceiptQuerySet(models.QuerySet):
 
         return self
 
-    def validate(self, ticket=None):
+    def validate(self, ticket: AuthTicket = None) -> list[str]:
         """Validate all receipts matching this queryset.
 
         Note that, due to how AFIP implements its numbering, this method is not
@@ -809,7 +814,7 @@ class ReceiptQuerySet(models.QuerySet):
 
         return qs._validate(ticket)
 
-    def _validate(self, ticket=None):
+    def _validate(self, ticket=None) -> list[str]:
         first = self.first()
         ticket = ticket or first.point_of_sales.owner.get_or_create_ticket("wsfe")
         client = clients.get_client("wsfe", first.point_of_sales.owner.is_sandboxed)
@@ -860,7 +865,11 @@ class ReceiptManager(models.Manager):
     You should generally access this using ``Receipt.objects``.
     """
 
-    def fetch_last_receipt_number(self, point_of_sales, receipt_type):
+    def fetch_last_receipt_number(
+        self,
+        point_of_sales: PointOfSales,
+        receipt_type: ReceiptType,
+    ) -> int:
         """Returns the number for the last validated receipt."""
         client = clients.get_client("wsfe", point_of_sales.owner.is_sandboxed)
         response_xml = client.service.FECompUltimoAutorizado(
@@ -889,7 +898,12 @@ class ReceiptManager(models.Manager):
 
         return response_xml.CbteNro
 
-    def fetch_receipt_data(self, receipt_type, receipt_number, point_of_sales):
+    def fetch_receipt_data(
+        self,
+        receipt_type: ReceiptType,
+        receipt_number: int,
+        point_of_sales: PointOfSales,
+    ):  # TODO: Wrap this in a dataclass
         """Returns receipt related data"""
 
         if not receipt_number:
@@ -910,7 +924,7 @@ class ReceiptManager(models.Manager):
         except exceptions.AfipException:
             return None
 
-    def get_queryset(self):
+    def get_queryset(self) -> ReceiptQuerySet:
         return ReceiptQuerySet(self.model, using=self._db).select_related(
             "receipt_type",
         )
@@ -1060,19 +1074,19 @@ class Receipt(models.Model):
     # TODO: methods to validate totals
 
     @property
-    def total_vat(self):
+    def total_vat(self) -> int:
         """Returns the sum of all Vat objects."""
         q = Vat.objects.filter(receipt=self).aggregate(total=Sum("amount"))
         return q["total"] or 0
 
     @property
-    def total_tax(self):
+    def total_tax(self) -> int:
         """Returns the sum of all Tax objects."""
         q = Tax.objects.filter(receipt=self).aggregate(total=Sum("amount"))
         return q["total"] or 0
 
     @property
-    def formatted_number(self):
+    def formatted_number(self) -> str | None:
         """This receipt's number in the usual format: ``0001-00003087``."""
         if self.receipt_number:
             return "{:04d}-{:08d}".format(
@@ -1104,8 +1118,8 @@ class Receipt(models.Model):
         except ReceiptValidation.DoesNotExist:
             return False
 
-    def validate(self, ticket=None, raise_=False):
-        """Validate this receipt.
+    def validate(self, ticket: AuthTicket = None, raise_=False) -> list[str]:
+        """Validates this receipt.
 
         This is a shortcut to :class:`~.ReceiptQuerySet`'s method of the same
         name. Calling this validates only this instance.
@@ -1124,7 +1138,7 @@ class Receipt(models.Model):
             raise exceptions.ValidationError(rv[0])
         return rv
 
-    def revalidate(self) -> Optional["ReceiptValidation"]:
+    def revalidate(self) -> ReceiptValidation | None:
         """Revalidate this receipt.
 
         Fetches data of a validated receipt from AFIP's servers.
@@ -1168,7 +1182,7 @@ class Receipt(models.Model):
             return validation
         return None
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<Receipt {}: {} {} for {}>".format(
             self.pk,
             self.receipt_type,
@@ -1176,7 +1190,7 @@ class Receipt(models.Model):
             self.point_of_sales.owner,
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.receipt_number:
             return f"{self.receipt_type} {self.formatted_number}"
         else:
@@ -1191,7 +1205,7 @@ class Receipt(models.Model):
 
 
 class ReceiptPDFManager(models.Manager):
-    def create_for_receipt(self, receipt: Receipt, **kwargs):
+    def create_for_receipt(self, receipt: Receipt, **kwargs) -> ReceiptPDF:
         """Creates a ReceiptPDF object for a given receipt.
 
         Does not actually generate the related PDF file.
@@ -1240,7 +1254,7 @@ class ReceiptPDF(models.Model):
     PDF generation is skipped if the receipt has not been validated.
     """
 
-    def upload_to(self, filename="untitled", instance=None):
+    def upload_to(self, filename="untitled", instance: ReceiptPDF = None) -> str:
         """
         Returns the full path for generated receipts.
 
@@ -1323,7 +1337,7 @@ class ReceiptPDF(models.Model):
 
     objects = ReceiptPDFManager()
 
-    def save_pdf(self, save_model: bool = True):
+    def save_pdf(self, save_model: bool = True) -> None:
         """
         Save the receipt as a PDF related to this model.
 
@@ -1349,7 +1363,7 @@ class ReceiptPDF(models.Model):
         if save_model:
             self.save()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return _("Receipt PDF for %s") % self.receipt_id
 
     class Meta:
@@ -1396,7 +1410,7 @@ class ReceiptEntry(models.Model):
     )
 
     @property
-    def total_price(self):
+    def total_price(self) -> int:
         """The total price for this line (quantity * price)."""
         return self.quantity * self.unit_price
 
@@ -1439,7 +1453,7 @@ class Tax(models.Model):
         on_delete=models.PROTECT,
     )
 
-    def compute_amount(self):
+    def compute_amount(self) -> int:
         """Auto-assign and return the total amount for this tax."""
         self.amount = self.base_amount * self.aliquot / 100
         return self.amount
@@ -1552,13 +1566,13 @@ class ReceiptValidation(models.Model):
         on_delete=models.PROTECT,
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return _("Validation for %s. Result: %s") % (
             self.receipt,
             self.get_result_display(),
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<{} {}: {} for Receipt {}>".format(
             self.__class__.__name__,
             self.pk,

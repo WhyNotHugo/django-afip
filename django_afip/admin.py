@@ -1,3 +1,5 @@
+# Mypy doesn't play well with action-functions.
+#
 # type: ignore
 import logging
 from contextlib import contextmanager
