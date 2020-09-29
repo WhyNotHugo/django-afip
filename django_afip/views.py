@@ -7,6 +7,14 @@ from django_afip import models
 from django_afip import pdf
 
 
+TEMPLATE_NAMES = [
+    "receipts/{taxpayer}/pos_{point_of_sales}/code_{code}.html",
+    "receipts/{taxpayer}/code_{code}.html",
+    "receipts/code_{code}.html",
+    "receipts/{code}.html",
+]
+
+
 class ReceiptPDFView(PDFView):
     @cached_property
     def receipt(self):
@@ -20,8 +28,26 @@ class ReceiptPDFView(PDFView):
     def get_download_name(self):
         return "{}.pdf".format(self.receipt.formatted_number)
 
-    def get_template_name(self):
-        return "receipts/code_{}.html".format(self.receipt.receipt_type.code)
+    def get_template_names(self):
+        f"""Return the templates use to render the Receipt PDF.
+
+        Template discovery tries to find any of the below receipts::
+
+            {TEMPLATE_NAMES}
+
+        For example, to override the "Factura C" template for point of sales 0002 for
+        Taxpayer 20-32964233-0, use::
+
+            receipts/20329642330/pos_2/code_6.html
+        """
+        return [
+            template.format(
+                taxpayer=self.receipt.point_of_sales.owner.cuit,
+                point_of_sales=self.receipt.point_of_sales.number,
+                code=self.receipt.receipt_type.code,
+            )
+            for template in TEMPLATE_NAMES
+        ]
 
     @staticmethod
     def get_context_for_pk(pk, *args, **kwargs):
