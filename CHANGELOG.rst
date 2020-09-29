@@ -13,6 +13,10 @@ releases, in reverse chronological order.
 * Django 2.2 to 3.1 are supported.
 * The template tag ``receiptnumber`` (which was deprecated in 3.0.0) has been removed.
   Use ``Receipt.formatted_number`` instead.
+* Template discovery has been extended. See :meth:`~.ReceiptPDFView.get_template_names`
+  for the new behaviour.
+  The new behaviour is backwards compatible with pre-8.0.0 and does not require any
+  changes.
 
 7.1.2
 -----
