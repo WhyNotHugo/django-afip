@@ -1,7 +1,7 @@
 Printable Receipts
 ------------------
 
-Version 1.2.0 introduced PDF-generation for validated receipts.  This
+**django-afip** supports generating PDF files for validated receipts.  This
 functionality is backed mostly by three model classes:
 
 * :class:`~.TaxPayerProfile`: Contains the TaxPayer's metadata (such as
@@ -26,14 +26,14 @@ possible to construct ``ReceiptPDF`` manually without them.
 Barcodes
 ~~~~~~~~
 
-Since version 3.2.0, PDFs include the barcode defined in AFIP 1702/04.
+Generated PDFs include the barcode defined in AFIP 1702/04.
 
-Version 3.2.0 used the receipt's expiration date for the barcode. After some
+We use the receipt's expiration date for the barcode. After some
 debate with fellow developers and accountants, we've resolved that the CAE's
 expiration date should be used. Even though `resolution 1702/04`_ does not
-explicitly state this (it just says "Expiration Date", their own receipt PDFs
+explicitly state this (it just says "Expiration Date"), their own receipt PDFs
 use this date.
-Also, not all receipts have expiration dates.
+Another argument in favour of this, is that not all receipts have expiration dates.
 
 It was also later confirmed via a `response`_ from AFIP that the CAE expiration
 should be used.
@@ -58,8 +58,12 @@ URL-param, so URL registration should look something like:
         name="receipt_view",
     ),
 
-Note that you'll generally want to subclass these and add some for of
-permission checking.
+This uses **django_renderpdf** under the hook, and is a subclass of ``PDFView``. See
+into its own documentation for finer details on the view's rendering/response
+behaviour.
+
+Note that you'll generally want to subclass these and add some form of permission
+checking.
 
 .. autoclass:: django_afip.views.ReceiptPDFView
     :members:
