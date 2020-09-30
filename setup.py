@@ -15,7 +15,7 @@ setup(
     install_requires=[
         "cryptography<3.1",
         "django>=2.0.0,<=3.1",
-        "django_renderpdf>=0.1.0",
+        "django_renderpdf>=3.0.0,<4.0.0",
         "lxml>=3.4.4",
         "pyopenssl>=16.2.0",
         "python-barcode>=0.8.0",

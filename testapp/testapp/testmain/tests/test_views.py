@@ -1,5 +1,6 @@
 from datetime import date
 
+import pytest
 from django.test import Client
 from django.test import TestCase
 from django.urls import reverse
@@ -182,6 +183,27 @@ class ReceiptPDFTestCase(TestCase):
 
         headers = sorted(response.serialize_headers().decode().splitlines())
         self.assertIn("Content-Type: application/pdf", headers)
+
+
+@pytest.mark.django_db
+def test_template_discovery(client):
+    taxpayer = factories.TaxPayerFactory(cuit="20329642330")
+    factories.TaxPayerProfileFactory(taxpayer=taxpayer)
+    pdf = factories.ReceiptPDFFactory(
+        receipt__point_of_sales__owner=taxpayer,
+        receipt__point_of_sales__number=9999,
+        receipt__receipt_type__code=6,
+    )
+    factories.ReceiptValidationFactory(receipt=pdf.receipt)
+
+    client = Client()
+    response = client.get(
+        "{}?html=true".format(
+            reverse("receipt_displaypdf_view", args=(pdf.receipt.pk,))
+        )
+    )
+
+    assert response.content == b"This is a dummy template to test template discovery.\n"
 
 
 class ReceiptPDFViewDownloadNameTestCase(TestCase):

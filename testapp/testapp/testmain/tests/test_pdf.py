@@ -13,8 +13,7 @@ from django_afip.pdf import ReceiptBarcodeGenerator
 
 class ReceiptPDFGenerationTestCase(TestCase):
     def test_pdf_generation(self):
-        """
-        Test PDF file generation.
+        """Test PDF file generation.
 
         For the moment, this test case mostly verifies that pdf generation
         *works*, but does not actually validate the pdf file itself.
