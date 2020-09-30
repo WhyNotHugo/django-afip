@@ -8,15 +8,30 @@ releases, in reverse chronological order.
 -----
 * Receipts now show validation details in the admin.
 * The ``__str__`` for ``TaxPayer`` has changed. If you relied on this for rendering
-  content, please updated those references to ``taxpayer.cuit``.
+  content, please updated those references to :attr:`.TaxPayer.cuit`.
 * Python 3.6 to 3.9 are supported.
 * Django 2.2 to 3.1 are supported.
 * The template tag ``receiptnumber`` (which was deprecated in 3.0.0) has been removed.
-  Use ``Receipt.formatted_number`` instead.
+  Use :attr:`.Receipt.formatted_number` instead.
 * Template discovery has been extended. See :meth:`~.ReceiptPDFView.get_template_names`
   for the new behaviour.
   The new behaviour is backwards compatible with pre-8.0.0 and does not require any
   changes.
+* ``django_afip.views.ReceiptPDFDownloadView`` has been dropped. It was never
+  documented, and not really of great use. If you need to expose PDFs prompting the
+  user to download the file, use:
+
+.. code:: python
+
+    class MyPDFReceiptView(ReceiptPDFView):
+        """Indicates to browsers that they should prompt to download the file."""
+        prompt_download = True
+
+        @property
+        def download_name(self):
+            # You can customise the filename here.
+            # This is the default behaviour:
+            return f"{self.receipt.formatted_number}.pdf"
 
 7.1.2
 -----

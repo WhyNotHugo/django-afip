@@ -27,8 +27,9 @@ class ReceiptPDFView(PDFView):
             pk=self.kwargs["pk"],
         )
 
-    def get_download_name(self):
-        return "{}.pdf".format(self.receipt.formatted_number)
+    @property
+    def download_name(self):
+        return f"{self.receipt.formatted_number}.pdf"
 
     def get_template_names(self, receipt: models.Receipt = None):
         """Return the templates use to render the Receipt PDF.
@@ -113,7 +114,3 @@ class ReceiptPDFView(PDFView):
         context = super().get_context_data(*args, pk=pk, **kwargs)
         context.update(self.get_context_for_pk(pk, *args, **kwargs))
         return context
-
-
-class ReceiptPDFDownloadView(ReceiptPDFView):
-    prompt_download = True

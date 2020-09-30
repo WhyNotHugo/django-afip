@@ -4,6 +4,7 @@ from django.urls import path
 from django.views.static import serve
 
 from django_afip import views
+from testapp.testmain import views as test_views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -14,7 +15,7 @@ urlpatterns = [
     ),
     path(
         "invoices/pdf/<int:pk>",
-        views.ReceiptPDFDownloadView.as_view(),
+        test_views.ReceiptPDFDownloadView.as_view(),
         name="receipt_pdf_view",
     ),
     path(

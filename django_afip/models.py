@@ -1038,6 +1038,7 @@ class Receipt(models.Model):
 
     @property
     def formatted_number(self):
+        """This receipt's number in the usual format: ``0001-00003087``."""
         if self.receipt_number:
             return "{:04d}-{:08d}".format(
                 self.point_of_sales.number,
