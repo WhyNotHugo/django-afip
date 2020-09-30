@@ -63,11 +63,9 @@ checking.
 Templates
 .........
 
-The template used for the HTML and PDF receipts is found in
-``templates/receipts/code_X.html``, where X is the :class:`~.ReceiptType`'s
-code. If you want to override the default (you probably do), simply place a
-template with the same path/name inside your own app, and make sure it's listed
-*before* ``django_afip`` in ``INSTALLED_APPS``.
+If you want to override the default (you probably do), simply place a template with the
+same path/name inside your own app, and make sure that your app is listed *before*
+``django_afip`` in ``INSTALLED_APPS``.
 
 Note that you may also expose receipts as plain Django media files. The URL
 will be relative or absolute depending on your media files configuration.
@@ -78,4 +76,4 @@ will be relative or absolute depending on your media files configuration.
     printable.pdf_file
     # <FieldFile: receipts/790bc4f648e844bda7149ac517fdcf65.pdf>
     printable.pdf_file.url
-    # '/media/receipts/790bc4f648e844bda7149ac517fdcf65.pdf'
+    # 'https://media.example.com/receipts/790bc4f648e844bda7149ac517fdcf65.pdf'
