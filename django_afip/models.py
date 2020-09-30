@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import base64
 import logging
 import os
@@ -751,7 +753,7 @@ class ReceiptQuerySet(models.QuerySet):
             )
             next_num += 1
 
-    def check_groupable(self):
+    def check_groupable(self) -> ReceiptQuerySet:
         """Check that all receipts returned by this queryset are groupable.
 
         "Groupable" means that they can be validated together: they have the
@@ -772,7 +774,7 @@ class ReceiptQuerySet(models.QuerySet):
 
         return self
 
-    def validate(self, ticket=None):
+    def validate(self, ticket=None) -> List[str]:
         """Validate all receipts matching this queryset.
 
         Note that, due to how AFIP implements its numbering, this method is not
@@ -802,7 +804,7 @@ class ReceiptQuerySet(models.QuerySet):
 
         return qs._validate(ticket)
 
-    def _validate(self, ticket=None):
+    def _validate(self, ticket=None) -> List[str]:
         first = self.first()
         ticket = ticket or first.point_of_sales.owner.get_or_create_ticket("wsfe")
         client = clients.get_client("wsfe", first.point_of_sales.owner.is_sandboxed)
@@ -1076,7 +1078,7 @@ class Receipt(models.Model):
         except ReceiptValidation.DoesNotExist:
             return False
 
-    def validate(self, ticket=None, raise_=False):
+    def validate(self, ticket=None, raise_=False) -> List[str]:
         """Validate this receipt.
 
         This is a shortcut to :class:`~.ReceiptQuerySet`'s method of the same
