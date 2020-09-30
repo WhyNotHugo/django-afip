@@ -1285,11 +1285,7 @@ class ReceiptPDF(models.Model):
 
         self.pdf_file = File(BytesIO(), name="{}.pdf".format(uuid.uuid4().hex))
         render_pdf(
-            template=[
-                "receipts/code_{}.html".format(
-                    self.receipt.receipt_type.code,
-                )
-            ],
+            template=ReceiptPDFView().get_template_names(self.receipt),
             file_=self.pdf_file,
             context=ReceiptPDFView.get_context_for_pk(self.receipt_id),
         )

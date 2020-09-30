@@ -28,7 +28,7 @@ class ReceiptPDFView(PDFView):
     def get_download_name(self):
         return "{}.pdf".format(self.receipt.formatted_number)
 
-    def get_template_names(self):
+    def get_template_names(self, receipt: models.Receipt = None):
         f"""Return the templates use to render the Receipt PDF.
 
         Template discovery tries to find any of the below receipts::
@@ -40,11 +40,14 @@ class ReceiptPDFView(PDFView):
 
             receipts/20329642330/pos_2/code_6.html
         """
+        receipt = receipt or self.receipt
+        assert receipt is not None
+
         return [
             template.format(
-                taxpayer=self.receipt.point_of_sales.owner.cuit,
-                point_of_sales=self.receipt.point_of_sales.number,
-                code=self.receipt.receipt_type.code,
+                taxpayer=receipt.point_of_sales.owner.cuit,
+                point_of_sales=receipt.point_of_sales.number,
+                code=receipt.receipt_type.code,
             )
             for template in TEMPLATE_NAMES
         ]
