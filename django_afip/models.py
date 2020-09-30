@@ -293,8 +293,8 @@ class TaxPayer(models.Model):
     is_sandboxed = models.BooleanField(
         _("is sandboxed"),
         help_text=_(
-            "Indicates if this taxpayer interacts with the sandbox servers "
-            "rather than the production servers"
+            "Indicates if this taxpayer should use with the sandbox servers "
+            "rather than the production servers."
         ),
     )
     certificate_expiration = models.DateTimeField(
@@ -302,9 +302,8 @@ class TaxPayer(models.Model):
         editable=False,
         null=True,  # Either no cert, or and old TaxPayer
         help_text=_(
-            "Stores expiration for the current certificate. Note that this "
-            "field is updated pre-save, so the value may be invalid for "
-            "unsaved models."
+            "Stores expiration for the current certificate.<br>Note that this "
+            "field is updated pre-save, so the value may be invalid for unsaved models."
         ),
     )
     active_since = models.DateField(
@@ -314,12 +313,7 @@ class TaxPayer(models.Model):
 
     @property
     def certificate_object(self):
-        """
-        Returns the certificate as an OpenSSL object
-
-        Returns the certificate as an OpenSSL object (rather than as a file
-        object).
-        """
+        """Return the certificate as an OpenSSL object."""
         if not self.certificate:
             return None
         self.certificate.seek(0)
@@ -472,15 +466,18 @@ class TaxPayerProfile(models.Model):
     issuing_name = models.CharField(
         max_length=128,
         verbose_name=_("issuing name"),
+        help_text=_("The name of the issuing entity as shown on receipts."),
     )
     issuing_address = models.TextField(
         _("issuing address"),
+        help_text=_("The address of the issuing entity as shown on receipts."),
     )
     issuing_email = models.CharField(
         max_length=128,
         verbose_name=_("issuing email"),
         blank=True,
         null=True,
+        help_text=_("The email of the issuing entity as shown on receipts."),
     )
     vat_condition = models.CharField(
         max_length=48,
@@ -614,8 +611,7 @@ class AuthTicketManager(models.Manager):
 
 
 class AuthTicket(models.Model):
-    """
-    An AFIP Authorization ticket.
+    """An AFIP Authorization ticket.
 
     This is a signed ticket used to communicate with AFIP's webservices.
 
@@ -654,7 +650,7 @@ class AuthTicket(models.Model):
     service = models.CharField(
         _("service"),
         max_length=6,
-        help_text=_("Service for which this ticket has been authorized"),
+        help_text=_("Service for which this ticket has been authorized."),
     )
 
     token = models.TextField(
@@ -723,13 +719,10 @@ class AuthTicket(models.Model):
 
 
 class ReceiptQuerySet(models.QuerySet):
-    """
-    The default queryset obtains when querying via :class:`~.ReceiptManager`.
-    """
+    """The default queryset obtains when querying via :class:`~.ReceiptManager`."""
 
     def _assign_numbers(self):
-        """
-        Assign numbers in preparation for validating these receipts.
+        """Assign numbers in preparation for validating these receipts.
 
         WARNING: Don't call the method manually unless you know what you're
         doing!
@@ -752,8 +745,7 @@ class ReceiptQuerySet(models.QuerySet):
             next_num += 1
 
     def check_groupable(self):
-        """
-        Checks that all receipts returned by this queryset are groupable.
+        """Check that all receipts returned by this queryset are groupable.
 
         "Groupable" means that they can be validated together: they have the
         same POS and receipt type.
@@ -774,8 +766,7 @@ class ReceiptQuerySet(models.QuerySet):
         return self
 
     def validate(self, ticket=None):
-        """
-        Validates all receipts matching this queryset.
+        """Validate all receipts matching this queryset.
 
         Note that, due to how AFIP implements its numbering, this method is not
         thread-safe, or even multiprocess-safe.
@@ -850,8 +841,7 @@ class ReceiptQuerySet(models.QuerySet):
 
 
 class ReceiptManager(models.Manager):
-    """
-    The default manager for the :class:`~.Receipt` class.
+    """Default manager for the :class:`~.Receipt` class.
 
     You should generally access this using ``Receipt.objects``.
     """
@@ -892,8 +882,7 @@ class ReceiptManager(models.Manager):
 
 
 class Receipt(models.Model):
-    """
-    A receipt, as sent to AFIP.
+    """A receipt, as sent to AFIP.
 
     Note that AFIP allows sending ranges of receipts, but this isn't generally
     what you want, so we model invoices individually.
@@ -929,16 +918,12 @@ class Receipt(models.Model):
         DocumentType,
         verbose_name=_("document type"),
         related_name="receipts",
-        help_text=_(
-            "The document type of the customer to whom this receipt is addressed"
-        ),
+        help_text=_("The document type of the recipient of this receipt."),
         on_delete=models.PROTECT,
     )
     document_number = models.BigIntegerField(
         _("document number"),
-        help_text=_(
-            "The document number of the customer to whom this receipt is addressed"
-        ),
+        help_text=_("The document number of the recipient of this receipt."),
     )
     # NOTE: WS will expect receipt_from and receipt_to.
     receipt_number = models.PositiveIntegerField(
@@ -952,7 +937,7 @@ class Receipt(models.Model):
     )
     issued_date = models.DateField(
         verbose_name=_("issued date"),
-        help_text=_("Can diverge up to 5 days for good, or 10 days otherwise"),
+        help_text=_("Can diverge up to 5 days for good, or 10 days otherwise."),
     )
     total_amount = models.DecimalField(
         # ImpTotal
@@ -970,7 +955,7 @@ class Receipt(models.Model):
         max_digits=15,
         decimal_places=2,
         help_text=_(
-            "The total amount to which taxes do not apply. "
+            "The total amount to which taxes do not apply.<br>"
             "For C-type receipts, this must be zero."
         ),
     )
@@ -980,7 +965,7 @@ class Receipt(models.Model):
         max_digits=15,
         decimal_places=2,
         help_text=_(
-            "The total amount to which taxes apply. "
+            "The total amount to which taxes apply.<br>"
             "For C-type receipts, this is equal to the subtotal."
         ),
     )
@@ -991,7 +976,7 @@ class Receipt(models.Model):
         max_digits=15,
         decimal_places=2,
         help_text=_(
-            "Only for categories which are tax-exempt. "
+            "Only for categories which are tax-exempt.<br>"
             "For C-type receipts, this must be zero."
         ),
     )
@@ -1017,9 +1002,7 @@ class Receipt(models.Model):
         CurrencyType,
         verbose_name=_("currency"),
         related_name="documents",
-        help_text=_(
-            "Currency in which this receipt is issued.",
-        ),
+        help_text=_("Currency in which this receipt is issued."),
         on_delete=models.PROTECT,
         default=first_currency,
     )
@@ -1028,9 +1011,7 @@ class Receipt(models.Model):
         max_digits=10,
         decimal_places=6,
         default=1,
-        help_text=_(
-            "Quote of the day for the currency used in the receipt",
-        ),
+        help_text=_("The currency's quote on the day this receipt was issued."),
     )
     related_receipts = models.ManyToManyField(
         "Receipt",
@@ -1065,9 +1046,8 @@ class Receipt(models.Model):
         return None
 
     @property
-    def is_validated(self):
-        """
-        Returns True if this instance is validated.
+    def is_validated(self) -> bool:
+        """True if this instance is validated.
 
         Note that resolving this property requires a DB query, so if you've a
         very large amount of receipts you should prefetch (see django's
@@ -1078,8 +1058,6 @@ class Receipt(models.Model):
         filter them via a QuerySet::
 
             Receipt.objects.filter(validation__result==RESULT_APPROVED)
-
-        :rtype: bool
         """
         # Avoid the DB lookup if possible:
         if not self.receipt_number:
@@ -1091,8 +1069,7 @@ class Receipt(models.Model):
             return False
 
     def validate(self, ticket=None, raise_=False):
-        """
-        Validates this receipt.
+        """Validate this receipt.
 
         This is a shortcut to :class:`~.ReceiptQuerySet`'s method of the same
         name. Calling this validates only this instance.
@@ -1134,10 +1111,10 @@ class Receipt(models.Model):
 
 
 class ReceiptPDFManager(models.Manager):
-    def create_for_receipt(self, receipt, **kwargs):
-        """
-        Creates a ReceiptPDF object for a given receipt. Does not actually
-        generate the related PDF file.
+    def create_for_receipt(self, receipt: Receipt, **kwargs):
+        """Creates a ReceiptPDF object for a given receipt.
+
+        Does not actually generate the related PDF file.
 
         All attributes will be completed with the information for the relevant
         ``TaxPayerProfile`` instance.
@@ -1167,8 +1144,7 @@ class ReceiptPDFManager(models.Manager):
 
 
 class ReceiptPDF(models.Model):
-    """
-    Printable version of a receipt.
+    """Printable version of a receipt.
 
     Contains all print-related data of a receipt.
 
@@ -1262,19 +1238,19 @@ class ReceiptPDF(models.Model):
     sales_terms = models.CharField(
         max_length=48,
         verbose_name=_("sales terms"),
-        help_text=_('Should be something like "Cash", "Payable in 30 days", etc'),
+        help_text=_('Should be something like "Cash", "Payable in 30 days", etc.'),
     )
 
     objects = ReceiptPDFManager()
 
-    def save_pdf(self, save_model=True):
+    def save_pdf(self, save_model: bool = True):
         """
         Save the receipt as a PDF related to this model.
 
         The related :class:`~.Receipt` should be validated first, of course.
         This model instance must have been saved prior to calling this method.
 
-        :param bool save_model: If True, immediately save this model instance.
+        :param save_model: If True, immediately save this model instance.
         """
         from django_afip.views import ReceiptPDFView
 
@@ -1302,8 +1278,7 @@ class ReceiptPDF(models.Model):
 
 
 class ReceiptEntry(models.Model):
-    """
-    An entry in a receipt.
+    """An entry in a receipt.
 
     Each ReceiptEntry represents a line in printable version of a Receipt. You
     should generally have one instance per product or service.
@@ -1425,8 +1400,7 @@ class Vat(models.Model):
 
 
 class Observation(models.Model):
-    """
-    An observation returned by AFIP.
+    """An observation returned by AFIP.
 
     AFIP seems to assign re-used codes to Observation, so we actually store
     them as separate objects, and link to them from failed validations.
@@ -1446,8 +1420,7 @@ class Observation(models.Model):
 
 
 class ReceiptValidation(models.Model):
-    """
-    The validation for a single :class:`~.Receipt`.
+    """The validation for a single :class:`~.Receipt`.
 
     This contains all validation-related data for a receipt, including its CAE
     and the CAE expiration, unless validation has failed.
@@ -1467,7 +1440,7 @@ class ReceiptValidation(models.Model):
             (RESULT_APPROVED, _("approved")),
             (RESULT_REJECTED, _("rejected")),
         ),
-        help_text=_("Indicates whether the validation was succesful or not"),
+        help_text=_("Indicates whether the validation was succesful or not."),
     )
     processed_date = models.DateTimeField(
         _("processed date"),
@@ -1475,11 +1448,11 @@ class ReceiptValidation(models.Model):
     cae = models.CharField(
         _("cae"),
         max_length=14,
-        help_text=_("The CAE as returned by the AFIP"),
+        help_text=_("The CAE as returned by the AFIP."),
     )
     cae_expiration = models.DateField(
         _("cae expiration"),
-        help_text=_("The CAE expiration as returned by the AFIP"),
+        help_text=_("The CAE expiration as returned by the AFIP."),
     )
     observations = models.ManyToManyField(
         Observation,
@@ -1495,7 +1468,7 @@ class ReceiptValidation(models.Model):
         Receipt,
         related_name="validation",
         verbose_name=_("receipt"),
-        help_text=_("The Receipt for which this validation applies"),
+        help_text=_("The Receipt for which this validation applies."),
         on_delete=models.PROTECT,
     )
 

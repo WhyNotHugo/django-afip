@@ -262,7 +262,7 @@ class ReceiptAdmin(admin.ModelAdmin):
         if errs:
             self.message_user(
                 request,
-                _("Receipt validation failed: %s") % errs,
+                _("Receipt validation failed: %s.") % errs,
                 messages.ERROR,
             )
 
@@ -339,7 +339,7 @@ class TaxPayerAdmin(admin.ModelAdmin):
         if queryset.count() > 1:
             self.message_user(
                 request,
-                message=_("Can only generate CSR for one taxpayer at a time"),
+                message=_("Can only generate CSR for one taxpayer at a time."),
                 level=messages.ERROR,
             )
             return
