@@ -1,34 +1,34 @@
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.serialization import Encoding
+from cryptography.hazmat.primitives.serialization import load_pem_private_key
+from cryptography.hazmat.primitives.serialization.pkcs7 import PKCS7Options
+from cryptography.hazmat.primitives.serialization.pkcs7 import PKCS7SignatureBuilder
+from cryptography.x509 import load_pem_x509_certificate
 from OpenSSL import crypto
 
 from django_afip import exceptions
 
 
-def create_embeded_pkcs7_signature(data: bytes, cert: str, key: str):
-    """
-    Creates an embedded ("nodetached") PKCS7 signature.
+def create_embeded_pkcs7_signature(data: bytes, cert: bytes, key: bytes):
+    """Creates an embedded ("nodetached") PKCS7 signature.
 
     This is equivalent to the output of::
 
         openssl smime -sign -signer cert -inkey key -outform DER -nodetach < data
     """
 
-    assert isinstance(data, bytes)
-    assert isinstance(cert, str)
-
     try:
-        pkey = crypto.load_privatekey(crypto.FILETYPE_PEM, key)
-        signcert = crypto.load_certificate(crypto.FILETYPE_PEM, cert)
-    except crypto.Error as e:
+        pkey = load_pem_private_key(key, None)
+        signcert = load_pem_x509_certificate(cert)
+    except Exception as e:
         raise exceptions.CorruptCertificate from e
 
-    bio_in = crypto._new_mem_buf(data)
-    pkcs7 = crypto._lib.PKCS7_sign(
-        signcert._x509, pkey._pkey, crypto._ffi.NULL, bio_in, 0
+    signed_data = (
+        PKCS7SignatureBuilder()
+        .set_data(data)
+        .add_signer(signcert, pkey, hashes.SHA256())
+        .sign(Encoding.DER, [PKCS7Options.Binary])
     )
-    bio_out = crypto._new_mem_buf()
-    crypto._lib.i2d_PKCS7_bio(bio_out, pkcs7)
-    signed_data = crypto._bio_to_string(bio_out)
-
     return signed_data
 
 

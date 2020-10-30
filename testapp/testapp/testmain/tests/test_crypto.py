@@ -9,7 +9,7 @@ def signed_data(base_path):
         return data.read()
 
 
-def test_pkcs7_signing(expired_key, expired_crt, signed_data):
+def test_pkcs7_signing(expired_key: bytes, expired_crt: bytes, signed_data: bytes):
     # Use an expired cert here since this won't change on a yearly basis.
     data = b"Some data."
 

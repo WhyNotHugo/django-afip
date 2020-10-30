@@ -9,12 +9,12 @@ def base_path() -> Path:
 
 
 @pytest.fixture
-def expired_crt(base_path) -> str:
-    with open(base_path.joinpath("test_expired.crt")) as crt:
+def expired_crt(base_path) -> bytes:
+    with open(base_path.joinpath("test_expired.crt"), "rb") as crt:
         return crt.read()
 
 
 @pytest.fixture
-def expired_key(base_path) -> str:
-    with open(base_path.joinpath("test_expired.key")) as key:
+def expired_key(base_path) -> bytes:
+    with open(base_path.joinpath("test_expired.key"), "rb") as key:
         return key.read()
