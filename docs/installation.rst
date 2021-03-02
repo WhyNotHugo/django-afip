@@ -33,7 +33,7 @@ Make sure to run all migrations after you've added the app:
 Configuration
 -------------
 
-It is also possible (yet optional) to define optional storages for files used
+It is also possible (yet optional) to define storages for files used
 by the app.  If undefined, the default file storage is used.
 
 The value of these settings should be a string with the path to the instance of
