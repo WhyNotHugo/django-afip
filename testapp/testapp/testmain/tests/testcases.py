@@ -33,6 +33,6 @@ class PopulatedLiveAfipTestCase(LiveAfipTestCase):
     def setUp(self):
         """Populate AFIP metadata and create a TaxPayer and PointOfSales."""
         super().setUp()
-        models.populate_all()
+        models.load_metadata()
         taxpayer = models.TaxPayer.objects.first()
         taxpayer.fetch_points_of_sales()

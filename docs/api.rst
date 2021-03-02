@@ -36,11 +36,12 @@ unless you intend to generate PDFs for receipts.
 Metadata models
 ---------------
 
-These models represent metadata like currency types or document types. Their
-tables should be populated from AFIP's webservices, using the ``afipmetadata``
-command.
+These models represent metadata like currency types or document types.
 
-.. autofunction:: django_afip.models.populate_all
+You should make sure you populate these tables either via the ``afipmetadata``
+command, or the ``load_metadata`` function:
+
+.. autofunction:: django_afip.models.load_metadata
 
 .. autoclass:: django_afip.models.ConceptType
     :members:

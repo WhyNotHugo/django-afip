@@ -9,10 +9,13 @@ from datetime import timedelta
 from datetime import timezone
 from io import BytesIO
 from tempfile import NamedTemporaryFile
+from typing import List
+from typing import Type
 from uuid import uuid4
 
 import pytz
 from django.conf import settings
+from django.core import management
 from django.core.files import File
 from django.db import models
 from django.db.models import Count
@@ -59,14 +62,12 @@ CLIENT_VAT_CONDITIONS = (
 )
 
 
-def populate_all():
-    """Fetch and store all metadata from the AFIP."""
-    ReceiptType.objects.populate()
-    ConceptType.objects.populate()
-    DocumentType.objects.populate()
-    VatType.objects.populate()
-    TaxType.objects.populate()
-    CurrencyType.objects.populate()
+def load_metadata():
+    """Loads metadata from fixtures into the database."""
+
+    for model in GenericAfipType.SUBCLASSES:
+        label = model._meta.label.split(".")[1].lower()
+        management.call_command("loaddata", label, app="afip")
 
 
 def check_response(response):
@@ -121,8 +122,10 @@ class GenericAfipTypeManager(models.Manager):
         self.__type_name = type_name
 
     def populate(self, ticket=None):
-        """
-        Populate the database with types retrieved from the AFIP.
+        """Fetch and save data for this model from AFIP's WS.
+
+        Direct usage of this method is discouraged, use
+        :func:`~.models.load_metadata` instead.
 
         If no ticket is provided, the most recent available one will be used.
         """
@@ -141,9 +144,26 @@ class GenericAfipTypeManager(models.Manager):
                 valid_to=parsers.parse_date(result.FchHasta),
             )
 
+    def get_by_natural_key(self, code):
+        return self.get(code=code)
+
+    def exists_by_natural_key(self, code):
+        return self.filter(code=code).exists()
+
 
 class GenericAfipType(models.Model):
-    """An abstract class for several of AFIP's metadata types."""
+    """An abstract class for several of AFIP's metadata types.
+
+    You should not use this class directly, only subclasses of it. You should
+    not create subclasses of this model unless you really know what you're doing.
+    """
+
+    SUBCLASSES: List[Type] = []
+
+    def __init_subclass__(cls, **kwargs):
+        """Keeps a registry of known subclasses."""
+        super().__init_subclass__(**kwargs)
+        GenericAfipType.SUBCLASSES.append(cls)
 
     code = models.CharField(
         _("code"),
@@ -163,6 +183,9 @@ class GenericAfipType(models.Model):
         null=True,
         blank=True,
     )
+
+    def natural_key(self):
+        return (self.code,)
 
     def __str__(self):
         return self.description

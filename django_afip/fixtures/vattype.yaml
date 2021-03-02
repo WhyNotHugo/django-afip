@@ -1,0 +1,36 @@
+- model: afip.vattype
+  fields:
+    code: '3'
+    description: 0%
+    valid_from: 2009-02-20
+    valid_to: null
+- model: afip.vattype
+  fields:
+    code: '4'
+    description: 10.5%
+    valid_from: 2009-02-20
+    valid_to: null
+- model: afip.vattype
+  fields:
+    code: '5'
+    description: 21%
+    valid_from: 2009-02-20
+    valid_to: null
+- model: afip.vattype
+  fields:
+    code: '6'
+    description: 27%
+    valid_from: 2009-02-20
+    valid_to: null
+- model: afip.vattype
+  fields:
+    code: '8'
+    description: 5%
+    valid_from: 2014-10-20
+    valid_to: null
+- model: afip.vattype
+  fields:
+    code: '9'
+    description: 2.5%
+    valid_from: 2014-10-20
+    valid_to: null

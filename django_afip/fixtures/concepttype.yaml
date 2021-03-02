@@ -1,0 +1,18 @@
+- model: afip.concepttype
+  fields:
+    code: '1'
+    description: Producto
+    valid_from: 2010-09-17
+    valid_to: null
+- model: afip.concepttype
+  fields:
+    code: '2'
+    description: Servicios
+    valid_from: 2010-09-17
+    valid_to: null
+- model: afip.concepttype
+  fields:
+    code: '3'
+    description: Productos y Servicios
+    valid_from: 2010-09-17
+    valid_to: null
