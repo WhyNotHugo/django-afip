@@ -9,6 +9,8 @@ from datetime import timedelta
 from datetime import timezone
 from io import BytesIO
 from tempfile import NamedTemporaryFile
+from typing import List
+from typing import Type
 from uuid import uuid4
 
 import pytz
@@ -149,7 +151,18 @@ class GenericAfipTypeManager(models.Manager):
 
 
 class GenericAfipType(models.Model):
-    """An abstract class for several of AFIP's metadata types."""
+    """An abstract class for several of AFIP's metadata types.
+
+    You should not use this class directly, only subclasses of it. You should
+    not create subclasses of this model unless you really know what you're doing.
+    """
+
+    SUBCLASSES: List[Type] = []
+
+    def __init_subclass__(cls, **kwargs):
+        """Keeps a registry of known subclasses."""
+        super().__init_subclass__(**kwargs)
+        GenericAfipType.SUBCLASSES.append(cls)
 
     code = models.CharField(
         _("code"),
