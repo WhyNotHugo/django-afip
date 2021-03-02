@@ -94,13 +94,9 @@ class ReceiptPDFView(PDFView):
             )
         )
         taxpayer = receipt_pdf.receipt.point_of_sales.owner
-        extras = models.TaxPayerExtras.objects.filter(
-            taxpayer=taxpayer,
-        ).first()
 
         context["pdf"] = receipt_pdf
         context["taxpayer"] = taxpayer
-        context["extras"] = extras
         context["qrcode"] = get_encoded_qrcode(receipt_pdf)
 
         return context

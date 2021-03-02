@@ -97,6 +97,7 @@ class TaxPayerFactory(DjangoModelFactory):
     key = FileField(from_func=_key_file)
     certificate = FileField(from_func=_cert_file)
     active_since = datetime(2011, 10, 3)
+    logo = ImageField(from_func=_tiny_image_file)
 
 
 class AlternateTaxpayerFactory(DjangoModelFactory):
@@ -221,11 +222,3 @@ class TaxFactory(DjangoModelFactory):
     base_amount = 100
     receipt = SubFactory(ReceiptFactory)
     tax_type = SubFactory(TaxTypeFactory)
-
-
-class TaxPayerExtras(DjangoModelFactory):
-    class Meta:
-        model = models.TaxPayerExtras
-
-    taxpayer = SubFactory(TaxPayerFactory)
-    logo = ImageField(from_func=_tiny_image_file)

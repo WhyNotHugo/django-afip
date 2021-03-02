@@ -262,10 +262,13 @@ class TaxPayer(models.Model):
     """
     Represents an AFIP TaxPayer.
 
-    This class has the bare minimum required for most AFIP services.
-
     Note that multiple instances of this object can actually represent the same
     taxpayer, each using a different key.
+
+    The following fields are only used for generating printables, and are never
+    sent to AFIP, hence, are entirely optional:
+
+    - logo
     """
 
     name = models.CharField(
@@ -310,6 +313,25 @@ class TaxPayer(models.Model):
         _("active since"),
         help_text=_("Date since which this taxpayer has been legally active."),
     )
+    logo = models.ImageField(
+        verbose_name=_("logo"),
+        upload_to="afip/taxpayers/logos/",
+        storage=_get_storage_from_settings("AFIP_LOGO_STORAGE"),
+        blank=True,
+        null=True,
+        help_text=_("A logo to use when generating printable receipts."),
+    )
+
+    @property
+    def logo_as_data_uri(self):
+        """This TaxPayer's logo as a data uri."""
+        _, ext = os.path.splitext(self.logo.file.name)
+        with self.logo.open() as f:
+            data = base64.b64encode(f.read())
+
+        return "data:image/{};base64,{}".format(
+            ext[1:], data.decode()  # Remove the leading dot.
+        )
 
     @property
     def certificate_object(self):
@@ -509,40 +531,6 @@ class TaxPayerProfile(models.Model):
     class Meta:
         verbose_name = _("taxpayer profile")
         verbose_name_plural = _("taxpayer profiles")
-
-
-class TaxPayerExtras(models.Model):
-    """Holds optional extra data for taxpayers."""
-
-    taxpayer = models.OneToOneField(
-        TaxPayer,
-        related_name="extras",
-        verbose_name=_("taxpayer"),
-        on_delete=models.CASCADE,
-    )
-    logo = models.ImageField(
-        verbose_name=_("logo"),
-        upload_to="afip/taxpayers/logos/",
-        storage=_get_storage_from_settings("AFIP_LOGO_STORAGE"),
-        blank=True,
-        null=True,
-        help_text=_("A logo to use when generating printable receipts."),
-    )
-
-    @property
-    def logo_as_data_uri(self):
-        """This TaxPayer's logo as a data uri."""
-        _, ext = os.path.splitext(self.logo.file.name)
-        with self.logo.open() as f:
-            data = base64.b64encode(f.read())
-
-        return "data:image/{};base64,{}".format(
-            ext[1:], data.decode()  # Remove the leading dot.
-        )
-
-    class Meta:
-        verbose_name = _("taxpayer extras")
-        verbose_name_plural = _("taxpayers extras")
 
 
 class PointOfSales(models.Model):
