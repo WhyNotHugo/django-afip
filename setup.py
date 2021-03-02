@@ -18,12 +18,12 @@ setup(
         "django_renderpdf>=3.0.0,<4.0.0",
         "lxml>=3.4.4",
         "pyopenssl>=16.2.0",
-        "python-barcode>=0.8.0",
         "pytz>=2015.4",
         "setuptools-git>=1.1",
         "setuptools-scm>=1.7.0",
         "wheel>=0.24.0",
         "zeep>=1.1.0,<4.0.0",
+        "qrcode[pil]>=6.1,<7.0",
     ],
     extras_require={
         "docs": ["Sphinx", "sphinx-autobuild"],

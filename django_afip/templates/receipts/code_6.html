@@ -111,16 +111,16 @@
       </table>
 
       <footer>
+        <div class="qrcode">
+          <img src="data:image/png;base64,{{qrcode}}">
+        </div>
+
         <p class="cae">
           <strong>CAE</strong>
           {{ pdf.receipt.validation.cae }}
           <strong>Vto CAE</strong>
           {{ pdf.receipt.validation.cae_expiration }}
         </p>
-
-        <div class="barcode">
-          <img src="data:image/png;base64,{{barcode}}">
-        </div>
 
         Consultas de validez:
         <a href="http://www.afip.gob.ar/genericos/consultacae/">

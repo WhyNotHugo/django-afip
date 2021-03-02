@@ -1,82 +1,63 @@
+import base64
+import json
 import logging
 from io import BytesIO
 
-from barcode import ITF
-from barcode.writer import ImageWriter
-from django.utils.functional import cached_property
+import qrcode
+from PIL import Image
 
 
 logger = logging.getLogger(__name__)
 
 
-class ImageWitoutTextWriter(ImageWriter):
-    def _paint_text(self, xpos, ypos):
-        pass
+class ReceiptQrCode:
+    # Note: There's a space in the middle in the docs.
+    # I'm assuming it's a human error and that the URL doesn't take a space.
+    BASE_URL = "https://www.afip.gob.ar/fe/qr/?p="
 
-
-class ReceiptBarcodeGenerator:
     def __init__(self, receipt):
         self._receipt = receipt
+        # The examples on the website say that "importe" and "ctz" are both "decimal"
+        # type. JS/JSON has no decimal type. The examples use integeres.
+        #
+        # Using integers would drop cents, which would result in mismatching
+        # information. Using strings would add quotes, which likely breaks.
+        #
+        # Using floats seems to be the only viable solution, and SHOULD be fine for
+        # values in the range supported.
+        self._data = {
+            "ver": 1,
+            "fecha": receipt.issued_date.strftime("%Y-%m-%d"),
+            "cuit": str(receipt.point_of_sales.owner.cuit),
+            "ptoVta": receipt.point_of_sales.number,
+            "tipoCmp": receipt.receipt_type.code,
+            "nroCmp": receipt.receipt_number,
+            "importe": float(receipt.total_amount),
+            "moneda": receipt.currency.code,
+            "ctz": float(receipt.currency_quote),
+            "tipoDocRec": receipt.document_type.code,
+            "nroDocRec": receipt.document_number,
+            "tipoCodAut": "E",  # We don't support anything except CAE.
+            "codAut": receipt.validation.cae,
+        }
 
-    @cached_property
-    def numbers(self):
-        """
-        Returns the barcode's number without the verification digit.
+    def as_png(self) -> Image:
+        json_data = json.dumps(self._data)
+        encoded_json = base64.b64encode(json_data.encode()).decode()
+        url = f"{self.BASE_URL}{encoded_json}"
 
-        :return: list(int)
-        """
-        numstring = "{:011d}{:02d}{:04d}{}{}".format(
-            self._receipt.point_of_sales.owner.cuit,  # 11 digits
-            int(self._receipt.receipt_type.code),  # 2 digits
-            self._receipt.point_of_sales.number,  # point of sales
-            self._receipt.validation.cae,  # 14 digits
-            self._receipt.validation.cae_expiration.strftime("%Y%m%d"),  # 8
-        )
-        return [int(num) for num in numstring]
+        qr = qrcode.QRCode(version=1, border=4)
+        qr.add_data(url)
+        qr.make()
 
-    @staticmethod
-    def verification_digit(numbers):
-        """
-        Returns the verification digit for a given numbre.
+        return qr.make_image()
 
-        The verification digit is calculated as follows:
 
-        * A = sum of all even-positioned numbers
-        * B = A * 3
-        * C = sum of all odd-positioned numbers
-        * D = B + C
-        * The results is the smallset number N, such that (D + N) % 10 == 0
+def get_encoded_qrcode(receipt_pdf) -> str:
+    """Return a QRCode encoded for embeding in HTML."""
 
-        NOTE: Afip's documentation seems to have odd an even mixed up in the
-        explanation, but all examples follow the above algorithm.
+    img_data = BytesIO()
+    qr_img = ReceiptQrCode(receipt_pdf.receipt).as_png()
+    qr_img.save(img_data, format="PNG")
 
-        :param list(int) numbers): The numbers for which the digits is to be
-            calculated.
-        :return: int
-        """
-        a = sum(numbers[::2])
-        b = a * 3
-        c = sum(numbers[1::2])
-        d = b + c
-        e = d % 10
-        if e == 0:
-            return e
-        return 10 - e
-
-    @cached_property
-    def full_number(self):
-        """
-        Returns the full number including the verification digit.
-
-        :return: str
-        """
-        return "{}{}".format(
-            "".join(str(n) for n in self.numbers),
-            ReceiptBarcodeGenerator.verification_digit(self.numbers),
-        )
-
-    def generate_barcode(self, writer_class=ImageWitoutTextWriter):
-        rv = BytesIO()
-        ITF(self.full_number, writer=writer_class()).write(rv)
-
-        return rv.getvalue()
+    return base64.b64encode(img_data.getvalue()).decode()

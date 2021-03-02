@@ -150,13 +150,12 @@ a {
     margin-left: 20px;
 }
 
-.barcode {
+.qrcode {
     text-align: center;
+    float: left;
 }
 
-.barcode img {
+.qrcode img {
     display: block;
-    height: 80px;
-    margin-left: -35px;  /* Aligns with text */
-    width: 450px;
+    width: 120px;
 }

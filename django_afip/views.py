@@ -1,10 +1,8 @@
-import base64
-
 from django.utils.functional import cached_property
 from django_renderpdf.views import PDFView
 
 from django_afip import models
-from django_afip import pdf
+from django_afip.pdf import get_encoded_qrcode
 
 
 # Note: When updating this, be sure to update the docstring of the method that uses
@@ -100,13 +98,10 @@ class ReceiptPDFView(PDFView):
             taxpayer=taxpayer,
         ).first()
 
-        generator = pdf.ReceiptBarcodeGenerator(receipt_pdf.receipt)
-        barcode = base64.b64encode(generator.generate_barcode())
-
         context["pdf"] = receipt_pdf
         context["taxpayer"] = taxpayer
         context["extras"] = extras
-        context["barcode"] = barcode.decode()
+        context["qrcode"] = get_encoded_qrcode(receipt_pdf)
 
         return context
 
