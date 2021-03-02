@@ -77,6 +77,13 @@ duplicate data.
 This metadata can also be imported programatically, by using the function
 :func:`~.models.load_metadata`. This can be useful for your unit tests.
 
+.. hint::
+
+    Since it's safe to run ``load_metadata`` as many times as you wish, it may
+    be feasible to run this right after you run your migrations in your deploy
+    script. This will make sure you always have all metadata loaded in all
+    environments.
+
 You are now ready to start creating and validating receipts. While you may do
 this via the admin as well, you probably want to do this programmatically or via
 some custom view.
