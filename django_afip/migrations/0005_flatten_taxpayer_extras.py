@@ -6,7 +6,7 @@ from django.db import models
 def merge_taxpayer_extras(apps, schema_editor):
     TaxPayerExtras = apps.get_model("afip", "TaxPayerExtras")
 
-    for extras in TaxPayerExtras.objects.all():
+    for extras in TaxPayerExtras.objects.all():  # pragma: no cover
         extras.taxpayer.logo = extras.logo
         extras.taxpayer.save()
 
