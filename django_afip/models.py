@@ -141,6 +141,12 @@ class GenericAfipTypeManager(models.Manager):
                 valid_to=parsers.parse_date(result.FchHasta),
             )
 
+    def get_by_natural_key(self, code):
+        return self.get(code=code)
+
+    def exists_by_natural_key(self, code):
+        return self.filter(code=code).exists()
+
 
 class GenericAfipType(models.Model):
     """An abstract class for several of AFIP's metadata types."""
@@ -163,6 +169,9 @@ class GenericAfipType(models.Model):
         null=True,
         blank=True,
     )
+
+    def natural_key(self):
+        return (self.code,)
 
     def __str__(self):
         return self.description
