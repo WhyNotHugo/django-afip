@@ -143,7 +143,6 @@ class ReceiptFactory(DjangoModelFactory):
     concept = SubFactory(ConceptTypeFactory, code=1)
     document_type = SubFactory(DocumentTypeFactory, code=96)
     document_number = 203012345
-    issued_date = datetime(2017, 5, 15)
     issued_date = LazyFunction(date.today)
     total_amount = 130
     net_untaxed = 0

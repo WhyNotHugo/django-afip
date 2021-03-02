@@ -32,6 +32,9 @@ releases, in reverse chronological order.
             # You can customise the filename here.
             # This is the default behaviour:
             return f"{self.receipt.formatted_number}.pdf"
+* QR Codes have been implemented and replace barcodes in receipts. If you use
+  custom receipt templates, you'll need to update them. The provided template
+  should serve as a reference.
 
 7.1.2
 -----

@@ -23,23 +23,15 @@ you need to regenerate it) by calling :meth:`.ReceiptPDF.save_pdf`.
 Note that the ``TaxPayerProfile`` model is merely a helper one -- it's entirely
 possible to construct ``ReceiptPDF`` manually without them.
 
-Barcodes
+QR Codes
 ~~~~~~~~
 
-Generated PDFs include the barcode defined in AFIP 1702/04.
+Generated PDFs include the QR Code that's required as of March 2021.
 
-We use the receipt's expiration date for the barcode. After some
-debate with fellow developers and accountants, we've resolved that the CAE's
-expiration date should be used. Even though `resolution 1702/04`_ does not
-explicitly state this (it just says "Expiration Date"), their own receipt PDFs
-use this date.
-Another argument in favour of this, is that not all receipts have expiration dates.
+It seems that all QR Codes redirect to the documentation -- even codes from
+their examples or from other implementation seem to do this. This is beyond our
+control.
 
-It was also later confirmed via a `response`_ from AFIP that the CAE expiration
-should be used.
-
-.. _resolution 1702/04: http://www.afip.gov.ar/afip/resol170204.html
-.. _response: https://www.afip.gob.ar/genericos/cit/VerConsulta.aspx?evt=2SSMPS%2bjf%2f1c%2fsn%2bheAaSw%3d%3d
 
 Exposing receipts
 ~~~~~~~~~~~~~~~~~
