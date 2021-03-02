@@ -60,21 +60,22 @@ Once you have created a :class:`~.TaxPayer`, you'll need its points of sales. Th
 again, can be done via the admin by selecting "fetch points of sales'. You may
 also do this programatically via :meth:`~.TaxPayer.fetch_points_of_sales`.
 
-Metadata populuation
-~~~~~~~~~~~~~~~~~~~~
+Loading Metadata
+~~~~~~~~~~~~~~~~
 
 You'll also need to pre-populate certain models with AFIP-defined metadata
 (:class:`~.ReceiptType`, :class:`~.DocumentType` and a few others).
 
-Rather than include fixtures which require updating over time, we fetch this
-information from AFIP's web services via an included django management command.
-This command is idempotent, and running it more than once will not create any
-duplicate data. To fetch all metadata, simply run::
+This package includes fixtures with this metadata, which can be imported by
+running::
 
     python manage.py afipmetadata
 
-This metadata can also be downloaded programatically, by using the function
-:func:`~.models.populate_all`.
+This command is idempotent, and running it more than once will not create any
+duplicate data.
+
+This metadata can also be imported programatically, by using the function
+:func:`~.models.load_metadata`. This can be useful for your unit tests.
 
 You are now ready to start creating and validating receipts. While you may do
 this via the admin as well, you probably want to do this programmatically or via
@@ -111,7 +112,7 @@ above steps programatically:
     taxpayer.save()
 
     # Load all metadata:
-    models.populate_all()
+    models.load_metadata()
 
     # Get the TaxPayer's Point of Sales:
     taxpayer.fetch_points_of_sales()

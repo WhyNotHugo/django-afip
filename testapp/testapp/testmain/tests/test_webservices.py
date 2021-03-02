@@ -34,7 +34,7 @@ class AuthTicketTest(TestCase):
             # Note: AFIP apparently edited this message and added a typo:
             "ValidacionDeToken: No apareci[oó] CUIT en lista de relaciones:",
         ):
-            models.populate_all()
+            taxpayer.fetch_points_of_sales()
 
     def test_bogus_certificate_exception(self):
         """Test that using a junk ceritificates raises as expected."""

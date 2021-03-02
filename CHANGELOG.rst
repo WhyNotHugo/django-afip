@@ -40,6 +40,12 @@ releases, in reverse chronological order.
   model. A migration will handle copying data from table to the other for you.
   If you have any references to this model (e.g.: forms for your users, custom
   admins, etc), make sure you update these to point to the ``TaxPayer`` model.
+* Fixtures are now included with all necessary metadata (currencies, receipt
+  types, etc). This should make bootstrapping new projects and environments
+  easier.
+* The function ``models.populate_all`` has been removed in favour of
+  :func:`~.models.loaddata`. The ``afipmetadata`` management command now runs
+  the latter.
 
 7.1.2
 -----
