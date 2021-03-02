@@ -1,0 +1,216 @@
+- model: afip.receipttype
+  fields:
+    code: '1'
+    description: Factura A
+    valid_from: 2010-09-17
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '2'
+    description: Nota de Débito A
+    valid_from: 2010-09-17
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '3'
+    description: Nota de Crédito A
+    valid_from: 2010-09-17
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '6'
+    description: Factura B
+    valid_from: 2010-09-17
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '7'
+    description: Nota de Débito B
+    valid_from: 2010-09-17
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '8'
+    description: Nota de Crédito B
+    valid_from: 2010-09-17
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '4'
+    description: Recibos A
+    valid_from: 2010-09-17
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '5'
+    description: Notas de Venta al contado A
+    valid_from: 2010-09-17
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '9'
+    description: Recibos B
+    valid_from: 2010-09-17
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '10'
+    description: Notas de Venta al contado B
+    valid_from: 2010-09-17
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '63'
+    description: Liquidacion A
+    valid_from: 2010-09-17
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '64'
+    description: Liquidacion B
+    valid_from: 2010-09-17
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '34'
+    description: Cbtes. A del Anexo I, Apartado A,inc.f),R.G.Nro. 1415
+    valid_from: 2010-09-17
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '35'
+    description: Cbtes. B del Anexo I,Apartado A,inc. f),R.G. Nro. 1415
+    valid_from: 2010-09-17
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '39'
+    description: Otros comprobantes A que cumplan con R.G.Nro. 1415
+    valid_from: 2010-09-17
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '40'
+    description: Otros comprobantes B que cumplan con R.G.Nro. 1415
+    valid_from: 2010-09-17
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '60'
+    description: Cta de Vta y Liquido prod. A
+    valid_from: 2010-09-17
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '61'
+    description: Cta de Vta y Liquido prod. B
+    valid_from: 2010-09-17
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '11'
+    description: Factura C
+    valid_from: 2011-03-30
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '12'
+    description: Nota de Débito C
+    valid_from: 2011-03-30
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '13'
+    description: Nota de Crédito C
+    valid_from: 2011-03-30
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '15'
+    description: Recibo C
+    valid_from: 2011-03-30
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '49'
+    description: Comprobante de Compra de Bienes Usados a Consumidor Final
+    valid_from: 2013-04-01
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '51'
+    description: Factura M
+    valid_from: 2015-05-22
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '52'
+    description: Nota de Débito M
+    valid_from: 2015-05-22
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '53'
+    description: Nota de Crédito M
+    valid_from: 2015-05-22
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '54'
+    description: Recibo M
+    valid_from: 2015-05-22
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '201'
+    description: Factura de Crédito electrónica MiPyMEs (FCE) A
+    valid_from: 2018-12-26
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '202'
+    description: Nota de Débito electrónica MiPyMEs (FCE) A
+    valid_from: 2018-12-26
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '203'
+    description: Nota de Crédito electrónica MiPyMEs (FCE) A
+    valid_from: 2018-12-26
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '206'
+    description: Factura de Crédito electrónica MiPyMEs (FCE) B
+    valid_from: 2018-12-26
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '207'
+    description: Nota de Débito electrónica MiPyMEs (FCE) B
+    valid_from: 2018-12-26
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '208'
+    description: Nota de Crédito electrónica MiPyMEs (FCE) B
+    valid_from: 2018-12-26
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '211'
+    description: Factura de Crédito electrónica MiPyMEs (FCE) C
+    valid_from: 2018-12-26
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '212'
+    description: Nota de Débito electrónica MiPyMEs (FCE) C
+    valid_from: 2018-12-26
+    valid_to: null
+- model: afip.receipttype
+  fields:
+    code: '213'
+    description: Nota de Crédito electrónica MiPyMEs (FCE) C
+    valid_from: 2018-12-26
+    valid_to: null

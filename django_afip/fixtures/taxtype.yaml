@@ -1,0 +1,66 @@
+- model: afip.taxtype
+  fields:
+    code: '1'
+    description: Impuestos nacionales
+    valid_from: 2010-09-17
+    valid_to: null
+- model: afip.taxtype
+  fields:
+    code: '2'
+    description: Impuestos provinciales
+    valid_from: 2010-09-17
+    valid_to: null
+- model: afip.taxtype
+  fields:
+    code: '3'
+    description: Impuestos municipales
+    valid_from: 2010-09-17
+    valid_to: null
+- model: afip.taxtype
+  fields:
+    code: '4'
+    description: Impuestos Internos
+    valid_from: 2010-09-17
+    valid_to: null
+- model: afip.taxtype
+  fields:
+    code: '99'
+    description: Otro
+    valid_from: 2010-09-17
+    valid_to: null
+- model: afip.taxtype
+  fields:
+    code: '5'
+    description: IIBB
+    valid_from: 2017-07-19
+    valid_to: null
+- model: afip.taxtype
+  fields:
+    code: '6'
+    description: Percepción de IVA
+    valid_from: 2017-07-19
+    valid_to: null
+- model: afip.taxtype
+  fields:
+    code: '7'
+    description: Percepción de IIBB
+    valid_from: 2017-07-19
+    valid_to: null
+- model: afip.taxtype
+  fields:
+    code: '8'
+    description: Percepciones por Impuestos Municipales
+    valid_from: 2017-07-19
+    valid_to: null
+- model: afip.taxtype
+  fields:
+    code: '9'
+    description: Otras Percepciones
+    valid_from: 2017-07-19
+    valid_to: null
+- model: afip.taxtype
+  fields:
+    code: '13'
+    description: Percepción de IVA a no Categorizado
+    valid_from: 2017-07-19
+    valid_to: null

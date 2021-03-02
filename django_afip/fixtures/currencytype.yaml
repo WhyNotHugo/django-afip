@@ -1,0 +1,300 @@
+- model: afip.currencytype
+  fields:
+    code: PES
+    description: Pesos Argentinos
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: DOL
+    description: Dólar Estadounidense
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '002'
+    description: Dólar Libre EEUU
+    valid_from: 2009-04-16
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '007'
+    description: Florines Holandeses
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '010'
+    description: Pesos Mejicanos
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '011'
+    description: Pesos Uruguayos
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '014'
+    description: Coronas Danesas
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '015'
+    description: Coronas Noruegas
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '016'
+    description: Coronas Suecas
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: 018
+    description: Dólar Canadiense
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: 019
+    description: Yens
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '021'
+    description: Libra Esterlina
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '023'
+    description: Bolívar Venezolano
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '024'
+    description: Corona Checa
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '025'
+    description: Dinar Yugoslavo
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '026'
+    description: Dólar Australiano
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '027'
+    description: Dracma Griego
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: 028
+    description: Florín (Antillas Holandesas)
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: 029
+    description: Güaraní
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '031'
+    description: Peso Boliviano
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '032'
+    description: Peso Colombiano
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '033'
+    description: Peso Chileno
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '034'
+    description: Rand Sudafricano
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '036'
+    description: Sucre Ecuatoriano
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '051'
+    description: Dólar de Hong Kong
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '052'
+    description: Dólar de Singapur
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '053'
+    description: Dólar de Jamaica
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '054'
+    description: Dólar de Taiwan
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '055'
+    description: Quetzal Guatemalteco
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '056'
+    description: Forint (Hungría)
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '057'
+    description: Baht (Tailandia)
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: 059
+    description: Dinar Kuwaiti
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '012'
+    description: Real
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '030'
+    description: Shekel (Israel)
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '035'
+    description: Nuevo Sol Peruano
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '060'
+    description: Euro
+    valid_from: 2009-04-03
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '040'
+    description: Lei Rumano
+    valid_from: 2009-04-15
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '042'
+    description: Peso Dominicano
+    valid_from: 2009-04-15
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '043'
+    description: Balboas Panameñas
+    valid_from: 2009-04-15
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '044'
+    description: Córdoba Nicaragüense
+    valid_from: 2009-04-15
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '045'
+    description: Dirham Marroquí
+    valid_from: 2009-04-15
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '046'
+    description: Libra Egipcia
+    valid_from: 2009-04-15
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '047'
+    description: Riyal Saudita
+    valid_from: 2009-04-15
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '061'
+    description: Zloty Polaco
+    valid_from: 2009-04-15
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '062'
+    description: Rupia Hindú
+    valid_from: 2009-04-15
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '063'
+    description: Lempira Hondureña
+    valid_from: 2009-04-15
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '064'
+    description: Yuan (Rep. Pop. China)
+    valid_from: 2009-04-15
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: 009
+    description: Franco Suizo
+    valid_from: 2009-11-10
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: '041'
+    description: Derechos Especiales de Giro
+    valid_from: 2010-01-25
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: 049
+    description: Gramos de Oro Fino
+    valid_from: 2010-01-25
+    valid_to: null

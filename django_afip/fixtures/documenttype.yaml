@@ -1,0 +1,216 @@
+- model: afip.documenttype
+  fields:
+    code: '80'
+    description: CUIT
+    valid_from: 2008-07-25
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '86'
+    description: CUIL
+    valid_from: 2008-07-25
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '87'
+    description: CDI
+    valid_from: 2008-07-25
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '89'
+    description: LE
+    valid_from: 2008-07-25
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '90'
+    description: LC
+    valid_from: 2008-07-25
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '91'
+    description: CI Extranjera
+    valid_from: 2008-07-25
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '92'
+    description: en trámite
+    valid_from: 2008-07-25
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '93'
+    description: Acta Nacimiento
+    valid_from: 2008-07-25
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '95'
+    description: CI Bs. As. RNP
+    valid_from: 2008-07-25
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '96'
+    description: DNI
+    valid_from: 2008-07-25
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '94'
+    description: Pasaporte
+    valid_from: 2008-07-25
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '0'
+    description: CI Policía Federal
+    valid_from: 2008-07-25
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '1'
+    description: CI Buenos Aires
+    valid_from: 2008-07-25
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '2'
+    description: CI Catamarca
+    valid_from: 2008-07-25
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '3'
+    description: CI Córdoba
+    valid_from: 2008-07-25
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '4'
+    description: CI Corrientes
+    valid_from: 2008-07-28
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '5'
+    description: CI Entre Ríos
+    valid_from: 2008-07-28
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '6'
+    description: CI Jujuy
+    valid_from: 2008-07-28
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '7'
+    description: CI Mendoza
+    valid_from: 2008-07-28
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '8'
+    description: CI La Rioja
+    valid_from: 2008-07-28
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '9'
+    description: CI Salta
+    valid_from: 2008-07-28
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '10'
+    description: CI San Juan
+    valid_from: 2008-07-28
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '11'
+    description: CI San Luis
+    valid_from: 2008-07-28
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '12'
+    description: CI Santa Fe
+    valid_from: 2008-07-28
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '13'
+    description: CI Santiago del Estero
+    valid_from: 2008-07-28
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '14'
+    description: CI Tucumán
+    valid_from: 2008-07-28
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '16'
+    description: CI Chaco
+    valid_from: 2008-07-28
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '17'
+    description: CI Chubut
+    valid_from: 2008-07-28
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '18'
+    description: CI Formosa
+    valid_from: 2008-07-28
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '19'
+    description: CI Misiones
+    valid_from: 2008-07-28
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '20'
+    description: CI Neuquén
+    valid_from: 2008-07-28
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '21'
+    description: CI La Pampa
+    valid_from: 2008-07-28
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '22'
+    description: CI Río Negro
+    valid_from: 2008-07-28
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '23'
+    description: CI Santa Cruz
+    valid_from: 2008-07-28
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '24'
+    description: CI Tierra del Fuego
+    valid_from: 2008-07-28
+    valid_to: null
+- model: afip.documenttype
+  fields:
+    code: '99'
+    description: Doc. (Otro)
+    valid_from: 2008-07-28
+    valid_to: null
