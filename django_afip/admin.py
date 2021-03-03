@@ -320,7 +320,7 @@ class TaxPayerAdmin(admin.ModelAdmin):
         if key_count == 1:
             message = _("Key generated successfully.")
             level = messages.SUCCESS
-        elif key_count == 1:
+        elif key_count:
             message = _("%d keys generated successfully.") % key_count
             level = messages.SUCCESS
         else:

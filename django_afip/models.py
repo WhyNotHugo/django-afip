@@ -2,8 +2,6 @@ import base64
 import logging
 import os
 import random
-import uuid
-from base64 import b64encode
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
@@ -396,7 +394,7 @@ class TaxPayer(models.Model):
 
         with NamedTemporaryFile(suffix=".key") as file_:
             crypto.create_key(file_)
-            self.key = File(file_, name="{}.key".format(uuid.uuid4().hex))
+            self.key = File(file_, name="{}.key".format(uuid4().hex))
             self.save()
 
         return True
@@ -701,7 +699,7 @@ class AuthTicket(models.Model):
         """Send this ticket to AFIP for authorization."""
         request = self.__create_request_xml()
         request = self.__sign_request(request)
-        request = b64encode(request).decode()
+        request = base64.b64encode(request).decode()
 
         client = clients.get_client("wsaa", self.owner.is_sandboxed)
         try:
@@ -1181,7 +1179,7 @@ class ReceiptPDF(models.Model):
         _, extension = os.path.splitext(os.path.basename(filename))
         uuid = uuid4().hex
         buckets = uuid[0:2], uuid[2:4]
-        filename = "".join([uuid4().hex, extension])
+        filename = "".join([uuid, extension])
 
         return os.path.join("afip/receipts", buckets[0], buckets[1], filename)
 
@@ -1269,7 +1267,7 @@ class ReceiptPDF(models.Model):
                 _("Cannot generate pdf for non-authorized receipt")
             )
 
-        self.pdf_file = File(BytesIO(), name="{}.pdf".format(uuid.uuid4().hex))
+        self.pdf_file = File(BytesIO(), name="{}.pdf".format(uuid4().hex))
         render_pdf(
             template=ReceiptPDFView().get_template_names(self.receipt),
             file_=self.pdf_file,
