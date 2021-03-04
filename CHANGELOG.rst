@@ -4,6 +4,11 @@ Changelog
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
+8.0.1
+-----
+
+* Fix improperly pinned Django version that excluded 3.1.x minor releases.
+
 8.0.0
 -----
 * Receipts now show validation details in the admin.
