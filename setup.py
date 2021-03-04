@@ -14,7 +14,7 @@ setup(
     long_description=open("README.rst").read(),
     install_requires=[
         "cryptography>=3.2,<4.0",
-        "django>=2.0.0,<=3.1",
+        "django>=2.0.0,<3.2",
         "django_renderpdf>=3.0.0,<4.0.0",
         "lxml>=3.4.4",
         "pyopenssl>=16.2.0",
