@@ -1,11 +1,11 @@
 django-afip
 ===========
 
-.. image:: https://travis-ci.com/WhyNotHugo/django-afip.svg?branch=master
+.. image:: https://travis-ci.com/WhyNotHugo/django-afip.svg?branch=main
   :target: https://travis-ci.com/WhyNotHugo/django-afip
   :alt: build status
 
-.. image:: https://codecov.io/gh/WhyNotHugo/django-afip/branch/master/graph/badge.svg
+.. image:: https://codecov.io/gh/WhyNotHugo/django-afip/branch/main/graph/badge.svg
   :target: https://codecov.io/gh/WhyNotHugo/django-afip
   :alt: Build coverage
 
@@ -22,7 +22,7 @@ django-afip
   :alt: downloads
 
 .. image:: https://img.shields.io/pypi/l/django-afip.svg
-  :target: https://github.com/WhyNotHugo/django-afip/blob/master/LICENCE
+  :target: https://github.com/WhyNotHugo/django-afip/blob/main/LICENCE
   :alt: licence
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
