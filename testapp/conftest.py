@@ -5,9 +5,11 @@ from django_afip.factories import get_test_file
 
 @pytest.fixture
 def expired_crt() -> bytes:
-    return get_test_file("test_expired.crt", "rb").read()
+    with open(get_test_file("test_expired.crt"), "rb") as crt:
+        return crt.read()
 
 
 @pytest.fixture
 def expired_key() -> bytes:
-    return get_test_file("test_expired.key", "rb").read()
+    with open(get_test_file("test_expired.key"), "rb") as key:
+        return key.read()

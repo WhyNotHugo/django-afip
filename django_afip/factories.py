@@ -14,10 +14,10 @@ from factory.django import ImageField
 from django_afip import models
 
 
-def get_test_file(filename: str, mode="r"):
+def get_test_file(filename: str, mode="r") -> Path:
     """Helper to get test files."""
     path = Path(__file__).parent / "testing" / filename
-    return open(path, mode)
+    return path
 
 
 class UserFactory(DjangoModelFactory):
@@ -79,10 +79,10 @@ class TaxPayerFactory(DjangoModelFactory):
     name = "John Smith"
     cuit = 20329642330
     is_sandboxed = True
-    key = FileField(from_func=lambda: get_test_file("test.key"))
-    certificate = FileField(from_func=lambda: get_test_file("test.crt"))
+    key = FileField(from_path=get_test_file("test.key"))
+    certificate = FileField(from_path=get_test_file("test.crt"))
     active_since = datetime(2011, 10, 3)
-    logo = ImageField(from_func=lambda: get_test_file("tiny.png", "rb"))
+    logo = ImageField(from_path=get_test_file("tiny.png", "rb"))
 
 
 class AlternateTaxpayerFactory(DjangoModelFactory):
@@ -94,8 +94,8 @@ class AlternateTaxpayerFactory(DjangoModelFactory):
     name = "John Smith"
     cuit = 20329642330
     is_sandboxed = True
-    key = FileField(from_func=lambda: get_test_file("test2.key"))
-    certificate = FileField(from_func=lambda: get_test_file("test2.crt"))
+    key = FileField(from_path=get_test_file("test2.key"))
+    certificate = FileField(from_path=get_test_file("test2.crt"))
     active_since = datetime(2011, 10, 3)
 
 
