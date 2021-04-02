@@ -1,8 +1,7 @@
-import os
 from datetime import date
 from datetime import datetime
+from pathlib import Path
 
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.timezone import make_aware
 from factory import LazyFunction
@@ -15,24 +14,10 @@ from factory.django import ImageField
 from django_afip import models
 
 
-def _key_file():
-    return open(os.path.join(settings.BASE_DIR, "test.key"))
-
-
-def _cert_file():
-    return open(os.path.join(settings.BASE_DIR, "test.crt"))
-
-
-def _key_file2():
-    return open(os.path.join(settings.BASE_DIR, "test2.key"))
-
-
-def _cert_file2():
-    return open(os.path.join(settings.BASE_DIR, "test2.crt"))
-
-
-def _tiny_image_file():
-    return open(os.path.join(settings.BASE_DIR, "tiny.png"), "rb")
+def get_test_file(filename: str, mode="r"):
+    """Helper to get test files."""
+    path = Path(__file__).parent / "testing" / filename
+    return open(path, mode)
 
 
 class UserFactory(DjangoModelFactory):
@@ -94,10 +79,10 @@ class TaxPayerFactory(DjangoModelFactory):
     name = "John Smith"
     cuit = 20329642330
     is_sandboxed = True
-    key = FileField(from_func=_key_file)
-    certificate = FileField(from_func=_cert_file)
+    key = FileField(from_func=lambda: get_test_file("test.key"))
+    certificate = FileField(from_func=lambda: get_test_file("test.crt"))
     active_since = datetime(2011, 10, 3)
-    logo = ImageField(from_func=_tiny_image_file)
+    logo = ImageField(from_func=lambda: get_test_file("tiny.png", "rb"))
 
 
 class AlternateTaxpayerFactory(DjangoModelFactory):
@@ -109,8 +94,8 @@ class AlternateTaxpayerFactory(DjangoModelFactory):
     name = "John Smith"
     cuit = 20329642330
     is_sandboxed = True
-    key = FileField(from_func=_key_file2)
-    certificate = FileField(from_func=_cert_file2)
+    key = FileField(from_func=lambda: get_test_file("test2.key"))
+    certificate = FileField(from_func=lambda: get_test_file("test2.crt"))
     active_since = datetime(2011, 10, 3)
 
 

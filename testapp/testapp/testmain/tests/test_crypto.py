@@ -1,11 +1,14 @@
+from pathlib import Path
+
 import pytest
 
 from django_afip import crypto
 
 
 @pytest.fixture
-def signed_data(base_path):
-    with open(base_path.joinpath("signed_data.bin"), "rb") as data:
+def signed_data():
+    path = Path(__file__).parent.parent.parent.parent / "signed_data.bin"
+    with open(path, "rb") as data:
         return data.read()
 
 
