@@ -93,14 +93,18 @@ def serialize_receipt(receipt):
             [serialize_vat(vat) for vat in receipt.vat.all()]
         )
 
-    # XXX: This was never finished!
-    # serialized.CbtesAsoc = f.ArrayOfCbteAsoc([
-    #     f.CbteAsoc(
-    #         receipt.receipt_type.code,
-    #         receipt.point_of_sales.number,
-    #         receipt.receipt_number,
-    #     ) for r in receipt.related_receipts.all()
-    # ])
+    related_receipts = receipt.related_receipts.all()
+    if related_receipts:
+        serialized.CbtesAsoc = f.ArrayOfCbteAsoc(
+            [
+                f.CbteAsoc(
+                    receipt.receipt_type.code,
+                    receipt.point_of_sales.number,
+                    receipt.receipt_number,
+                )
+                for r in related_receipts
+            ]
+        )
 
     return serialized
 

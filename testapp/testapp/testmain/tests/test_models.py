@@ -65,24 +65,43 @@ class ReceiptTestCase(TestCase):
 
 
 class ReceiptSuccessfulValidateTestCase(PopulatedLiveAfipTestCase):
-    def setUp(self):
-        super().setUp()
-        self.receipt = factories.ReceiptFactory(
+    def create_receipt(self, receipt_type_code=6) -> models.Receipt:
+        """Create a receipt use for tests. Default type is Factura B."""
+
+        receipt = factories.ReceiptFactory(
             point_of_sales=models.PointOfSales.objects.first(),
+            receipt_type__code=receipt_type_code,
         )
-        factories.VatFactory(vat_type__code=5, receipt=self.receipt)
-        factories.TaxFactory(tax_type__code=3, receipt=self.receipt)
+        factories.VatFactory(vat_type__code=5, receipt=receipt)
+        factories.TaxFactory(tax_type__code=3, receipt=receipt)
 
-    def test_validation(self):
+        return receipt
+
+    def test_validate_invoice(self):
         """Test validating valid receipts."""
-        errs = self.receipt.validate()
 
-        self.assertEqual(len(errs), 0)
-        self.assertEqual(
-            self.receipt.validation.result,
-            models.ReceiptValidation.RESULT_APPROVED,
-        )
-        self.assertEqual(models.ReceiptValidation.objects.count(), 1)
+        receipt = self.create_receipt()
+        errs = receipt.validate()
+
+        assert len(errs) == 0
+        assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
+        assert models.ReceiptValidation.objects.count() == 1
+
+    def test_validate_credit_note(self):
+        """Test validating valid receipts."""
+
+        # Create a receipt (this credit note relates to it):
+        receipt = self.create_receipt()
+        errs = receipt.validate()
+        assert len(errs) == 0
+
+        # Create a credit note for the above receipt:
+        credit_note = self.create_receipt(receipt_type_code=8)  # Nota de Crédito B
+        credit_note.related_receipts.add(receipt)
+        credit_note.save()
+
+        credit_note.validate(raise_=True)
+        assert credit_note.receipt_number is not None
 
 
 class ReceiptFailedValidateTestCase(PopulatedLiveAfipTestCase):
