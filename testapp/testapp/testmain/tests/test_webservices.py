@@ -326,14 +326,15 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
         invoice = self._good_receipt()
 
         errs = models.Receipt.objects.filter(pk=invoice.pk).validate()
-        self.assertEqual(len(errs), 0)
-        self.assertEqual(models.ReceiptValidation.objects.count(), 1)
+        assert len(errs) == 0
+        assert models.ReceiptValidation.objects.count() == 1
 
         # Now create a credit note (code=8) and validate it...
         credit = self._good_receipt()
         credit.receipt_type = factories.ReceiptTypeFactory(code=8)
         credit.related_receipts.set([invoice])
+        credit.save()
 
         errs = models.Receipt.objects.filter(pk=credit.pk).validate()
-        self.assertEqual(len(errs), 0)
-        self.assertEqual(models.ReceiptValidation.objects.count(), 2)
+        assert len(errs) == 0
+        assert models.ReceiptValidation.objects.count() == 2
