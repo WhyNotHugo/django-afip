@@ -4,6 +4,15 @@ Changelog
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
+8.0.3
+-----
+
+* Some factories were not fully reusable since they depended on data files that
+  were no included in this package. These files are now included, and all
+  factories should now be reusable by downstream apps.
+* Fixed a bug when validating credit notes and other receipts which have a
+  related-receipt.
+
 8.0.2
 -----
 

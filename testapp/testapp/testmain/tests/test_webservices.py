@@ -1,12 +1,10 @@
 """Tests for AFIP-WS related classes."""
-import os
 from datetime import datetime
 from datetime import timedelta
 from unittest import skip
 from unittest.mock import patch
 
 import pytest
-from django.conf import settings
 from django.core import management
 from django.test import TestCase
 from django.utils.timezone import now
@@ -67,13 +65,12 @@ class AuthTicketTest(TestCase):
 
     def test_expired_certificate_exception(self):
         """Test that using an expired ceritificate raises as expected."""
-        with open(os.path.join(settings.BASE_DIR, "test_expired.key"),) as key, open(
-            os.path.join(settings.BASE_DIR, "test_expired.crt"),
-        ) as crt:
-            taxpayer = factories.TaxPayerFactory(
-                key=FileField(from_file=key),
-                certificate=FileField(from_file=crt),
-            )
+        taxpayer = factories.TaxPayerFactory(
+            key=FileField(from_path=factories.get_test_file("test_expired.key")),
+            certificate=FileField(
+                from_path=factories.get_test_file("test_expired.crt")
+            ),
+        )
 
         with self.assertRaises(exceptions.CertificateExpired):
             taxpayer.create_ticket("wsfe")
@@ -329,14 +326,15 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
         invoice = self._good_receipt()
 
         errs = models.Receipt.objects.filter(pk=invoice.pk).validate()
-        self.assertEqual(len(errs), 0)
-        self.assertEqual(models.ReceiptValidation.objects.count(), 1)
+        assert len(errs) == 0
+        assert models.ReceiptValidation.objects.count() == 1
 
         # Now create a credit note (code=8) and validate it...
         credit = self._good_receipt()
         credit.receipt_type = factories.ReceiptTypeFactory(code=8)
         credit.related_receipts.set([invoice])
+        credit.save()
 
         errs = models.Receipt.objects.filter(pk=credit.pk).validate()
-        self.assertEqual(len(errs), 0)
-        self.assertEqual(models.ReceiptValidation.objects.count(), 2)
+        assert len(errs) == 0
+        assert models.ReceiptValidation.objects.count() == 2

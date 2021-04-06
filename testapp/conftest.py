@@ -1,20 +1,15 @@
-from pathlib import Path
-
 import pytest
 
-
-@pytest.fixture
-def base_path() -> Path:
-    return Path(__file__).resolve().parent
+from django_afip.factories import get_test_file
 
 
 @pytest.fixture
-def expired_crt(base_path) -> bytes:
-    with open(base_path.joinpath("test_expired.crt"), "rb") as crt:
+def expired_crt() -> bytes:
+    with open(get_test_file("test_expired.crt"), "rb") as crt:
         return crt.read()
 
 
 @pytest.fixture
-def expired_key(base_path) -> bytes:
-    with open(base_path.joinpath("test_expired.key"), "rb") as key:
+def expired_key() -> bytes:
+    with open(get_test_file("test_expired.key"), "rb") as key:
         return key.read()
