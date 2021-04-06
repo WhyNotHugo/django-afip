@@ -8,7 +8,6 @@ from pytest_django.asserts import assertQuerysetEqual
 from django_afip import exceptions
 from django_afip import factories
 from django_afip import models
-from testapp.testmain.tests.testcases import PopulatedLiveAfipTestCase
 
 
 def test_default_receipt_queryset():
@@ -61,97 +60,99 @@ def test_validate_receipt():
     assert ticket._called is True
 
 
-class ReceiptSuccessfulValidateTestCase(PopulatedLiveAfipTestCase):
-    def create_receipt(self, receipt_type_code=6) -> models.Receipt:
-        """Create a receipt use for tests. Default type is Factura B."""
+def create_receipt(receipt_type_code=6, document_type_code=96) -> models.Receipt:
+    """Create a receipt use for tests. Default type is Factura B."""
+    # TODO: Rewrite this into a factory.
 
-        receipt = factories.ReceiptFactory(
-            point_of_sales=models.PointOfSales.objects.first(),
-            receipt_type__code=receipt_type_code,
-        )
-        factories.VatFactory(vat_type__code=5, receipt=receipt)
-        factories.TaxFactory(tax_type__code=3, receipt=receipt)
+    receipt = factories.ReceiptFactory(
+        point_of_sales=models.PointOfSales.objects.first(),
+        receipt_type__code=receipt_type_code,
+        document_type__code=document_type_code,
+    )
+    factories.VatFactory(vat_type__code=5, receipt=receipt)
+    factories.TaxFactory(tax_type__code=3, receipt=receipt)
 
-        return receipt
-
-    def test_validate_invoice(self):
-        """Test validating valid receipts."""
-
-        receipt = self.create_receipt()
-        errs = receipt.validate()
-
-        assert len(errs) == 0
-        assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
-        assert models.ReceiptValidation.objects.count() == 1
-
-    def test_validate_credit_note(self):
-        """Test validating valid receipts."""
-
-        # Create a receipt (this credit note relates to it):
-        receipt = self.create_receipt()
-        errs = receipt.validate()
-        assert len(errs) == 0
-
-        # Create a credit note for the above receipt:
-        credit_note = self.create_receipt(receipt_type_code=8)  # Nota de Crédito B
-        credit_note.related_receipts.add(receipt)
-        credit_note.save()
-
-        credit_note.validate(raise_=True)
-        assert credit_note.receipt_number is not None
+    return receipt
 
 
-class ReceiptFailedValidateTestCase(PopulatedLiveAfipTestCase):
-    def setUp(self):
-        super().setUp()
-        self.receipt = factories.ReceiptFactory(
-            document_type__code=80,
-            point_of_sales=models.PointOfSales.objects.first(),
-        )
-        factories.VatFactory(vat_type__code=5, receipt=self.receipt)
-        factories.TaxFactory(tax_type__code=3, receipt=self.receipt)
+@pytest.mark.django_db
+@pytest.mark.live
+def test_validate_invoice(populated_db):
+    """Test validating valid receipts."""
 
-    def test_failed_validation(self):
-        """Test validating valid receipts."""
-        errs = self.receipt.validate()
+    receipt = create_receipt()
+    errs = receipt.validate()
 
-        assert len(errs) == 1
-        # FIXME: We're not creating rejection entries
-        # assert (
-        #     self.receipt.validation.result == models.ReceiptValidation.RESULT_REJECTED
-        # )
-        assert models.ReceiptValidation.objects.count() == 0
-
-    def test_raise_validation(self):
-        """Test validating valid receipts."""
-
-        with pytest.raises(
-            exceptions.ValidationError,
-            # Note: AFIP apparently edited this message and added a typo:
-            match="DocNro 203012345 no se encuentra registrado en los padrones",
-        ):
-            self.receipt.validate(raise_=True)
-
-        # FIXME: We're not creating rejection entries
-        # assert (
-        #     self.receipt.validation.result == models.ReceiptValidation.RESULT_REJECTED
-        # )
-        assert models.ReceiptValidation.objects.count() == 0
+    assert len(errs) == 0
+    assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
+    assert models.ReceiptValidation.objects.count() == 1
 
 
-class ReceiptDataFetchTestCase(PopulatedLiveAfipTestCase):
-    def test_fetch_existing_data(self):
-        pos = models.PointOfSales.objects.first()
-        rt = models.ReceiptType.objects.get(code=6)
-        # last receipt number is needed for testing, it seems they flush old receipts
-        # so we can't use a fixed receipt number
-        last_receipt_number = models.Receipt.objects.fetch_last_receipt_number(pos, rt)
-        receipt = models.Receipt.objects.fetch_receipt_data(
-            receipt_type=6, receipt_number=last_receipt_number, point_of_sales=pos
-        )
+@pytest.mark.django_db
+@pytest.mark.live
+def test_validate_credit_note(populated_db):
+    """Test validating valid receipts."""
 
-        assert receipt.CbteDesde == last_receipt_number
-        assert receipt.PtoVta == pos.number
+    # Create a receipt (this credit note relates to it):
+    receipt = create_receipt()
+    errs = receipt.validate()
+    assert len(errs) == 0
+
+    # Create a credit note for the above receipt:
+    credit_note = create_receipt(receipt_type_code=8)  # Nota de Crédito B
+    credit_note.related_receipts.add(receipt)
+    credit_note.save()
+
+    credit_note.validate(raise_=True)
+    assert credit_note.receipt_number is not None
+
+
+@pytest.mark.django_db
+@pytest.mark.live
+def test_failed_validation(populated_db):
+    """Test validating valid receipts."""
+    receipt = create_receipt(document_type_code=80)
+
+    errs = receipt.validate()
+
+    assert len(errs) == 1
+    # FIXME: We're not creating rejection entries
+    # assert receipt.validation.result == models.ReceiptValidation.RESULT_REJECTED
+    assert models.ReceiptValidation.objects.count() == 0
+
+
+@pytest.mark.django_db
+@pytest.mark.live
+def test_raising_failed_validation(populated_db):
+    """Test validating valid receipts."""
+    receipt = create_receipt(document_type_code=80)
+
+    with pytest.raises(
+        exceptions.ValidationError,
+        # Note: AFIP apparently edited this message and added a typo:
+        match="DocNro 203012345 no se encuentra registrado en los padrones",
+    ):
+        receipt.validate(raise_=True)
+
+    # FIXME: We're not creating rejection entries
+    # assert receipt.validation.result == models.ReceiptValidation.RESULT_REJECTED
+    assert models.ReceiptValidation.objects.count() == 0
+
+
+@pytest.mark.django_db
+@pytest.mark.live
+def test_fetch_existing_data(populated_db):
+    pos = models.PointOfSales.objects.first()
+    rt = models.ReceiptType.objects.get(code=6)
+    # last receipt number is needed for testing, it seems they flush old receipts
+    # so we can't use a fixed receipt number
+    last_receipt_number = models.Receipt.objects.fetch_last_receipt_number(pos, rt)
+    receipt = models.Receipt.objects.fetch_receipt_data(
+        receipt_type=6, receipt_number=last_receipt_number, point_of_sales=pos
+    )
+
+    assert receipt.CbteDesde == last_receipt_number
+    assert receipt.PtoVta == pos.number
 
 
 @pytest.mark.django_db
