@@ -6,7 +6,6 @@ from unittest.mock import patch
 
 import pytest
 from django.core import management
-from django.test import TestCase
 from django.utils.timezone import now
 from factory.django import FileField
 
@@ -18,108 +17,105 @@ from testapp.testmain.tests.testcases import PopulatedLiveAfipTestCase
 
 
 @pytest.mark.live
-class AuthTicketTest(TestCase):
-    """Test AuthTicket methods."""
+@pytest.mark.django_db
+def test_bad_cuit():
+    """Test using the wrong cuit for a key pair."""
 
-    def test_bad_cuit(self):
-        """Test using the wrong cuit for a key pair."""
+    taxpayer = factories.AlternateTaxpayerFactory(cuit=20329642339)
+    taxpayer.create_ticket("wsfe")
 
-        taxpayer = factories.AlternateTaxpayerFactory(cuit=20329642339)
-        taxpayer.create_ticket("wsfe")
+    with pytest.raises(
+        exceptions.AfipException,
+        # Note: AFIP apparently edited this message and added a typo:
+        match="ValidacionDeToken: No apareci[oó] CUIT en lista de relaciones:",
+    ):
+        taxpayer.fetch_points_of_sales()
 
-        with self.assertRaisesRegex(
-            exceptions.AfipException,
-            # Note: AFIP apparently edited this message and added a typo:
-            "ValidacionDeToken: No apareci[oó] CUIT en lista de relaciones:",
-        ):
-            taxpayer.fetch_points_of_sales()
 
-    def test_bogus_certificate_exception(self):
-        """Test that using a junk ceritificates raises as expected."""
+@pytest.mark.live
+@pytest.mark.django_db
+def test_bogus_certificate_exception():
+    """Test that using a junk ceritificates raises as expected."""
 
-        # New TaxPayers will fail to save with an invalid cert, but many
-        # systems may have very old TaxPayers, externally created, or other
-        # stuff, so this scenario might still be possible.
-        with patch(
-            "django_afip.models.TaxPayer.get_certificate_expiration",
-            spec=True,
-            return_value=None,
-        ):
-            taxpayer = factories.TaxPayerFactory(
-                key=FileField(data=b"Blah"),
-                certificate=FileField(data=b"Blah"),
-            )
-
-        with self.assertRaises(exceptions.CorruptCertificate) as e:
-            taxpayer.create_ticket("wsfe")
-
-        self.assertNotIsInstance(e, exceptions.AfipException)
-
-    def test_no_active_taxpayer(self):
-        """Test that no TaxPayers raises an understandable error."""
-        with self.assertRaisesMessage(
-            exceptions.AuthenticationError,
-            "There are no taxpayers to generate a ticket.",
-        ):
-            models.AuthTicket.objects.get_any_active("wsfe")
-
-    def test_expired_certificate_exception(self):
-        """Test that using an expired ceritificate raises as expected."""
+    # New TaxPayers will fail to save with an invalid cert, but many
+    # systems may have very old TaxPayers, externally created, or other
+    # stuff, so this scenario might still be possible.
+    with patch(
+        "django_afip.models.TaxPayer.get_certificate_expiration",
+        spec=True,
+        return_value=None,
+    ):
         taxpayer = factories.TaxPayerFactory(
-            key=FileField(from_path=factories.get_test_file("test_expired.key")),
-            certificate=FileField(
-                from_path=factories.get_test_file("test_expired.crt")
-            ),
+            key=FileField(data=b"Blah"),
+            certificate=FileField(data=b"Blah"),
         )
 
-        with self.assertRaises(exceptions.CertificateExpired):
-            taxpayer.create_ticket("wsfe")
+    with pytest.raises(exceptions.CorruptCertificate) as e:
+        taxpayer.create_ticket("wsfe")
 
-    def test_untrusted_certificate_exception(self):
-        """
-        Test that using an untrusted ceritificate raises as expected.
-        """
-        # Note that we hit production with a sandbox cert here:
-        taxpayer = factories.TaxPayerFactory(is_sandboxed=False)
-
-        with self.assertRaises(exceptions.UntrustedCertificate):
-            taxpayer.create_ticket("wsfe")
+    assert not isinstance(e, exceptions.AfipException)
 
 
-class PopulationTest(LiveAfipTestCase):
+@pytest.mark.live
+@pytest.mark.django_db
+def test_no_active_taxpayer():
+    """Test that no TaxPayers raises an understandable error."""
+    with pytest.raises(
+        exceptions.AuthenticationError,
+        match="There are no taxpayers to generate a ticket.",
+    ):
+        models.AuthTicket.objects.get_any_active("wsfe")
+
+
+@pytest.mark.live
+@pytest.mark.django_db
+def test_expired_certificate_exception():
+    """Test that using an expired ceritificate raises as expected."""
+    taxpayer = factories.TaxPayerFactory(
+        key=FileField(from_path=factories.get_test_file("test_expired.key")),
+        certificate=FileField(from_path=factories.get_test_file("test_expired.crt")),
+    )
+
+    with pytest.raises(exceptions.CertificateExpired):
+        taxpayer.create_ticket("wsfe")
+
+
+@pytest.mark.live
+@pytest.mark.django_db
+def test_untrusted_certificate_exception():
     """
-    Tests models population view.
-
-    As a side effect, also test valid ticket generation.
+    Test that using an untrusted ceritificate raises as expected.
     """
+    # Note that we hit production with a sandbox cert here:
+    taxpayer = factories.TaxPayerFactory(is_sandboxed=False)
 
-    def test_population_command(self):
-        """Test the afipmetadata command."""
-        management.call_command("afipmetadata")
+    with pytest.raises(exceptions.UntrustedCertificate):
+        taxpayer.create_ticket("wsfe")
 
-        receipts = models.ReceiptType.objects.count()
-        concepts = models.ConceptType.objects.count()
-        documents = models.DocumentType.objects.count()
-        vat = models.VatType.objects.count()
-        tax = models.TaxType.objects.count()
-        currencies = models.CurrencyType.objects.count()
 
-        self.assertGreater(receipts, 0)
-        self.assertGreater(concepts, 0)
-        self.assertGreater(documents, 0)
-        self.assertGreater(vat, 0)
-        self.assertGreater(tax, 0)
-        self.assertGreater(currencies, 0)
+@pytest.mark.django_db
+def test_population_command():
+    """Test the afipmetadata command."""
+    management.call_command("afipmetadata")
 
-    def test_metadata_deserialization(self):
-        """Test that we deserialize descriptions properly."""
-        management.call_command("afipmetadata")
+    assert models.ReceiptType.objects.count() > 0
+    assert models.ConceptType.objects.count() > 0
+    assert models.DocumentType.objects.count() > 0
+    assert models.VatType.objects.count() > 0
+    assert models.TaxType.objects.count() > 0
+    assert models.CurrencyType.objects.count() > 0
 
-        # This asserting is tied to current data, but it validates that we
-        # don't mess up encoding/decoding the value we get.
-        # It _WILL_ need updating if the upstream value ever changes.
-        fac_c = models.ReceiptType.objects.get(code=11)
-        self.assertEqual(fac_c.description, "Factura C")
+
+@pytest.mark.django_db
+def test_metadata_deserialization():
+    """Test that we deserialize descriptions properly."""
+    management.call_command("afipmetadata")
+
+    # This assertion is tied to current data, but it validates that we
+    # don't mess up encoding/decoding the value we get.
+    # It _WILL_ need updating if the upstream value ever changes.
+    fac_c = models.ReceiptType.objects.get(code=11)
+    assert fac_c.description == "Factura C"
 
 
 class TaxPayerTest(LiveAfipTestCase):

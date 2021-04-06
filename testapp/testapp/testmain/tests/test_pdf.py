@@ -2,66 +2,70 @@ import re
 from datetime import date
 
 import pytest
-from django.test import TestCase
 
 from django_afip import factories
 from django_afip import models
 from django_afip.pdf import ReceiptQrCode
 
 
-class ReceiptPDFGenerationTestCase(TestCase):
-    def test_pdf_generation(self):
-        """Test PDF file generation.
+@pytest.mark.django_db
+def test_pdf_generation():
+    """Test PDF file generation.
 
-        For the moment, this test case mostly verifies that pdf generation
-        *works*, but does not actually validate the pdf file itself.
+    For the moment, this test case mostly verifies that pdf generation
+    *works*, but does not actually validate the pdf file itself.
 
-        Running this locally *will* yield the file itself, which is useful for
-        manual inspection.
-        """
-        pdf = factories.ReceiptPDFFactory(receipt__receipt_number=3)
-        factories.ReceiptValidationFactory(receipt=pdf.receipt)
+    Running this locally *will* yield the file itself, which is useful for
+    manual inspection.
+    """
+    pdf = factories.ReceiptPDFFactory(receipt__receipt_number=3)
+    factories.ReceiptValidationFactory(receipt=pdf.receipt)
+    pdf.save_pdf()
+    regex = r"afip/receipts/[a-f0-9]{2}/[a-f0-9]{2}/[a-f0-9]{32}.pdf"
+
+    assert re.match(regex, pdf.pdf_file.name)
+    assert pdf.pdf_file.name.endswith(".pdf")
+
+
+@pytest.mark.django_db
+def test_unauthorized_receipt_generation():
+    """
+    Test PDF file generation for unauthorized receipts.
+
+    Confirm that attempting to generate a PDF for an unauthorized receipt
+    raises.
+    """
+    taxpayer = factories.TaxPayerFactory()
+    factories.TaxPayerProfileFactory(taxpayer=taxpayer)
+    receipt = factories.ReceiptFactory(
+        receipt_number=None,
+        point_of_sales__owner=taxpayer,
+    )
+    pdf = models.ReceiptPDF.objects.create_for_receipt(
+        receipt=receipt,
+        client_name="John Doe",
+        client_address="12 Green Road\nGreenville\nUK",
+    )
+    with pytest.raises(
+        Exception, match="Cannot generate pdf for non-authorized receipt"
+    ):
         pdf.save_pdf()
-        regex = r"afip/receipts/[a-f0-9]{2}/[a-f0-9]{2}/[a-f0-9]{32}.pdf"
-        self.assertTrue(re.match(regex, pdf.pdf_file.name))
-        self.assertTrue(pdf.pdf_file.name.endswith(".pdf"))
-
-    def test_unauthorized_receipt_generation(self):
-        """
-        Test PDF file generation for unauthorized receipts.
-
-        Confirm that attempting to generate a PDF for an unauthorized receipt
-        raises.
-        """
-        taxpayer = factories.TaxPayerFactory()
-        factories.TaxPayerProfileFactory(taxpayer=taxpayer)
-        receipt = factories.ReceiptFactory(
-            receipt_number=None,
-            point_of_sales__owner=taxpayer,
-        )
-        pdf = models.ReceiptPDF.objects.create_for_receipt(
-            receipt=receipt,
-            client_name="John Doe",
-            client_address="12 Green Road\nGreenville\nUK",
-        )
-        with self.assertRaisesMessage(
-            Exception, "Cannot generate pdf for non-authorized receipt"
-        ):
-            pdf.save_pdf()
 
 
-class GenerateReceiptPDFSignalTestCase(TestCase):
-    def test_not_validated_receipt(self):
-        printable = factories.ReceiptPDFFactory()
+@pytest.mark.django_db
+def test_signal_generation_for_not_validated_receipt():
+    printable = factories.ReceiptPDFFactory()
 
-        self.assertFalse(printable.pdf_file)
+    assert not (printable.pdf_file)
 
-    def test_validated_receipt(self):
-        validation = factories.ReceiptValidationFactory()
-        printable = factories.ReceiptPDFFactory(receipt=validation.receipt)
 
-        self.assertTrue(printable.pdf_file)
-        self.assertTrue(printable.pdf_file.name.endswith(".pdf"))
+@pytest.mark.django_db
+def test_signal_generation_for_validated_receipt():
+    validation = factories.ReceiptValidationFactory()
+    printable = factories.ReceiptPDFFactory(receipt=validation.receipt)
+
+    assert printable.pdf_file
+    assert printable.pdf_file.name.endswith(".pdf")
 
 
 @pytest.mark.django_db

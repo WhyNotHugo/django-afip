@@ -2,7 +2,9 @@ from unittest.mock import call
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
+import pytest
 from django.test import TestCase
+from pytest_django.asserts import assertQuerysetEqual
 
 from django_afip import exceptions
 from django_afip import factories
@@ -10,58 +12,54 @@ from django_afip import models
 from testapp.testmain.tests.testcases import PopulatedLiveAfipTestCase
 
 
-class ReceiptQuerySetTestCase(TestCase):
-    def test_default_manager(self):
-        self.assertIsInstance(
-            models.Receipt.objects.all(),
-            models.ReceiptQuerySet,
-        )
-
-    def test_validate(self):
-        receipt = factories.ReceiptFactory()
-        queryset = models.Receipt.objects.filter(pk=receipt.pk)
-        ticket = MagicMock()
-
-        with patch(
-            "django_afip.models.ReceiptQuerySet._assign_numbers",
-            spec=True,
-        ) as mocked_assign_numbers, patch(
-            "django_afip.models.ReceiptQuerySet._validate",
-            spec=True,
-        ) as mocked__validate:
-            queryset.validate(ticket)
-
-        self.assertEqual(mocked_assign_numbers.call_count, 1)
-
-        self.assertEqual(mocked__validate.call_count, 1)
-        self.assertEqual(mocked__validate.call_args, call(ticket))
-
-        # TODO: Also another tests that checks that we only pass filtered-out
-        # receipts
+def test_default_receipt_queryset():
+    assert isinstance(models.Receipt.objects.all(), models.ReceiptQuerySet)
 
 
-class ReceiptManagerTestCase(TestCase):
-    def test_default_manager(self):
-        self.assertIsInstance(models.Receipt.objects, models.ReceiptManager)
+@pytest.mark.django_db
+def test_validate():
+    receipt = factories.ReceiptFactory()
+    queryset = models.Receipt.objects.filter(pk=receipt.pk)
+    ticket = MagicMock()
+
+    with patch(
+        "django_afip.models.ReceiptQuerySet._assign_numbers",
+        spec=True,
+    ) as mocked_assign_numbers, patch(
+        "django_afip.models.ReceiptQuerySet._validate",
+        spec=True,
+    ) as mocked__validate:
+        queryset.validate(ticket)
+
+    assert mocked_assign_numbers.call_count == 1
+    assert mocked__validate.call_count == 1
+    assert mocked__validate.call_args == call(ticket)
 
 
-class ReceiptTestCase(TestCase):
-    def test_validate(self):
-        receipt = factories.ReceiptFactory()
-        ticket = MagicMock()
-        self.called = False
+# TODO: Also another tests that checks that we only pass filtered-out receipts.
 
-        def fake_validate(qs, ticket=None):
-            self.assertQuerysetEqual(qs, [receipt.pk], lambda r: r.pk)
-            self.called = True
 
-        with patch(
-            "django_afip.models.ReceiptQuerySet.validate",
-            fake_validate,
-        ):
-            receipt.validate(ticket)
+def test_default_receipt_manager():
+    assert isinstance(models.Receipt.objects, models.ReceiptManager)
 
-        self.assertTrue(self.called)
+
+@pytest.mark.django_db
+def test_validate_receipt():
+    receipt = factories.ReceiptFactory()
+    ticket = MagicMock()
+    ticket._called = False
+
+    def fake_validate(qs, ticket=None):
+        assertQuerysetEqual(qs, [receipt.pk], lambda r: r.pk)
+        ticket._called = True
+
+    with patch(
+        "django_afip.models.ReceiptQuerySet.validate",
+        fake_validate,
+    ):
+        receipt.validate(ticket)
+
+    assert ticket._called is True
 
 
 class ReceiptSuccessfulValidateTestCase(PopulatedLiveAfipTestCase):
@@ -145,48 +143,54 @@ class ReceiptFailedValidateTestCase(PopulatedLiveAfipTestCase):
         self.assertEqual(models.ReceiptValidation.objects.count(), 0)
 
 
-class ReceiptIsValidatedTestCase(TestCase):
-    def test_not_validated(self):
-        receipt = factories.ReceiptFactory()
-        self.assertEqual(receipt.is_validated, False)
-
-    def test_validated(self):
-        receipt = factories.ReceiptFactory(receipt_number=1)
-        factories.ReceiptValidationFactory(receipt=receipt)
-        self.assertEqual(receipt.is_validated, True)
-
-    def test_failed_validation(self):
-        # These should never really exist,but oh well:
-        receipt = factories.ReceiptFactory()
-        factories.ReceiptValidationFactory(
-            receipt=receipt,
-            result=models.ReceiptValidation.RESULT_REJECTED,
-        )
-        self.assertEqual(receipt.is_validated, False)
-
-        receipt = factories.ReceiptFactory(receipt_number=1)
-        factories.ReceiptValidationFactory(
-            receipt=receipt,
-            result=models.ReceiptValidation.RESULT_REJECTED,
-        )
-        self.assertEqual(receipt.is_validated, False)
+@pytest.mark.django_db
+def test_receipt_is_validted_when_not_validated():
+    receipt = factories.ReceiptFactory()
+    assert not receipt.is_validated
 
 
-class ReceiptDefaultCurrencyTestCase(TestCase):
-    def test_no_currencies(self):
-        receipt = models.Receipt()
-        with self.assertRaises(models.CurrencyType.DoesNotExist):
-            receipt.currency
+@pytest.mark.django_db
+def test_receipt_is_validted_when_validated():
+    receipt = factories.ReceiptFactory(receipt_number=1)
+    factories.ReceiptValidationFactory(receipt=receipt)
+    assert receipt.is_validated
 
-    def test_multieple_currencies(self):
-        c1 = factories.CurrencyTypeFactory(pk=2)
-        c2 = factories.CurrencyTypeFactory(pk=1)
-        c3 = factories.CurrencyTypeFactory(pk=3)
 
-        receipt = models.Receipt()
-        self.assertNotEqual(receipt.currency, c1)
-        self.assertEqual(receipt.currency, c2)
-        self.assertNotEqual(receipt.currency, c3)
+@pytest.mark.django_db
+def test_receipt_is_validted_when_failed_validation():
+    # These should never really exist,but oh well:
+    receipt = factories.ReceiptFactory()
+    factories.ReceiptValidationFactory(
+        receipt=receipt,
+        result=models.ReceiptValidation.RESULT_REJECTED,
+    )
+    assert not receipt.is_validated
+
+    receipt = factories.ReceiptFactory(receipt_number=1)
+    factories.ReceiptValidationFactory(
+        receipt=receipt,
+        result=models.ReceiptValidation.RESULT_REJECTED,
+    )
+    assert not receipt.is_validated
+
+
+@pytest.mark.django_db
+def test_default_currency_no_currencies():
+    receipt = models.Receipt()
+    with pytest.raises(models.CurrencyType.DoesNotExist):
+        receipt.currency
+
+
+@pytest.mark.django_db
+def test_default_currency_multieple_currencies():
+    c1 = factories.CurrencyTypeFactory(pk=2)
+    c2 = factories.CurrencyTypeFactory(pk=1)
+    c3 = factories.CurrencyTypeFactory(pk=3)
+
+    receipt = models.Receipt()
+    assert receipt.currency != c1
+    assert receipt.currency == c2
+    assert receipt.currency != c3
 
 
 class ReceiptTotalVatTestCase(TestCase):
