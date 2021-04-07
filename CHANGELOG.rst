@@ -4,6 +4,11 @@ Changelog
 This file contains a brief summary of new features and dependency changes or
 releases, in reverse chronological order.
 
+8.0.4
+-----
+
+* Fix mixup when sending validated receipts, introduced in v8.0.3.
+
 8.0.3
 -----
 
@@ -12,6 +17,12 @@ releases, in reverse chronological order.
   factories should now be reusable by downstream apps.
 * Fixed a bug when validating credit notes and other receipts which have a
   related-receipt.
+
+.. warning::
+
+    This version has a critical error in validating receipts with related
+    receipts. It has been yanked and should not be used. If you've submitted
+    any receipts with this version, you may need to invalidate them.
 
 8.0.2
 -----

@@ -1,10 +1,16 @@
-from django.db.models import Sum
+from django.utils.functional import LazyObject
 
-from . import clients
+from django_afip.clients import get_client
 
 
-def _wsfe_factory():
-    return clients.get_client("wsfe").type_factory("ns0")
+class _LazyFactory(LazyObject):
+    """A lazy-initialised factory for WSDL objects."""
+
+    def _setup(self):
+        self._wrapped = get_client("wsfe").type_factory("ns0")
+
+
+f = _LazyFactory()
 
 
 def serialize_datetime(datetime):
@@ -24,7 +30,7 @@ def serialize_date(date):
 
 
 def serialize_ticket(ticket):
-    return _wsfe_factory().FEAuthRequest(
+    return f.FEAuthRequest(
         Token=ticket.token,
         Sign=ticket.signature,
         Cuit=ticket.owner.cuit,
@@ -33,12 +39,11 @@ def serialize_ticket(ticket):
 
 def serialize_multiple_receipts(receipts):
     receipts = receipts.all().order_by("receipt_number")
-    f = _wsfe_factory()
 
     first = receipts.first()
     receipts = [serialize_receipt(receipt) for receipt in receipts]
 
-    wso = f.FECAERequest(
+    serialised = f.FECAERequest(
         FeCabReq=f.FECAECabRequest(
             CantReg=len(receipts),
             PtoVta=first.point_of_sales.number,
@@ -47,20 +52,12 @@ def serialize_multiple_receipts(receipts):
         FeDetReq=f.ArrayOfFECAEDetRequest(receipts),
     )
 
-    # for receipt in receipts:
-    #     wso.FeDetReq.FECAEDetRequest.append(receipt)
-
-    return wso
+    return serialised
 
 
 def serialize_receipt(receipt):
-    from django_afip import models
-
-    f = _wsfe_factory()
-    subtotals = models.Receipt.objects.filter(pk=receipt.pk).aggregate(
-        vat=Sum("vat__amount"),
-        taxes=Sum("taxes__amount"),
-    )
+    taxes = receipt.taxes.all()
+    vats = receipt.vat.all()
 
     serialized = f.FECAEDetRequest(
         Concepto=receipt.concept.code,
@@ -74,8 +71,8 @@ def serialize_receipt(receipt):
         ImpTotConc=receipt.net_untaxed,
         ImpNeto=receipt.net_taxed,
         ImpOpEx=receipt.exempt_amount,
-        ImpIVA=subtotals["vat"] or 0,
-        ImpTrib=subtotals["taxes"] or 0,
+        ImpIVA=sum(vat.amount for vat in vats),
+        ImpTrib=sum(tax.amount for tax in taxes),
         MonId=receipt.currency.code,
         MonCotiz=receipt.currency_quote,
     )
@@ -84,23 +81,20 @@ def serialize_receipt(receipt):
         serialized.FchServHasta = serialize_date(receipt.service_end)
         serialized.FchVtoPago = serialize_date(receipt.expiration_date)
 
-    if receipt.taxes.count():
-        serialized.Tributos = f.ArrayOfTributo(
-            [serialize_tax(tax) for tax in receipt.taxes.all()]
-        )
-    if receipt.vat.count():
-        serialized.Iva = f.ArrayOfAlicIva(
-            [serialize_vat(vat) for vat in receipt.vat.all()]
-        )
+    if taxes:
+        serialized.Tributos = f.ArrayOfTributo([serialize_tax(tax) for tax in taxes])
+
+    if vats:
+        serialized.Iva = f.ArrayOfAlicIva([serialize_vat(vat) for vat in vats])
 
     related_receipts = receipt.related_receipts.all()
     if related_receipts:
         serialized.CbtesAsoc = f.ArrayOfCbteAsoc(
             [
                 f.CbteAsoc(
-                    receipt.receipt_type.code,
-                    receipt.point_of_sales.number,
-                    receipt.receipt_number,
+                    r.receipt_type.code,
+                    r.point_of_sales.number,
+                    r.receipt_number,
                 )
                 for r in related_receipts
             ]
@@ -110,7 +104,7 @@ def serialize_receipt(receipt):
 
 
 def serialize_tax(tax):
-    return _wsfe_factory().Tributo(
+    return f.Tributo(
         Id=tax.tax_type.code,
         Desc=tax.description,
         BaseImp=tax.base_amount,
@@ -120,7 +114,7 @@ def serialize_tax(tax):
 
 
 def serialize_vat(vat):
-    return _wsfe_factory().AlicIva(
+    return f.AlicIva(
         Id=vat.vat_type.code,
         BaseImp=vat.base_amount,
         Importe=vat.amount,
