@@ -86,14 +86,13 @@ def serialize_receipt(receipt):
         serialized.FchServHasta = serialize_date(receipt.service_end)
         serialized.FchVtoPago = serialize_date(receipt.expiration_date)
 
-    if receipt.taxes.count():
-        serialized.Tributos = f.ArrayOfTributo(
-            [serialize_tax(tax) for tax in receipt.taxes.all()]
-        )
-    if receipt.vat.count():
-        serialized.Iva = f.ArrayOfAlicIva(
-            [serialize_vat(vat) for vat in receipt.vat.all()]
-        )
+    taxes = receipt.taxes.all()
+    if taxes:
+        serialized.Tributos = f.ArrayOfTributo([serialize_tax(tax) for tax in taxes])
+
+    vats = receipt.vat.all()
+    if vats:
+        serialized.Iva = f.ArrayOfAlicIva([serialize_vat(vat) for vat in vats])
 
     related_receipts = receipt.related_receipts.all()
     if related_receipts:
