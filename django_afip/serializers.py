@@ -98,9 +98,9 @@ def serialize_receipt(receipt):
         serialized.CbtesAsoc = f.ArrayOfCbteAsoc(
             [
                 f.CbteAsoc(
-                    receipt.receipt_type.code,
-                    receipt.point_of_sales.number,
-                    receipt.receipt_number,
+                    r.receipt_type.code,
+                    r.point_of_sales.number,
+                    r.receipt_number,
                 )
                 for r in related_receipts
             ]
