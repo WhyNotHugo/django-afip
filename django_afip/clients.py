@@ -61,7 +61,7 @@ transport = LazyTransport()
 cached_clients = {}
 
 
-def get_client(service_name, sandbox=False):
+def get_client(service_name: str, sandbox=False) -> Client:
     """
     Return a client for a given service.
 
@@ -70,11 +70,10 @@ def get_client(service_name, sandbox=False):
     irrelevant. A caller can avoid the overhead of determining the sandbox mode in the
     calling context if only serialization operations will take place.
 
-    :param string service_name: The name of the web services.
-    :param bool sandbox: Whether the sandbox (or production) environment should
+    :param service_name: The name of the web services.
+    :param sandbox: Whether the sandbox (or production) environment should
         be used by the returned client.
     :returns: A zeep client to communicate with an AFIP web service.
-    :rtype: zeep.Client
     """
     key = (
         service_name.lower(),

@@ -1,10 +1,17 @@
 from django.db.models import Sum
+from django.utils.functional import LazyObject
 
-from . import clients
+from django_afip.clients import get_client
 
 
-def _wsfe_factory():
-    return clients.get_client("wsfe").type_factory("ns0")
+class _LazyFactory(LazyObject):
+    """A lazy-initialised factory for WSDL objects."""
+
+    def _setup(self):
+        self._wrapped = get_client("wsfe").type_factory("ns0")
+
+
+f = _LazyFactory()
 
 
 def serialize_datetime(datetime):
@@ -24,7 +31,7 @@ def serialize_date(date):
 
 
 def serialize_ticket(ticket):
-    return _wsfe_factory().FEAuthRequest(
+    return f.FEAuthRequest(
         Token=ticket.token,
         Sign=ticket.signature,
         Cuit=ticket.owner.cuit,
@@ -33,12 +40,11 @@ def serialize_ticket(ticket):
 
 def serialize_multiple_receipts(receipts):
     receipts = receipts.all().order_by("receipt_number")
-    f = _wsfe_factory()
 
     first = receipts.first()
     receipts = [serialize_receipt(receipt) for receipt in receipts]
 
-    wso = f.FECAERequest(
+    serialised = f.FECAERequest(
         FeCabReq=f.FECAECabRequest(
             CantReg=len(receipts),
             PtoVta=first.point_of_sales.number,
@@ -47,17 +53,13 @@ def serialize_multiple_receipts(receipts):
         FeDetReq=f.ArrayOfFECAEDetRequest(receipts),
     )
 
-    # for receipt in receipts:
-    #     wso.FeDetReq.FECAEDetRequest.append(receipt)
-
-    return wso
+    return serialised
 
 
 def serialize_receipt(receipt):
-    from django_afip import models
+    from django_afip.models import Receipt
 
-    f = _wsfe_factory()
-    subtotals = models.Receipt.objects.filter(pk=receipt.pk).aggregate(
+    subtotals = Receipt.objects.filter(pk=receipt.pk).aggregate(
         vat=Sum("vat__amount"),
         taxes=Sum("taxes__amount"),
     )
@@ -110,7 +112,7 @@ def serialize_receipt(receipt):
 
 
 def serialize_tax(tax):
-    return _wsfe_factory().Tributo(
+    return f.Tributo(
         Id=tax.tax_type.code,
         Desc=tax.description,
         BaseImp=tax.base_amount,
@@ -120,7 +122,7 @@ def serialize_tax(tax):
 
 
 def serialize_vat(vat):
-    return _wsfe_factory().AlicIva(
+    return f.AlicIva(
         Id=vat.vat_type.code,
         BaseImp=vat.base_amount,
         Importe=vat.amount,
