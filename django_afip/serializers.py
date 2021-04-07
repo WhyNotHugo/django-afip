@@ -1,4 +1,3 @@
-from django.db.models import Sum
 from django.utils.functional import LazyObject
 
 from django_afip.clients import get_client
@@ -57,12 +56,8 @@ def serialize_multiple_receipts(receipts):
 
 
 def serialize_receipt(receipt):
-    from django_afip.models import Receipt
-
-    subtotals = Receipt.objects.filter(pk=receipt.pk).aggregate(
-        vat=Sum("vat__amount"),
-        taxes=Sum("taxes__amount"),
-    )
+    taxes = receipt.taxes.all()
+    vats = receipt.vat.all()
 
     serialized = f.FECAEDetRequest(
         Concepto=receipt.concept.code,
@@ -76,8 +71,8 @@ def serialize_receipt(receipt):
         ImpTotConc=receipt.net_untaxed,
         ImpNeto=receipt.net_taxed,
         ImpOpEx=receipt.exempt_amount,
-        ImpIVA=subtotals["vat"] or 0,
-        ImpTrib=subtotals["taxes"] or 0,
+        ImpIVA=sum(vat.amount for vat in vats),
+        ImpTrib=sum(tax.amount for tax in taxes),
         MonId=receipt.currency.code,
         MonCotiz=receipt.currency_quote,
     )
@@ -86,11 +81,9 @@ def serialize_receipt(receipt):
         serialized.FchServHasta = serialize_date(receipt.service_end)
         serialized.FchVtoPago = serialize_date(receipt.expiration_date)
 
-    taxes = receipt.taxes.all()
     if taxes:
         serialized.Tributos = f.ArrayOfTributo([serialize_tax(tax) for tax in taxes])
 
-    vats = receipt.vat.all()
     if vats:
         serialized.Iva = f.ArrayOfAlicIva([serialize_vat(vat) for vat in vats])
 
