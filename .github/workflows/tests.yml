@@ -9,7 +9,7 @@ on:
 
 jobs:
   tests:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         python: [ '3.6', '3.7', '3.8' ]
@@ -36,7 +36,7 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   tests-live:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     name: live
     steps:
       - uses: actions/checkout@master

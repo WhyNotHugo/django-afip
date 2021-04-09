@@ -7,7 +7,7 @@ on:
 
 jobs:
   github-release:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     name: Publish GitHub Release
     steps:
       - uses: actions/checkout@master
@@ -26,7 +26,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   pypi:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     name: Publish package on PyPI
     steps:
       - uses: actions/checkout@master
