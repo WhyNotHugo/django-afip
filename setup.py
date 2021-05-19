@@ -22,7 +22,7 @@ setup(
         "setuptools-git>=1.1",
         "setuptools-scm>=1.7.0",
         "wheel>=0.24.0",
-        "zeep>=1.1.0,<4.0.0",
+        "zeep>=1.1.0,<5.0.0",
         "qrcode[pil]>=6.1,<7.0",
         "pyyaml>=5.3.1,<6.0.0",
     ],
