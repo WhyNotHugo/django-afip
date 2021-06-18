@@ -8,6 +8,12 @@ setup(
     author="Hugo Osvaldo Barrera",
     author_email="hugo@barrera.io",
     url="https://github.com/WhyNotHugo/django-afip",
+    project_urls={
+        "Documentation": "https://django-afip.readthedocs.io/",
+        "Issue Tracker": "https://github.com/WhyNotHugo/django-afip/issues",
+        "Chat": "irc://libera.chat/#whynothugo",
+        "Donate": "https://liberapay.com/WhyNotHugo/",
+    },
     license="ISC",
     packages=find_packages(),
     include_package_data=True,
