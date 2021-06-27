@@ -123,7 +123,5 @@ def serialize_vat(vat):
 
 def serialize_receipt_data(receipt_type, receipt_number, point_of_sales):
     return f.FECompConsultaReq(
-        CbteTipo=receipt_type,
-        CbteNro=receipt_number,
-        PtoVta=point_of_sales
+        CbteTipo=receipt_type, CbteNro=receipt_number, PtoVta=point_of_sales
     )

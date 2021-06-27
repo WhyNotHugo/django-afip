@@ -736,16 +736,16 @@ class ReceiptQuerySet(models.QuerySet):
         first = self.select_related("point_of_sales", "receipt_type").first()
 
         next_num = (
-                Receipt.objects.fetch_last_receipt_number(
-                    first.point_of_sales,
-                    first.receipt_type,
-                )
-                + 1
+            Receipt.objects.fetch_last_receipt_number(
+                first.point_of_sales,
+                first.receipt_type,
+            )
+            + 1
         )
 
         for receipt in self.filter(receipt_number__isnull=True):
             # Atomically update receipt number
-            Receipt.objects.filter(pk=receipt.id, receipt_number__isnull=True, ).update(
+            Receipt.objects.filter(pk=receipt.id, receipt_number__isnull=True,).update(
                 receipt_number=next_num,
             )
             next_num += 1
@@ -890,7 +890,7 @@ class ReceiptManager(models.Manager):
             ),
             serializers.serialize_receipt_data(
                 receipt_type, receipt_number, point_of_sales.number
-            )
+            ),
         )
         check_response(response_xml)
 

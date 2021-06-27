@@ -23,8 +23,8 @@ def test_validate():
     ticket = MagicMock()
 
     with patch(
-            "django_afip.models.ReceiptQuerySet._assign_numbers",
-            spec=True,
+        "django_afip.models.ReceiptQuerySet._assign_numbers",
+        spec=True,
     ) as mocked_assign_numbers, patch(
         "django_afip.models.ReceiptQuerySet._validate",
         spec=True,
@@ -54,8 +54,8 @@ def test_validate_receipt():
         ticket._called = True
 
     with patch(
-            "django_afip.models.ReceiptQuerySet.validate",
-            fake_validate,
+        "django_afip.models.ReceiptQuerySet.validate",
+        fake_validate,
     ):
         receipt.validate(ticket)
 
@@ -129,9 +129,9 @@ class ReceiptFailedValidateTestCase(PopulatedLiveAfipTestCase):
         """Test validating valid receipts."""
 
         with self.assertRaisesRegex(
-                exceptions.ValidationError,
-                # Note: AFIP apparently edited this message and added a typo:
-                "DocNro 203012345 no se encuentra registrado en los padrones",
+            exceptions.ValidationError,
+            # Note: AFIP apparently edited this message and added a typo:
+            "DocNro 203012345 no se encuentra registrado en los padrones",
         ):
             self.receipt.validate(raise_=True)
 
@@ -151,12 +151,11 @@ class ReceiptDataFetchTestCase(PopulatedLiveAfipTestCase):
         # so we can't use a fixed receipt number
         last_receipt_number = models.Receipt.objects.fetch_last_receipt_number(pos, rt)
         receipt = models.Receipt.objects.fetch_receipt_data(
-            receipt_type=6,
-            receipt_number=last_receipt_number,
-            point_of_sales=pos
+            receipt_type=6, receipt_number=last_receipt_number, point_of_sales=pos
         )
 
-        self.assertEqual(receipt.CbteDesde, last_receipt_number)
+        assert receipt.CbteDesde == last_receipt_number
+        assert receipt.PtoVta == pos.number
 
 
 @pytest.mark.django_db
