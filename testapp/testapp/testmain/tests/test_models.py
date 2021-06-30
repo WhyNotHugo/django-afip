@@ -143,6 +143,21 @@ class ReceiptFailedValidateTestCase(PopulatedLiveAfipTestCase):
         self.assertEqual(models.ReceiptValidation.objects.count(), 0)
 
 
+class ReceiptDataFetchTestCase(PopulatedLiveAfipTestCase):
+    def test_fetch_existing_data(self):
+        pos = models.PointOfSales.objects.first()
+        rt = models.ReceiptType.objects.get(code=6)
+        # last receipt number is needed for testing, it seems they flush old receipts
+        # so we can't use a fixed receipt number
+        last_receipt_number = models.Receipt.objects.fetch_last_receipt_number(pos, rt)
+        receipt = models.Receipt.objects.fetch_receipt_data(
+            receipt_type=6, receipt_number=last_receipt_number, point_of_sales=pos
+        )
+
+        assert receipt.CbteDesde == last_receipt_number
+        assert receipt.PtoVta == pos.number
+
+
 @pytest.mark.django_db
 def test_receipt_is_validted_when_not_validated():
     receipt = factories.ReceiptFactory()

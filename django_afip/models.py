@@ -34,7 +34,6 @@ from . import serializers
 logger = logging.getLogger(__name__)
 TZ_AR = pytz.timezone(pytz.country_timezones["ar"][0])
 
-
 # http://www.afip.gov.ar/afip/resol1415_anexo2.html
 VAT_CONDITIONS = (
     "IVA Responsable Inscripto",
@@ -881,6 +880,21 @@ class ReceiptManager(models.Manager):
         #  }
 
         return response_xml.CbteNro
+
+    def fetch_receipt_data(self, receipt_type, receipt_number, point_of_sales):
+        """Returns receipt related data"""
+        client = clients.get_client("wsfe", point_of_sales.owner.is_sandboxed)
+        response_xml = client.service.FECompConsultar(
+            serializers.serialize_ticket(
+                point_of_sales.owner.get_or_create_ticket("wsfe")
+            ),
+            serializers.serialize_receipt_data(
+                receipt_type, receipt_number, point_of_sales.number
+            ),
+        )
+        check_response(response_xml)
+
+        return response_xml.ResultGet
 
     def get_queryset(self):
         return ReceiptQuerySet(self.model, using=self._db).select_related(
