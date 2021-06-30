@@ -1,15 +1,13 @@
-Installation
-============
+Instalación
+===========
 
-Actual package installation is quite simple and can be done via pip.
-Dependencies should be handled by pip fine [#]_:
+La instalación del paquete en sí es simplemente usando pip. [#]_:
 
 .. code-block:: python
 
     pip install django-afip
 
-You'll then need to configure your project to use this app by adding it to your
-``settings.py``:
+Vas a necesitar agregar la aplicación al ``settings.py`` de tu proyecto:
 
 .. code-block:: python
 
@@ -19,66 +17,62 @@ You'll then need to configure your project to use this app by adding it to your
         ...
     )
 
-Make sure to run all migrations after you've added the app:
+Asegurante de correr todas las migraciones después de agregar la app:
 
 .. code-block:: python
 
     python manage.py migrate afip
 
-.. [#] Receipt PDF generation uses weasyprint, which has some additional
-       dependencies.  Consult `their documentation
-       <http://weasyprint.readthedocs.io/en/stable/install.html>`_ for clear
-       and up-to-date details.
+.. [#] La generación de PDFs usa ``weasyprint``, que tiene algunas dependencias
+       adicionales. Consultá `su documentación
+       <http://weasyprint.readthedocs.io/en/stable/install.html>`_ para
+       instrucciones detalladas al día.
 
-Configuration
+Configuración
 -------------
 
-It is also possible (yet optional) to define storages for files used
-by the app.  If undefined, the default file storage is used.
+También es posible (y opcional) definir varios `Storage
+https://docs.djangoproject.com/en/3.2/ref/files/storage/`_ para los archivos
+de la app. Si no están definidos, se usará el Storage predeterminado.
 
-The value of these settings should be a string with the path to the instance of
-a storage to use (eg: ``'myapp.storages.my_private_storage'``). Both S3 and
-the default storages have been tested, but any django-compatible storage should
-work just fine. See the django documentation for more details on storages.
+El valor de estos ajustes debería ser un ``str`` con el path a una instancia
+del storage a usar. (eg: ``'myapp.storages.my_private_storage'``). Tanto S3
+como el storage predeterminado han sido testeados ampliamente, aunque cualquier
+storage compatible con django debería funcionar perfecto.
 
 .. code-block:: python
 
-    AFIP_KEY_STORAGE  # Keys for authenticating with AFIP (TaxPayer.key)
-    AFIP_CERT_STORAGE  # Certs for auth'ing with AFIP (TaxPayer.certificate)
-    AFIP_PDF_STORAGE  # PDFs generated for receipts (ReceiptPDF.pdf_file)
-    AFIP_LOGO_STORAGE  # Logos used in invoices (TaxPayer.logo)
+    AFIP_KEY_STORAGE  # Clave para autenticación con el AFIP. (TaxPayer.key)
+    AFIP_CERT_STORAGE  # Certificados para autenticación con el AFIP (TaxPayer.certificate)
+    AFIP_PDF_STORAGE  # PDFs generados para comprobantes (ReceiptPDF.pdf_file)
+    AFIP_LOGO_STORAGE  # Logos usados para comprobantes (TaxPayer.logo)
 
 
-Versioning
+Versionado
 ----------
 
-It is recommended that you pin versions, at least to major releases, since
-major releases are not guaranteed to be totally compatibility (clear upgrade
-notes ARE provided though):
+Se recomienda pinnear versiones de dependencias. Dado que las versiones major
+pueden requerir actualizaciones de código (siempre se proveen instrucciones de
+que cambió y que cambios son necesarios).
 
 .. code-block:: txt
 
     django-afip>=4.0,< 5.0
 
-We strictly follow `Semantic Versioning`_. We only support version of Django
-that are currently supported upstream.
-
-Django-afip is compatible with all `currently supported django versions`_.
+Seguimos estrictamente `Semantic Versioning`_.
 
 .. _Semantic Versioning: http://semver.org/
-.. _currently supported django versions: https://www.djangoproject.com/download/#supported-versions
 
-Upgrading
----------
+Actualizado
+-----------
 
-Backwards compatibility may break at major release, however, we always provide
-migrations to upgrade existing installations (I actually always use those
-on multiple production instances without any data loss).
+Compatibilidad para atrás puede romper en versiones mayores, aunque siempre
+incluimos migraciones para actualizar instalaciones existentes. Usamos estas
+mismas migraciones para actualizar instancias productivas año tras año.
 
 .. warning::
 
-    If you're on a pre-v4.0.0 release, you should upgrade to v4.0.0 and then
-    further, since migrations will be squashed and purged in  latter releases.
-
-    If you're working on new/non-production projects, it's safe to ignore this
-    warning (though you'll have to drop your current DB).
+    Si estás usando una versión previa a 4.0.0, deberías actualizar a 4.0.0,
+    ejecutar las migraciones, y luego continuar. La migraciones fueros
+    squasheadas en esa versión y no está garantizado que actualizar salteándola
+    funcione.

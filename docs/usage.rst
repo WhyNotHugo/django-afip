@@ -1,60 +1,62 @@
-Usage
+Uso
 =====
 
-Glossary
+Glosario
 --------
 
-Keep these terms in mind while reading this documentation. Note that we're not
-reinventing anything here, this is what these terms actually means, and what AFIP calls
-these. It's maybe non-obvious to developers getting started.
+Tené en cuenta estos términos mientras leas la documentación. Nótese que no
+estamos reinventando nada acá, estos son los términos que usa el AFIP, aunque
+pueden ser no-obvios para desarrolladores.
 
-- **TaxPayer**: A TaxPayer is one of the taxpayers on who's behalf your application
-  will be invoicing.
-- **Receipt**: Generally this library deals with receipts. Receipts can be invoices,
-  credit notes, and other types.
-- **Point of Sale**: Each point of sales has its own unique sequence of receipt
-  numbers. Point of sale 9 will emit receipts ``0009-00000001``, ``0009-00000002``, and so
-  forth.
+- **Contribuyente** / ``TaxPayer``: La persona o entidad de parte de la cual vas
+  a estar generando comprobantes.
+- **Comprobante** / ``Receipt``: Estos pueden ser facturas, notas de créditos,
+  etc.
+- **Punto de ventas** / ``PointOfSale``:  Cada punto de ventas sigue una
+  sequencia de numeración propia. El punto de ventas 9 emite comprobantes con
+  números ``0009-00000001``, ``0009-00000002``, etc.
 
-Getting started
+Cómo empezar
 ---------------
 
-First of all, you'll need to create a :class:`~.TaxPayer` instance.
-You'll then need to create keys and register with them with AFIP before continuing
-(more on this below).
+Antes que nada, deberías crear una instancia de la clase :class:`~.TaxPayer`.
+Vas a necesitar generar claves y registrarlas con el AFIp antes de poder
+continuar (más detalles más abajo).
 
-django-afip includes admin views for every model included, and it's the
-recommended way to create `TaxPayer` objects (at least during
-development/testing).
+``django-afip`` incluye un vistas del admin para cada modelo incluido, y es la
+forma recomendad de crear un ``TaxPayer``, al menos durante desarrollo y
+deploys iniciales.
 
-Creating a private key
-~~~~~~~~~~~~~~~~~~~~~~
+Crear una clave privada
+~~~~~~~~~~~~~~~~~~~~~~~
 
-There are three ways to create a private key, and the result of any work fine:
+Hay tres formas de crear una clave privada, las cuales dan resultados equivalentes:
 
-1. Follow the official `instructions <http://www.afip.gov.ar/ws/WSAA/WSAA.ObtenerCertificado.pdf>`_.
-2. Use the :meth:`~.TaxPayer.generate_key` method. This will generate a key for you, and
-   save if for the TaxPayer.
-3. Visit the Django admin, and use the "generate key" action. This just wraps around
-   the above method, and prompts you to download the key.
+1. Seguí las: `instrucciones oficiales <http://www.afip.gov.ar/ws/WSAA/WSAA.ObtenerCertificado.pdf>`_.
+2. Usá el método :meth:`~.TaxPayer.generate_key`. Esto genera la clave y la
+   guarda en el sistema.
+3. Usando el admin, usá la acción "generate key". Esto es simplemente un
+   wrapper a la función (2) que te ofrece guardar el archivo que necesitás
+   mandar al AFIP.
 
-I'd recommend you use the latter, since it's the easiest, or the second if you would
-really like to avoid using the Django admin.
+La recomendación es usar la última de estas opciones, dado que es la más fácil,
+o, en caso de no estar usando el admin, la segunda opción.
 
-Registering the key with the AFIP
+Registración de clave con el AFIP
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You'll then need to register the generated key with the AFIP:
+Vas a necesitar registrar tu clave con el AFIP:
 
-1. `Register a key for authentication <https://www.afip.gob.ar/ws/WSAA/wsaa_obtener_certificado_produccion.pdf>`_.
-2. `Register a key for invoicing key <https://www.afip.gob.ar/ws/WSAA/wsaa_asociar_certificado_a_wsn_produccion.pdf>`_.
-3. `Create a point of sales <https://serviciosweb.afip.gob.ar/genericos/guiasPasoPaso/VerGuia.aspx?id=135>`_.
+1. `Registrá la clave para autenticación <https://www.afip.gob.ar/ws/WSAA/wsaa_obtener_certificado_produccion.pdf>`_.
+2. `Registrá la clave para facturación <https://www.afip.gob.ar/ws/WSAA/wsaa_asociar_certificado_a_wsn_produccion.pdf>`_.
+3. `Creá un punto de ventas <https://serviciosweb.afip.gob.ar/genericos/guiasPasoPaso/VerGuia.aspx?id=135>`_.
 
-You'll obtain a certificate during this process. You should assign this to the
-TaxPayer's ``certificate`` attribute (again, you can do this using the Django admin).
+Vas a obtener un certificado durante este proceso. Deberías asignar este
+certificado al atributo ``certificate`` de tu ``TaxPayer`` (de nuevo, podés
+hacer esto mediante el admin).
 
-Fetching points of sales
-~~~~~~~~~~~~~~~~~~~~~~~~
+Obtención de puntos de ventas
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Once you have created a :class:`~.TaxPayer`, you'll need its points of sales. This,
 again, can be done via the admin by selecting "fetch points of sales'. You may
