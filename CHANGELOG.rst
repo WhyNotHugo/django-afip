@@ -8,6 +8,7 @@ releases, in reverse chronological order.
 -----
 
 * Add support for Zeep ~4.0.0.
+* Add support for Django 3.2.
 
 8.0.4
 -----
