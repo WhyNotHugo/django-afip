@@ -892,9 +892,24 @@ class ReceiptManager(models.Manager):
                 receipt_type, receipt_number, point_of_sales.number
             ),
         )
+
         check_response(response_xml)
 
-        return response_xml.ResultGet
+        data = response_xml.ResultGet
+
+        # return response_xml.ResultGet
+        # TODO: handle that it may already exist. Mayeb use update_or_create?
+
+        assert data.CbteDesde == data.CbteHasta == receipt_number
+
+        receipt = Receipt(
+            point_of_sales=point_of_sales,
+            receipt_type=receipt_type,
+            concept=ConceptType.objects.get(code=data.Concepto),
+            document_type=DocumentType.objects.get(code=data.DocTipo),
+            document_number=DocumentType.objects.get(code=data.DocNro),
+            issued_date=datetime.strptime(daat.CbteFecha, "%Y%m%d"),
+        )
 
     def get_queryset(self):
         return ReceiptQuerySet(self.model, using=self._db).select_related(
