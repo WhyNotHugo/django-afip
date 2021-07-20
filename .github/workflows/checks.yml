@@ -3,19 +3,6 @@ name: Checks
 on: [push, pull_request]
 
 jobs:
-  styles:
-    runs-on: ubuntu-latest
-    name: Linting
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@master
-      - name: Setup python
-        uses: actions/setup-python@v1
-        with:
-          python-version: 3.7
-          architecture: x64
-      - run: pip install pre-commit
-      - run: pre-commit run --all
   docs:
     runs-on: ubuntu-latest
     name: Build documentation

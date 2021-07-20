@@ -5,6 +5,10 @@ django-afip
   :target: https://travis-ci.com/WhyNotHugo/django-afip
   :alt: build status
 
+.. image:: https://results.pre-commit.ci/badge/github/WhyNotHugo/django-afip/main.svg
+  :target: https://results.pre-commit.ci/latest/github/WhyNotHugo/django-afip/main
+  :alt: pre-commit.ci status
+
 .. image:: https://codecov.io/gh/WhyNotHugo/django-afip/branch/main/graph/badge.svg
   :target: https://codecov.io/gh/WhyNotHugo/django-afip
   :alt: Build coverage
