@@ -24,38 +24,30 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
           architecture: x64
-      - name: Install test dependencies
-        run: |
-          pip install tox codecov
-          sudo apt-get update && sudo apt-get install libpq-dev libmysqlclient-dev
-      - name: Run tests
-        run: tox
+      - run: pip install tox codecov
+      - run: sudo apt-get update && sudo apt-get install libpq-dev libmysqlclient-dev
+      - run: tox
         env:
           TOXENV: django${{ matrix.django }}-${{ matrix.db }}
           DB: ${{ matrix.db }}
-      - name: Report coverage
-        run: codecov
+      - run: codecov
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   tests-live:
     runs-on: ubuntu-latest
     name: live
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v2
       - uses: actions/setup-python@v1
         with:
           python-version: "3.9"
           architecture: x64
-      - name: Install test dependencies
-        run: |
-          pip install tox codecov
-          sudo apt-get update && sudo apt-get install libpq-dev
-      - name: Run tests
-        run: tox
+      - run: pip install tox codecov
+      - run: sudo apt-get update && sudo apt-get install libpq-dev
+      - run: tox
         env:
           TOXENV: live
           DB: postgres
-      - name: Report coverage
-        run: codecov
+      - run: codecov
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
