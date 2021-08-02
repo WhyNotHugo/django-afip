@@ -1,6 +1,12 @@
 name: Docs
 
-on: [push]
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    types: [opened, synchronize, reopened]
+
 
 jobs:
   build:
@@ -9,7 +15,9 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions/setup-python@v1
         with:
-          python-version: 3.8
+          python-version: 3.9
           architecture: x64
-      - run: pip install sphinx . -rdocs/requirements.txt
-      - run: make -C docs html
+      - run: pip install tox
+      - run: tox
+        env:
+          TOXENV: docs
