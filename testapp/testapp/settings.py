@@ -61,17 +61,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "testapp.wsgi.application"
 
-
 # Database
-database_urls = {
-    "mysql": "mysql://root@localhost:3306",
-    "postgres": "postgres://postgres@localhost:5432",
-    "sqlite": "sqlite:///db.sqlite3",
-}
-database_type = os.environ.get("DB", "sqlite")
-
-DATABASES = {"default": dj_database_url.parse(database_urls[database_type])}
-
+DATABASES = {"default": dj_database_url.config()}
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/

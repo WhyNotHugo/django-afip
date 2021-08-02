@@ -29,3 +29,17 @@ certificate has expired, by merely updating the CI configuration.
 
 Note that the CI variables need to have newlines replaced with the ``\n``
 sequence.
+
+Test database servers
+---------------------
+
+When running tests with postgres (or mysql), you need to run tests servers
+locally. You can do this with podman or docker, using:
+
+.. code-block:: bash
+
+    podman run --env=POSTGRES_PASSWORD=postgres --publish=5432:5432 --name=dja-postgres postgres:13
+
+Keep in mind that the container might take a second to initialise. This is
+never an issue if you're running both commands manually, but if you're
+scripting, you might want to use healthchecks (or a short delay).
