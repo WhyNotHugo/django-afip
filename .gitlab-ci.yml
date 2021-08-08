@@ -7,6 +7,7 @@ mysql:
       - DJANGO_VERISON: [31, 32]
         PYTHON_VERSION: ["3.6", "3.7", "3.8", "3.9"]
   variables:
+    DATABASE_URL: mysql://root:mysql@mariadb:3306/mysql
     MYSQL_ROOT_PASSWORD: mysql
     TOXENV: django${DJANGO_VERISON}-mysql
   image: python:$PYTHON_VERSION
