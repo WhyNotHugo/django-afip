@@ -12,6 +12,7 @@ mysql:
     TOXENV: django${DJANGO_VERISON}-mysql
   image: python:${PYTHON_VERSION}-alpine
   before_script:
+    - apk add git
     - pip install tox codecov
   script:
     - tox
