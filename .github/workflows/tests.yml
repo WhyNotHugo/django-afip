@@ -1,4 +1,4 @@
-name: Tests
+name: Unit Tests
 
 on:
   push:
@@ -20,34 +20,15 @@ jobs:
     name: django-${{ matrix.django }}, python${{ matrix.python }}, ${{ matrix.db }}
     steps:
       - uses: actions/checkout@master
-      - uses: actions/setup-python@v1
+      - uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python }}
-          architecture: x64
       - run: pip install tox codecov
       - run: sudo apt-get update && sudo apt-get install libpq-dev libmysqlclient-dev
       - run: tox
         env:
           TOXENV: django${{ matrix.django }}-${{ matrix.db }}
           DB: ${{ matrix.db }}
-      - run: codecov
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  tests-live:
-    runs-on: ubuntu-latest
-    name: live
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v1
-        with:
-          python-version: "3.9"
-          architecture: x64
-      - run: pip install tox codecov
-      - run: sudo apt-get update && sudo apt-get install libpq-dev
-      - run: tox
-        env:
-          TOXENV: live
-          DB: postgres
       - run: codecov
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

@@ -1,9 +1,13 @@
 django-afip
 ===========
 
-.. image:: https://travis-ci.com/WhyNotHugo/django-afip.svg?branch=main
-  :target: https://travis-ci.com/WhyNotHugo/django-afip
-  :alt: build status
+.. image:: https://github.com/WhyNotHugo/django-afip/actions/workflows/tests.yml/badge.svg
+  :target: https://github.com/WhyNotHugo/django-afip/actions/workflows/tests.yml
+  :alt: unit tests
+
+.. image:: https://github.com/WhyNotHugo/django-afip/actions/workflows/live.yml/badge.svg
+  :target: https://github.com/WhyNotHugo/django-afip/actions/workflows/live.yml
+  :alt: integrations tests
 
 .. image:: https://results.pre-commit.ci/badge/github/WhyNotHugo/django-afip/main.svg
   :target: https://results.pre-commit.ci/latest/github/WhyNotHugo/django-afip/main

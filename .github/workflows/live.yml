@@ -1,0 +1,28 @@
+name: Integration Tests
+
+on:
+  push:
+    branches:
+      - "main"
+  schedule:
+    - cron: "0 0 * * *"
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    name: live
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - run: pip install tox codecov
+      - run: sudo apt-get update && sudo apt-get install libpq-dev
+      - run: tox
+        env:
+          TOXENV: live
+      - run: codecov
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
