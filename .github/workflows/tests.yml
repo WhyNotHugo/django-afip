@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       mysql:
-        image: postgres
+        image: mariadb
         env:
           MYSQL_ROOT_PASSWORD: mysql
         options: >-
