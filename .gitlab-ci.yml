@@ -10,6 +10,7 @@ mysql:
     DATABASE_URL: mysql://root:mysql@mariadb:3306/mysql
     MYSQL_ROOT_PASSWORD: mysql
     TOXENV: django${DJANGO_VERISON}-mysql
+    XDG_CACHE_HOME: $CI_PROJECT_DIR/cache
   image: python:${PYTHON_VERSION}-alpine
   before_script:
     - apk add build-base gcc git libffi-dev libxml2-dev libxslt-dev musl-dev \
@@ -18,3 +19,8 @@ mysql:
     - pip install tox codecov
   script:
     - tox
+  cache:
+    key: django-afip-dj${DJANGO_VERISON}-py${PYTHON_VERSION}
+    paths:
+      - .tox
+      - cache
