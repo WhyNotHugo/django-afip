@@ -13,9 +13,10 @@ mysql-ubuntu:
     XDG_CACHE_HOME: $CI_PROJECT_DIR/cache
   image: ubuntu:latest
   before_script:
-    - apt-get update && apt-get install -y software-properties-common
+    - apt-get update
+    - apt-get install -y software-properties-common curl git
     - add-apt-repository ppa:deadsnakes/ppa && apt-get update
-    - apt-get install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-distutils curl
+    - apt-get install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-distutils
     - curl https://bootstrap.pypa.io/get-pip.py | python${PYTHON_VERSION}
     - pip install tox codecov
   script:
