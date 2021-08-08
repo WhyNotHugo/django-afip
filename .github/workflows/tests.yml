@@ -38,6 +38,7 @@ jobs:
       - run: tox
         env:
           TOXENV: django${{ matrix.django }}-postgres
+          DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
       - run: codecov
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
