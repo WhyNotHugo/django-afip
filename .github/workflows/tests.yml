@@ -28,7 +28,7 @@ jobs:
       fail-fast: false
       matrix:
         python: ["3.6", "3.7", "3.8", "3.9"]
-        django: ["22", "30", "31", "32"]
+        django: ["31", "32"]
     name: django-${{ matrix.django }}, python${{ matrix.python }}, postgres
     steps:
       - uses: actions/checkout@v2
@@ -60,7 +60,7 @@ jobs:
   #     fail-fast: false
   #     matrix:
   #       python: [ '3.6', '3.7', '3.8', '3.9' ]
-  #       django: [ '22', '30', '31', '32']
+  #       django: [ '31', '32']
   #   name: django-${{ matrix.django }}, python${{ matrix.python }}, mysql
   #   steps:
   #     - uses: actions/checkout@v2
@@ -81,7 +81,7 @@ jobs:
       fail-fast: false
       matrix:
         python: ["3.6", "3.7", "3.8", "3.9"]
-        django: ["22", "30", "31", "32"]
+        django: ["31", "32"]
     name: django-${{ matrix.django }}, python${{ matrix.python }}, sqlite
     steps:
       - uses: actions/checkout@v2
