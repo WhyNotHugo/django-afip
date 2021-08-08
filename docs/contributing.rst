@@ -38,7 +38,10 @@ locally. You can do this with podman or docker, using:
 
 .. code-block:: bash
 
-    podman run --env=POSTGRES_PASSWORD=postgres --publish=5432:5432 --name=dja-postgres postgres:13
+    # For postgres:
+    podman run --env=POSTGRES_PASSWORD=postgres --publish=5432:5432 --rm postgres:13
+    # For mysql / mariadb:
+    podman run --env=MYSQL_ROOT_PASSWORD=mysql --publish=3306:3306 --rm -it mariadb:10
 
 Keep in mind that the container might take a second to initialise. This is
 never an issue if you're running both commands manually, but if you're
