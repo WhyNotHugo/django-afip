@@ -10,7 +10,7 @@ mysql:
     DATABASE_URL: mysql://root:mysql@mariadb:3306/mysql
     MYSQL_ROOT_PASSWORD: mysql
     TOXENV: django${DJANGO_VERISON}-mysql
-  image: python:$PYTHON_VERSION
+  image: python:${PYTHON_VERSION}-alpine
   before_script:
     - pip install tox codecov
   script:
