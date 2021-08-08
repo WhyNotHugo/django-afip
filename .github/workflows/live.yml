@@ -32,9 +32,7 @@ jobs:
           python-version: 3.9
       - run: pip install tox codecov
       - run: sudo apt-get update && sudo apt-get install libpq-dev
-      - run: tox
-        env:
-          TOXENV: live
+      - run: tox -e live
       - run: codecov
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
