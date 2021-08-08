@@ -8,7 +8,7 @@ releases, in reverse chronological order.
 -----
 
 * Dropped support for Django 2.2 and 3.0. Both of these have issues with
-  newer database dependencies. See https://code.djangoproject.com/ticket/32856
+  our database dependencies. See https://code.djangoproject.com/ticket/32856
 * Add support for Zeep ~4.0.0.
 * Add support for Django 3.2.
 
