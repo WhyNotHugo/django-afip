@@ -1,0 +1,16 @@
+mysql:
+  stage: test
+  services:
+    - mariadb
+  parallel:
+    matrix:
+      - DJANGO_VERISON: [31, 32]
+        PYTHON_VERSION: ["3.6", "3.7", "3.8", "3.9"]
+  variables:
+    MYSQL_ROOT_PASSWORD: mysql
+    TOXENV: django${DJANGO_VERISON}-mysql
+  image: python:$PYTHON_VERSION
+  before_script:
+    - pip install tox codecov
+  script:
+    - tox
