@@ -1,31 +1,3 @@
-mysql:
-  stage: test
-  services:
-    - mariadb
-  parallel:
-    matrix:
-      - DJANGO_VERISON: [31, 32]
-        PYTHON_VERSION: ["3.6", "3.7", "3.8", "3.9"]
-  variables:
-    DATABASE_URL: mysql://root:mysql@mariadb:3306/mysql
-    MYSQL_ROOT_PASSWORD: mysql
-    TOXENV: django${DJANGO_VERISON}-mysql
-    XDG_CACHE_HOME: $CI_PROJECT_DIR/cache
-  image: python:${PYTHON_VERSION}-alpine
-  before_script:
-    - |
-      apk add build-base gcc git libffi-dev libxml2-dev libxslt-dev musl-dev \
-      openssl-dev pango py3-brotli py3-cffi py3-pillow python3-dev mariadb-dev \
-      rust cargo jpeg-dev zlib-dev
-    - pip install tox codecov
-  script:
-    - tox
-  cache:
-    key: django-afip-dj${DJANGO_VERISON}-py${PYTHON_VERSION}
-    paths:
-      - .tox
-      - cache
-
 mysql-ubuntu:
   stage: test
   services:
