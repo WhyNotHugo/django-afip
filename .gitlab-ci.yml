@@ -13,9 +13,10 @@ mysql:
     XDG_CACHE_HOME: $CI_PROJECT_DIR/cache
   image: python:${PYTHON_VERSION}-alpine
   before_script:
-    - apk add build-base gcc git libffi-dev libxml2-dev libxslt-dev musl-dev \
-      musl-dev openssl-dev pango py3-brotli py3-cffi py3-pillow python3-dev \
-      mariadb-dev rust cargo jpeg-dev zlib-dev
+    - |
+      apk add build-base gcc git libffi-dev libxml2-dev libxslt-dev musl-dev \
+      openssl-dev pango py3-brotli py3-cffi py3-pillow python3-dev mariadb-dev
+      rust cargo jpeg-dev zlib-dev
     - pip install tox codecov
   script:
     - tox
@@ -40,7 +41,7 @@ mysql-ubuntu:
     XDG_CACHE_HOME: $CI_PROJECT_DIR/cache
   image: ubuntu:latest
   before_script:
-    - apt-get update && apt-get install -y add-apt-repository
+    - apt-get update && apt-get install -y software-properties-common
     - add-apt-repository ppa:deadsnakes/ppa && apt-get update
     - apt-get install python${PYTHON_VERSION}
     - pip install tox codecov
