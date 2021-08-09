@@ -13,6 +13,7 @@ mysql-ubuntu:
     MYSQL_ROOT_PASSWORD: mysql
     TOXENV: django${DJANGO_VERISON}-mysql
     XDG_CACHE_HOME: $CI_PROJECT_DIR/cache
+    DEBIAN_FRONTEND: noninteractive
   image: ubuntu:latest
   before_script:
     - apt-get update
