@@ -10,4 +10,4 @@ def format_cuit(cuit):
     numbers = re.sub("[^\\d]", "", str(cuit))
     if len(numbers) != 11:
         return cuit
-    return "{}-{}-{}".format(numbers[0:2], numbers[2:10], numbers[10:11])
+    return f"{numbers[0:2]}-{numbers[2:10]}-{numbers[10:11]}"

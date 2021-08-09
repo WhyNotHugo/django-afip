@@ -355,7 +355,7 @@ class TaxPayerAdmin(admin.ModelAdmin):
         )
 
         response = HttpResponse(content_type="application/pkcs10")
-        response["Content-Disposition"] = "attachment; filename={}".format(filename)
+        response["Content-Disposition"] = f"attachment; filename={filename}"
 
         response.write(csr.read())
         return response

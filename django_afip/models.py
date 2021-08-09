@@ -271,7 +271,7 @@ class CurrencyType(GenericAfipType):
     objects = GenericAfipTypeManager("FEParamGetTiposMonedas", "Moneda")
 
     def __str__(self):
-        return "{} ({})".format(self.description, self.code)
+        return f"{self.description} ({self.code})"
 
     class Meta:
         verbose_name = _("currency type")
@@ -393,7 +393,7 @@ class TaxPayer(models.Model):
 
         with NamedTemporaryFile(suffix=".key") as file_:
             crypto.create_key(file_)
-            self.key = File(file_, name="{}.key".format(uuid4().hex))
+            self.key = File(file_, name=f"{uuid4().hex}.key")
             self.save()
 
         return True
@@ -409,8 +409,8 @@ class TaxPayer(models.Model):
         crypto.create_csr(
             self.key.file,
             self.name,
-            "{}{}".format(basename, int(datetime.now().timestamp())),
-            "CUIT {}".format(self.cuit),
+            f"{basename}{int(datetime.now().timestamp())}",
+            f"CUIT {self.cuit}",
             csr,
         )
         csr.seek(0)
@@ -1126,7 +1126,7 @@ class Receipt(models.Model):
 
     def __str__(self):
         if self.receipt_number:
-            return "{} {}".format(self.receipt_type, self.formatted_number)
+            return f"{self.receipt_type} {self.formatted_number}"
         else:
             return _("Unnumbered %s") % self.receipt_type
 
@@ -1287,7 +1287,7 @@ class ReceiptPDF(models.Model):
                 _("Cannot generate pdf for non-authorized receipt")
             )
 
-        self.pdf_file = File(BytesIO(), name="{}.pdf".format(uuid4().hex))
+        self.pdf_file = File(BytesIO(), name=f"{uuid4().hex}.pdf")
         render_pdf(
             template=ReceiptPDFView().get_template_names(self.receipt),
             file_=self.pdf_file,

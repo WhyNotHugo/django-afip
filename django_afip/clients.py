@@ -87,4 +87,4 @@ def get_client(service_name: str, sandbox=False) -> Client:
 
         return cached_clients[key]
     except KeyError:
-        raise ValueError("Unknown service name, {}".format(service_name))
+        raise ValueError(f"Unknown service name, {service_name}")
