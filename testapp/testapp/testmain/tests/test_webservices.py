@@ -244,7 +244,7 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
     def test_validation_good_service(self):
         """Test validating a receipt for a service (rather than product)."""
         receipt = self._good_receipt()
-        receipt.concept_id = 2
+        receipt.concept = factories.ConceptTypeFactory(code=2)
         receipt.service_start = datetime.now() - timedelta(days=10)
         receipt.service_end = datetime.now()
         receipt.expiration_date = datetime.now() + timedelta(days=10)
