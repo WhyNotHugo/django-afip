@@ -32,3 +32,8 @@ repos:
           - types-freezegun
           - types-pyOpenSSL
           - types-requests
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.23.3
+    hooks:
+    -   id: pyupgrade
+        args: [--py37-plus]
