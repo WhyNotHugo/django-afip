@@ -1,3 +1,4 @@
+# type: ignore
 import functools
 import logging
 from datetime import datetime

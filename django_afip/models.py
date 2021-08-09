@@ -627,13 +627,16 @@ class AuthTicket(models.Model):
     themselves; most services will find or create one as necessary.
     """
 
+    @staticmethod
     def default_generated():
         return datetime.now(TZ_AR)
 
+    @staticmethod
     def default_expires():
         tomorrow = datetime.now(TZ_AR) + timedelta(hours=12)
         return tomorrow
 
+    @staticmethod
     def default_unique_id():
         return random.randint(0, 2147483647)
 
