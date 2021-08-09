@@ -940,6 +940,9 @@ class ReceiptQuerySet(models.QuerySet):
             return []
         qs.order_by("issued_date", "id")._assign_numbers()
 
+        if self.filter(is_draft=False).exists():
+            raise ValueError("Cannot validate a draft receipt.")
+
         return qs._validate(ticket)
 
     def _validate(self, ticket: AuthTicket | None = None) -> list[str]:
@@ -1199,6 +1202,11 @@ class Receipt(models.Model):
         "Receipt",
         verbose_name=_("related receipts"),
         blank=True,
+    )
+    is_draft = models.BooleanField(
+        _("is draft"),
+        default=True,
+        help_text=_("Indicates that this receipt is not ready for validation."),
     )
 
     #: The default manager includes extra methods including helpers for validation.
