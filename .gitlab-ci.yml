@@ -19,7 +19,7 @@ mysql-ubuntu:
     - apt-get update
     - apt-get install -y software-properties-common curl git libmysqlclient-dev build-essential
     - add-apt-repository ppa:deadsnakes/ppa && apt-get update
-    - apt-get install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-distutils python{PYTHON_VERSION}-dev
+    - apt-get install -y python${PYTHON_VERSION} python${PYTHON_VERSION}-distutils python${PYTHON_VERSION}-dev
     - curl https://bootstrap.pypa.io/get-pip.py | python${PYTHON_VERSION}
     - pip install tox codecov
   script:
