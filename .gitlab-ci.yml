@@ -1,3 +1,5 @@
+# create a docker image that's basically archlinxu + python3.x
+
 mysql-ubuntu:
   stage: test
   services:
