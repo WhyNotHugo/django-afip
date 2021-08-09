@@ -3,6 +3,7 @@ from django.test import TestCase
 
 from django_afip import factories
 from django_afip import models
+from django_afip.exceptions import AuthenticationError
 
 
 @pytest.mark.live
@@ -23,7 +24,10 @@ class LiveAfipTestCase(TestCase):
         LiveAfipTestCase.taxpayer = factories.TaxPayerFactory(pk=1)
 
         if not LiveAfipTestCase.ticket:
-            ticket = models.AuthTicket.objects.get_any_active("wsfe")
+            try:
+                ticket = models.AuthTicket.objects.get_any_active("wsfe")
+            except AuthenticationError:
+                pytest.exit("Failed to authenticate with AFIP. Bailing.")
             LiveAfipTestCase.ticket = ticket
 
         LiveAfipTestCase.ticket.save()
