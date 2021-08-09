@@ -978,6 +978,9 @@ class ReceiptQuerySet(models.QuerySet):
 
         qs.order_by("issued_date", "id")._assign_numbers()
 
+        if self.filter(is_draft=False).exists():
+            raise ValueError("Cannot validate a draft receipt.")
+
         ticket = ticket or first.point_of_sales.owner.get_or_create_ticket("wsfe")
         client = clients.get_client("wsfe", first.point_of_sales.owner.is_sandboxed)
         response = client.service.FECAESolicitar(
@@ -1232,6 +1235,11 @@ class Receipt(models.Model):
         "afip.Receipt",
         verbose_name=_("related receipts"),
         blank=True,
+    )
+    is_draft = models.BooleanField(
+        _("is draft"),
+        default=True,
+        help_text=_("Indicates that this receipt is not ready for validation."),
     )
 
     #: The default manager includes extra methods including helpers for validation.
