@@ -5,6 +5,7 @@ from pathlib import Path
 from django.contrib.auth.models import User
 from django.utils.timezone import make_aware
 from factory import LazyFunction
+from factory import post_generation
 from factory import PostGenerationMethodCall
 from factory import SubFactory
 from factory.django import DjangoModelFactory
@@ -138,6 +139,29 @@ class ReceiptFactory(DjangoModelFactory):
     currency_quote = 1
     receipt_type = SubFactory(ReceiptTypeFactory, code=6)
     point_of_sales = SubFactory(PointOfSalesFactory)
+
+
+class ReceiptWithVatAndTaxFactory(ReceiptFactory):
+    """Receipt with a valid Vat and Tax, ready to validate."""
+
+    point_of_sales = LazyFunction(lambda: models.PointOfSales.objects.first())
+
+    @post_generation
+    def post(obj: models.Receipt, create, extracted, **kwargs):
+        VatFactory(vat_type__code=5, receipt=obj)
+        TaxFactory(tax_type__code=3, receipt=obj)
+
+
+class ReceiptWithInconsistentVatAndTaxFactory(ReceiptFactory):
+    """Receipt with a valid Vat and Tax, ready to validate."""
+
+    point_of_sales = LazyFunction(lambda: models.PointOfSales.objects.first())
+    document_type = SubFactory(DocumentTypeFactory, code=80)
+
+    @post_generation
+    def post(obj: models.Receipt, create, extracted, **kwargs):
+        VatFactory(vat_type__code=5, receipt=obj)
+        TaxFactory(tax_type__code=3, receipt=obj)
 
 
 class ReceiptValidationFactory(DjangoModelFactory):

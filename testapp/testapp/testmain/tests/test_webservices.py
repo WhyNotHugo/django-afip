@@ -133,23 +133,6 @@ class TaxPayerTest(LiveAfipTestCase):
 class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
     """Test ReceiptQuerySet methods."""
 
-    def _good_receipt(self):
-        receipt = factories.ReceiptFactory(
-            point_of_sales=models.PointOfSales.objects.first(),
-        )
-        factories.VatFactory(vat_type__code=5, receipt=receipt)
-        factories.TaxFactory(tax_type__code=3, receipt=receipt)
-        return receipt
-
-    def _bad_receipt(self):
-        receipt = factories.ReceiptFactory(
-            point_of_sales=models.PointOfSales.objects.first(),
-            document_type__code=80,
-        )
-        factories.VatFactory(vat_type__code=5, receipt=receipt)
-        factories.TaxFactory(tax_type__code=3, receipt=receipt)
-        return receipt
-
     def test_validate_empty(self):
         factories.ReceiptFactory()
 
@@ -160,9 +143,9 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
     def test_validation_good(self):
         """Test validating valid receipts."""
-        r1 = self._good_receipt()
-        r2 = self._good_receipt()
-        r3 = self._good_receipt()
+        r1 = factories.ReceiptWithVatAndTaxFactory()
+        r2 = factories.ReceiptWithVatAndTaxFactory()
+        r3 = factories.ReceiptWithVatAndTaxFactory()
 
         errs = models.Receipt.objects.all().validate()
 
@@ -183,9 +166,9 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
     def test_validation_bad(self):
         """Test validating invalid receipts."""
-        self._bad_receipt()
-        self._bad_receipt()
-        self._bad_receipt()
+        factories.ReceiptWithInconsistentVatAndTaxFactory()
+        factories.ReceiptWithInconsistentVatAndTaxFactory()
+        factories.ReceiptWithInconsistentVatAndTaxFactory()
 
         errs = models.Receipt.objects.all().validate()
 
@@ -206,9 +189,9 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
         the bad one are validated, and nothing else is even parsed after the
         invalid one.
         """
-        r1 = self._good_receipt()
-        self._bad_receipt()
-        self._good_receipt()
+        r1 = factories.ReceiptWithVatAndTaxFactory()
+        factories.ReceiptWithInconsistentVatAndTaxFactory()
+        factories.ReceiptWithVatAndTaxFactory()
 
         errs = models.Receipt.objects.all().validate()
 
@@ -227,7 +210,7 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
     def test_validation_validated(self):
         """Test validating invalid receipts."""
-        receipt = self._good_receipt()
+        receipt = factories.ReceiptWithVatAndTaxFactory()
         models.ReceiptValidation.objects.create(
             result=models.ReceiptValidation.RESULT_APPROVED,
             cae="123",
@@ -243,7 +226,7 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
     def test_validation_good_service(self):
         """Test validating a receipt for a service (rather than product)."""
-        receipt = self._good_receipt()
+        receipt = factories.ReceiptWithVatAndTaxFactory()
         receipt.concept = factories.ConceptTypeFactory(code=2)
         receipt.service_start = datetime.now() - timedelta(days=10)
         receipt.service_end = datetime.now()
@@ -319,14 +302,14 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
     def test_credit_note(self):
         """Test validating valid a credit note."""
         # Create an invoice (code=6) and validate it...
-        invoice = self._good_receipt()
+        invoice = factories.ReceiptWithVatAndTaxFactory()
 
         errs = models.Receipt.objects.filter(pk=invoice.pk).validate()
         assert len(errs) == 0
         assert models.ReceiptValidation.objects.count() == 1
 
         # Now create a credit note (code=8) and validate it...
-        credit = self._good_receipt()
+        credit = factories.ReceiptWithVatAndTaxFactory()
         credit.receipt_type = factories.ReceiptTypeFactory(code=8)
         credit.related_receipts.set([invoice])
         credit.save()
