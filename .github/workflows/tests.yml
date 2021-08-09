@@ -43,6 +43,37 @@ jobs:
       - run: codecov
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  mysql:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mariadb
+        env:
+          MYSQL_ROOT_PASSWORD: mysql
+        options: >-
+          --health-cmd "mysql --user=root --password=mysql --execute 'SHOW DATABASES;'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.6", "3.7", "3.8", "3.9"]
+        django: ["31", "32"]
+    name: django-${{ matrix.django }}, python${{ matrix.python }}, mysql
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pip install tox codecov
+      - run: sudo apt-get update && sudo apt-get install libmysqlclient-dev
+      - run: tox
+        env:
+         TOXENV: django${{ matrix.django }}-mysql
+      - run: codecov
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
   sqlite:
     runs-on: ubuntu-latest
     strategy:
