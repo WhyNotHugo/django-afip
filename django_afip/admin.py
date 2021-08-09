@@ -1,3 +1,4 @@
+# type: ignore
 import functools
 import logging
 from datetime import datetime
@@ -13,7 +14,6 @@ from django.utils.translation import gettext as _
 
 from django_afip import exceptions
 from django_afip import models
-
 
 logger = logging.getLogger(__name__)
 
@@ -355,7 +355,7 @@ class TaxPayerAdmin(admin.ModelAdmin):
         )
 
         response = HttpResponse(content_type="application/pkcs10")
-        response["Content-Disposition"] = "attachment; filename={}".format(filename)
+        response["Content-Disposition"] = f"attachment; filename={filename}"
 
         response.write(csr.read())
         return response

@@ -6,7 +6,8 @@ import pytz
 from django.utils.functional import LazyObject
 from requests import Session
 from requests.adapters import HTTPAdapter
-from urllib3.util.ssl_ import create_urllib3_context, DEFAULT_CIPHERS
+from urllib3.util.ssl_ import DEFAULT_CIPHERS
+from urllib3.util.ssl_ import create_urllib3_context
 from zeep import Client
 from zeep.cache import SqliteCache
 from zeep.transports import Transport
@@ -86,4 +87,4 @@ def get_client(service_name: str, sandbox=False) -> Client:
 
         return cached_clients[key]
     except KeyError:
-        raise ValueError("Unknown service name, {}".format(service_name))
+        raise ValueError(f"Unknown service name, {service_name}")

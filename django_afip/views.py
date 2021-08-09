@@ -4,7 +4,6 @@ from django_renderpdf.views import PDFView
 from django_afip import models
 from django_afip.pdf import get_encoded_qrcode
 
-
 # Note: When updating this, be sure to update the docstring of the method that uses
 # these below.
 TEMPLATE_NAMES = [

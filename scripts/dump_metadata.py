@@ -6,7 +6,6 @@ BUILD django_afip, and should not be used directly by third-party apps.
 import django
 from django.core import management
 
-
 if __name__ == "__main__":
     # Set up django...
     django.setup()

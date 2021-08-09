@@ -6,7 +6,6 @@ from io import BytesIO
 import qrcode
 from PIL import Image
 
-
 logger = logging.getLogger(__name__)
 
 
