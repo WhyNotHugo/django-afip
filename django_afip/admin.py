@@ -15,7 +15,6 @@ from django.utils.translation import gettext as _
 from django_afip import exceptions
 from django_afip import models
 
-
 logger = logging.getLogger(__name__)
 
 

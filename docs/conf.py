@@ -18,7 +18,6 @@ import django
 
 import django_afip
 
-
 BASE_DIR = dirname(dirname(abspath(__file__)))
 
 sys.path.insert(0, abspath(join(dirname(__file__), "_ext")))

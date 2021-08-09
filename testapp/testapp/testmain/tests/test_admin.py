@@ -13,8 +13,8 @@ from factory.django import FileField
 from django_afip import exceptions
 from django_afip import factories
 from django_afip import models
-from django_afip.admin import catch_errors  # type: ignore
 from django_afip.admin import ReceiptAdmin  # type: ignore
+from django_afip.admin import catch_errors  # type: ignore
 
 
 class TestCatchErrors(TestCase):

@@ -5,9 +5,9 @@ from pathlib import Path
 from django.contrib.auth.models import User
 from django.utils.timezone import make_aware
 from factory import LazyFunction
-from factory import post_generation
 from factory import PostGenerationMethodCall
 from factory import SubFactory
+from factory import post_generation
 from factory.django import DjangoModelFactory
 from factory.django import FileField
 from factory.django import ImageField
