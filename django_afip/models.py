@@ -618,6 +618,22 @@ class AuthTicketManager(models.Manager):
         return taxpayer.create_ticket(service)
 
 
+def default_generated():
+    """The default generated date for new tickets."""
+    return datetime.now(TZ_AR)
+
+
+def default_expires():
+    """The default expiration date for new tickets."""
+    tomorrow = datetime.now(TZ_AR) + timedelta(hours=12)
+    return tomorrow
+
+
+def default_unique_id():
+    """A random unique id for new tickets."""
+    return random.randint(0, 2147483647)
+
+
 class AuthTicket(models.Model):
     """An AFIP Authorization ticket.
 
@@ -626,19 +642,6 @@ class AuthTicket(models.Model):
     Applications should not generally have to deal with these tickets
     themselves; most services will find or create one as necessary.
     """
-
-    @staticmethod
-    def default_generated():
-        return datetime.now(TZ_AR)
-
-    @staticmethod
-    def default_expires():
-        tomorrow = datetime.now(TZ_AR) + timedelta(hours=12)
-        return tomorrow
-
-    @staticmethod
-    def default_unique_id():
-        return random.randint(0, 2147483647)
 
     owner = models.ForeignKey(
         TaxPayer,

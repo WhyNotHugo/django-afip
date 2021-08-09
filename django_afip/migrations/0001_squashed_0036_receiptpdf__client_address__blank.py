@@ -66,21 +66,21 @@ class Migration(migrations.Migration):
                 (
                     "unique_id",
                     models.IntegerField(
-                        default=django_afip.models.AuthTicket.default_unique_id,
+                        default=django_afip.models.default_unique_id,
                         verbose_name="unique id",
                     ),
                 ),
                 (
                     "generated",
                     models.DateTimeField(
-                        default=django_afip.models.AuthTicket.default_generated,
+                        default=django_afip.models.default_generated,
                         verbose_name="generated",
                     ),
                 ),
                 (
                     "expires",
                     models.DateTimeField(
-                        default=django_afip.models.AuthTicket.default_expires,
+                        default=django_afip.models.default_expires,
                         verbose_name="expires",
                     ),
                 ),
