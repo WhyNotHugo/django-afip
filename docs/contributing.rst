@@ -1,48 +1,47 @@
-Contributing
-============
+Contribuciones
+==============
 
-Feedback
---------
-
-The preferred channel for interaction with the developers is via GitHub_,
-especially since public issues will be available for others having similar
-issues.
+Si tenés dudas o consultas, lo ideal es que abras un issue en GitHub_. Los
+issues públicos son lo ideal porque si tenés una duda, es muy probable que el
+siguiente programador que quiera usar la librería tenga las mismas dudas o dudas
+muy similares.
 
 .. _GitHub: https://github.com/WhyNotHugo/django-afip
 
 Hacking
 -------
 
-Unit tests are run via ``tox``. Any code contributions must pass all tests. New
-features must include corresponding unit tests. Any bugfixes must include tests
-that fail without it, and pass with it.
+Para correr los tests usá `tox`. Tox crea un ambiente aislado con todas las
+dependencies y corre los tests en un ambiente determinístico y reproducible.
 
-Note that tests use AFIP's testing servers and a specific key that's know to
-contain at least one point of sale.
+Usá `tox -l` para ver los distintos ambientes, y `tox -e AMBIENTE` para correr
+tests para ese ambiente.
 
-CI
---
+A la hora de solucionar un bug, lo ideal es escribir un tests que lo
+reproduzca, así una vez que tengas el fix es fácil determinar si está
+solucionado, y también evita que volvamos a introducir el mismo bug en futuro.
 
-CI does not use the in-tree test key/certificate, but ones provided via
-environment variables. This allows re-running older commits after their in-tree
-certificate has expired, by merely updating the CI configuration.
+Además de los tests comunes, hay tests de integración, que se pueden correr con
+`tox -e live`. Estos tests usan credenciales de prueba en el servidor de
+prueba, y asumen que existe al menos un punto de ventas para el contribuyente.
 
-Note that the CI variables need to have newlines replaced with the ``\n``
-sequence.
+Bases de datos de testing
+-------------------------
 
-Test database servers
----------------------
+Los tests corren con tres bases de datos: `mysql`, `postgres` y `sqlite`.
+Generalmente correr los tests con `sqlite` basta, pero para evitar problemas de
+compatibilidad, CI corre con los tres.
 
-When running tests with postgres (or mysql), you need to run tests servers
-locally. You can do this with podman or docker, using:
+Para corer los servidores de prueba localmente de forma efímera, podés usar
+podman o docker:
 
 .. code-block:: bash
 
-    # For postgres:
+    # Para postgres:
     podman run --env=POSTGRES_PASSWORD=postgres --publish=5432:5432 --rm postgres:13
-    # For mysql / mariadb:
+    # Para mysql / mariadb:
     podman run --env=MYSQL_ROOT_PASSWORD=mysql --publish=3306:3306 --rm -it mariadb:10
 
-Keep in mind that the container might take a second to initialise. This is
-never an issue if you're running both commands manually, but if you're
-scripting, you might want to use healthchecks (or a short delay).
+Tené en cuenta que los servidores pueden tardar un par de segundos en
+arrancar. Si estás corriendo tests a mano no es un problema, pero si estás
+scripteando, conviene agregar un delay cortito (o usar healthchecks).

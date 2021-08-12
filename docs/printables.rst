@@ -1,46 +1,54 @@
-Printable Receipts
-------------------
+Impresiones
+-----------
 
-**django-afip** supports generating PDF files for validated receipts.  This
-functionality is backed mostly by three model classes:
+Originalmente **django-afip** no soportaba generación de PDFs o comprobantes a
+imprimir, dado que esto lo hacían sistemas externos.
 
-* :class:`~.TaxPayerProfile`: Contains the TaxPayer's metadata (such as
-  name, address, etc).
-* :class:`~.ReceiptPDF`: Contains receipts' metadata which is required for the
-  PDF generation. Since the information in ``TaxPayerProfile`` is bound to
-  change over time, it's actually copied over to ``ReceiptPDF``.
-* :class:`~.ReceiptEntry`: Represents a single entry (e.g.: an item in an
-  invoice) in a printable receipt.
+Eventualmente esto cambió, y la generación de PDFs se integró a esta librería,
+pero la integración no está al 100%, por lo cual la mayoría del código para
+generar los PDF es opcional.
 
-Creation of ``ReceiptPDF`` instances can generally be done with the
-:meth:`~.ReceiptPDFManager.create_for_receipt` helper method.
-``ReceiptEntry`` instances should be created manually.
+Actualmente soportamos generar PDFs para comprobantes y esto está respaldado
+principalmente por tres clases. Sólo necesitás usar estas clases si estás
+generando los PDF con esta librería, y podés ignorarlas si estás generándolos
+de otra forma:
 
-The PDF files themselves are created the first time you save the model instance
-(via a ``pre_save`` hook). You can generate (either before saving, or because
-you need to regenerate it) by calling :meth:`.ReceiptPDF.save_pdf`.
+* :class:`~.TaxPayerProfile`: Contiene metadatos del contribuyentes que sólo se
+  usan para imprimir/PDFs (e.g.: no son necesarios para validar facturas).
+* :class:`~.ReceiptPDF`: Contiene metadatos individuales de cada comprobante.
+  Los datos de `TaxPayerProfile` también se copian acá, dado que en caso de que
+  cambie, por ejemplo, el domicilio del contribuyente, no debería cambiar el
+  domicilio en comprobantes pasados.
+* :class:`~.ReceiptEntry`: Representa una línea del detalle de un comprobante.
 
-Note that the ``TaxPayerProfile`` model is merely a helper one -- it's entirely
-possible to construct ``ReceiptPDF`` manually without them.
+Primero deberías generar los ``ReceiptEntry`` para tu comprobante y después
+generar el ``ReceiptPDF``. Esto último lo podés hacer usando el helper
+:meth:`~.ReceiptPDFManager.create_for_receipt`.
 
-QR Codes
-~~~~~~~~
+Los archivos PDF en sí son generados la primera vez que guardes una instancia
+de ``ReceiptPDF`` (mediante un hook ``pre_save``). Podés regenerar el PDF
+usando :meth:`.ReceiptPDF.save_pdf`.
 
-Generated PDFs include the QR Code that's required as of March 2021.
+Nótese que ``TaxPayerProfile`` es simplemente un helper para facilitar constuir
+los ``ReceiptPDF``, pero es posible construirlos manualmente usando datos de otra fuente.
 
-It seems that all QR Codes redirect to the documentation -- even codes from
-their examples or from other implementation seem to do this. This is beyond our
-control.
+Códigos QR
+~~~~~~~~~~
 
+Los PDF incluyen el código QR que es requerido desde Marzo 2021.
 
-Exposing receipts
-~~~~~~~~~~~~~~~~~
+Actualmente cualquier QR redirige a la documentación del AFIP (includo lo de
+sus ejemplos y otra implementaciones). Esto parece ser porque AFIP nunca
+terminó de implementar su parte, y está fuera de nuestro control.
 
-Views
-.....
+Exponiendo comprobantes
+~~~~~~~~~~~~~~~~~~~~~~~
 
-Printable receipts can be exposed via views. They all require a ``pk``
-URL-param, so URL registration should look something like:
+Vistas
+......
+
+Los comprobantes pueden exponerse mediante una vista. Requirre el `pk` del
+comprobante, así que la registración de la URL debería ser algo como:
 
 .. code-block:: python
 
@@ -50,12 +58,10 @@ URL-param, so URL registration should look something like:
         name="receipt_view",
     ),
 
-This uses **django_renderpdf** under the hook, and is a subclass of ``PDFView``. See
-into its own documentation for finer details on the view's rendering/response
-behaviour.
+Esto usa **django_renderpdf**, y es una subclase de ``PDFView``.
 
-Note that you'll generally want to subclass these and add some form of permission
-checking.
+Recomendamos generalmente usar una subclase de ``ReceiptPDFView``, que tenga
+alguna forma de autenticación y autorizacion.
 
 .. autoclass:: django_afip.views.ReceiptPDFView
     :members:
@@ -63,19 +69,22 @@ checking.
 Templates
 .........
 
-The template used for the HTML and PDF receipts is found in
-``templates/receipts/code_X.html``, where X is the :class:`~.ReceiptType`'s
-code. If you want to override the default (you probably do), simply place a
-template with the same path/name inside your own app, and make sure it's listed
-*before* ``django_afip`` in ``INSTALLED_APPS``.
+Los templates para las vistas son buscados en
+``templates/receipts/code_X.html``, dónde X es el código del tipo de
+comprobante (:class:`~.ReceiptType`). Si querés overridear el predetermindo,
+simplemente incluí en tu projecto un template con el mismo nombre/path, y
+asegurate de que te projecte esté listado *antes* que ``django_afip`` en
+``INSTALLED_APPS``.
+
+También podés exponer los archivos generados
 
 Note that you may also expose receipts as plain Django media files. The URL
 will be relative or absolute depending on your media files configuration.
 
-.. code-block:: python
+.. code-block:: pycon
 
-    printable = ReceiptPDF.objects.last()
-    printable.pdf_file
-    # <FieldFile: receipts/790bc4f648e844bda7149ac517fdcf65.pdf>
-    printable.pdf_file.url
-    # '/media/receipts/790bc4f648e844bda7149ac517fdcf65.pdf'
+    >>> printable = ReceiptPDF.objects.last()
+    >>> printable.pdf_file
+    <FieldFile: receipts/790bc4f648e844bda7149ac517fdcf65.pdf>
+    >>> printable.pdf_file.url
+    '/media/receipts/790bc4f648e844bda7149ac517fdcf65.pdf'
