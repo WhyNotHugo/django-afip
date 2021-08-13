@@ -1,15 +1,26 @@
-Installation
-============
+Instalación
+===========
 
-Actual package installation is quite simple and can be done via pip.
-Dependencies should be handled by pip fine [#]_:
+Podés instalar este paquete usando pip:
 
 .. code-block:: python
 
     pip install django-afip
 
-You'll then need to configure your project to use this app by adding it to your
-``settings.py``:
+La generación de PDFs usa ``weasyprint``, que tiene algunas dependencias
+adicionales. Consultá :doc:`su documentación <weasyprint:first_steps>` para
+instrucciones detalladas al día.
+
+Recomendamos usar algo como Poetry_ para manejar dependencias y asegurarte de
+que las versiónes de tus dependencies no cambien de repente sin tu
+intervención.
+
+.. _Poetry: https://python-poetry.org/
+
+Settings
+--------
+
+Vas a necesitar agregar la aplicación al ``settings.py`` de tu proyecto:
 
 .. code-block:: python
 
@@ -19,66 +30,98 @@ You'll then need to configure your project to use this app by adding it to your
         ...
     )
 
-Make sure to run all migrations after you've added the app:
+Asegurate de correr todas las migraciones después de agregar la app:
 
 .. code-block:: python
 
     python manage.py migrate afip
 
-.. [#] Receipt PDF generation uses weasyprint, which has some additional
-       dependencies.  Consult `their documentation
-       <http://weasyprint.readthedocs.io/en/stable/install.html>`_ for clear
-       and up-to-date details.
+Vas a necesitar correr las migraciones en cada ambiente / base de datos que
+uses.
 
-Configuration
--------------
+Cada versión nueva de django-afip puede incluir nuevas migraciones, y
+recomendamos seguir la práctica estándar de correr las migraciones en cada
+deploy.
 
-It is also possible (yet optional) to define storages for files used
-by the app.  If undefined, the default file storage is used.
+Metadatos
+---------
 
-The value of these settings should be a string with the path to the instance of
-a storage to use (eg: ``'myapp.storages.my_private_storage'``). Both S3 and
-the default storages have been tested, but any django-compatible storage should
-work just fine. See the django documentation for more details on storages.
+Vas a necesitar algunos metadatos adicionales para poder hacer integraciones.
+Esto son "Tipos de comprobante" (:class:`~.ReceiptType`), "Tipos de documento"
+(:class:`~.DocumentType`), y :ref:`unos cuantos más <metadata-models>`.
+
+Estos metadatos están disponibles via la API de AFIP, pero esta librería
+incluye esos mismos datos como fixtures que podés importar fácilmente::
+
+    python manage.py afipmetadata
+
+Este comando es idempotente, y correrlo más de una vez no crea datos
+duplicados.
+
+Los metadatos también pueden ser importados programáticamente, usando
+:func:`~.models.load_metadata`. Esto es útil para tests unitarios que dependan
+de su existencia.
+
+.. hint::
+
+    Es necesario importar estos datos en cada instancia / base de datos, al igual
+    que migraciones. La recomendación es correr el comando de arriba en el mismo
+    script que dispare las migraciones. Esto asegura que todos tus ambientes
+    siempre tengan metadatos al día.
+
+Almacenamiento
+--------------
+
+También es posible (y opcional) definir varios :doc:`Storage
+<django:ref/files/storage>` para los archivos de la app. Si no están definidos,
+se usará el Storage predeterminado.
+
+El valor de estos ajustes debería ser un ``str`` con el path a una instancia
+del storage a usar. (eg: ``'myapp.storages.my_private_storage'``). Tanto S3
+como el storage predeterminado han sido testeados ampliamente, aunque cualquier
+storage compatible con django debería funcionar sin dramas.
 
 .. code-block:: python
 
-    AFIP_KEY_STORAGE  # Keys for authenticating with AFIP (TaxPayer.key)
-    AFIP_CERT_STORAGE  # Certs for auth'ing with AFIP (TaxPayer.certificate)
-    AFIP_PDF_STORAGE  # PDFs generated for receipts (ReceiptPDF.pdf_file)
-    AFIP_LOGO_STORAGE  # Logos used in invoices (TaxPayer.logo)
+    AFIP_KEY_STORAGE  # Clave para autenticación con el AFIP. (TaxPayer.key)
+    AFIP_CERT_STORAGE  # Certificados para autenticación con el AFIP (TaxPayer.certificate)
+    AFIP_PDF_STORAGE  # PDFs generados para comprobantes (ReceiptPDF.pdf_file)
+    AFIP_LOGO_STORAGE  # Logos usados para comprobantes (TaxPayer.logo)
 
+Si estás exponiendo tu Storage predeterminado a la web (que suele ser el caso
+en muchas aplicaciones), es recomendable, como mínimo, redefinir
+``AFIP_KEY_STORAGE`` para evitar exponer tu claves a la web.
 
-Versioning
+Versionado
 ----------
 
-It is recommended that you pin versions, at least to major releases, since
-major releases are not guaranteed to be totally compatibility (clear upgrade
-notes ARE provided though):
+Recomendamos pinnear versiones de dependencias. Las versiones mayores (e.g.:
+de 8.X a 9.X) pueden requerir actualizar código. Esto no implica re-escribir
+todo, pero suelen haber consideraciones que tenés que tener en cuenta.
 
-.. code-block:: txt
+El CHANGELOG siempre incluye detalles de cambios en la API y que ajustes puede
+que necesites hacer.
 
-    django-afip>=4.0,< 5.0
+Si estás usando ``requirements.txt``, usá algo como:
 
-We strictly follow `Semantic Versioning`_. We only support version of Django
-that are currently supported upstream.
+.. code-block::
 
-Django-afip is compatible with all `currently supported django versions`_.
+    django-afip>=8.0,< 9.0
+
+Seguimos estrictamente `Semantic Versioning`_.
 
 .. _Semantic Versioning: http://semver.org/
-.. _currently supported django versions: https://www.djangoproject.com/download/#supported-versions
 
-Upgrading
----------
+Actualizaciones
+---------------
 
-Backwards compatibility may break at major release, however, we always provide
-migrations to upgrade existing installations (I actually always use those
-on multiple production instances without any data loss).
+Compatibilidad para atrás puede romper en versiones mayores, aunque siempre
+incluimos migraciones para actualizar instalaciones existentes. Usamos estas
+mismas migraciones para actualizar instancias productivas año tras año.
 
 .. warning::
 
-    If you're on a pre-v4.0.0 release, you should upgrade to v4.0.0 and then
-    further, since migrations will be squashed and purged in  latter releases.
-
-    If you're working on new/non-production projects, it's safe to ignore this
-    warning (though you'll have to drop your current DB).
+    Si estás usando una versión previa a 4.0.0, deberías actualizar a 4.0.0,
+    ejecutar las migraciones, y luego continuar. La migraciones fueros
+    squasheadas en esa versión y no está garantizado que actualizar salteándola
+    funcione.

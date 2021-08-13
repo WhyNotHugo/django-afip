@@ -1,108 +1,79 @@
 django-afip
 ===========
 
-**django-afip** is a django application for interacting with AFIP's
-web-services (and models all related data). For the moment only WSFE and WSAA
-are implemented.
+(:ref:`See here for English <English>`)
 
-The code is hosted at GitHub_. If you have questions or found a bug, that's
-also the place to reach out.
+**django-afip** es una aplicación Django para interactuar con los web-services
+del AFIP. Actualmente están implementados WSFE y WSAA.
+
+El código está actualmente en GitHub_. Si tenés alguna pregunta o duda, ese es
+el lugar donde consultar.
 
 .. _GitHub: https://github.com/WhyNotHugo/django-afip
 
-Features
---------
+Funcionalidades
+---------------
 
-* Validate invoices and other receipt types with AFIP's WSFE service.
-* Generate valid PDF files for those receipts to send to clients.
+* Validar comprobantes (facturas y otros tipos) con el servicio WSFE del AFIP.
+* Generar PDFs de comprobantes validados (listos para enviar a clientes).
 
-Design
+Diseño
 ------
 
-``django-afip`` came out of the need to automate invoicing for an e-commerce.
-Users place orders, pay via mercadopago, and the system generates invoices
-automatically, validates them with AFIP, and then emails them to clients.
+``django-afip`` nació de la necesidad de automatizar facturación para un
+e-commerce. Los clientes arman su pedido, pagan online, y el sistema genera
+facturas automáticamente, las valida con el AFIP, y se las manda por email.
 
-Because of this, there's no many views and forms to validate manual creation of
-invoices. The admin works, but is more of a tests tool that polished for
-non-tech users.
+Actualmente no hay vistas ni formularios para manualmente crear o validar
+facturas. El admin funciona, pero es más una herramienta de desarrollo e
+inspección que algo pulido para usuario no-técnicos.
 
-If you're wondering how to validate user input when creating invoices, ask
-yourself if the information they're inputting isn't already in the system and
-if they can't read if from there.
+Generalmente los casos de uso son no-interactivos, donde las facturas son
+generadas automáticamente en base a modelos pre-existentes (por ejemplo, con
+datos de pedidos en el mismo u otro sistema), por lo cual no hay demasiada
+funcionalidad relacionada a validar input manual.
 
-That said, if you do work on generic forms and views that validate receipts,
-PRs are welcome.
+Si te encontrás necesitando validar datos cargados por el usuario para
+facturación, preguntate si realmente la debería estar cargando el usuario.
+Muchas veces la información ya está en algún otro sistema y es ideal leer eso
+en vez de agregar una carga manual.
 
-Use cases
+Aún así, son bienvenidos parches que agreguen funcionalidad reusable de
+formularios, vistas o serializers para DRF.
+
+Sólo Django?
+------------
+
+Si estás considerando usar otro framework web en Python, y el hecho de que
+esto esté implementado en Django te desmotiva, te insto a reconsiderar.
+
+Integrar con servicios del AFIP es algo no-trivial, y tiene muchas
+peculiaridades. Is pensás que usar algo como Flask va a ser más sencillo y
+rápido, probablemente termines re-implementando la mitad de Django y esta
+librería a mano. Podría evitarte ese trabajo usando algo ya-hecho.
+
+
+Recomiendo ver este artículo en el tema:
+`Use Django or end up building a Django <https://hackernoon.com/use-django-or-end-up-building-a-django-6cce65eb7255>`_
+
+Requisito
 ---------
 
-**Example 1**
+Actualmente **django-afip** funciona con:
 
-A self-service website allows users to services online. A few users a day make
-payments, and receive an invoice by email when their payment is confirmed. No
-manual intervention in required.
+* Django 3.0, 3.1 y 3.1
+* Python 3.6, 3.7, 3.8 y 3.9
+* Posgres, Sqlite, MySql/MariaDB
 
-**Example 2**
+Te recomendamos usar Postgres.
 
-Between hundred up to a few thousand users buy products on a website each day.
-They pay using MercadoPago, and their invoice is delivered by email
-immediately.
+Versiones más viejas de ``django-afip`` continúan funcionando con veriones
+viejas de Django y Python, y lo continuarán haciendo a no ser que AFIP haga
+cambios incompatibles. Sin embargo, no recibirán nueva funcionalidades ni
+actualizaciones en caso de que AFIP haga cambios a sus webservices.
 
-If they decide to cancel their order in time, a credit note is generated for
-the same amount, and emailed to them. This "cancels out" the invoice.
-
-Only django?
-------------
-
-If you're thinking about using some other web framework for your site, and this
-put you off, I'd urge you to reconsider.
-
-Integrating with AFIP is quite non-trivial, with many quirks. If you think
-something like Flask is simpler and faster, you'll probably end up
-reimplementing half of Django and this library yourself.
-
-See `Use Django or end up building a Django <https://hackernoon.com/use-django-or-end-up-building-a-django-6cce65eb7255>`_
-
-English or Spanish?
--------------------
-
-Having had to work with mixed teams with developers abroad, it became natural
-to use English for code and documentation (especially code, where Python is
-basically English).
-
-However, questions and support in Spanish are fine, since a great deal of the
-developers using the library speak Spanish (for obvious reasons).
-
-Requirements
-------------
-
-It's been quite some pain dealing with older django and python versions.
-Supporting older versions doesn't allow us to use new features, and makes
-testing a lot more complex (including CI).
-
-We've therefore decided to trim the officially supported versions to:
-
-* The latest Django release, and the last LTS release.
-* The three latest Python releases (eg: 3.6, 3.7 and 3.8).
-
-Older versions of both may work, however, in case of any issues, only these
-version are supported.
-
-Note that older django-afip versions will continue to work fine on older
-django+python versions.
-
-Caveats
--------
-
-While the app can have production and sandbox users co-exist, metadata models
-(tax types, receipt types, etc) will be shared between both. In theory, these
-should never diverge upstream. If they do, we are not prepared to handle it
-(though it is expected that an update will be available when this change is
-announced upstream).
-
-Table of Contents
-=================
+Tabla de contenidos
+===================
 
 .. toctree::
    :maxdepth: 2
@@ -114,9 +85,30 @@ Table of Contents
    contributing
    changelog
 
-Indices and tables
-==================
+Índices y tablas
+================
 
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+.. _English:
+
+English
+=======
+
+**django-afip** is a django application for interacting with AFIP's
+web-services (and models all related data).
+
+AFIP is Argentina's tax collection agency, which requires invoices and other
+receipts be informed to them via a WSDL-based API.
+
+Initially this project and its documentation was fully available in English,
+since one of the applications using it had contributors from abroad.
+
+This is no longer the case, and given that, naturally, most developers seeks to
+use this library are from Argentina, documentation has been translated to make
+collaboration simpler.
+
+Feel free to open issue in English if that's you're native tongue. Paid
+consultancy for integrations is also available.

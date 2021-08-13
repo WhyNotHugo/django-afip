@@ -1,16 +1,21 @@
 Changelog
 =========
 
-This file contains a brief summary of new features and dependency changes or
-releases, in reverse chronological order.
+Este archivo tiene un resúmen de nuevas funcionalidades o cambios de
+dependencia en cada versión, en orden cronológicamente inverso.
+
+Todos los cambios que necesites tener en cuenta al actualizar están listados
+acá.
 
 9.0.0
 -----
 
-* Dropped support for Django 2.2 and 3.0. Both of these have issues with
-  our database dependencies. See https://code.djangoproject.com/ticket/32856
-* Add support for Zeep ~4.0.0.
-* Add support for Django 3.2.
+* Django 2.2 y 3.0 ya no son soportados. Ambos tienen problemas de
+  compatibilidad con versiones nuevas de dependencias.
+  Ver https://code.djangoproject.com/ticket/32856
+* Soporte para Zeep ~4.0.0.
+* Soporte para Django 3.2.
+* La [mayoría de la] documentación ahora está traducida.
 
 8.0.4
 -----
