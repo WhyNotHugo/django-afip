@@ -102,9 +102,7 @@ todo, pero suelen haber consideraciones que tenés que tener en cuenta.
 El CHANGELOG siempre incluye detalles de cambios en la API y que ajustes puede
 que necesites hacer.
 
-Si estás usando ``requirements.txt``, usá algo como:
-
-.. code-block::
+Si estás usando ``requirements.txt``, usá algo como::
 
     django-afip>=8.0,< 9.0
 
