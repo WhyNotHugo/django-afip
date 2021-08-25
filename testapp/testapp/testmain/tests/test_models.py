@@ -3,7 +3,6 @@ from unittest.mock import call
 from unittest.mock import patch
 
 import pytest
-from django.test import TestCase
 from pytest_django.asserts import assertQuerysetEqual
 
 from django_afip import exceptions
@@ -205,52 +204,56 @@ def test_default_currency_multieple_currencies():
     assert receipt.currency != c3
 
 
-class ReceiptTotalVatTestCase(TestCase):
-    def test_no_vat(self):
-        receipt = factories.ReceiptFactory()
+@pytest.mark.django_db
+def test_total_vat_no_vat():
+    receipt = factories.ReceiptFactory()
 
-        assert receipt.total_vat == 0
-
-    def test_multiple_vats(self):
-        receipt = factories.ReceiptFactory()
-        factories.VatFactory(receipt=receipt)
-        factories.VatFactory(receipt=receipt)
-
-        assert receipt.total_vat == 42
-
-    def test_proper_filtering(self):
-        receipt = factories.ReceiptFactory()
-        factories.VatFactory(receipt=receipt)
-        factories.VatFactory()
-
-        assert receipt.total_vat == 21
+    assert receipt.total_vat == 0
 
 
-class ReceiptTotalTaxTestCase(TestCase):
-    def test_no_tax(self):
-        receipt = factories.ReceiptFactory()
+@pytest.mark.django_db
+def test_total_vat_multiple_vats():
+    receipt = factories.ReceiptFactory()
+    factories.VatFactory(receipt=receipt)
+    factories.VatFactory(receipt=receipt)
 
-        assert receipt.total_tax == 0
-
-    def test_multiple_taxes(self):
-        receipt = factories.ReceiptFactory()
-        factories.TaxFactory(receipt=receipt)
-        factories.TaxFactory(receipt=receipt)
-
-        assert receipt.total_tax == 18
-
-    def test_proper_filtering(self):
-        receipt = factories.ReceiptFactory()
-        factories.TaxFactory(receipt=receipt)
-        factories.TaxFactory()
-
-        assert receipt.total_tax == 9
+    assert receipt.total_vat == 42
 
 
-class CurrencyTypeStrTestCase(TestCase):
-    def test_success(self):
-        currency_type = models.CurrencyType(
-            code="011",
-            description="Pesos Uruguayos",
-        )
-        assert str(currency_type) == "Pesos Uruguayos (011)"
+@pytest.mark.django_db
+def test_total_vat_proper_filtering():
+    receipt = factories.ReceiptFactory()
+    factories.VatFactory(receipt=receipt)
+    factories.VatFactory()
+
+    assert receipt.total_vat == 21
+
+
+@pytest.mark.django_db
+def test_total_tax_no_tax():
+    receipt = factories.ReceiptFactory()
+
+    assert receipt.total_tax == 0
+
+
+@pytest.mark.django_db
+def test_total_tax_multiple_taxes():
+    receipt = factories.ReceiptFactory()
+    factories.TaxFactory(receipt=receipt)
+    factories.TaxFactory(receipt=receipt)
+
+    assert receipt.total_tax == 18
+
+
+@pytest.mark.django_db
+def test_total_tax_proper_filtering():
+    receipt = factories.ReceiptFactory()
+    factories.TaxFactory(receipt=receipt)
+    factories.TaxFactory()
+
+    assert receipt.total_tax == 9
+
+
+def test_currenty_type_success():
+    currency_type = models.CurrencyType(code="011", description="Pesos Uruguayos")
+    assert str(currency_type) == "Pesos Uruguayos (011)"
