@@ -1,4 +1,5 @@
 """Tests for AFIP-WS related classes."""
+
 from datetime import datetime
 from datetime import timedelta
 from unittest import skip
@@ -8,6 +9,7 @@ import pytest
 from django.core import management
 from django.utils.timezone import now
 from factory.django import FileField
+from pytest_django.asserts import assertQuerysetEqual
 
 from django_afip import exceptions
 from django_afip import factories
@@ -127,7 +129,7 @@ class TaxPayerTest(LiveAfipTestCase):
         taxpayer.fetch_points_of_sales()
 
         points_of_sales = models.PointOfSales.objects.count()
-        self.assertGreater(points_of_sales, 0)
+        assert points_of_sales > 0
 
 
 class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
@@ -138,8 +140,8 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
         errs = models.Receipt.objects.none().validate()
 
-        self.assertEqual(errs, [])
-        self.assertEqual(models.ReceiptValidation.objects.count(), 0)
+        assert errs == []
+        assert models.ReceiptValidation.objects.count() == 0
 
     def test_validation_good(self):
         """Test validating valid receipts."""
@@ -149,20 +151,11 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
         errs = models.Receipt.objects.all().validate()
 
-        self.assertEqual(len(errs), 0)
-        self.assertEqual(
-            r1.validation.result,
-            models.ReceiptValidation.RESULT_APPROVED,
-        )
-        self.assertEqual(
-            r2.validation.result,
-            models.ReceiptValidation.RESULT_APPROVED,
-        )
-        self.assertEqual(
-            r3.validation.result,
-            models.ReceiptValidation.RESULT_APPROVED,
-        )
-        self.assertEqual(models.ReceiptValidation.objects.count(), 3)
+        assert len(errs) == 0
+        assert r1.validation.result == models.ReceiptValidation.RESULT_APPROVED
+        assert r2.validation.result == models.ReceiptValidation.RESULT_APPROVED
+        assert r3.validation.result == models.ReceiptValidation.RESULT_APPROVED
+        assert models.ReceiptValidation.objects.count() == 3
 
     def test_validation_bad(self):
         """Test validating invalid receipts."""
@@ -172,14 +165,14 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
         errs = models.Receipt.objects.all().validate()
 
-        self.assertEqual(len(errs), 1)
-        self.assertEqual(
-            errs[0],
+        assert len(errs) == 1
+        assert errs[0] == (
             "Error 10015: Factura B (CbteDesde igual a CbteHasta), DocTipo: "
             "80, DocNro 203012345 no se encuentra registrado en los padrones "
-            "de AFIP y no corresponde a una cuit pais.",
+            "de AFIP y no corresponde a una cuit pais."
         )
-        self.assertQuerysetEqual(models.ReceiptValidation.objects.all(), [])
+
+        assertQuerysetEqual(models.ReceiptValidation.objects.all(), [])
 
     def test_validation_mixed(self):
         """
@@ -195,14 +188,14 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
         errs = models.Receipt.objects.all().validate()
 
-        self.assertEqual(len(errs), 1)
-        self.assertEqual(
-            errs[0],
+        assert len(errs) == 1
+        assert errs[0] == (
             "Error 10015: Factura B (CbteDesde igual a CbteHasta), DocTipo: "
             "80, DocNro 203012345 no se encuentra registrado en los padrones "
-            "de AFIP y no corresponde a una cuit pais.",
+            "de AFIP y no corresponde a una cuit pais."
         )
-        self.assertQuerysetEqual(
+
+        assertQuerysetEqual(
             models.ReceiptValidation.objects.all(),
             [r1.pk],
             lambda rv: rv.receipt_id,
@@ -221,8 +214,8 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
         errs = models.Receipt.objects.all().validate()
 
-        self.assertEqual(models.ReceiptValidation.objects.count(), 1)
-        self.assertEqual(errs, [])
+        assert models.ReceiptValidation.objects.count() == 1
+        assert errs == []
 
     def test_validation_good_service(self):
         """Test validating a receipt for a service (rather than product)."""
@@ -235,12 +228,9 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
         errs = models.Receipt.objects.all().validate()
 
-        self.assertEqual(len(errs), 0)
-        self.assertEqual(
-            receipt.validation.result,
-            models.ReceiptValidation.RESULT_APPROVED,
-        )
-        self.assertEqual(models.ReceiptValidation.objects.count(), 1)
+        assert len(errs) == 0
+        assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
+        assert models.ReceiptValidation.objects.count() == 1
 
     def test_validation_good_without_tax(self):
         """Test validating valid receipts."""
@@ -252,12 +242,9 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
         errs = models.Receipt.objects.all().validate()
 
-        self.assertEqual(len(errs), 0)
-        self.assertEqual(
-            receipt.validation.result,
-            models.ReceiptValidation.RESULT_APPROVED,
-        )
-        self.assertEqual(models.ReceiptValidation.objects.count(), 1)
+        assert len(errs) == 0
+        assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
+        assert models.ReceiptValidation.objects.count() == 1
 
     def test_validation_good_without_vat(self):
         """Test validating valid receipts."""
@@ -270,12 +257,9 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
         errs = models.Receipt.objects.all().validate()
 
-        self.assertEqual(len(errs), 0)
-        self.assertEqual(
-            receipt.validation.result,
-            models.ReceiptValidation.RESULT_APPROVED,
-        )
-        self.assertEqual(models.ReceiptValidation.objects.count(), 1)
+        assert len(errs) == 0
+        assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
+        assert models.ReceiptValidation.objects.count() == 1
 
     @skip("Currently not working -- needs to get looked at.")
     def test_validation_with_observations(self):
@@ -290,14 +274,11 @@ class ReceiptQuerySetTestCase(PopulatedLiveAfipTestCase):
 
         errs = models.Receipt.objects.all().validate()
 
-        self.assertEqual(len(errs), 0)
-        self.assertEqual(
-            receipt.validation.result,
-            models.ReceiptValidation.RESULT_APPROVED,
-        )
-        self.assertEqual(models.ReceiptValidation.objects.count(), 1)
-        self.assertEqual(models.Observation.objects.count(), 1)
-        self.assertEqual(receipt.validation.observations.count(), 1)
+        assert len(errs) == 0
+        assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
+        assert models.ReceiptValidation.objects.count() == 1
+        assert models.Observation.objects.count() == 1
+        assert receipt.validation.observations.count() == 1
 
     def test_credit_note(self):
         """Test validating valid a credit note."""
