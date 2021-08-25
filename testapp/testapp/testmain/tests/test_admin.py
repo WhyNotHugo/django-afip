@@ -20,48 +20,43 @@ from django_afip.admin import catch_errors  # type: ignore
 
 
 class TestCatchErrors(TestCase):
-    def _get_test_instance(self, exception_type):
-        class TestClass(mock.MagicMock):
-            @catch_errors
-            def action(self, request):
-                raise exception_type
-
-        return TestClass()
-
     def test_certificate_expired(self):
-        obj = self._get_test_instance(exceptions.CertificateExpired)
-
+        admin = mock.MagicMock()
         request = HttpRequest()
-        obj.action(request)
 
-        assert obj.message_user.call_count == 1
-        assert obj.message_user.call_args == mock.call(
+        with catch_errors(admin, request):
+            raise exceptions.CertificateExpired
+
+        assert admin.message_user.call_count == 1
+        assert admin.message_user.call_args == mock.call(
             request,
             _("The AFIP Taxpayer certificate has expired."),
             messages.ERROR,
         )
 
     def test_certificate_untrusted_cert(self):
-        obj = self._get_test_instance(exceptions.UntrustedCertificate)
-
+        admin = mock.MagicMock()
         request = HttpRequest()
-        obj.action(request)
 
-        assert obj.message_user.call_count == 1
-        assert obj.message_user.call_args == mock.call(
+        with catch_errors(admin, request):
+            raise exceptions.UntrustedCertificate
+
+        assert admin.message_user.call_count == 1
+        assert admin.message_user.call_args == mock.call(
             request,
             _("The AFIP Taxpayer certificate is untrusted."),
             messages.ERROR,
         )
 
     def test_certificate_auth_error(self):
-        obj = self._get_test_instance(exceptions.AuthenticationError)
-
+        admin = mock.MagicMock()
         request = HttpRequest()
-        obj.action(request)
 
-        assert obj.message_user.call_count == 1
-        assert obj.message_user.call_args == mock.call(
+        with catch_errors(admin, request):
+            raise exceptions.AuthenticationError
+
+        assert admin.message_user.call_count == 1
+        assert admin.message_user.call_args == mock.call(
             request,
             _("An unknown authentication error has ocurred: "),
             messages.ERROR,

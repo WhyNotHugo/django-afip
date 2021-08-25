@@ -1,6 +1,6 @@
 # type: ignore
-import functools
 import logging
+from contextlib import contextmanager
 from datetime import datetime
 
 import django
@@ -21,42 +21,36 @@ logger = logging.getLogger(__name__)
 # TODO: Add an action to populate generic types.
 
 
-def catch_errors(f):
-    """
-    Catches specific errors in admin actions and shows a friendly error.
-    """
-
-    @functools.wraps(f)
-    def wrapper(self, request, *args, **kwargs):
-        try:
-            return f(self, request, *args, **kwargs)
-        except exceptions.CertificateExpired:
-            self.message_user(
-                request,
-                _("The AFIP Taxpayer certificate has expired."),
-                messages.ERROR,
-            )
-        except exceptions.UntrustedCertificate:
-            self.message_user(
-                request,
-                _("The AFIP Taxpayer certificate is untrusted."),
-                messages.ERROR,
-            )
-        except exceptions.CorruptCertificate:
-            self.message_user(
-                request,
-                _("The AFIP Taxpayer certificate is corrupt."),
-                messages.ERROR,
-            )
-        except exceptions.AuthenticationError as e:
-            logger.exception("AFIP auth failed")
-            self.message_user(
-                request,
-                _("An unknown authentication error has ocurred: %s") % e,
-                messages.ERROR,
-            )
-
-    return wrapper
+@contextmanager
+def catch_errors(self, request):
+    """Catches specific errors in admin actions and shows a friendly error."""
+    try:
+        yield
+    except exceptions.CertificateExpired:
+        self.message_user(
+            request,
+            _("The AFIP Taxpayer certificate has expired."),
+            messages.ERROR,
+        )
+    except exceptions.UntrustedCertificate:
+        self.message_user(
+            request,
+            _("The AFIP Taxpayer certificate is untrusted."),
+            messages.ERROR,
+        )
+    except exceptions.CorruptCertificate:
+        self.message_user(
+            request,
+            _("The AFIP Taxpayer certificate is corrupt."),
+            messages.ERROR,
+        )
+    except exceptions.AuthenticationError as e:
+        logger.exception("AFIP auth failed")
+        self.message_user(
+            request,
+            _("An unknown authentication error has ocurred: %s") % e,
+            messages.ERROR,
+        )
 
 
 class VatInline(admin.TabularInline):
@@ -256,9 +250,10 @@ class ReceiptAdmin(admin.ModelAdmin):
     cae.short_description = _("cae")
     cae.admin_order_field = "validation__cae"
 
-    @catch_errors
     def validate(self, request, queryset):
-        errs = queryset.validate()
+        with catch_errors(self, request):
+            errs = queryset.validate()
+
         if errs:
             self.message_user(
                 request,
@@ -290,13 +285,13 @@ class TaxPayerAdmin(admin.ModelAdmin):
         "certificate_expiration",
     )
 
-    @catch_errors
     def fetch_points_of_sales(self, request, queryset):
-        poses = [
-            pos
-            for taxpayer in queryset.all()
-            for pos in taxpayer.fetch_points_of_sales()
-        ]
+        with catch_errors(self, request):
+            poses = [
+                pos
+                for taxpayer in queryset.all()
+                for pos in taxpayer.fetch_points_of_sales()
+            ]
 
         created = len([pos for pos in poses if pos[1]])
         skipped = len(poses) - created
