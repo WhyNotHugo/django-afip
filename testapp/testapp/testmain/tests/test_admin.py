@@ -47,6 +47,21 @@ def test_certificate_untrusted_cert():
     )
 
 
+def test_certificate_corrupt_cert():
+    admin = mock.MagicMock()
+    request = HttpRequest()
+
+    with catch_errors(admin, request):
+        raise exceptions.CorruptCertificate
+
+    assert admin.message_user.call_count == 1
+    assert admin.message_user.call_args == mock.call(
+        request,
+        _("The AFIP Taxpayer certificate is corrupt."),
+        messages.ERROR,
+    )
+
+
 def test_certificate_auth_error():
     admin = mock.MagicMock()
     request = HttpRequest()
