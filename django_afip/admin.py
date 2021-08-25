@@ -3,7 +3,6 @@ import logging
 from contextlib import contextmanager
 from datetime import datetime
 
-import django
 from django.contrib import admin
 from django.contrib import messages
 from django.db.models import F
@@ -164,13 +163,6 @@ class ReceiptAdmin(admin.ModelAdmin):
         "related_receipts",
     )
     date_hierarchy = "issued_date"
-
-    def get_exclude(self, request, obj=None):
-        if django.VERSION < (2, 0):
-            # This field would load every single receipts for the widget which
-            # will always result in thousands of queries until an evetual OOM.
-            return ["related_receipts"]
-        return []
 
     __related_fields = [
         "validated",
