@@ -272,8 +272,8 @@ class ReceiptHasFileFilterTestCase(TestCase):
         )
         self.without_file = factories.ReceiptPDFFactory()
 
-        assert self.without_file.pdf_file is False
-        assert self.with_file.pdf_file is True
+        assert not self.without_file.pdf_file
+        assert self.with_file.pdf_file
 
         self.client = Client()
         self.client.force_login(User.objects.first())
