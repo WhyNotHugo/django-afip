@@ -9,6 +9,8 @@ from django.test import RequestFactory
 from django.test import TestCase
 from django.utils.translation import gettext as _
 from factory.django import FileField
+from pytest_django.asserts import assertContains
+from pytest_django.asserts import assertNotContains
 
 from django_afip import exceptions
 from django_afip import factories
@@ -32,14 +34,11 @@ class TestCatchErrors(TestCase):
         request = HttpRequest()
         obj.action(request)
 
-        self.assertEqual(obj.message_user.call_count, 1)
-        self.assertEqual(
-            obj.message_user.call_args,
-            mock.call(
-                request,
-                _("The AFIP Taxpayer certificate has expired."),
-                messages.ERROR,
-            ),
+        assert obj.message_user.call_count == 1
+        assert obj.message_user.call_args == mock.call(
+            request,
+            _("The AFIP Taxpayer certificate has expired."),
+            messages.ERROR,
         )
 
     def test_certificate_untrusted_cert(self):
@@ -48,14 +47,11 @@ class TestCatchErrors(TestCase):
         request = HttpRequest()
         obj.action(request)
 
-        self.assertEqual(obj.message_user.call_count, 1)
-        self.assertEqual(
-            obj.message_user.call_args,
-            mock.call(
-                request,
-                _("The AFIP Taxpayer certificate is untrusted."),
-                messages.ERROR,
-            ),
+        assert obj.message_user.call_count == 1
+        assert obj.message_user.call_args == mock.call(
+            request,
+            _("The AFIP Taxpayer certificate is untrusted."),
+            messages.ERROR,
         )
 
     def test_certificate_auth_error(self):
@@ -64,14 +60,11 @@ class TestCatchErrors(TestCase):
         request = HttpRequest()
         obj.action(request)
 
-        self.assertEqual(obj.message_user.call_count, 1)
-        self.assertEqual(
-            obj.message_user.call_args,
-            mock.call(
-                request,
-                _("An unknown authentication error has ocurred: "),
-                messages.ERROR,
-            ),
+        assert obj.message_user.call_count == 1
+        assert obj.message_user.call_args == mock.call(
+            request,
+            _("An unknown authentication error has ocurred: "),
+            messages.ERROR,
         )
 
 
@@ -90,14 +83,11 @@ class TestTaxPayerAdminKeyGeneration(TestCase):
             follow=True,
         )
 
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Key generated successfully.")
+        assert response.status_code == 200
+        assertContains(response, "Key generated successfully.")
 
         taxpayer.refresh_from_db()
-        self.assertIn(
-            "-----BEGIN PRIVATE KEY-----",
-            taxpayer.key.file.read().decode(),
-        )
+        assert "-----BEGIN PRIVATE KEY-----" in taxpayer.key.file.read().decode()
 
     def test_with_key(self):
         taxpayer = factories.TaxPayerFactory(key=FileField(data=b"Blah"))
@@ -110,14 +100,14 @@ class TestTaxPayerAdminKeyGeneration(TestCase):
             follow=True,
         )
 
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(
+        assert response.status_code == 200
+        assertContains(
             response,
             "No keys generated; Taxpayers already had keys.",
         )
 
         taxpayer.refresh_from_db()
-        self.assertEqual("Blah", taxpayer.key.file.read().decode())
+        assert "Blah" == taxpayer.key.file.read().decode()
 
 
 class TestTaxPayerAdminRequestGeneration(TestCase):
@@ -136,15 +126,12 @@ class TestTaxPayerAdminRequestGeneration(TestCase):
             follow=True,
         )
 
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(
-            b"Content-Type: application/pkcs10",
-            response.serialize_headers().splitlines(),
+        assert response.status_code == 200
+        assert (
+            b"Content-Type: application/pkcs10"
+            in response.serialize_headers().splitlines()
         )
-        self.assertContains(
-            response,
-            "-----BEGIN CERTIFICATE REQUEST-----",
-        )
+        assertContains(response, "-----BEGIN CERTIFICATE REQUEST-----")
 
     def test_without_key(self):
         taxpayer = factories.TaxPayerFactory(key=None)
@@ -158,15 +145,12 @@ class TestTaxPayerAdminRequestGeneration(TestCase):
             follow=True,
         )
 
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(
-            b"Content-Type: application/pkcs10",
-            response.serialize_headers().splitlines(),
+        assert response.status_code == 200
+        assert (
+            b"Content-Type: application/pkcs10"
+            in response.serialize_headers().splitlines()
         )
-        self.assertContains(
-            response,
-            "-----BEGIN CERTIFICATE REQUEST-----",
-        )
+        assertContains(response, "-----BEGIN CERTIFICATE REQUEST-----")
 
     def test_multiple_taxpayers(self):
         taxpayer1 = factories.TaxPayerFactory(key__data=b"Blah")
@@ -183,11 +167,8 @@ class TestTaxPayerAdminRequestGeneration(TestCase):
             follow=True,
         )
 
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(
-            response,
-            "Can only generate CSR for one taxpayer at a time",
-        )
+        assert response.status_code == 200
+        assertContains(response, "Can only generate CSR for one taxpayer at a time")
 
 
 class ReceiptFiltersAdminTestCase(TestCase):
@@ -216,19 +197,19 @@ class ReceiptFiltersAdminTestCase(TestCase):
         client.force_login(User.objects.first())
 
         response = client.get("/admin/afip/receipt/?status=validated")
-        self.assertContains(
+        assertContains(
             response,
             '<input class="action-select" name="_selected_action" value="{}" '
             'type="checkbox">'.format(validated_receipt.pk),
             html=True,
         )
-        self.assertNotContains(
+        assertNotContains(
             response,
             '<input class="action-select" name="_selected_action" value="{}" '
             'type="checkbox">'.format(not_validated_receipt.pk),
             html=True,
         )
-        self.assertNotContains(
+        assertNotContains(
             response,
             '<input class="action-select" name="_selected_action" value="{}" '
             'type="checkbox">'.format(failed_validation_receipt.pk),
@@ -236,19 +217,19 @@ class ReceiptFiltersAdminTestCase(TestCase):
         )
 
         response = client.get("/admin/afip/receipt/?status=not_validated")
-        self.assertNotContains(
+        assertNotContains(
             response,
             '<input class="action-select" name="_selected_action" value="{}" '
             'type="checkbox">'.format(validated_receipt.pk),
             html=True,
         )
-        self.assertContains(
+        assertContains(
             response,
             '<input class="action-select" name="_selected_action" value="{}" '
             'type="checkbox">'.format(not_validated_receipt.pk),
             html=True,
         )
-        self.assertContains(
+        assertContains(
             response,
             '<input class="action-select" name="_selected_action" value="{}" '
             'type="checkbox">'.format(failed_validation_receipt.pk),
@@ -263,7 +244,7 @@ class ReceiptAdminGetExcludeTestCase(TestCase):
         request.user = factories.UserFactory()
 
         with mock.patch("django.VERSION", (1, 11, 7)):
-            self.assertNotIn("related_receipts", admin.get_fields(request))
+            assert "related_receipts" not in admin.get_fields(request)
 
     def test_django_200(self):
         admin = ReceiptAdmin(models.Receipt, site)
@@ -271,7 +252,7 @@ class ReceiptAdminGetExcludeTestCase(TestCase):
         request.user = factories.UserFactory()
 
         with mock.patch("django.VERSION", (2, 0, 0)):
-            self.assertIn("related_receipts", admin.get_fields(request))
+            assert "related_receipts" in admin.get_fields(request)
 
 
 class ReceiptHasFileFilterTestCase(TestCase):
@@ -291,35 +272,31 @@ class ReceiptHasFileFilterTestCase(TestCase):
         )
         self.without_file = factories.ReceiptPDFFactory()
 
-        self.assertFalse(self.without_file.pdf_file)
-        self.assertTrue(self.with_file.pdf_file)
+        assert not self.without_file.pdf_file
+        assert self.with_file.pdf_file
 
         self.client = Client()
         self.client.force_login(User.objects.first())
 
     def test_filter_all(self):
         response = self.client.get("/admin/afip/receiptpdf/")
-        self.assertContains(
-            response, f"/admin/afip/receiptpdf/{self.with_file.pk}/change/"
-        )
-        self.assertContains(
+        assertContains(response, f"/admin/afip/receiptpdf/{self.with_file.pk}/change/")
+        assertContains(
             response, f"/admin/afip/receiptpdf/{self.without_file.pk}/change/"
         )
 
     def test_filter_with_file(self):
         response = self.client.get("/admin/afip/receiptpdf/?has_file=yes")
-        self.assertContains(
-            response, f"/admin/afip/receiptpdf/{self.with_file.pk}/change/"
-        )
-        self.assertNotContains(
+        assertContains(response, f"/admin/afip/receiptpdf/{self.with_file.pk}/change/")
+        assertNotContains(
             response, f"/admin/afip/receiptpdf/{self.without_file.pk}/change/"
         )
 
     def test_filter_without_file(self):
         response = self.client.get("/admin/afip/receiptpdf/?has_file=no")
-        self.assertNotContains(
+        assertNotContains(
             response, f"/admin/afip/receiptpdf/{self.with_file.pk}/change/"
         )
-        self.assertContains(
+        assertContains(
             response, f"/admin/afip/receiptpdf/{self.without_file.pk}/change/"
         )

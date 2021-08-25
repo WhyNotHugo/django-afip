@@ -116,31 +116,28 @@ class ReceiptFailedValidateTestCase(PopulatedLiveAfipTestCase):
         """Test validating valid receipts."""
         errs = self.receipt.validate()
 
-        self.assertEqual(len(errs), 1)
+        assert len(errs) == 1
         # FIXME: We're not creating rejection entries
-        # self.assertEqual(len(errs), 1)
-        # self.assertEqual(
-        #     receipt.validation.result,
-        #     models.ReceiptValidation.RESULT_REJECTED,
+        # assert (
+        #     self.receipt.validation.result == models.ReceiptValidation.RESULT_REJECTED
         # )
-        self.assertEqual(models.ReceiptValidation.objects.count(), 0)
+        assert models.ReceiptValidation.objects.count() == 0
 
     def test_raise_validation(self):
         """Test validating valid receipts."""
 
-        with self.assertRaisesRegex(
+        with pytest.raises(
             exceptions.ValidationError,
             # Note: AFIP apparently edited this message and added a typo:
-            "DocNro 203012345 no se encuentra registrado en los padrones",
+            match="DocNro 203012345 no se encuentra registrado en los padrones",
         ):
             self.receipt.validate(raise_=True)
 
         # FIXME: We're not creating rejection entries
-        # self.assertEqual(
-        #     receipt.validation.result,
-        #     models.ReceiptValidation.RESULT_REJECTED,
+        # assert (
+        #     self.receipt.validation.result == models.ReceiptValidation.RESULT_REJECTED
         # )
-        self.assertEqual(models.ReceiptValidation.objects.count(), 0)
+        assert models.ReceiptValidation.objects.count() == 0
 
 
 class ReceiptDataFetchTestCase(PopulatedLiveAfipTestCase):
@@ -212,42 +209,42 @@ class ReceiptTotalVatTestCase(TestCase):
     def test_no_vat(self):
         receipt = factories.ReceiptFactory()
 
-        self.assertEqual(receipt.total_vat, 0)
+        assert receipt.total_vat == 0
 
     def test_multiple_vats(self):
         receipt = factories.ReceiptFactory()
         factories.VatFactory(receipt=receipt)
         factories.VatFactory(receipt=receipt)
 
-        self.assertEqual(receipt.total_vat, 42)
+        assert receipt.total_vat == 42
 
     def test_proper_filtering(self):
         receipt = factories.ReceiptFactory()
         factories.VatFactory(receipt=receipt)
         factories.VatFactory()
 
-        self.assertEqual(receipt.total_vat, 21)
+        assert receipt.total_vat == 21
 
 
 class ReceiptTotalTaxTestCase(TestCase):
     def test_no_tax(self):
         receipt = factories.ReceiptFactory()
 
-        self.assertEqual(receipt.total_tax, 0)
+        assert receipt.total_tax == 0
 
     def test_multiple_taxes(self):
         receipt = factories.ReceiptFactory()
         factories.TaxFactory(receipt=receipt)
         factories.TaxFactory(receipt=receipt)
 
-        self.assertEqual(receipt.total_tax, 18)
+        assert receipt.total_tax == 18
 
     def test_proper_filtering(self):
         receipt = factories.ReceiptFactory()
         factories.TaxFactory(receipt=receipt)
         factories.TaxFactory()
 
-        self.assertEqual(receipt.total_tax, 9)
+        assert receipt.total_tax == 9
 
 
 class CurrencyTypeStrTestCase(TestCase):
@@ -256,4 +253,4 @@ class CurrencyTypeStrTestCase(TestCase):
             code="011",
             description="Pesos Uruguayos",
         )
-        self.assertEqual(str(currency_type), "Pesos Uruguayos (011)")
+        assert str(currency_type) == "Pesos Uruguayos (011)"

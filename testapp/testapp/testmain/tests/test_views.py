@@ -4,6 +4,8 @@ import pytest
 from django.test import Client
 from django.test import TestCase
 from django.urls import reverse
+from pytest_django.asserts import assertContains
+from pytest_django.asserts import assertHTMLEqual
 
 from django_afip import factories
 from django_afip import views
@@ -27,7 +29,7 @@ class ReceiptPDFTestCase(TestCase):
             )
         )
 
-        self.assertHTMLEqual(
+        assertHTMLEqual(
             response.content.decode(),
             """
 <!DOCTYPE html>
@@ -149,7 +151,7 @@ class ReceiptPDFTestCase(TestCase):
             )
         )
 
-        self.assertContains(
+        assertContains(
             response,
             """
             <address>
@@ -178,11 +180,11 @@ class ReceiptPDFTestCase(TestCase):
         client = Client()
         response = client.get(reverse("receipt_pdf_view", args=(pdf.receipt.pk,)))
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content[:7], b"%PDF-1.")
+        assert response.status_code == 200
+        assert response.content[:7] == b"%PDF-1."
 
         headers = sorted(response.serialize_headers().decode().splitlines())
-        self.assertIn("Content-Type: application/pdf", headers)
+        assert "Content-Type: application/pdf" in headers
 
 
 @pytest.mark.django_db
@@ -213,4 +215,4 @@ class ReceiptPDFViewDownloadNameTestCase(TestCase):
         view = views.ReceiptPDFView()
         view.kwargs = {"pk": 9}
 
-        self.assertEqual(view.get_download_name(), "0001-00000032.pdf")
+        assert view.get_download_name() == "0001-00000032.pdf"
