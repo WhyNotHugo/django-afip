@@ -311,3 +311,30 @@ def test_validate_certs_action_errors(admin_client):
 
     message = messages[0].message
     assert message == "Receipt validation failed: ['Something went wrong']."
+
+
+def test_admin_fetch_points_of_sales(admin_client):
+    taxpayer1 = factories.TaxPayerFactory()
+    taxpayer2 = factories.TaxPayerFactory()
+
+    with patch(
+        "django_afip.models.TaxPayer.fetch_points_of_sales",
+        spec=True,
+        return_value=[("dummy-point-of-sales", True), ("another", False)],
+    ):
+        response = admin_client.post(
+            "/admin/afip/taxpayer/",
+            data={
+                "_selected_action": [taxpayer1.id, taxpayer2.id],
+                "action": "fetch_points_of_sales",
+            },
+            follow=True,
+        )
+
+    assert response.status_code == 200
+
+    messages = [msg.message for msg in list(response.context["messages"])]
+    assert len(messages) == 2
+
+    assert "2 points of sales already existed." in messages
+    assert "2 points of sales created." in messages
