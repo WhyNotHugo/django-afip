@@ -168,7 +168,7 @@ class ReceitpSuccessfulRevalidationTestCase(PopulatedLiveAfipTestCase):
         receipt.validation.delete()
 
         receipt.refresh_from_db()
-        assert not receipt.is_validated()
+        assert not receipt.is_validated
 
         validation = receipt.revalidate()
 
