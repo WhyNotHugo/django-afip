@@ -31,7 +31,6 @@ from . import crypto
 from . import exceptions
 from . import parsers
 from . import serializers
-from .exceptions import AfipException
 
 logger = logging.getLogger(__name__)
 TZ_AR = pytz.timezone(pytz.country_timezones["ar"][0])
@@ -904,7 +903,7 @@ class ReceiptManager(models.Manager):
             try:
                 check_response(response_xml)
                 return response_xml.ResultGet
-            except AfipException:
+            except exceptions.AfipException:
                 return None
         return None
 
