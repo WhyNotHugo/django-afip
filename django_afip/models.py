@@ -1148,7 +1148,7 @@ class Receipt(models.Model):
                 )
                 if receipt_data.Observaciones:
                     for obs in receipt_data.Observaciones.Obs:
-                        observation = Observation.objects.create(
+                        observation = Observation.objects.get_or_create(
                             code=obs.Code,
                             message=obs.Msg,
                         )
