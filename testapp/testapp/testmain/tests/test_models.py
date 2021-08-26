@@ -193,6 +193,8 @@ class ReceitpFailedRevalidationTestCase(PopulatedLiveAfipTestCase):
 
         validation = receipt.revalidate()
 
+        receipt.refresh_from_db()
+
         assert validation is None
 
     def test_receipt_revalidate_without_receipt_number(self):
