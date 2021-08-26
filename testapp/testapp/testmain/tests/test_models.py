@@ -167,7 +167,11 @@ class ReceitpSuccessfulRevalidationTestCase(PopulatedLiveAfipTestCase):
 
         receipt.validation.delete()
 
+        receipt.refresh_from_db()
+        assert not receipt.is_validated()
+
         validation = receipt.revalidate()
+
         assert validation is not None
         assert validation.receipt == receipt
         assert old_cae == validation.cae
@@ -192,8 +196,6 @@ class ReceitpFailedRevalidationTestCase(PopulatedLiveAfipTestCase):
         receipt.refresh_from_db()
 
         validation = receipt.revalidate()
-
-        receipt.refresh_from_db()
 
         assert validation is None
 
