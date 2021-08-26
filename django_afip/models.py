@@ -890,22 +890,24 @@ class ReceiptManager(models.Manager):
 
     def fetch_receipt_data(self, receipt_type, receipt_number, point_of_sales):
         """Returns receipt related data"""
-        if receipt_number:
-            client = clients.get_client("wsfe", point_of_sales.owner.is_sandboxed)
-            response_xml = client.service.FECompConsultar(
-                serializers.serialize_ticket(
-                    point_of_sales.owner.get_or_create_ticket("wsfe")
-                ),
-                serializers.serialize_receipt_data(
-                    receipt_type, receipt_number, point_of_sales.number
-                ),
-            )
-            try:
-                check_response(response_xml)
-                return response_xml.ResultGet
-            except exceptions.AfipException:
-                return None
-        return None
+
+        if not receipt_number:
+            return None
+
+        client = clients.get_client("wsfe", point_of_sales.owner.is_sandboxed)
+        response_xml = client.service.FECompConsultar(
+            serializers.serialize_ticket(
+                point_of_sales.owner.get_or_create_ticket("wsfe")
+            ),
+            serializers.serialize_receipt_data(
+                receipt_type, receipt_number, point_of_sales.number
+            ),
+        )
+        try:
+            check_response(response_xml)
+            return response_xml.ResultGet
+        except exceptions.AfipException:
+            return None
 
     def get_queryset(self):
         return ReceiptQuerySet(self.model, using=self._db).select_related(
@@ -1135,25 +1137,27 @@ class Receipt(models.Model):
             self.receipt_type.code, self.receipt_number, self.point_of_sales
         )
 
-        if receipt_data:
-            if receipt_data.Resultado == ReceiptValidation.RESULT_APPROVED:
-                validation = ReceiptValidation.objects.create(
-                    result=receipt_data.Resultado,
-                    cae=receipt_data.CodAutorizacion,
-                    cae_expiration=parsers.parse_date(receipt_data.FchVto),
-                    receipt=self,
-                    processed_date=parsers.parse_datetime(
-                        receipt_data.FchProceso,
-                    ),
-                )
-                if receipt_data.Observaciones:
-                    for obs in receipt_data.Observaciones.Obs:
-                        observation = Observation.objects.get_or_create(
-                            code=obs.Code,
-                            message=obs.Msg,
-                        )
-                    validation.observations.add(observation)
-                return validation
+        if not receipt_data:
+            return None
+
+        if receipt_data.Resultado == ReceiptValidation.RESULT_APPROVED:
+            validation = ReceiptValidation.objects.create(
+                result=receipt_data.Resultado,
+                cae=receipt_data.CodAutorizacion,
+                cae_expiration=parsers.parse_date(receipt_data.FchVto),
+                receipt=self,
+                processed_date=parsers.parse_datetime(
+                    receipt_data.FchProceso,
+                ),
+            )
+            if receipt_data.Observaciones:
+                for obs in receipt_data.Observaciones.Obs:
+                    observation = Observation.objects.get_or_create(
+                        code=obs.Code,
+                        message=obs.Msg,
+                    )
+                validation.observations.add(observation)
+            return validation
         return None
 
     def __repr__(self):
