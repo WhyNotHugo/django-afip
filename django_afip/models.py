@@ -8,6 +8,7 @@ from datetime import timezone
 from io import BytesIO
 from tempfile import NamedTemporaryFile
 from typing import List
+from typing import Optional
 from typing import Type
 from uuid import uuid4
 
@@ -30,6 +31,7 @@ from . import crypto
 from . import exceptions
 from . import parsers
 from . import serializers
+from .exceptions import AfipException
 
 logger = logging.getLogger(__name__)
 TZ_AR = pytz.timezone(pytz.country_timezones["ar"][0])
@@ -889,18 +891,22 @@ class ReceiptManager(models.Manager):
 
     def fetch_receipt_data(self, receipt_type, receipt_number, point_of_sales):
         """Returns receipt related data"""
-        client = clients.get_client("wsfe", point_of_sales.owner.is_sandboxed)
-        response_xml = client.service.FECompConsultar(
-            serializers.serialize_ticket(
-                point_of_sales.owner.get_or_create_ticket("wsfe")
-            ),
-            serializers.serialize_receipt_data(
-                receipt_type, receipt_number, point_of_sales.number
-            ),
-        )
-        check_response(response_xml)
-
-        return response_xml.ResultGet
+        if receipt_number:
+            client = clients.get_client("wsfe", point_of_sales.owner.is_sandboxed)
+            response_xml = client.service.FECompConsultar(
+                serializers.serialize_ticket(
+                    point_of_sales.owner.get_or_create_ticket("wsfe")
+                ),
+                serializers.serialize_receipt_data(
+                    receipt_type, receipt_number, point_of_sales.number
+                ),
+            )
+            try:
+                check_response(response_xml)
+                return response_xml.ResultGet
+            except AfipException:
+                return None
+        return None
 
     def get_queryset(self):
         return ReceiptQuerySet(self.model, using=self._db).select_related(
@@ -1115,6 +1121,43 @@ class Receipt(models.Model):
         if raise_ and rv:
             raise exceptions.ValidationError(rv[0])
         return rv
+
+    def revalidate(self) -> Optional["ReceiptValidation"]:
+        """Revalidate this receipt.
+        This should be used for verification purpose, here's a list of some use cases:
+         - Incomplete validation process
+         - Fetch CAE data from AFIP's servers
+        """
+        # This may avoid unnecessary revalidation
+        if self.is_validated:
+            return self.validation
+
+        receipt_data = Receipt.objects.fetch_receipt_data(
+            self.receipt_type.code, self.receipt_number, self.point_of_sales
+        )
+
+        if receipt_data:
+            if receipt_data.Resultado == ReceiptValidation.RESULT_APPROVED:
+                validation = ReceiptValidation.objects.create(
+                    result=receipt_data.Resultado,
+                    cae=receipt_data.CodAutorizacion,
+                    cae_expiration=parsers.parse_date(receipt_data.FchVto),
+                    receipt=self.get(
+                        receipt_number=receipt_data.CbteDesde,
+                    ),
+                    processed_date=parsers.parse_datetime(
+                        receipt_data.FchProceso,
+                    ),
+                )
+                if receipt_data.Observaciones:
+                    for obs in receipt_data.Observaciones.Obs:
+                        observation = Observation.objects.create(
+                            code=obs.Code,
+                            message=obs.Msg,
+                        )
+                    validation.observations.add(observation)
+                return validation
+        return None
 
     def __repr__(self):
         return "<Receipt {}: {} {} for {}>".format(

@@ -155,6 +155,56 @@ class ReceiptDataFetchTestCase(PopulatedLiveAfipTestCase):
         assert receipt.PtoVta == pos.number
 
 
+class ReceitpSuccessfulRevalidationTestCase(PopulatedLiveAfipTestCase):
+    def test_revalidation_valid_receipt(self):
+        """Test revalidation process of a valid receipt."""
+        receipt = factories.ReceiptWithVatAndTaxFactory()
+        receipt.validate()
+        receipt.refresh_from_db()
+
+        old_cae = receipt.validation.cae
+        old_validation_pk = receipt.validation.id
+
+        receipt.validation.delete()
+
+        validation = receipt.revalidate()
+        assert validation is not None
+        assert validation.receipt == receipt
+        assert old_cae == validation.cae
+        assert old_validation_pk != validation.id
+
+
+class ReceitpFailedRevalidationTestCase(PopulatedLiveAfipTestCase):
+    def test_revalidation_invalid_receipt(self):
+        """Test revalidation process of an invalid receipt. (Unexistent receipt)"""
+        receipt = factories.ReceiptWithVatAndTaxFactory()
+        next_num = (
+            models.Receipt.objects.fetch_last_receipt_number(
+                receipt.point_of_sales,
+                receipt.receipt_type,
+            )
+            + 1
+        )
+
+        receipt.receipt_number = next_num
+        receipt.save()
+
+        receipt.refresh_from_db()
+
+        validation = receipt.revalidate()
+
+        assert validation is None
+
+    def test_receipt_revalidate_without_receipt_number(self):
+        """Test revalidation process of an invalid receipt. (Receipt without number)"""
+        receipt = factories.ReceiptWithVatAndTaxFactory()
+        receipt.refresh_from_db()
+
+        validation = receipt.revalidate()
+
+        assert validation is None
+
+
 @pytest.mark.django_db
 def test_receipt_is_validted_when_not_validated():
     receipt = factories.ReceiptFactory()
