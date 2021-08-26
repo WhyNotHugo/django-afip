@@ -1141,9 +1141,7 @@ class Receipt(models.Model):
                     result=receipt_data.Resultado,
                     cae=receipt_data.CodAutorizacion,
                     cae_expiration=parsers.parse_date(receipt_data.FchVto),
-                    receipt=self.get(
-                        receipt_number=receipt_data.CbteDesde,
-                    ),
+                    receipt=self,
                     processed_date=parsers.parse_datetime(
                         receipt_data.FchProceso,
                     ),
