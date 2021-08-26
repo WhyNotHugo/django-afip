@@ -1,4 +1,5 @@
 from unittest import mock
+from unittest.mock import patch
 
 import pytest
 from django.contrib import messages
@@ -269,3 +270,44 @@ def test_has_file_filter_without_file(admin_client):
     response = admin_client.get("/admin/afip/receiptpdf/?has_file=no")
     assertNotContains(response, f"/admin/afip/receiptpdf/{with_file.pk}/change/")
     assertContains(response, f"/admin/afip/receiptpdf/{without_file.pk}/change/")
+
+
+def test_validate_certs_action_success(admin_client):
+    receipt = factories.ReceiptFactory()
+
+    with patch(
+        "django_afip.models.ReceiptQuerySet.validate", spec=True, return_value=[]
+    ) as validate:
+        response = admin_client.post(
+            "/admin/afip/receipt/",
+            data={"_selected_action": [receipt.id], "action": "validate"},
+            follow=True,
+        )
+
+    assert response.status_code == 200
+    assert validate.call_count == 1
+    assert list(response.context["messages"]) == []
+
+
+def test_validate_certs_action_errors(admin_client):
+    receipt = factories.ReceiptFactory()
+
+    with patch(
+        "django_afip.models.ReceiptQuerySet.validate",
+        spec=True,
+        return_value=["Something went wrong"],
+    ) as validate:
+        response = admin_client.post(
+            "/admin/afip/receipt/",
+            data={"_selected_action": [receipt.id], "action": "validate"},
+            follow=True,
+        )
+
+    assert response.status_code == 200
+    assert validate.call_count == 1
+
+    messages = list(response.context["messages"])
+    assert len(messages) == 1
+
+    message = messages[0].message
+    assert message == "Receipt validation failed: ['Something went wrong']."
