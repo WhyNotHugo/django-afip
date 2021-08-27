@@ -259,6 +259,17 @@ def test_default_currency_multieple_currencies():
     assert receipt.currency != c3
 
 
+@pytest.mark.django_db
+def test_revalidation_validated_receipt():
+    """Test revalidation process of a validated receipt."""
+    receipt_validation = factories.ReceiptValidationFactory()
+
+    revalidation = receipt_validation.receipt.revalidate()
+
+    assert revalidation is not None
+    assert revalidation == receipt_validation
+
+
 class ReceiptTotalVatTestCase(TestCase):
     def test_no_vat(self):
         receipt = factories.ReceiptFactory()
