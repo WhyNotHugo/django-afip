@@ -8,6 +8,10 @@ from pytest_django.asserts import assertQuerysetEqual
 from django_afip import exceptions
 from django_afip import factories
 from django_afip import models
+from django_afip.factories import ReceiptFactory
+from django_afip.factories import ReceiptValidationFactory
+from django_afip.factories import ReceiptWithInconsistentVatAndTaxFactory
+from django_afip.factories import ReceiptWithVatAndTaxFactory
 
 
 def test_default_receipt_queryset():
@@ -16,7 +20,7 @@ def test_default_receipt_queryset():
 
 @pytest.mark.django_db
 def test_validate():
-    receipt = factories.ReceiptFactory()
+    receipt = ReceiptFactory()
     queryset = models.Receipt.objects.filter(pk=receipt.pk)
     ticket = MagicMock()
 
@@ -43,7 +47,7 @@ def test_default_receipt_manager():
 
 @pytest.mark.django_db
 def test_validate_receipt():
-    receipt = factories.ReceiptFactory()
+    receipt = ReceiptFactory()
     ticket = MagicMock()
     ticket._called = False
 
@@ -60,27 +64,12 @@ def test_validate_receipt():
     assert ticket._called is True
 
 
-def create_receipt(receipt_type_code=6, document_type_code=96) -> models.Receipt:
-    """Create a receipt use for tests. Default type is Factura B."""
-    # TODO: Rewrite this into a factory.
-
-    receipt = factories.ReceiptFactory(
-        point_of_sales=models.PointOfSales.objects.first(),
-        receipt_type__code=receipt_type_code,
-        document_type__code=document_type_code,
-    )
-    factories.VatFactory(vat_type__code=5, receipt=receipt)
-    factories.TaxFactory(tax_type__code=3, receipt=receipt)
-
-    return receipt
-
-
 @pytest.mark.django_db
 @pytest.mark.live
 def test_validate_invoice(populated_db):
     """Test validating valid receipts."""
 
-    receipt = create_receipt()
+    receipt = ReceiptWithVatAndTaxFactory()
     errs = receipt.validate()
 
     assert len(errs) == 0
@@ -94,12 +83,12 @@ def test_validate_credit_note(populated_db):
     """Test validating valid receipts."""
 
     # Create a receipt (this credit note relates to it):
-    receipt = create_receipt()
+    receipt = ReceiptWithVatAndTaxFactory()
     errs = receipt.validate()
     assert len(errs) == 0
 
     # Create a credit note for the above receipt:
-    credit_note = create_receipt(receipt_type_code=8)  # Nota de Crédito B
+    credit_note = ReceiptWithVatAndTaxFactory(receipt_type__code=8)  # Nota de Crédito B
     credit_note.related_receipts.add(receipt)
     credit_note.save()
 
@@ -111,7 +100,7 @@ def test_validate_credit_note(populated_db):
 @pytest.mark.live
 def test_failed_validation(populated_db):
     """Test validating valid receipts."""
-    receipt = create_receipt(document_type_code=80)
+    receipt = ReceiptWithInconsistentVatAndTaxFactory()
 
     errs = receipt.validate()
 
@@ -125,7 +114,7 @@ def test_failed_validation(populated_db):
 @pytest.mark.live
 def test_raising_failed_validation(populated_db):
     """Test validating valid receipts."""
-    receipt = create_receipt(document_type_code=80)
+    receipt = ReceiptWithInconsistentVatAndTaxFactory()
 
     with pytest.raises(
         exceptions.ValidationError,
@@ -157,29 +146,29 @@ def test_fetch_existing_data(populated_db):
 
 @pytest.mark.django_db
 def test_receipt_is_validted_when_not_validated():
-    receipt = factories.ReceiptFactory()
+    receipt = ReceiptFactory()
     assert not receipt.is_validated
 
 
 @pytest.mark.django_db
-def test_receipt_is_validted_when_validated():
-    receipt = factories.ReceiptFactory(receipt_number=1)
-    factories.ReceiptValidationFactory(receipt=receipt)
+def test_receipt_is_validated_when_validated():
+    receipt = ReceiptFactory(receipt_number=1)
+    ReceiptValidationFactory(receipt=receipt)
     assert receipt.is_validated
 
 
 @pytest.mark.django_db
 def test_receipt_is_validted_when_failed_validation():
     # These should never really exist,but oh well:
-    receipt = factories.ReceiptFactory()
-    factories.ReceiptValidationFactory(
+    receipt = ReceiptFactory()
+    ReceiptValidationFactory(
         receipt=receipt,
         result=models.ReceiptValidation.RESULT_REJECTED,
     )
     assert not receipt.is_validated
 
-    receipt = factories.ReceiptFactory(receipt_number=1)
-    factories.ReceiptValidationFactory(
+    receipt = ReceiptFactory(receipt_number=1)
+    ReceiptValidationFactory(
         receipt=receipt,
         result=models.ReceiptValidation.RESULT_REJECTED,
     )
@@ -207,14 +196,14 @@ def test_default_currency_multieple_currencies():
 
 @pytest.mark.django_db
 def test_total_vat_no_vat():
-    receipt = factories.ReceiptFactory()
+    receipt = ReceiptFactory()
 
     assert receipt.total_vat == 0
 
 
 @pytest.mark.django_db
 def test_total_vat_multiple_vats():
-    receipt = factories.ReceiptFactory()
+    receipt = ReceiptFactory()
     factories.VatFactory(receipt=receipt)
     factories.VatFactory(receipt=receipt)
 
@@ -223,7 +212,7 @@ def test_total_vat_multiple_vats():
 
 @pytest.mark.django_db
 def test_total_vat_proper_filtering():
-    receipt = factories.ReceiptFactory()
+    receipt = ReceiptFactory()
     factories.VatFactory(receipt=receipt)
     factories.VatFactory()
 
@@ -232,14 +221,14 @@ def test_total_vat_proper_filtering():
 
 @pytest.mark.django_db
 def test_total_tax_no_tax():
-    receipt = factories.ReceiptFactory()
+    receipt = ReceiptFactory()
 
     assert receipt.total_tax == 0
 
 
 @pytest.mark.django_db
 def test_total_tax_multiple_taxes():
-    receipt = factories.ReceiptFactory()
+    receipt = ReceiptFactory()
     factories.TaxFactory(receipt=receipt)
     factories.TaxFactory(receipt=receipt)
 
@@ -248,7 +237,7 @@ def test_total_tax_multiple_taxes():
 
 @pytest.mark.django_db
 def test_total_tax_proper_filtering():
-    receipt = factories.ReceiptFactory()
+    receipt = ReceiptFactory()
     factories.TaxFactory(receipt=receipt)
     factories.TaxFactory()
 
