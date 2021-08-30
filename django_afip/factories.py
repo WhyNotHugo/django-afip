@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.utils.timezone import make_aware
 from factory import LazyFunction
 from factory import PostGenerationMethodCall
+from factory import Sequence
 from factory import SubFactory
 from factory import post_generation
 from factory.django import DjangoModelFactory
@@ -152,16 +153,25 @@ class ReceiptWithVatAndTaxFactory(ReceiptFactory):
         TaxFactory(tax_type__code=3, receipt=obj)
 
 
-class ReceiptWithInconsistentVatAndTaxFactory(ReceiptFactory):
+class ReceiptWithInconsistentVatAndTaxFactory(ReceiptWithVatAndTaxFactory):
     """Receipt with a valid Vat and Tax, ready to validate."""
 
-    point_of_sales = LazyFunction(lambda: models.PointOfSales.objects.first())
     document_type = SubFactory(DocumentTypeFactory, code=80)
 
     @post_generation
     def post(obj: models.Receipt, create, extracted, **kwargs):
         VatFactory(vat_type__code=5, receipt=obj)
         TaxFactory(tax_type__code=3, receipt=obj)
+
+
+class ReceiptWithApprovedValidation(ReceiptFactory):
+    """Receipt with fake (e.g.: not live) approved validation."""
+
+    receipt_number = Sequence(lambda n: n + 1)
+
+    @post_generation
+    def post(obj: models.Receipt, create, extracted, **kwargs):
+        ReceiptValidationFactory(receipt=obj)
 
 
 class ReceiptValidationFactory(DjangoModelFactory):
@@ -188,6 +198,10 @@ class ReceiptPDFFactory(DjangoModelFactory):
     receipt = SubFactory(ReceiptFactory)
     sales_terms = "Contado"
     vat_condition = "Responsable Monotributo"
+
+
+class ReceiptPDFWithFileFactory(ReceiptPDFFactory):
+    receipt = SubFactory(ReceiptWithApprovedValidation)
 
 
 class GenericAfipTypeFactory(DjangoModelFactory):
