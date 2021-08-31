@@ -1128,8 +1128,7 @@ class Receipt(models.Model):
         
         Fetches data of a validated receipt from AFIP's servers. If the receipt exists
         a ``ReceiptValidation`` instance is created and returned, otherwise, returns ``None``.
-        If there is a ReceiptValidation for this instance, returns ``self.validation``.
-        
+        If there is already a ``ReceiptValidation`` for this instance, returns ``self.validation``.
         This should be used for verification purpose, here's a list of some use cases:
          - Incomplete validation process
          - Fetch CAE data from AFIP's servers
