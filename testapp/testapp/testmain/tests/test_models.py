@@ -10,6 +10,7 @@ from django_afip import factories
 from django_afip import models
 from django_afip.factories import ReceiptFactory
 from django_afip.factories import ReceiptValidationFactory
+from django_afip.factories import ReceiptWithApprovedValidation
 from django_afip.factories import ReceiptWithInconsistentVatAndTaxFactory
 from django_afip.factories import ReceiptWithVatAndTaxFactory
 
@@ -137,7 +138,9 @@ def test_fetch_existing_data(populated_db):
     # so we can't use a fixed receipt number
     last_receipt_number = models.Receipt.objects.fetch_last_receipt_number(pos, rt)
     receipt = models.Receipt.objects.fetch_receipt_data(
-        receipt_type=6, receipt_number=last_receipt_number, point_of_sales=pos
+        receipt_type=6,
+        receipt_number=last_receipt_number,
+        point_of_sales=pos,
     )
 
     assert receipt.CbteDesde == last_receipt_number
@@ -145,22 +148,21 @@ def test_fetch_existing_data(populated_db):
 
 
 @pytest.mark.django_db
-def test_receipt_is_validted_when_not_validated():
+def test_receipt_is_validated_when_not_validated():
     receipt = ReceiptFactory()
     assert not receipt.is_validated
 
 
 @pytest.mark.django_db
 def test_receipt_is_validated_when_validated():
-    receipt = ReceiptFactory(receipt_number=1)
-    ReceiptValidationFactory(receipt=receipt)
+    receipt = ReceiptWithApprovedValidation()
     assert receipt.is_validated
 
 
 @pytest.mark.django_db
 def test_receipt_is_validted_when_failed_validation():
     # These should never really exist,but oh well:
-    receipt = ReceiptFactory()
+    receipt = ReceiptFactory(receipt_number=None)
     ReceiptValidationFactory(
         receipt=receipt,
         result=models.ReceiptValidation.RESULT_REJECTED,
@@ -189,6 +191,7 @@ def test_default_currency_multieple_currencies():
     c3 = factories.CurrencyTypeFactory(pk=3)
 
     receipt = models.Receipt()
+
     assert receipt.currency != c1
     assert receipt.currency == c2
     assert receipt.currency != c3
