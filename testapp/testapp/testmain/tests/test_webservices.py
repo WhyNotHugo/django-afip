@@ -1,12 +1,11 @@
 """Tests for AFIP-WS related classes."""
 
-from datetime import datetime
+from datetime import date
 from datetime import timedelta
 from unittest.mock import patch
 
 import pytest
 from django.core import management
-from django.utils.timezone import now
 from factory.django import FileField
 from pytest_django.asserts import assertQuerysetEqual
 
@@ -173,7 +172,7 @@ def test_receipt_queryset_validation_bad(populated_db):
         "de AFIP y no corresponde a una cuit pais."
     )
 
-    assertQuerysetEqual(models.ReceiptValidation.objects.all(), [])
+    assert models.ReceiptValidation.objects.count() == 0
 
 
 @pytest.mark.django_db
@@ -210,14 +209,7 @@ def test_receipt_queryset_validation_mixed(populated_db):
 @pytest.mark.live
 def test_receipt_queryset_validation_validated(populated_db):
     """Test validating invalid receipts."""
-    receipt = factories.ReceiptWithVatAndTaxFactory()
-    models.ReceiptValidation.objects.create(
-        result=models.ReceiptValidation.RESULT_APPROVED,
-        cae="123",
-        cae_expiration=now(),
-        receipt=receipt,
-        processed_date=now(),
-    )
+    factories.ReceiptWithApprovedValidation()
 
     errs = models.Receipt.objects.all().validate()
 
@@ -229,12 +221,12 @@ def test_receipt_queryset_validation_validated(populated_db):
 @pytest.mark.live
 def test_receipt_queryset_validation_good_service(populated_db):
     """Test validating a receipt for a service (rather than product)."""
-    receipt = factories.ReceiptWithVatAndTaxFactory()
-    receipt.concept = factories.ConceptTypeFactory(code=2)
-    receipt.service_start = datetime.now() - timedelta(days=10)
-    receipt.service_end = datetime.now()
-    receipt.expiration_date = datetime.now() + timedelta(days=10)
-    receipt.save()
+    receipt = factories.ReceiptWithVatAndTaxFactory(
+        concept__code=2,
+        service_start=date.today() - timedelta(days=10),
+        service_end=date.today(),
+        expiration_date=date.today() + timedelta(days=10),
+    )
 
     errs = models.Receipt.objects.all().validate()
 
@@ -312,8 +304,7 @@ def test_receipt_queryset_credit_note(populated_db):
     assert models.ReceiptValidation.objects.count() == 1
 
     # Now create a credit note (code=8) and validate it...
-    credit = factories.ReceiptWithVatAndTaxFactory()
-    credit.receipt_type = factories.ReceiptTypeFactory(code=8)
+    credit = factories.ReceiptWithVatAndTaxFactory(receipt_type__code=8)
     credit.related_receipts.set([invoice])
     credit.save()
 
