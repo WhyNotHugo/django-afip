@@ -147,7 +147,9 @@ def test_fetch_existing_data(populated_db):
     assert receipt.PtoVta == pos.number
 
 
-def test_revalidation_valid_receipt(self):
+@pytest.mark.django_db
+@pytest.mark.live
+def test_revalidation_valid_receipt(populated_db):
     """Test revalidation process of a valid receipt."""
     receipt = factories.ReceiptWithVatAndTaxFactory()
     receipt.validate()
@@ -169,7 +171,7 @@ def test_revalidation_valid_receipt(self):
     assert old_validation_pk != validation.id
 
 
-@pytest.mark.django_db
+@pytest.mark.live
 def test_revalidation_invalid_receipt(populated_db):
     """Test revalidation process of an invalid receipt. (Unexistent receipt)"""
     receipt = factories.ReceiptWithVatAndTaxFactory()
@@ -192,8 +194,9 @@ def test_revalidation_invalid_receipt(populated_db):
 
 
 @pytest.mark.django_db
-def test_receipt_revalidate_without_receipt_number(populated_db):
+def test_receipt_revalidate_without_receipt_number():
     """Test revalidation process of an invalid receipt. (Receipt without number)"""
+    factories.PointOfSalesFactory()
     receipt = factories.ReceiptWithVatAndTaxFactory()
     receipt.refresh_from_db()
 
@@ -268,7 +271,7 @@ def test_total_vat_multiple_vats():
     assert receipt.total_vat == 42
 
 
-@pytest.mark.django_db
+@pytest.mark.live
 def test_revalidation_validated_receipt(populated_db):
     """Test revalidation process of a validated receipt."""
     receipt_validation = factories.ReceiptValidationFactory()
