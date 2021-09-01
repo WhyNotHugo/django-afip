@@ -61,24 +61,22 @@ def live_ticket(db, live_taxpayer):
     # Try reading a cached ticket from disk:
     try:
         with open(CACHED_TICKET_PATH) as f:
-            [obj] = serializers.deserialize("yaml", f.read())
-            obj.save()
-
-        return obj
+            [ticket] = serializers.deserialize("yaml", f.read())
+            ticket.save()
     except FileNotFoundError:
         # If something failed, we should still have no tickets in the DB:
         assert models.AuthTicket.objects.count() == 0
 
-    # If nothing cached, create a new one:
+    # If we did not load a ticket, this will load a new one.
+    # If we loaded a ticket, and it's expired, this will generate a new one.
+    # If we loaded a ticket, and it's valid, this will return the same one.
     try:
         ticket = AuthTicket.objects.get_any_active("wsfe")
     except AuthenticationError as e:
         pytest.exit(f"Bailing due to failure authenticating with AFIP:\n{e}")
 
     # We got a ticket, and it should be saved to DB:
-    assert models.AuthTicket.objects.count() == 1
-
-    # TODO: Somehow detect if the ticket has expired?
+    assert models.AuthTicket.objects.count() >= 1
 
     data = serializers.serialize("yaml", [ticket])
     with open(CACHED_TICKET_PATH, "w") as f:
