@@ -8,7 +8,11 @@ from pytest_django.asserts import assertQuerysetEqual
 from django_afip import exceptions
 from django_afip import factories
 from django_afip import models
-from testapp.testmain.tests.testcases import PopulatedLiveAfipTestCase
+from django_afip.factories import ReceiptFactory
+from django_afip.factories import ReceiptValidationFactory
+from django_afip.factories import ReceiptWithApprovedValidation
+from django_afip.factories import ReceiptWithInconsistentVatAndTaxFactory
+from django_afip.factories import ReceiptWithVatAndTaxFactory
 
 
 def test_default_receipt_queryset():
@@ -17,7 +21,7 @@ def test_default_receipt_queryset():
 
 @pytest.mark.django_db
 def test_validate():
-    receipt = factories.ReceiptFactory()
+    receipt = ReceiptFactory()
     queryset = models.Receipt.objects.filter(pk=receipt.pk)
     ticket = MagicMock()
 
@@ -44,7 +48,7 @@ def test_default_receipt_manager():
 
 @pytest.mark.django_db
 def test_validate_receipt():
-    receipt = factories.ReceiptFactory()
+    receipt = ReceiptFactory()
     ticket = MagicMock()
     ticket._called = False
 
@@ -61,124 +65,167 @@ def test_validate_receipt():
     assert ticket._called is True
 
 
-class ReceiptSuccessfulValidateTestCase(PopulatedLiveAfipTestCase):
-    def create_receipt(self, receipt_type_code=6) -> models.Receipt:
-        """Create a receipt use for tests. Default type is Factura B."""
+@pytest.mark.django_db
+@pytest.mark.live
+def test_validate_invoice(populated_db):
+    """Test validating valid receipts."""
 
-        receipt = factories.ReceiptFactory(
-            point_of_sales=models.PointOfSales.objects.first(),
-            receipt_type__code=receipt_type_code,
-        )
-        factories.VatFactory(vat_type__code=5, receipt=receipt)
-        factories.TaxFactory(tax_type__code=3, receipt=receipt)
+    receipt = ReceiptWithVatAndTaxFactory()
+    errs = receipt.validate()
 
-        return receipt
-
-    def test_validate_invoice(self):
-        """Test validating valid receipts."""
-
-        receipt = self.create_receipt()
-        errs = receipt.validate()
-
-        assert len(errs) == 0
-        assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
-        assert models.ReceiptValidation.objects.count() == 1
-
-    def test_validate_credit_note(self):
-        """Test validating valid receipts."""
-
-        # Create a receipt (this credit note relates to it):
-        receipt = self.create_receipt()
-        errs = receipt.validate()
-        assert len(errs) == 0
-
-        # Create a credit note for the above receipt:
-        credit_note = self.create_receipt(receipt_type_code=8)  # Nota de Crédito B
-        credit_note.related_receipts.add(receipt)
-        credit_note.save()
-
-        credit_note.validate(raise_=True)
-        assert credit_note.receipt_number is not None
-
-
-class ReceiptFailedValidateTestCase(PopulatedLiveAfipTestCase):
-    def setUp(self):
-        super().setUp()
-        self.receipt = factories.ReceiptFactory(
-            document_type__code=80,
-            point_of_sales=models.PointOfSales.objects.first(),
-        )
-        factories.VatFactory(vat_type__code=5, receipt=self.receipt)
-        factories.TaxFactory(tax_type__code=3, receipt=self.receipt)
-
-    def test_failed_validation(self):
-        """Test validating valid receipts."""
-        errs = self.receipt.validate()
-
-        assert len(errs) == 1
-        # FIXME: We're not creating rejection entries
-        # assert (
-        #     self.receipt.validation.result == models.ReceiptValidation.RESULT_REJECTED
-        # )
-        assert models.ReceiptValidation.objects.count() == 0
-
-    def test_raise_validation(self):
-        """Test validating valid receipts."""
-
-        with pytest.raises(
-            exceptions.ValidationError,
-            # Note: AFIP apparently edited this message and added a typo:
-            match="DocNro 203012345 no se encuentra registrado en los padrones",
-        ):
-            self.receipt.validate(raise_=True)
-
-        # FIXME: We're not creating rejection entries
-        # assert (
-        #     self.receipt.validation.result == models.ReceiptValidation.RESULT_REJECTED
-        # )
-        assert models.ReceiptValidation.objects.count() == 0
-
-
-class ReceiptDataFetchTestCase(PopulatedLiveAfipTestCase):
-    def test_fetch_existing_data(self):
-        pos = models.PointOfSales.objects.first()
-        rt = models.ReceiptType.objects.get(code=6)
-        # last receipt number is needed for testing, it seems they flush old receipts
-        # so we can't use a fixed receipt number
-        last_receipt_number = models.Receipt.objects.fetch_last_receipt_number(pos, rt)
-        receipt = models.Receipt.objects.fetch_receipt_data(
-            receipt_type=6, receipt_number=last_receipt_number, point_of_sales=pos
-        )
-
-        assert receipt.CbteDesde == last_receipt_number
-        assert receipt.PtoVta == pos.number
+    assert len(errs) == 0
+    assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
+    assert models.ReceiptValidation.objects.count() == 1
 
 
 @pytest.mark.django_db
-def test_receipt_is_validted_when_not_validated():
-    receipt = factories.ReceiptFactory()
+@pytest.mark.live
+def test_validate_credit_note(populated_db):
+    """Test validating valid receipts."""
+
+    # Create a receipt (this credit note relates to it):
+    receipt = ReceiptWithVatAndTaxFactory()
+    errs = receipt.validate()
+    assert len(errs) == 0
+
+    # Create a credit note for the above receipt:
+    credit_note = ReceiptWithVatAndTaxFactory(receipt_type__code=8)  # Nota de Crédito B
+    credit_note.related_receipts.add(receipt)
+    credit_note.save()
+
+    credit_note.validate(raise_=True)
+    assert credit_note.receipt_number is not None
+
+
+@pytest.mark.django_db
+@pytest.mark.live
+def test_failed_validation(populated_db):
+    """Test validating valid receipts."""
+    receipt = ReceiptWithInconsistentVatAndTaxFactory()
+
+    errs = receipt.validate()
+
+    assert len(errs) == 1
+    # FIXME: We're not creating rejection entries
+    # assert receipt.validation.result == models.ReceiptValidation.RESULT_REJECTED
+    assert models.ReceiptValidation.objects.count() == 0
+
+
+@pytest.mark.django_db
+@pytest.mark.live
+def test_raising_failed_validation(populated_db):
+    """Test validating valid receipts."""
+    receipt = ReceiptWithInconsistentVatAndTaxFactory()
+
+    with pytest.raises(
+        exceptions.ValidationError,
+        # Note: AFIP apparently edited this message and added a typo:
+        match="DocNro 203012345 no se encuentra registrado en los padrones",
+    ):
+        receipt.validate(raise_=True)
+
+    # FIXME: We're not creating rejection entries
+    # assert receipt.validation.result == models.ReceiptValidation.RESULT_REJECTED
+    assert models.ReceiptValidation.objects.count() == 0
+
+
+@pytest.mark.django_db
+@pytest.mark.live
+def test_fetch_existing_data(populated_db):
+    pos = models.PointOfSales.objects.first()
+    rt = models.ReceiptType.objects.get(code=6)
+    # last receipt number is needed for testing, it seems they flush old receipts
+    # so we can't use a fixed receipt number
+    last_receipt_number = models.Receipt.objects.fetch_last_receipt_number(pos, rt)
+    receipt = models.Receipt.objects.fetch_receipt_data(
+        receipt_type=6,
+        receipt_number=last_receipt_number,
+        point_of_sales=pos,
+    )
+
+    assert receipt.CbteDesde == last_receipt_number
+    assert receipt.PtoVta == pos.number
+
+
+def test_revalidation_valid_receipt(self):
+    """Test revalidation process of a valid receipt."""
+    receipt = factories.ReceiptWithVatAndTaxFactory()
+    receipt.validate()
+    receipt.refresh_from_db()
+
+    old_cae = receipt.validation.cae
+    old_validation_pk = receipt.validation.id
+
+    receipt.validation.delete()
+
+    receipt.refresh_from_db()
+    assert not receipt.is_validated
+
+    validation = receipt.revalidate()
+
+    assert validation is not None
+    assert validation.receipt == receipt
+    assert old_cae == validation.cae
+    assert old_validation_pk != validation.id
+
+
+@pytest.mark.django_db
+def test_revalidation_invalid_receipt(populated_db):
+    """Test revalidation process of an invalid receipt. (Unexistent receipt)"""
+    receipt = factories.ReceiptWithVatAndTaxFactory()
+    next_num = (
+        models.Receipt.objects.fetch_last_receipt_number(
+            receipt.point_of_sales,
+            receipt.receipt_type,
+        )
+        + 1
+    )
+
+    receipt.receipt_number = next_num
+    receipt.save()
+
+    receipt.refresh_from_db()
+
+    validation = receipt.revalidate()
+
+    assert validation is None
+
+
+@pytest.mark.django_db
+def test_receipt_revalidate_without_receipt_number(populated_db):
+    """Test revalidation process of an invalid receipt. (Receipt without number)"""
+    receipt = factories.ReceiptWithVatAndTaxFactory()
+    receipt.refresh_from_db()
+
+    validation = receipt.revalidate()
+
+    assert validation is None
+
+
+@pytest.mark.django_db
+def test_receipt_is_validated_when_not_validated():
+    receipt = ReceiptFactory()
     assert not receipt.is_validated
 
 
 @pytest.mark.django_db
-def test_receipt_is_validted_when_validated():
-    receipt = factories.ReceiptFactory(receipt_number=1)
-    factories.ReceiptValidationFactory(receipt=receipt)
+def test_receipt_is_validated_when_validated():
+    receipt = ReceiptWithApprovedValidation()
     assert receipt.is_validated
 
 
 @pytest.mark.django_db
 def test_receipt_is_validted_when_failed_validation():
     # These should never really exist,but oh well:
-    receipt = factories.ReceiptFactory()
-    factories.ReceiptValidationFactory(
+    receipt = ReceiptFactory(receipt_number=None)
+    ReceiptValidationFactory(
         receipt=receipt,
         result=models.ReceiptValidation.RESULT_REJECTED,
     )
     assert not receipt.is_validated
 
-    receipt = factories.ReceiptFactory(receipt_number=1)
-    factories.ReceiptValidationFactory(
+    receipt = ReceiptFactory(receipt_number=1)
+    ReceiptValidationFactory(
         receipt=receipt,
         result=models.ReceiptValidation.RESULT_REJECTED,
     )
@@ -199,6 +246,7 @@ def test_default_currency_multieple_currencies():
     c3 = factories.CurrencyTypeFactory(pk=3)
 
     receipt = models.Receipt()
+
     assert receipt.currency != c1
     assert receipt.currency == c2
     assert receipt.currency != c3
@@ -206,14 +254,14 @@ def test_default_currency_multieple_currencies():
 
 @pytest.mark.django_db
 def test_total_vat_no_vat():
-    receipt = factories.ReceiptFactory()
+    receipt = ReceiptFactory()
 
     assert receipt.total_vat == 0
 
 
 @pytest.mark.django_db
 def test_total_vat_multiple_vats():
-    receipt = factories.ReceiptFactory()
+    receipt = ReceiptFactory()
     factories.VatFactory(receipt=receipt)
     factories.VatFactory(receipt=receipt)
 
@@ -221,8 +269,19 @@ def test_total_vat_multiple_vats():
 
 
 @pytest.mark.django_db
+def test_revalidation_validated_receipt(populated_db):
+    """Test revalidation process of a validated receipt."""
+    receipt_validation = factories.ReceiptValidationFactory()
+
+    revalidation = receipt_validation.receipt.revalidate()
+
+    assert revalidation is not None
+    assert revalidation == receipt_validation
+
+
+@pytest.mark.django_db
 def test_total_vat_proper_filtering():
-    receipt = factories.ReceiptFactory()
+    receipt = ReceiptFactory()
     factories.VatFactory(receipt=receipt)
     factories.VatFactory()
 
@@ -231,14 +290,14 @@ def test_total_vat_proper_filtering():
 
 @pytest.mark.django_db
 def test_total_tax_no_tax():
-    receipt = factories.ReceiptFactory()
+    receipt = ReceiptFactory()
 
     assert receipt.total_tax == 0
 
 
 @pytest.mark.django_db
 def test_total_tax_multiple_taxes():
-    receipt = factories.ReceiptFactory()
+    receipt = ReceiptFactory()
     factories.TaxFactory(receipt=receipt)
     factories.TaxFactory(receipt=receipt)
 
@@ -247,7 +306,7 @@ def test_total_tax_multiple_taxes():
 
 @pytest.mark.django_db
 def test_total_tax_proper_filtering():
-    receipt = factories.ReceiptFactory()
+    receipt = ReceiptFactory()
     factories.TaxFactory(receipt=receipt)
     factories.TaxFactory()
 

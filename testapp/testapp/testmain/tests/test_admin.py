@@ -231,15 +231,12 @@ def test_receipt_admin_get_exclude():
 
 
 @pytest.mark.django_db
-def create_test_receipt_pdfs():
-    validation = factories.ReceiptValidationFactory()
-    with_file = factories.ReceiptPDFFactory(receipt=validation.receipt)
+def test_receipt_pdf_factories_and_files():
+    with_file = factories.ReceiptPDFWithFileFactory()
     without_file = factories.ReceiptPDFFactory()
 
     assert not without_file.pdf_file
     assert with_file.pdf_file
-
-    return with_file, without_file
 
 
 def test_has_file_filter_all(admin_client):
@@ -249,7 +246,8 @@ def test_has_file_filter_all(admin_client):
     object's change page is present, since no matter how we reformat the rows,
     this will always be present as long as the object is listed.
     """
-    with_file, without_file = create_test_receipt_pdfs()
+    with_file = factories.ReceiptPDFWithFileFactory()
+    without_file = factories.ReceiptPDFFactory()
 
     response = admin_client.get("/admin/afip/receiptpdf/")
     assertContains(response, f"/admin/afip/receiptpdf/{with_file.pk}/change/")
@@ -257,7 +255,8 @@ def test_has_file_filter_all(admin_client):
 
 
 def test_has_file_filter_with_file(admin_client):
-    with_file, without_file = create_test_receipt_pdfs()
+    with_file = factories.ReceiptPDFWithFileFactory()
+    without_file = factories.ReceiptPDFFactory()
 
     response = admin_client.get("/admin/afip/receiptpdf/?has_file=yes")
     assertContains(response, f"/admin/afip/receiptpdf/{with_file.pk}/change/")
@@ -265,7 +264,8 @@ def test_has_file_filter_with_file(admin_client):
 
 
 def test_has_file_filter_without_file(admin_client):
-    with_file, without_file = create_test_receipt_pdfs()
+    with_file = factories.ReceiptPDFWithFileFactory()
+    without_file = factories.ReceiptPDFFactory()
 
     response = admin_client.get("/admin/afip/receiptpdf/?has_file=no")
     assertNotContains(response, f"/admin/afip/receiptpdf/{with_file.pk}/change/")
