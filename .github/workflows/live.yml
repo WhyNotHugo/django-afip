@@ -30,6 +30,12 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: 3.9
+      - uses: actions/cache@v2
+        with:
+          path: testapp/test_ticket.yaml
+          key: live-ticket
+      # There's no step to SAVE the cache.
+      # This is done automagically by some obscure process on GH Actions.
       - run: pip install tox codecov
       - run: sudo apt-get update && sudo apt-get install libpq-dev
       - run: tox -e live
