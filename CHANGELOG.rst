@@ -16,7 +16,7 @@ acá.
 * Soporte para Zeep ~4.0.0.
 * Soporte para Django 3.2.
 * La [mayoría de la] documentación ahora está traducida.
-* Se implementa ``Receipt.revalidate()``. Provee un mecanismo de revalidacion
+* Se implementa :meth:`~.Receipt.revalidate`. Provee un mecanismo de revalidacion
   de un comprobante para completar datos faltandes referentes a la validacion del mismo.
 
 8.0.4
