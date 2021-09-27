@@ -60,9 +60,7 @@ def get_or_create_transport() -> Transport:
     return Transport(cache=SqliteCache(timeout=86400), session=session)
 
 
-cached_clients = {}
-
-
+@lru_cache(maxsize=32)
 def get_client(service_name: str, sandbox=False) -> Client:
     """
     Return a client for a given service.
@@ -72,23 +70,17 @@ def get_client(service_name: str, sandbox=False) -> Client:
     irrelevant. A caller can avoid the overhead of determining the sandbox mode in the
     calling context if only serialization operations will take place.
 
+    This function is cached with `lru_cache`, and will re-use existing clients
+    if possible.
+
     :param service_name: The name of the web services.
     :param sandbox: Whether the sandbox (or production) environment should
         be used by the returned client.
     :returns: A zeep client to communicate with an AFIP web service.
     """
-    key = (
-        service_name.lower(),
-        sandbox,
-    )
+    key = (service_name.lower(), sandbox)
 
     try:
-        if key not in cached_clients:
-            cached_clients[key] = Client(
-                WSDLS[key],
-                transport=get_or_create_transport(),
-            )
-
-        return cached_clients[key]
+        return Client(WSDLS[key], transport=get_or_create_transport())
     except KeyError:
         raise ValueError(f"Unknown service name, {service_name}")
