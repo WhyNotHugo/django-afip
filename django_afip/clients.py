@@ -1,9 +1,9 @@
 __all__ = ("get_client",)
 
+from functools import lru_cache
 from urllib.parse import urlparse
 
 import pytz
-from django.utils.functional import LazyObject
 from requests import Session
 from requests.adapters import HTTPAdapter
 from urllib3.util.ssl_ import DEFAULT_CIPHERS  # type:ignore
@@ -36,29 +36,30 @@ class AFIPAdapter(HTTPAdapter):
         return super().proxy_manager_for(*args, **kwargs)
 
 
-class LazyTransport(LazyObject):
-    """A lazy-initialized Zeep transport.
+@lru_cache(maxsize=1)
+def get_or_create_transport() -> Transport:
+    """Create a specially-configured Zeep transport.
 
     This transport does two non-default things:
-    - Reduces TLS security. Sadly, AFIP only has insecure endpoints, so we're forced to
-      reduce security to talk to them.
+    - Reduces TLS security. Sadly, AFIP only has insecure endpoints, so we're
+      forced to reduce security to talk to them.
     - Cache the WSDL file for a whole day.
+
+    This function will only create a transport once, and return the same
+    transport in subsequent calls.
     """
 
-    def _setup(self):
-        """Initialise this lazy object with a celery app instance."""
-        session = Session()
+    session = Session()
 
-        # For each WSDL, extract the domain, and add it as an exception:
-        for url in WSDLS.values():
-            parsed = urlparse(url)
-            base_url = f"{parsed.scheme}://{parsed.netloc}"
-            session.mount(base_url, AFIPAdapter())
+    # For each WSDL, extract the domain, and add it as an exception:
+    for url in WSDLS.values():
+        parsed = urlparse(url)
+        base_url = f"{parsed.scheme}://{parsed.netloc}"
+        session.mount(base_url, AFIPAdapter())
 
-        self._wrapped = Transport(cache=SqliteCache(timeout=86400), session=session)
+    return Transport(cache=SqliteCache(timeout=86400), session=session)
 
 
-transport = LazyTransport()
 cached_clients = {}
 
 
@@ -83,7 +84,10 @@ def get_client(service_name: str, sandbox=False) -> Client:
 
     try:
         if key not in cached_clients:
-            cached_clients[key] = Client(WSDLS[key], transport=transport)
+            cached_clients[key] = Client(
+                WSDLS[key],
+                transport=get_or_create_transport(),
+            )
 
         return cached_clients[key]
     except KeyError:
