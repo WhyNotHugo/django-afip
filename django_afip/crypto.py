@@ -1,3 +1,5 @@
+from typing import IO
+
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.serialization import Encoding
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
@@ -32,12 +34,8 @@ def create_embeded_pkcs7_signature(data: bytes, cert: bytes, key: bytes) -> byte
     return signed_data
 
 
-def create_key(file_):
-    """
-    Create a key and save it into ``file_``.
-
-    Note that ``file`` must be opened in binary mode.
-    """
+def create_key(file_: IO[bytes]) -> None:
+    """Create a key and write it into ``file_``."""
     pkey = crypto.PKey()
     pkey.generate_key(crypto.TYPE_RSA, 2048)
 
@@ -45,8 +43,14 @@ def create_key(file_):
     file_.flush()
 
 
-def create_csr(key_file, organization_name, common_name, serial_number, file_):
-    """Create a CSR for a key, and save it into ``file_``."""
+def create_csr(
+    key_file: IO[bytes],
+    organization_name: str,
+    common_name: str,
+    serial_number: str,
+    file_: IO[bytes],
+) -> None:
+    """Create a certificate signing request and write it into ``file_``."""
     key = crypto.load_privatekey(crypto.FILETYPE_PEM, key_file.read())
 
     req = crypto.X509Req()
@@ -54,7 +58,7 @@ def create_csr(key_file, organization_name, common_name, serial_number, file_):
 
     subj.O = organization_name  # noqa: E741 (we can't do anything about this)
     subj.CN = common_name
-    subj.serialNumber = serial_number
+    subj.serialNumber = serial_number  # type: ignore  # TODO: double-check this.
 
     req.set_pubkey(key)
     req.sign(key, "md5")
