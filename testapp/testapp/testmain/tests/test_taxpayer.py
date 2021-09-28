@@ -87,6 +87,13 @@ def test_null_certificate_object():
 
 
 def test_expiration_getter():
+    taxpayer = factories.TaxPayerFactory.build(certificate=None)
+    expiration = taxpayer.get_certificate_expiration()
+
+    assert expiration is None
+
+
+def test_expiration_getter_no_cert():
     taxpayer = factories.TaxPayerFactory.build()
     expiration = taxpayer.get_certificate_expiration()
 
