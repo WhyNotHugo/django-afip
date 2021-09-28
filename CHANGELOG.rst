@@ -19,6 +19,8 @@ acá.
 * La [mayoría de la] documentación ahora está traducida.
 * Se implementa :meth:`~.Receipt.revalidate`. Provee un mecanismo de revalidacion
   de un comprobante para completar datos faltandes referentes a la validacion del mismo.
+* Se agrega :func:`~.get_server_status` para determinar el estado de los
+  servidores del AFIP.
 
 8.0.4
 -----

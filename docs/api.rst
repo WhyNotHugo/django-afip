@@ -79,3 +79,11 @@ QuerySets are generally accessed via their models. For example,
 
 .. autoclass:: django_afip.models.ReceiptQuerySet
     :members:
+
+Helpers
+-------
+
+.. autofunction:: django_afip.helpers.get_server_status
+
+.. autoclass:: django_afip.helpers.ServerStatus
+    :members:
