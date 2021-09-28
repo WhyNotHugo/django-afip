@@ -13,6 +13,7 @@ acá.
 * Django 2.2 y 3.0 ya no son soportados. Ambos tienen problemas de
   compatibilidad con versiones nuevas de dependencias.
   Ver https://code.djangoproject.com/ticket/32856
+* Python 3.6 ya no es soportado.
 * Soporte para Zeep ~4.0.0.
 * Soporte para Django 3.2.
 * La [mayoría de la] documentación ahora está traducida.
