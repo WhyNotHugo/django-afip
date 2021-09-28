@@ -149,7 +149,7 @@ def test_admin_taxpayer_request_generation_without_key(admin_client):
 
 def test_admin_taxpayer_request_generation_multiple_taxpayers(admin_client):
     taxpayer1 = factories.TaxPayerFactory(key__data=b"Blah")
-    taxpayer2 = factories.TaxPayerFactory(key__data=b"Blah")
+    taxpayer2 = factories.TaxPayerFactory(key__data=b"Blah", cuit="20401231230")
 
     response = admin_client.post(
         "/admin/afip/taxpayer/",
@@ -315,8 +315,7 @@ def test_validate_certs_action_errors(admin_client):
 
 def test_admin_fetch_points_of_sales(admin_client):
     taxpayer1 = factories.TaxPayerFactory()
-    taxpayer2 = factories.TaxPayerFactory()
-
+    taxpayer2 = factories.TaxPayerFactory(cuit="20401231230")
     with patch(
         "django_afip.models.TaxPayer.fetch_points_of_sales",
         spec=True,

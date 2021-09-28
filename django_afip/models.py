@@ -600,7 +600,8 @@ class PointOfSales(models.Model):
 
 
 class AuthTicketManager(models.Manager):
-    def get_any_active(self, service):
+    def get_any_active(self, service: str):
+        """Return a valid, active ticket for a given service."""
         ticket = AuthTicket.objects.filter(
             token__isnull=False,
             expires__gt=datetime.now(timezone.utc),
