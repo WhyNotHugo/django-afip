@@ -5,7 +5,16 @@ from django_afip import clients
 
 @dataclass(frozen=True)
 class ServerStatus:
-    """A dataclass holding the server's reported status."""
+    """A dataclass holding the server's reported status.
+
+    An instance is truthy if all services are okay, or evaluates to ``False``
+    if at least one isn't::
+
+        if not server_status:
+            print("At least one service is down")
+        else
+            print("All serivces are up")
+    """
 
     #: Whether the application server is working.
     app: bool
@@ -13,6 +22,9 @@ class ServerStatus:
     db: bool
     #: Whether the authentication server is working.
     auth: bool
+
+    def __bool__(self):
+        return self.app and self.db and self.auth
 
 
 def get_server_status(production: bool) -> ServerStatus:
