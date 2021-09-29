@@ -62,7 +62,7 @@ Requisito
 Actualmente **django-afip** funciona con:
 
 * Django 3.0, 3.1 y 3.1
-* Python 3.6, 3.7, 3.8 y 3.9
+* Python 3.7, 3.8 y 3.9
 * Posgres, Sqlite, MySql/MariaDB
 
 Te recomendamos usar Postgres.

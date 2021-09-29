@@ -6,6 +6,8 @@ from io import BytesIO
 import qrcode
 from PIL import Image
 
+from django_afip.models import Receipt
+
 logger = logging.getLogger(__name__)
 
 
@@ -14,7 +16,7 @@ class ReceiptQrCode:
     # I'm assuming it's a human error and that the URL doesn't take a space.
     BASE_URL = "https://www.afip.gob.ar/fe/qr/?p="
 
-    def __init__(self, receipt):
+    def __init__(self, receipt: Receipt):
         self._receipt = receipt
         # The examples on the website say that "importe" and "ctz" are both "decimal"
         # type. JS/JSON has no decimal type. The examples use integeres.

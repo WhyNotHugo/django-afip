@@ -319,3 +319,11 @@ def test_total_tax_proper_filtering():
 def test_currenty_type_success():
     currency_type = models.CurrencyType(code="011", description="Pesos Uruguayos")
     assert str(currency_type) == "Pesos Uruguayos (011)"
+
+
+@pytest.mark.django_db
+@pytest.mark.live
+def test_populate_method(live_ticket):
+    assert models.CurrencyType.objects.count() == 0
+    models.CurrencyType.objects.populate()
+    assert models.CurrencyType.objects.count() == 50

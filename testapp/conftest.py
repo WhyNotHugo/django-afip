@@ -85,7 +85,7 @@ def live_ticket(db, live_taxpayer):
 
 
 @pytest.fixture
-def populated_db(db, live_ticket, live_taxpayer):
+def populated_db(live_ticket, live_taxpayer):
     """Populate the database with fixtures and a POS"""
 
     models.load_metadata()
