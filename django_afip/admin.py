@@ -493,15 +493,6 @@ class ReceiptValidationAdmin(admin.ModelAdmin):
     successful.boolean = True
 
 
-@admin.register(models.TaxPayerProfile)
-class TaxPayerProfileAdmin(admin.ModelAdmin):
-    list_display = (
-        "taxpayer",
-        "issuing_name",
-        "issuing_email",
-    )
-
-
 admin.site.register(models.ConceptType)
 admin.site.register(models.DocumentType)
 admin.site.register(models.VatType)

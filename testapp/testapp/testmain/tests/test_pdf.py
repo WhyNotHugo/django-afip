@@ -36,7 +36,6 @@ def test_unauthorized_receipt_generation():
     raises.
     """
     taxpayer = factories.TaxPayerFactory()
-    factories.TaxPayerProfileFactory(taxpayer=taxpayer)
     receipt = factories.ReceiptFactory(
         receipt_number=None,
         point_of_sales__owner=taxpayer,

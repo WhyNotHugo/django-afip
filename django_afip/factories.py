@@ -102,19 +102,6 @@ class AlternateTaxpayerFactory(DjangoModelFactory):
     active_since = datetime(2011, 10, 3)
 
 
-class TaxPayerProfileFactory(DjangoModelFactory):
-    class Meta:
-        model = models.TaxPayerProfile
-
-    taxpayer = SubFactory(TaxPayerFactory)
-    issuing_name = "Red Company Inc."
-    issuing_address = "100 Red Av\nRedsville\nUK"
-    issuing_email = "billing@example.com"
-    vat_condition = "Exempt"
-    gross_income_condition = "Exempt"
-    sales_terms = "Credit Card"
-
-
 class PointOfSalesFactory(DjangoModelFactory):
     class Meta:
         model = models.PointOfSales
@@ -124,6 +111,13 @@ class PointOfSalesFactory(DjangoModelFactory):
     issuance_type = "CAE"
     blocked = False
     owner = SubFactory(TaxPayerFactory)
+    # TODO: Renamethis to something more regional:
+    issuing_name = "Red Company Inc."
+    issuing_address = "100 Red Av\nRedsville\nUK"
+    issuing_email = "billing@example.com"
+    vat_condition = "Exempt"
+    gross_income_condition = "Exempt"
+    sales_terms = "Credit Card"
 
 
 class ReceiptFactory(DjangoModelFactory):
