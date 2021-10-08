@@ -26,6 +26,9 @@ acá.
   If you have any references to this model (e.g.: forms for your users, custom
   admins, etc), make sure you update these to point to the
   :class:`~PointOfSales` model.
+  This allow customising invoices for different points of sales differently.
+  Noticeably, different points of sales commonly have different address,
+  websites, and/or phone number.
 
 8.0.4
 -----
