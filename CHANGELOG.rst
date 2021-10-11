@@ -21,6 +21,14 @@ acá.
   de un comprobante para completar datos faltandes referentes a la validacion del mismo.
 * Se agrega :func:`~.get_server_status` para determinar el estado de los
   servidores del AFIP.
+* The fields from the ``TaxPayerProfile`` have moved into the ``PointOfSales``
+  model. A migration will handle copying data from table to the other for you.
+  If you have any references to this model (e.g.: forms for your users, custom
+  admins, etc), make sure you update these to point to the
+  :class:`~PointOfSales` model.
+  This allow customising invoices for different points of sales differently.
+  Noticeably, different points of sales commonly have different address,
+  websites, and/or phone number.
 
 8.0.4
 -----

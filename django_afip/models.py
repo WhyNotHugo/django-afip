@@ -493,71 +493,6 @@ class TaxPayer(models.Model):
         verbose_name_plural = _("taxpayers")
 
 
-class TaxPayerProfile(models.Model):
-    """
-    Metadata about a taxpayer used for printable receipts.
-
-    None of this information is required or sent to the AFIP when notifying
-    about receipt generation. It is used *only* for PDF generation.
-
-    Most of these can be overriden per-receipt as this class is a placeholder
-    for default values.
-    """
-
-    taxpayer = models.OneToOneField(
-        TaxPayer,
-        related_name="profile",
-        verbose_name=_("taxpayer"),
-        on_delete=models.CASCADE,
-    )
-    issuing_name = models.CharField(
-        max_length=128,
-        verbose_name=_("issuing name"),
-        help_text=_("The name of the issuing entity as shown on receipts."),
-    )
-    issuing_address = models.TextField(
-        _("issuing address"),
-        help_text=_("The address of the issuing entity as shown on receipts."),
-    )
-    issuing_email = models.CharField(
-        max_length=128,
-        verbose_name=_("issuing email"),
-        blank=True,
-        null=True,
-        help_text=_("The email of the issuing entity as shown on receipts."),
-    )
-    vat_condition = models.CharField(
-        max_length=48,
-        choices=(
-            (
-                condition,
-                condition,
-            )
-            for condition in VAT_CONDITIONS
-        ),
-        verbose_name=_("vat condition"),
-    )
-    gross_income_condition = models.CharField(
-        max_length=48,
-        verbose_name=_("gross income condition"),
-    )
-    sales_terms = models.CharField(
-        max_length=48,
-        verbose_name=_("sales terms"),
-        help_text=_(
-            "The terms of the sale printed onto receipts by default "
-            "(eg: single payment, checking account, etc)."
-        ),
-    )
-
-    def __str__(self) -> str:
-        return f"<TaxPayerProfile for TaxPayer {self.pk}>"
-
-    class Meta:
-        verbose_name = _("taxpayer profile")
-        verbose_name_plural = _("taxpayer profiles")
-
-
 class PointOfSales(models.Model):
     """
     Represents an existing AFIP point of sale.
@@ -568,6 +503,20 @@ class PointOfSales(models.Model):
 
     Note that deleting or altering these models will not affect upstream point
     of sales.
+
+    This model also contains a few fields that are not required or sent to the
+    AFIP when validating receipt. They are used *only* for PDF generation.
+    Those fields are:
+
+    - issuing_name
+    - issuing_address
+    - issuing_email
+    - vat_condition
+    - gross_income_condition
+    - sales_terms
+
+    These fields may be ignored when using an external mechanism to generate
+    PDF or printable receipts.
     """
 
     number = models.PositiveSmallIntegerField(
@@ -592,6 +541,52 @@ class PointOfSales(models.Model):
         related_name="points_of_sales",
         verbose_name=_("owner"),
         on_delete=models.CASCADE,
+    )
+
+    # The following fields are only used for PDF generation.
+    issuing_name = models.CharField(
+        max_length=128,
+        null=True,
+        verbose_name=_("issuing name"),
+        help_text=_("The name of the issuing entity as shown on receipts."),
+    )
+    issuing_address = models.TextField(
+        _("issuing address"),
+        null=True,
+        help_text=_("The address of the issuing entity as shown on receipts."),
+    )
+    issuing_email = models.CharField(
+        max_length=128,
+        verbose_name=_("issuing email"),
+        blank=True,
+        null=True,
+        help_text=_("The email of the issuing entity as shown on receipts."),
+    )
+    vat_condition = models.CharField(
+        max_length=48,
+        choices=(
+            (
+                condition,
+                condition,
+            )
+            for condition in VAT_CONDITIONS
+        ),
+        null=True,
+        verbose_name=_("vat condition"),
+    )
+    gross_income_condition = models.CharField(
+        max_length=48,
+        null=True,
+        verbose_name=_("gross income condition"),
+    )
+    sales_terms = models.CharField(
+        max_length=48,
+        null=True,
+        verbose_name=_("sales terms"),
+        help_text=_(
+            "The terms of the sale printed onto receipts by default "
+            "(eg: single payment, checking account, etc)."
+        ),
     )
 
     def __str__(self) -> str:
@@ -1211,27 +1206,19 @@ class ReceiptPDFManager(models.Manager):
         Does not actually generate the related PDF file.
 
         All attributes will be completed with the information for the relevant
-        ``TaxPayerProfile`` instance.
+        :class:`~.PointOfSales` instance.
 
         :param Receipt receipt: The receipt for the PDF which will be
             generated.
         """
-        try:
-            profile = TaxPayerProfile.objects.get(
-                taxpayer__points_of_sales__receipts=receipt,
-            )
-        except TaxPayerProfile.DoesNotExist:
-            raise exceptions.DjangoAfipException(
-                "Cannot generate a PDF for taxpayer with no profile",
-            )
         pdf = ReceiptPDF.objects.create(
             receipt=receipt,
-            issuing_name=profile.issuing_name,
-            issuing_address=profile.issuing_address,
-            issuing_email=profile.issuing_email,
-            vat_condition=profile.vat_condition,
-            gross_income_condition=profile.gross_income_condition,
-            sales_terms=profile.sales_terms,
+            issuing_name=receipt.point_of_sales.issuing_name,
+            issuing_address=receipt.point_of_sales.issuing_address,
+            issuing_email=receipt.point_of_sales.issuing_email,
+            vat_condition=receipt.point_of_sales.vat_condition,
+            gross_income_condition=receipt.point_of_sales.gross_income_condition,
+            sales_terms=receipt.point_of_sales.sales_terms,
             **kwargs,
         )
         return pdf

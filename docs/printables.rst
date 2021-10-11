@@ -13,10 +13,8 @@ principalmente por tres clases. Sólo necesitás usar estas clases si estás
 generando los PDF con esta librería, y podés ignorarlas si estás generándolos
 de otra forma:
 
-* :class:`~.TaxPayerProfile`: Contiene metadatos del contribuyentes que sólo se
-  usan para imprimir/PDFs (e.g.: no son necesarios para validar facturas).
 * :class:`~.ReceiptPDF`: Contiene metadatos individuales de cada comprobante.
-  Los datos de `TaxPayerProfile` también se copian acá, dado que en caso de que
+  Los datos de ``PointOfSales`` también se copian acá, dado que en caso de que
   cambie, por ejemplo, el domicilio del contribuyente, no debería cambiar el
   domicilio en comprobantes pasados.
 * :class:`~.ReceiptEntry`: Representa una línea del detalle de un comprobante.
@@ -28,9 +26,6 @@ generar el ``ReceiptPDF``. Esto último lo podés hacer usando el helper
 Los archivos PDF en sí son generados la primera vez que guardes una instancia
 de ``ReceiptPDF`` (mediante un hook ``pre_save``). Podés regenerar el PDF
 usando :meth:`.ReceiptPDF.save_pdf`.
-
-Nótese que ``TaxPayerProfile`` es simplemente un helper para facilitar constuir
-los ``ReceiptPDF``, pero es posible construirlos manualmente usando datos de otra fuente.
 
 Códigos QR
 ~~~~~~~~~~
