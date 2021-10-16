@@ -11,7 +11,6 @@ setup(
     project_urls={
         "Documentation": "https://django-afip.readthedocs.io/",
         "Issue Tracker": "https://github.com/WhyNotHugo/django-afip/issues",
-        "Chat": "irc://libera.chat/#whynothugo-ar",
         "Donate": "https://liberapay.com/WhyNotHugo/",
     },
     license="ISC",
