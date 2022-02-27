@@ -7,6 +7,12 @@ dependencia en cada versión, en orden cronológicamente inverso.
 Todos los cambios que necesites tener en cuenta al actualizar están listados
 acá.
 
+10.0.0
+-----
+
+* Soporte para Python 3.10 y Django 4.0.
+* Django 3.1 ya no es soportado.
+
 9.0.0
 -----
 
