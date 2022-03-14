@@ -206,6 +206,12 @@ class ReceiptWithInconsistentVatAndTaxFactory(ReceiptWithVatAndTaxFactory):
         TaxFactory(tax_type__code=3, receipt=obj)
 
 
+class ReceiptWithOldDateFactory(ReceiptWithVatAndTaxFactory):
+    """Receipt with an old date, ready to validate."""
+
+    issued_date = LazyFunction(lambda: date(2010, 1, 1))
+
+
 class ReceiptWithApprovedValidation(ReceiptFactory):
     """Receipt with fake (e.g.: not live) approved validation."""
 

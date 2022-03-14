@@ -19,6 +19,7 @@ from django_afip.factories import ReceiptFCEAWithVatTaxAndOptionalsFactory
 from django_afip.factories import ReceiptValidationFactory
 from django_afip.factories import ReceiptWithApprovedValidation
 from django_afip.factories import ReceiptWithInconsistentVatAndTaxFactory
+from django_afip.factories import ReceiptWithOldDateFactory
 from django_afip.factories import ReceiptWithVatAndTaxFactory
 
 if TYPE_CHECKING:
@@ -153,6 +154,20 @@ def test_failed_validation(populated_db: None) -> None:
 @pytest.mark.django_db()
 @pytest.mark.live()
 def test_raising_failed_validation(populated_db: None) -> None:
+    """Test validating valid receipts."""
+    receipt = ReceiptWithOldDateFactory()
+
+    errs = receipt.validate()
+
+    assert len(errs) == 1
+    assert models.ReceiptValidation.objects.count() == 0
+    assert receipt.receipt_number is None
+
+
+@pytest.mark.django_db
+@pytest.mark.live
+def test_raising_failed_validation(populated_db):
+>>>>>>> 5645421 (Added test to check validation rollback):testapp/testapp/testmain/tests/test_models.py
     """Test validating valid receipts."""
     receipt = ReceiptWithInconsistentVatAndTaxFactory()
 
