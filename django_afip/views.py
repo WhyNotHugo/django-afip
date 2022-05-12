@@ -16,7 +16,11 @@ TEMPLATE_NAMES = [
 
 class ReceiptPDFView(PDFView):
     @cached_property
-    def receipt(self):
+    def receipt(self) -> models.Receipt:
+        """Returns the receipt.
+
+        Returns the same in-memory instance during the whole request."""
+
         return models.Receipt.objects.select_related(
             "receipt_type",
             "point_of_sales",
@@ -38,11 +42,12 @@ class ReceiptPDFView(PDFView):
             receipts/code_{code}.html
             receipts/{code}.html
 
-        For example, to override the "Factura C" template for point of sales 0002 for
+        To override, for example, the "Factura C" template for point of sales 0002 for
         Taxpayer 20-32964233-0, use::
 
             receipts/20329642330/pos_2/code_6.html
         """
+        # Non-request usages may explicitly pass a receipt.
         receipt = receipt or self.receipt
         assert receipt is not None
 
