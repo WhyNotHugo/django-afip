@@ -783,23 +783,44 @@ class ReceiptQuerySet(models.QuerySet):
         """Validate all receipts matching this queryset.
 
         Note that, due to how AFIP implements its numbering, this method is not
-        thread-safe, or even multiprocess-safe.
+        thread-safe, or even multiprocess-safe. You MAY however, call this method
+        concurrently for receipts from different :class:`~.PointOfSales`.
 
-        Because of this, it is possible that not all instances matching this
-        queryset are validated properly. Obviously, only successfully validated
-        receipts will be updated.
+        It is possible that not all instances matching this queryset are validated
+        properly. This method is written in a way that the database will always remain
+        in a consistent state.
 
-        Returns a list of errors as returned from AFIP's webservices. An
-        exception is not raised because partial failures are possible.
+        Only successfully validated receipts will marked as such. This method takes care
+        of saving all changes to database.
 
-        Receipts that succesfully validate will have a
-        :class:`~.ReceiptValidation` object attatched to them with a validation
-        date and CAE information.
+        Returns a list of errors as returned from AFIP's webservices. When AFIP returns
+        a failure response, an exception is not raised because partial failures are
+        possible. Network issues (e.g.: DNS failure) _will_ raise an exception.
+
+        Receipts that successfully validate will have a :class:`~.ReceiptValidation`
+        object attached to them with a validation date and CAE information.
 
         Already-validated receipts are ignored.
 
         Attempting to validate an empty queryset will simply return an empty
         list.
+
+        This method takes the following steps:
+
+            - Assigns numbers to all receipts.
+            - Saves the assigned numbers to the database.
+            - Sends the receipts to AFIP.
+            - Saves the results into the local DB.
+
+        Should execution be interrupted (e.g.: a power failure), receipts will have been
+        saved with their number. In this case, the ``revalidate`` method should be used,
+        to determine if they have been registered by AFIP, or if the interruption
+        happened before sending them.
+
+        This method MUST NOT be called inside a database transaction; doing so risks
+        leaving the database in an inconsistent state should there be any fatal
+        interruptions. In particular, the numbers will not have been saved, so it would
+        be impossible to recover from the incomplete operation.
         """
         # Skip any already-validated ones:
         qs = self.filter(validation__isnull=True).check_groupable()
@@ -938,6 +959,12 @@ class Receipt(models.Model):
 
     If the taxpayer has taxes or pays VAT, you need to attach :class:`~.Tax`
     and/or :class:`~.Vat` instances to the Receipt.
+
+    Application code SHOULD NOT set the `receipt_number` code. It will be set by
+    :meth:`~.Receipt.validate()` internally. When writing code outside `django-afip`,
+    this should be considered read-only. The sole exception is importing
+    previously-validated receipts from another database.
+    `
     """
 
     point_of_sales = models.ForeignKey(
@@ -1116,13 +1143,12 @@ class Receipt(models.Model):
     def validate(self, ticket: AuthTicket = None, raise_=False) -> list[str]:
         """Validates this receipt.
 
-        This is a shortcut to :class:`~.ReceiptQuerySet`'s method of the same
-        name. Calling this validates only this instance.
+        This is a shortcut to :meth:`~.ReceiptQuerySet.validate`. See the documentation
+        for that method for details. Calling this validates only this instance.
 
-        :param AuthTicket ticket: Use this ticket. If None, one will be loaded
-            or created automatically.
-        :param bool raise_: If True, an exception will be raised when
-            validation fails.
+        :param ticket: Use this ticket. If None, one will be loaded or created
+            automatically.
+        :param raise_: If True, an exception will be raised when validation fails.
         """
         # XXX: Maybe actually have this sortcut raise an exception?
         rv = Receipt.objects.filter(pk=self.pk).validate(ticket)

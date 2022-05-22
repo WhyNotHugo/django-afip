@@ -132,3 +132,11 @@ use a combination missing from the CI run matrix, feel free to reach out.
 sqlite should work, and is only supported with the latest Python and latest
 Django. sqlite should only by used for prototypes, demos, or example projects,
 as it has not been tested for production-grade reliability.
+
+Transactions
+............
+
+Generally, avoid calling network-related methods within a transaction. The
+implementation has assumptions that they **are not** called during a request
+cycle. Assumptions are made about this, and `django-afip` handles transactions
+internally to keep data consistent at all times.
