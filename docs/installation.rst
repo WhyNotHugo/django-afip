@@ -123,3 +123,12 @@ mismas migraciones para actualizar instancias productivas año tras año.
     ejecutar las migraciones, y luego continuar. La migraciones fueros
     squasheadas en esa versión y no está garantizado que actualizar salteándola
     funcione.
+
+Database support
+----------------
+
+Postgres is recommended. MySQL is supported, but CI runs are limited. If you
+use a combination missing from the CI run matrix, feel free to reach out.
+sqlite should work, and is only supported with the latest Python and latest
+Django. sqlite should only by used for prototypes, demos, or example projects,
+as it has not been tested for production-grade reliability.
