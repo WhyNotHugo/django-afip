@@ -37,10 +37,6 @@ setup(
         "mysql": ["mysqlclient"],
         "factories": ["factory-boy"],
     },
-    use_scm_version={
-        "version_scheme": "post-release",
-        "write_to": "django_afip/version.py",
-    },
     setup_requires=["setuptools_scm"],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
