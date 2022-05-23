@@ -10,6 +10,12 @@ acá.
 11.0.0
 ------
 
+- :ref:`Database support has been better documented <database-support>`. Please
+  check that you are using a supported setup, and please reach out if you'd
+  like your combination to be ran on CI.
+- :ref:`Documentation on how we handle transactions <transactions>` has been
+  added. Developers are advised to read these and that audit existing
+  implementations.
 - The `raise_` flag for :meth:`~.ReceiptQuerySet.validate` has been deprecated
   and will be removed in release 12.0.0.
 
