@@ -15,4 +15,4 @@ profile = "black"
 force_single_line = true
 
 [tool.coverage.run]
-source = "django_afip"
+source = ["django_afip"]
