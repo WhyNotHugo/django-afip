@@ -696,6 +696,9 @@ class AuthTicket(models.Model):
     SIGN_XPATH = "/loginTicketResponse/credentials/sign"
 
     def __create_request_xml(self) -> bytes:
+        """Create a new ticket request XML
+
+        This is the payload we sent to AFIP to request a new ticket."""
         request_xml = E.loginTicketRequest(
             {"version": "1.0"},
             E.header(
