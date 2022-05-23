@@ -83,3 +83,8 @@ will be relative or absolute depending on your media files configuration.
     <FieldFile: receipts/790bc4f648e844bda7149ac517fdcf65.pdf>
     >>> printable.pdf_file.url
     '/media/receipts/790bc4f648e844bda7149ac517fdcf65.pdf'
+
+Los templates provistos siguen las indicaciones de la `RG1415`_, que regula que
+campos deben contener y dónde debe estar ubicado cada dato.
+
+.. _RG1415: http://biblioteca.afip.gob.ar/dcp/REAG01001415_2003_01_07
