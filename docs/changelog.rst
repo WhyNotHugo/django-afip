@@ -7,6 +7,12 @@ dependencia en cada versión, en orden cronológicamente inverso.
 Todos los cambios que necesites tener en cuenta al actualizar están listados
 acá.
 
+11.0.0
+------
+
+- The `raise_` flag for :meth:`~.ReceiptQuerySet.validate` has been deprecated
+  and will be removed in release 12.0.0.
+
 10.0.0
 -----
 
