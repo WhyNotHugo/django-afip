@@ -58,6 +58,12 @@ Documentation
 
 The full documentation is available at https://django-afip.readthedocs.io/
 
+Changelog
+---------
+
+The changelog is published with the rest of the documentation:
+https://django-afip.readthedocs.io/en/stable/changelog.html
+
 Donate
 ------
 
