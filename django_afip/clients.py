@@ -65,7 +65,7 @@ def get_client(service_name: str, sandbox=False) -> Client:
     """
     Return a client for a given service.
 
-    The `sandbox` argument should only be necessary if a the client will be
+    The `sandbox` argument should only be necessary if the client will be
     used to make a request. If it will only be used to serialize objects, it is
     irrelevant. A caller can avoid the overhead of determining the sandbox mode in the
     calling context if only serialization operations will take place.

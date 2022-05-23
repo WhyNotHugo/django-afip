@@ -338,7 +338,10 @@ class TaxPayer(models.Model):
 
     @property
     def logo_as_data_uri(self) -> str:
-        """This TaxPayer's logo as a data uri."""
+        """This TaxPayer's logo as a data uri.
+
+        This can be used to embed the image into an HTML or PDF file.
+        """
         _, ext = os.path.splitext(self.logo.file.name)
         with self.logo.open() as f:
             data = base64.b64encode(f.read())
@@ -361,9 +364,7 @@ class TaxPayer(models.Model):
         return load_certificate(FILETYPE_PEM, self.certificate.read())
 
     def get_certificate_expiration(self) -> datetime | None:
-        """
-        Gets the certificate expiration from the certificate
-
+        """Return the certificate expiration from the current certificate
 
         Gets the certificate expiration from the certificate file. Note that
         this value is stored into ``certificate_expiration`` when an instance
@@ -381,8 +382,7 @@ class TaxPayer(models.Model):
         return dt.replace(tzinfo=timezone.utc)
 
     def generate_key(self, force=False) -> bool:
-        """
-        Creates a key file for this TaxPayer
+        """Creates a key file for this TaxPayer
 
         Creates a key file for this TaxPayer if it does not have one, and
         immediately saves it.
@@ -404,11 +404,15 @@ class TaxPayer(models.Model):
         return True
 
     def generate_csr(self, basename="djangoafip") -> BinaryIO:
-        """
-        Creates a CSR for this TaxPayer's key
+        """Creates a CSR with this TaxPayer's key
 
-        Creates a file-like object that contains the CSR which can be used to
-        request a new certificate from AFIP.
+        The CSR (certificate signing request) can be used to request a new certificate
+        via AFIP's website. After generating a new CSR, it should be manually uploaded
+        to AFIP's website, and a new certificate will be returned. That certificate
+        should be uploaded to the ``certificate`` field.
+
+        It is safe to use with when renovating expired certificates on production
+        systems.
         """
         csr = BytesIO()
         crypto.create_csr(
@@ -422,13 +426,21 @@ class TaxPayer(models.Model):
         return csr
 
     def create_ticket(self, service: str) -> AuthTicket:
-        """Create an AuthTicket for a given service."""
+        """Create an AuthTicket for a given service.
+
+        Tickets are saved to the database. It is recommended to use the
+        :meth:`~.TaxPayer.get_or_create_ticket` method instead.
+        """
         ticket = AuthTicket(owner=self, service=service)
         ticket.authorize()
         return ticket
 
     def get_ticket(self, service: str) -> AuthTicket | None:
-        """Return an existing AuthTicket for a given service, if any."""
+        """Return an existing AuthTicket for a given service, if any.
+
+        It is recommended to use the :meth:`~.TaxPayer.get_or_create_ticket` method
+        instead.
+        """
         return self.auth_tickets.filter(
             expires__gt=datetime.now(timezone.utc),
             service=service,
@@ -881,7 +893,7 @@ class ReceiptQuerySet(models.QuerySet):
 class ReceiptManager(models.Manager):
     """Default manager for the :class:`~.Receipt` class.
 
-    You should generally access this using ``Receipt.objects``.
+    This should be accessed using ``Receipt.objects``.
     """
 
     def fetch_last_receipt_number(
@@ -944,6 +956,9 @@ class ReceiptManager(models.Manager):
             return None
 
     def get_queryset(self) -> ReceiptQuerySet:
+        """Return a new QuerySet object.
+
+        This always joins with :class:`~.ReceiptType`."""
         return ReceiptQuerySet(self.model, using=self._db).select_related(
             "receipt_type",
         )
@@ -1249,8 +1264,8 @@ class ReceiptPDFManager(models.Manager):
         All attributes will be completed with the information for the relevant
         :class:`~.PointOfSales` instance.
 
-        :param Receipt receipt: The receipt for the PDF which will be
-            generated.
+        :param receipt: The receipt for the PDF which will be generated.
+        :param **kwargs: Passed directly to the :class:`~.ReceiptPDF` constructor.
         """
         pdf = ReceiptPDF.objects.create(
             receipt=receipt,

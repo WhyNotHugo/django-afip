@@ -85,3 +85,11 @@ Helpers
 
 .. autoclass:: django_afip.helpers.ServerStatus
     :members:
+
+WebService clients
+------------------
+
+These clients provide direct access to AFIP's WS. These are reserved for
+advanced usage.
+
+.. autofunction:: django_afip.clients.get_client
