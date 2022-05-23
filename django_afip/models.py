@@ -523,9 +523,11 @@ class PointOfSales(models.Model):
     number = models.PositiveSmallIntegerField(
         _("number"),
     )
+    # AFIP has replied that this field may be up to 200bytes,
+    # so 200 characters should always be more than enough.
     issuance_type = models.CharField(
         _("issuance type"),
-        max_length=24,
+        max_length=200,
         help_text="Indicates if this POS emits using CAE and CAEA.",
     )
     blocked = models.BooleanField(
