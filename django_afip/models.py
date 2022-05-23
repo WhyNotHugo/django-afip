@@ -4,6 +4,7 @@ import base64
 import logging
 import os
 import random
+import warnings
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
@@ -1146,10 +1147,22 @@ class Receipt(models.Model):
         This is a shortcut to :meth:`~.ReceiptQuerySet.validate`. See the documentation
         for that method for details. Calling this validates only this instance.
 
+
+        .. versionchanged:: 11
+
+            The ``raise_`` flag has been deprecated.
+
         :param ticket: Use this ticket. If None, one will be loaded or created
             automatically.
         :param raise_: If True, an exception will be raised when validation fails.
         """
+        if raise_:
+            warnings.warn(
+                "The raise_ flag is deprecated and will be removed in django_afip 12.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
         # XXX: Maybe actually have this sortcut raise an exception?
         rv = Receipt.objects.filter(pk=self.pk).validate(ticket)
         # Since we're operating via a queryset, this instance isn't properly
