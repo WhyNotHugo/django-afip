@@ -3,7 +3,6 @@ __all__ = ("get_client",)
 from functools import lru_cache
 from urllib.parse import urlparse
 
-import pytz
 from requests import Session
 from requests.adapters import HTTPAdapter
 from urllib3.util.ssl_ import DEFAULT_CIPHERS  # type:ignore
@@ -12,7 +11,12 @@ from zeep import Client
 from zeep.cache import SqliteCache
 from zeep.transports import Transport
 
-TZ_AR = pytz.timezone(pytz.country_timezones["ar"][0])
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:
+    from backports.zoneinfo import ZoneInfo  # type: ignore # noqa
+
+TZ_AR = ZoneInfo("America/Argentina/Buenos_Aires")
 CIPHERS = DEFAULT_CIPHERS + "HIGH:!DH:!aNULL"
 WSDLS = {
     ("wsaa", False): "https://wsaa.afip.gov.ar/ws/services/LoginCms?wsdl",

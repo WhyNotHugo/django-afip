@@ -13,7 +13,6 @@ from tempfile import NamedTemporaryFile
 from typing import BinaryIO
 from uuid import uuid4
 
-import pytz
 from django.conf import settings
 from django.core import management
 from django.core.files import File
@@ -31,6 +30,8 @@ from OpenSSL.crypto import X509
 from OpenSSL.crypto import load_certificate
 from zeep.exceptions import Fault
 
+from django_afip.clients import TZ_AR
+
 from . import clients
 from . import crypto
 from . import exceptions
@@ -38,7 +39,6 @@ from . import parsers
 from . import serializers
 
 logger = logging.getLogger(__name__)
-TZ_AR = pytz.timezone(pytz.country_timezones["ar"][0])
 
 # http://www.afip.gov.ar/afip/resol1415_anexo2.html
 VAT_CONDITIONS = (

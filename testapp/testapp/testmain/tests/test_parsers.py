@@ -1,9 +1,8 @@
 from datetime import date
 from datetime import datetime
 
-import pytz
-
 from django_afip import parsers
+from django_afip.clients import TZ_AR
 
 
 def test_parse_null_datetime():
@@ -15,10 +14,8 @@ def test_parse_none_datetime():
 
 
 def test_parse_datetimes():
-    tz = pytz.timezone(pytz.country_timezones["ar"][0])
-
     assert parsers.parse_datetime("20170730154330") == datetime(
-        2017, 7, 30, 15, 43, 30, tzinfo=tz
+        2017, 7, 30, 15, 43, 30, tzinfo=TZ_AR
     )
 
 

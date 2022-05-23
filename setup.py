@@ -23,7 +23,7 @@ setup(
         "django_renderpdf>=3.0.0,<37.0.0",
         "lxml>=3.4.4",
         "pyopenssl>=16.2.0",
-        "pytz>=2015.4",
+        'backports.zoneinfo;python_version<"3.9"',
         "setuptools-git>=1.1",
         "setuptools-scm>=1.7.0",
         "wheel>=0.24.0",

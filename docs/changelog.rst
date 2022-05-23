@@ -18,6 +18,8 @@ acá.
   implementations.
 - The `raise_` flag for :meth:`~.ReceiptQuerySet.validate` has been deprecated
   and will be removed in release 12.0.0.
+- ``pytz`` has been replaced with Python 3.9's new ``zoneinfo`` module. For
+  Python < 3.9, ``backports.zoneinfo`` is a new dependency.
 
 10.0.0
 -----

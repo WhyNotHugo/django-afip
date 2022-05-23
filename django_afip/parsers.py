@@ -3,9 +3,7 @@ from __future__ import annotations
 from datetime import date
 from datetime import datetime
 
-import pytz
-
-TZ_AR = pytz.timezone(pytz.country_timezones["ar"][0])
+from django_afip.clients import TZ_AR
 
 
 def parse_datetime(datestring: str | None) -> datetime | None:
