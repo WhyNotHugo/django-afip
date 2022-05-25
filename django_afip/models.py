@@ -483,7 +483,7 @@ class TaxPayer(models.Model):
                     owner=self,
                     defaults={
                         "issuance_type": pos_data.EmisionTipo,
-                        "blocked": pos_data.Bloqueado == "N",
+                        "blocked": pos_data.Bloqueado == "S",
                         "drop_date": parsers.parse_date(pos_data.FchBaja),
                     },
                 )
