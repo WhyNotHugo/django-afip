@@ -6,7 +6,7 @@ Based on https://djangosnippets.org/snippets/2533/
 import inspect
 
 from django.db import models
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.html import strip_tags
 
 
@@ -30,8 +30,8 @@ def process_docstring(app, what, name, obj, options, lines):
                 # XXX: log these?
                 continue
 
-            help_text = strip_tags(force_text(field.help_text))
-            verbose_name = force_text(field.verbose_name).capitalize()
+            help_text = strip_tags(force_str(field.help_text))
+            verbose_name = force_str(field.verbose_name).capitalize()
 
             if help_text:
                 # Add the model field to the end of the docstring as a param
