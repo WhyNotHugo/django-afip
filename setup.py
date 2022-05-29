@@ -32,7 +32,7 @@ setup(
         "pyyaml>=5.3.1,<6.0.0",
     ],
     extras_require={
-        "docs": ["Sphinx", "sphinx-autobuild"],
+        "docs": ["Sphinx", "sphinx-autobuild", "sphinx_rtd_theme"],
         "postgres": ["psycopg2"],
         "mysql": ["mysqlclient"],
         "factories": ["factory-boy"],
