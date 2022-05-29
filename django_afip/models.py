@@ -4,10 +4,12 @@ import base64
 import logging
 import os
 import random
+import re
 import warnings
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
+from decimal import Decimal
 from io import BytesIO
 from tempfile import NamedTemporaryFile
 from typing import BinaryIO
@@ -236,6 +238,35 @@ class VatType(GenericAfipType):
 
     See the AFIP's documentation for details on each VAT type.
     """
+
+    @property
+    def as_decimal(self) -> Decimal:
+        """Return this VatType as a Decimal.
+
+        Parses the percent amount from the ``description`` field. This number is usable
+        when calculating the Vat for entries which have this type. If Vat is 21%, then
+        the returned value is ``Decimal("0.21")``.
+
+        Assuming that an item pays 21% vat, when using a net price for the calculation,
+        the following are all correct::
+
+            total_price = net_price * Decimal(1.21)
+            vat = net_price * Decimal(0.21)
+            vat = total_price - net_price
+
+        If using the total price, this approach should be used (this can be derived from
+        the above)::
+
+            net_price = total_price / Decimal(1.21)
+            vat = total_price - net_price
+
+        Keep in mind that AFIP requires the usage of "round half even", which is what
+        Python's ``Decimal`` class uses by default (See ``decimal.ROUND_HALF_EVEN``).
+        """
+        match = re.match(r"^([0-9]{1,2}\.?[0-9]{0,2})%$", self.description)
+        if not match:
+            raise ValueError("The description for this VatType is not a percentage.")
+        return Decimal(match.groups()[0]) / 100
 
     objects = GenericAfipTypeManager("FEParamGetTiposIva", "IvaTipo")
 

@@ -20,6 +20,8 @@ acá.
   and will be removed in release 12.0.0.
 - ``pytz`` has been replaced with Python 3.9's new ``zoneinfo`` module. For
   Python < 3.9, ``backports.zoneinfo`` is a new dependency.
+- Added a new property :attr:`~.VatType.as_decimal` to ``VatType``. This is usable to
+  obtain the Vat percent as a ``Decimal`` which can be used for VAT calculations.
 
 10.0.0
 -----
