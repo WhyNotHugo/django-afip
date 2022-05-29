@@ -348,7 +348,7 @@ class TaxPayer(models.Model):
     certificate_expiration = models.DateTimeField(
         _("certificate expiration"),
         editable=False,
-        null=True,  # Either no cert, or and old TaxPayer
+        null=True,  # Either no cert, or an old TaxPayer.
         help_text=_(
             "Stores expiration for the current certificate.<br>Note that this "
             "field is updated pre-save, so the value may be invalid for unsaved models."
