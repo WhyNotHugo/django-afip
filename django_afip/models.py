@@ -19,6 +19,7 @@ from django.conf import settings
 from django.core import management
 from django.core.files import File
 from django.core.files.storage import Storage
+from django.db import connection
 from django.db import models
 from django.db.models import Count
 from django.db.models import Sum
@@ -793,6 +794,10 @@ class AuthTicket(models.Model):
 class ReceiptQuerySet(models.QuerySet):
     """The default queryset obtains when querying via :class:`~.ReceiptManager`."""
 
+    # This private flag is provided only to disable the durability checks in tests.
+    # Inspired by Django's flag of the same name for `Atomic`.
+    _ensure_durability = True
+
     def _assign_numbers(self) -> None:
         """Assign numbers in preparation for validating these receipts.
 
@@ -875,11 +880,13 @@ class ReceiptQuerySet(models.QuerySet):
         to determine if they have been registered by AFIP, or if the interruption
         happened before sending them.
 
-        This method MUST NOT be called inside a database transaction; doing so risks
-        leaving the database in an inconsistent state should there be any fatal
-        interruptions. In particular, the numbers will not have been saved, so it would
-        be impossible to recover from the incomplete operation.
+        Calling this method inside a transaction will raise ``RuntimeError``, since
+        doing so risks leaving the database in an inconsistent state should there be any
+        fatal interruptions. In particular, the receipt numbers will not have been
+        saved, so it would be impossible to recover from the incomplete operation.
         """
+        if self._ensure_durability and connection.in_atomic_block:
+            raise RuntimeError("This function cannot be called within a transaction")
         # Skip any already-validated ones:
         qs = self.filter(validation__isnull=True).check_groupable()
         if qs.count() == 0:

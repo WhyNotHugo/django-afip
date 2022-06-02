@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 from django.conf import settings
 from django.core import serializers
@@ -10,6 +12,16 @@ from django_afip.models import AuthTicket
 
 CACHED_TICKET_PATH = settings.BASE_DIR / "test_ticket.yaml"
 _live_mode = False
+
+
+@pytest.fixture(autouse=True)
+def disable_durability_check():
+    with patch(
+        "django_afip.models.ReceiptQuerySet._ensure_durability",
+        False,
+        spec=True,
+    ):
+        yield
 
 
 def pytest_runtest_setup(item):
