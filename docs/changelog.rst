@@ -16,6 +16,8 @@ acá.
 - :ref:`Documentation on how we handle transactions <transactions>` has been
   added. Developers are advised to read these and that audit existing
   implementations.
+- As noted above, attempting to validate receipts within a transaction will now
+  raise ``RuntimeError``.
 - The ``raise_`` flag for :meth:`~.ReceiptQuerySet.validate` has been
   deprecated and will be removed in release 12.0.0.
 - ``pytz`` has been replaced with Python 3.9's new ``zoneinfo`` module. For
