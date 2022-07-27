@@ -710,7 +710,7 @@ class AuthTicket(models.Model):
     )
     service = models.CharField(
         _("service"),
-        max_length=6,
+        max_length=34,
         help_text=_("Service for which this ticket has been authorized."),
     )
 
