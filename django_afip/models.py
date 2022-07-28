@@ -316,6 +316,15 @@ class TaxPayer(models.Model):
     - logo
     """
 
+    # XXX: Split this into TaxPayer and Credentials
+    # The former has a unique CUIT, which will be its natural key.
+    # The latter has the key and cert and alike.
+    #
+    # For the migration path:
+    # - Make sure that if there's 1:1 TaxPayer:Credentials,
+    #   everything continues to work as it does now.
+    # - Provide data migrations
+
     name = models.CharField(
         _("name"),
         max_length=32,
