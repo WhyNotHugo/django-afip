@@ -30,7 +30,7 @@ django.setup()
 # -- Project information -----------------------------------------------------
 
 project = "django-afip"
-copyright = "2015-2020, Hugo Osvaldo Barrera"
+copyright = "2015-2022, Hugo Osvaldo Barrera"
 author = "Hugo Osvaldo Barrera"
 
 # The short X.Y version.
