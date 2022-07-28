@@ -22,6 +22,8 @@ acá.
   Python < 3.9, ``backports.zoneinfo`` is a new dependency.
 - Added a new property :attr:`~.VatType.as_decimal` to ``VatType``. This is usable to
   obtain the Vat percent as a ``Decimal`` which can be used for VAT calculations.
+- The maximum size of `AuthTicket.service` has been increased to accommodate for
+  the longest known service name.
 
 10.0.0
 -----
