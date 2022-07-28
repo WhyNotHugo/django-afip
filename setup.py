@@ -29,7 +29,7 @@ setup(
         "wheel>=0.24.0",
         "zeep>=1.1.0,<5.0.0",
         "qrcode[pil]>=6.1,<7.0",
-        "pyyaml>=5.3.1,<6.0.0",
+        "pyyaml>=5.3.1,<7.0.0",
     ],
     extras_require={
         "docs": ["Sphinx", "sphinx-autobuild", "sphinx_rtd_theme"],

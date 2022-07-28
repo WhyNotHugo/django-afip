@@ -24,6 +24,7 @@ acá.
   obtain the Vat percent as a ``Decimal`` which can be used for VAT calculations.
 - The maximum size of `AuthTicket.service` has been increased to accommodate for
   the longest known service name.
+- ``pyyaml`` version 6 is now supported.
 
 10.0.0
 -----
