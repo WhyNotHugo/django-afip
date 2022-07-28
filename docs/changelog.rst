@@ -18,8 +18,8 @@ acá.
   implementations.
 - As noted above, attempting to validate receipts within a transaction will now
   raise ``RuntimeError``.
-- The ``raise_`` flag for :meth:`~.ReceiptQuerySet.validate` has been
-  deprecated and will be removed in release 12.0.0.
+- The ``raise_`` flag for :meth:`~.Receipt.validate` has been deprecated and
+  will be removed in release 12.0.0.
 - ``pytz`` has been replaced with Python 3.9's new ``zoneinfo`` module. For
   Python < 3.9, ``backports.zoneinfo`` is a new dependency.
 - Added a new property :attr:`~.VatType.as_decimal` to ``VatType``. This is usable to
