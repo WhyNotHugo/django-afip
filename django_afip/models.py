@@ -88,8 +88,12 @@ def check_response(response) -> None:
     This method checks if responses have an error, and raise a readable
     message.
     """
-    if response.Errors:
-        raise exceptions.AfipException(response)
+    if 'Errors' in dir(response):
+        if response.Errors:
+            raise exceptions.AfipException(response)
+    elif 'errorConstancia' in dir(response):
+        if response.errorConstancia:
+            raise exceptions.AfipExceptionWSSR(response)
 
 
 def first_currency() -> int | None:

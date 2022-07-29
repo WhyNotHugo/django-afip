@@ -17,6 +17,20 @@ class AfipException(DjangoAfipException):
         )
 
 
+class AfipExceptionWSSR(DjangoAfipException):
+    """
+    Wraps around errors returned by AFIP's WSSR.
+    """
+
+    def __init__(self, response):
+        Exception.__init__(
+            self,
+            "Error Constancia: {}".format(
+                response.errorConstancia.error[0],
+            ),
+        )
+
+
 class AuthenticationError(DjangoAfipException):
     """
     Raised when there is a non-specific error during an authentication attempt.
