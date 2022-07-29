@@ -21,8 +21,12 @@ CIPHERS = DEFAULT_CIPHERS + "HIGH:!DH:!aNULL"
 WSDLS = {
     ("wsaa", False): "https://wsaa.afip.gov.ar/ws/services/LoginCms?wsdl",
     ("wsfe", False): "https://servicios1.afip.gov.ar/wsfev1/service.asmx?WSDL",
+    ("ws_sr_constancia_inscripcion", False): "https://aws.afip.gov.ar/sr-padron/webservices/personaServiceA5?WSDL",
+    ("ws_sr_padron_a13", False): "https://aws.afip.gov.ar/sr-padron/webservices/personaServiceA13?WSDL",
     ("wsaa", True): "https://wsaahomo.afip.gov.ar/ws/services/LoginCms?wsdl",
     ("wsfe", True): "https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL",
+    ("ws_sr_constancia_inscripcion", True): "https://awshomo.afip.gov.ar/sr-padron/webservices/personaServiceA5?WSDL",
+    ("ws_sr_padron_a13", True): "https://awshomo.afip.gov.ar/sr-padron/webservices/personaServiceA13?WSDL",
 }
 
 
