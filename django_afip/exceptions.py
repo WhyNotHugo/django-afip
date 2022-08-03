@@ -8,27 +8,17 @@ class AfipException(DjangoAfipException):
     """
 
     def __init__(self, response):
-        Exception.__init__(
-            self,
-            "Error {}: {}".format(
+        if 'Errors' in response:
+            message = "Error {}: {}".format(
                 response.Errors.Err[0].Code,
                 response.Errors.Err[0].Msg,
-            ),
-        )
-
-
-class AfipExceptionWSSR(DjangoAfipException):
-    """
-    Wraps around errors returned by AFIP's WSSR.
-    """
-
-    def __init__(self, response):
-        Exception.__init__(
-            self,
-            "Error Constancia: {}".format(
+            )
+        else:
+            message = "Error {}: {}".format(
+                response.errorConstancia.idPersona,
                 response.errorConstancia.error[0],
-            ),
-        )
+            )
+        Exception.__init__(self, message)
 
 
 class AuthenticationError(DjangoAfipException):
