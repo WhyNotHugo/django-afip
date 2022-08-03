@@ -8,7 +8,7 @@ class AfipException(DjangoAfipException):
     """
 
     def __init__(self, response):
-        if 'Errors' in response:
+        if "Errors" in response:
             message = "Error {}: {}".format(
                 response.Errors.Err[0].Code,
                 response.Errors.Err[0].Msg,

@@ -88,10 +88,10 @@ def check_response(response) -> None:
     This method checks if responses have an error, and raise a readable
     message.
     """
-    if 'Errors' in response:
+    if "Errors" in response:
         if response.Errors:
             raise exceptions.AfipException(response)
-    elif 'errorConstancia' in response:
+    elif "errorConstancia" in response:
         if response.errorConstancia:
             raise exceptions.AfipException(response)
 
