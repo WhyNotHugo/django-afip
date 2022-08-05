@@ -384,6 +384,6 @@ def test_receipt_entry_gt_total_discount():
 
     with pytest.raises(
         Exception,
-        match="discount should be less than or equal to total price before discount",
+        match="discount must be less than or equal to total price before discount",
     ):
         factories.ReceiptEntryFactory(quantity=1, unit_price=1, discount=2)
