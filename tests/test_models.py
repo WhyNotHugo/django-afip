@@ -327,3 +327,72 @@ def test_populate_method(live_ticket):
     assert models.CurrencyType.objects.count() == 0
     models.CurrencyType.objects.populate()
     assert models.CurrencyType.objects.count() == 50
+
+
+@pytest.mark.django_db
+def test_receipt_entry_without_discount():
+    """
+    Test ReceiptEntry.
+
+    Esures that total_price for a ReceiptEntry without a discount
+    works correctly.
+    """
+
+    receipt_entry = factories.ReceiptEntryFactory(
+        quantity=1,
+        unit_price=50,
+    )
+    assert receipt_entry.total_price == 50
+
+
+@pytest.mark.django_db
+def test_receipt_entry_with_valid_discount():
+    """
+    Test ReceiptEntry.
+
+    Esures that total_price for a ReceiptEntry with a valid
+    discount works correctly.
+    """
+
+    receipt_entry = factories.ReceiptEntryFactory(
+        quantity=1,
+        unit_price=50,
+        discount=10
+    )
+    assert receipt_entry.total_price == 40
+
+
+@pytest.mark.django_db
+def test_receipt_entry_negative_discount():
+    """
+    Test ReceiptEntry negative discount.
+
+    Ensures that attempting to generate a ReceiptEntry with a negative discount
+    raises.
+    """
+
+    with pytest.raises(Exception, match="discount cannot be a negative value"):
+        receipt_entry = factories.ReceiptEntryFactory(
+            quantity=5,
+            unit_price=10,
+            discount=-3
+        )
+
+
+@pytest.mark.django_db
+def test_receipt_entry_gt_total_discount():
+    """
+    Test ReceiptEntry discount greater than total price.
+
+    Esures that attempting to generate a ReceiptEntry with a discount
+    greater than the total price before discount raises.
+    """
+
+    with pytest.raises(
+        Exception, match="discount should be less than or equal to total price before discount"
+    ):
+        receipt_entry = factories.ReceiptEntryFactory(
+            quantity=1,
+            unit_price=1,
+            discount=2
+        )
