@@ -1516,23 +1516,22 @@ class ReceiptEntry(models.Model):
         total price is quantity * unit_price - discount.
 
         - `discount` must be a positive value due to the fact that
-        if discount is a negative value, that will cause an increment in the total price.
+            if discount is a negative value, that will cause an increment
+            in the total price.
         - `discount` must be less than or equal to total price because if discount is
-        greater than total price before discount that will cause total_price to be negative.
+            greater than total price before discount that will cause total_price
+            to be negative.
 
         if this validation check fails, a DjangoAfipException will be raised.
         """
 
         if self.discount > self.quantity * self.unit_price:
-            raise exceptions.DjangoAfipException(
-                _(
-                    "discount should be less than or equal to total price before discount"
-                )
-            )
+            msg = "discount must be less than or equal to total price before discount"
+            raise exceptions.DjangoAfipException(_(msg))
+
         if self.discount < 0:
-            raise exceptions.DjangoAfipException(
-                _("discount cannot be a negative value")
-            )
+            msg = "discount cannot be a negative value"
+            raise exceptions.DjangoAfipException(_(msg))
 
     @property
     def total_price(self) -> float:

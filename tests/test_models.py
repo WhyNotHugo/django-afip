@@ -370,7 +370,7 @@ def test_receipt_entry_negative_discount():
     """
 
     with pytest.raises(Exception, match="discount cannot be a negative value"):
-        receipt_entry = factories.ReceiptEntryFactory(
+        factories.ReceiptEntryFactory(
             quantity=5, unit_price=10, discount=-3
         )
 
@@ -388,6 +388,6 @@ def test_receipt_entry_gt_total_discount():
         Exception,
         match="discount should be less than or equal to total price before discount",
     ):
-        receipt_entry = factories.ReceiptEntryFactory(
+        factories.ReceiptEntryFactory(
             quantity=1, unit_price=1, discount=2
         )
