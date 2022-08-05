@@ -1525,7 +1525,9 @@ class ReceiptEntry(models.Model):
 
         if self.discount > self.quantity * self.unit_price:
             raise exceptions.DjangoAfipException(
-                _("discount should be less than or equal to total price before discount")
+                _(
+                    "discount should be less than or equal to total price before discount"
+                )
             )
         if self.discount < 0:
             raise exceptions.DjangoAfipException(

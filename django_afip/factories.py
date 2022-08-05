@@ -248,5 +248,5 @@ class ReceiptEntryFactory(DjangoModelFactory):
         model = models.ReceiptEntry
 
     receipt = SubFactory(ReceiptFactory)
-    description = 'Test Entry'
+    description = "Test Entry"
     vat = SubFactory(VatTypeFactory)
