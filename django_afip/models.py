@@ -1493,6 +1493,13 @@ class ReceiptEntry(models.Model):
         decimal_places=2,
         help_text=_("Price per unit before vat or taxes."),
     )
+    discount = models.DecimalField(
+        _("discount"),
+        max_digits=15,
+        decimal_places=2,
+        default=0,
+        help_text=_("Total net discount applied to tax base."),
+    )
     vat = models.ForeignKey(
         VatType,
         related_name="receipt_entries",
@@ -1502,10 +1509,41 @@ class ReceiptEntry(models.Model):
         on_delete=models.PROTECT,
     )
 
+    def _validate_discount(self) -> exceptions.DjangoAfipException | None:
+        """
+        This method checks the discount value with two conditions assuming that
+        total price before discount is quantity * unit_price and that
+        total price is quantity * unit_price - discount.
+
+        - `discount` must be a positive value due to the fact that
+        if discount is a negative value, that will cause an increment in the total price.
+        - `discount` must be less than or equal to total price because if discount is
+        greater than total price before discount that will cause total_price to be negative.
+
+        if this validation check fails, a DjangoAfipException will be raised.
+        """
+
+        if self.discount > self.quantity * self.unit_price:
+            raise exceptions.DjangoAfipException(
+                _("discount should be less than or equal to total price before discount")
+            )
+        if self.discount < 0:
+            raise exceptions.DjangoAfipException(
+                _("discount cannot be a negative value")
+            )
+
     @property
-    def total_price(self) -> int:
-        """The total price for this line (quantity * price)."""
-        return self.quantity * self.unit_price
+    def total_price(self) -> float:
+        """The total price for this entry is: quantity * price - discount."""
+        return self.quantity * self.unit_price - self.discount
+
+    def save(self, *args, **kwargs):
+        """
+        save custom method to ensure that discount field
+        is being saved in the correct manner.
+        """
+        self._validate_discount()
+        return super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = _("receipt entry")
