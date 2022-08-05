@@ -241,3 +241,12 @@ class TaxFactory(DjangoModelFactory):
     base_amount = 100
     receipt = SubFactory(ReceiptFactory)
     tax_type = SubFactory(TaxTypeFactory)
+
+
+class ReceiptEntryFactory(DjangoModelFactory):
+    class Meta:
+        model = models.ReceiptEntry
+
+    receipt = SubFactory(ReceiptFactory)
+    description = 'Test Entry'
+    vat = SubFactory(VatTypeFactory)
