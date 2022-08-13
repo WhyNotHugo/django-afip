@@ -80,10 +80,10 @@ class TaxPayerFactory(DjangoModelFactory):
         django_get_or_create = ["cuit"]
 
     name = "John Smith"
-    cuit = 20329642330
+    cuit = 20402490803
     is_sandboxed = True
     key = FileField(from_path=get_test_file("test.key"))
-    certificate = FileField(from_path=get_test_file("test.crt"))
+    certificate = FileField(from_path=get_test_file("test.pem"))
     active_since = datetime(2011, 10, 3)
     logo = ImageField(from_path=get_test_file("tiny.png", "rb"))
 
@@ -95,10 +95,10 @@ class AlternateTaxpayerFactory(DjangoModelFactory):
         model = models.TaxPayer
 
     name = "John Smith"
-    cuit = 20329642330
+    cuit = 20402490803
     is_sandboxed = True
     key = FileField(from_path=get_test_file("test2.key"))
-    certificate = FileField(from_path=get_test_file("test2.crt"))
+    certificate = FileField(from_path=get_test_file("test2.pem"))
     active_since = datetime(2011, 10, 3)
 
 

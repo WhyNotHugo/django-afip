@@ -188,7 +188,7 @@ class ReceiptPDFTestCase(TestCase):
 
 @pytest.mark.django_db
 def test_template_discovery(client):
-    taxpayer = factories.TaxPayerFactory(cuit="20329642330")
+    taxpayer = factories.TaxPayerFactory(cuit="20402490803")
     pdf = factories.ReceiptPDFFactory(
         receipt__point_of_sales__owner=taxpayer,
         receipt__point_of_sales__number=9999,
