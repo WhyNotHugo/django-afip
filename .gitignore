@@ -16,3 +16,5 @@ django_afip/version.py
 .tox
 .coverage
 testapp/test_ticket.yaml
+test.csr
+test2.csr
