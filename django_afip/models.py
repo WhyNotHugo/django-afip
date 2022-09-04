@@ -510,7 +510,7 @@ class TaxPayer(models.Model):
         Fetch all point of sales from the WS and store (or update) them
         locally.
 
-        Returns a list of tuples with the format (pos, created,).
+        Returns a list of tuples with the format ``(pos, created,)``.
         """
         ticket = ticket or self.get_or_create_ticket("wsfe")
 
