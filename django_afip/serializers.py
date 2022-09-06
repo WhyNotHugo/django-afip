@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.utils.functional import LazyObject
 
 from django_afip.clients import get_client
@@ -125,3 +126,17 @@ def serialize_receipt_data(receipt_type, receipt_number, point_of_sales):
     return f.FECompConsultaReq(
         CbteTipo=receipt_type, CbteNro=receipt_number, PtoVta=point_of_sales
     )
+
+def serialize_caea_period(period:str = None):
+    if period:
+        return period
+    else:
+        date = datetime.now()
+        return date.strftime("%Y%m")
+    
+def serialize_caea_order(order:int = None):
+    if order:
+        return order
+    else:
+        order = 1
+        return order

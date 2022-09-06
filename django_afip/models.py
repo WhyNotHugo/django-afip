@@ -115,6 +115,16 @@ def _get_storage_from_settings(setting_name: str) -> Storage:
         return import_string(settings.DEFAULT_FILE_STORAGE)()
     return import_string(path)
 
+def caea_is_active(valid_since, valid_to) -> bool:
+    valid_since = parsers.parse_date(valid_since)
+    valid_to = parsers.parse_date(valid_to)
+    today = datetime.now().date()
+
+    if valid_since <= today <= valid_to:
+        return True
+    else:
+        return False
+
 
 class GenericAfipTypeManager(models.Manager):
     """Default Manager for GenericAfipType."""
@@ -536,6 +546,71 @@ class TaxPayer(models.Model):
             )
 
         return results
+    
+    def get_caea(self,period:int=None , order:int = None, ticket: AuthTicket = None,) -> Caea:
+        """
+        Get a CAEA code for the TaxPayer, if a CAEA alredy exists the check_response will raise and exception
+
+        Returns a caea object.
+        """
+        ticket = ticket or self.get_or_create_ticket("wsfe")
+
+        client = clients.get_client("wsfe", self.is_sandboxed)
+
+        response = client.service.FECAEASolicitar(
+            serializers.serialize_ticket(ticket),
+            Periodo = serializers.serialize_caea_period(period),
+            Orden = serializers.serialize_caea_order(order),
+        )
+        check_response(response) #be aware that this func raise an error if it's present
+
+        caea = Caea.objects.create(
+            caea_code = int(response.ResultGet.CAEA),
+            period = int(response.ResultGet.Periodo),
+            order = int(response.ResultGet.Orden),
+            valid_since = parsers.parse_date(response.ResultGet.FchVigDesde),
+            expires = parsers.parse_date(response.ResultGet.FchVigHasta),
+            generated = parsers.parse_datetime(response.ResultGet.FchProceso),
+            final_date_inform = parsers.parse_date(response.ResultGet.FchTopeInf),
+            taxpayer = self,
+            active = caea_is_active(valid_since=response.ResultGet.FchVigDesde, valid_to=response.ResultGet.FchVigHasta),
+        )
+        return caea
+    
+    def consult_caea(self,period: str = None, order:int = None, ticket: AuthTicket = None,) -> Caea:
+        """
+        Consult the CAEA code  given by AFIP, if for some reason the code it's not saved in the db it will be created
+
+        Returns a CAEA model.
+        """
+        ticket = ticket or self.get_or_create_ticket("wsfe")
+
+        client = clients.get_client("wsfe", self.is_sandboxed)
+        response = client.service.FECAEAConsultar(
+            serializers.serialize_ticket(ticket),
+            Periodo = serializers.serialize_caea_period(period),
+            Orden = serializers.serialize_caea_order(order),
+        )
+
+        check_response(response) #be aware that this func raise an error if it's present
+        update = {
+            'caea_code': int(response.ResultGet.CAEA),
+            'period' : int(response.ResultGet.Periodo),
+            'order' : int(response.ResultGet.Orden),
+            'valid_since' : parsers.parse_date(response.ResultGet.FchVigDesde),
+            'expires' : parsers.parse_date(response.ResultGet.FchVigHasta),
+            'generated' : parsers.parse_datetime(response.ResultGet.FchProceso),
+            'final_date_inform' : parsers.parse_date(response.ResultGet.FchTopeInf),
+            'taxpayer' : self,
+            'active' : caea_is_active(valid_since=response.ResultGet.FchVigDesde, valid_to=response.ResultGet.FchVigHasta),
+            }
+
+        caea = Caea.objects.update_or_create(
+            caea_code = int(response.ResultGet.CAEA),            
+            defaults=update)
+
+
+        return caea
 
     def __repr__(self) -> str:
         return "<TaxPayer {}: {}, CUIT {}>".format(
@@ -1711,17 +1786,17 @@ class Caea(models.Model):
         help_text=_('Month is divided in 1st quarter or 2nd quarter')
     )
 
-    valid_since = models.DateTimeField(
+    valid_since = models.DateField(
         _("valid_to"),
     )
-    expires = models.DateTimeField(
+    expires = models.DateField(
         _("expires"),
     )
 
     generated = models.DateTimeField(
         _("generated"),
     )
-    final_date_inform = models.DateTimeField(
+    final_date_inform = models.DateField(
         _("final_date_inform"),
     )
 
@@ -1730,12 +1805,6 @@ class Caea(models.Model):
         verbose_name=_("taxpayer"),
         related_name="caea_tickets",
         on_delete=models.CASCADE,
-    )
-
-    service = models.CharField(
-        _("service"),
-        max_length=34,
-        help_text=_("Service for which this ticket has been authorized."),
     )
 
     active = models.BooleanField(default=False)
