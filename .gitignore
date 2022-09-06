@@ -18,3 +18,10 @@ django_afip/version.py
 testapp/test_ticket.yaml
 test.csr
 test2.csr
+
+#Branch files
+/afi
+Pipfile
+Pipfile.lock
+manage.py
+django_afip/__init__.py
