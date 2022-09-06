@@ -21,6 +21,7 @@ test2.csr
 
 #Branch files
 /afi
+/afip
 Pipfile
 Pipfile.lock
 manage.py

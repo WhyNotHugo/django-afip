@@ -26,6 +26,7 @@ from django.db.models import Sum
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from django_renderpdf.helpers import render_pdf
+from django.core.validators import MaxValueValidator, RegexValidator
 from lxml import etree
 from lxml.builder import E
 from OpenSSL.crypto import FILETYPE_PEM
@@ -1680,3 +1681,77 @@ class ReceiptValidation(models.Model):
     class Meta:
         verbose_name = _("receipt validation")
         verbose_name_plural = _("receipt validations")
+
+class Caea(models.Model):
+    """ Represents a CAEA code to continue operating when AFIP is offline.
+
+    The methods provideed by AFIP like: consulting CAEA or informing a Receipt will be attached to the Queryset o the TaxPayer model as appropiate.
+
+    Save() was overraided to ensure that once a CAEA was created the CAEA_code cannot be changed.
+
+    """
+
+    __original_CAEA = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__original_CAEA = self.caea_code
+
+    caea_code = models.PositiveBigIntegerField(
+        validators=[RegexValidator(regex="[0-9]{14}"),MaxValueValidator(99999999999999)],
+        help_text=_("CAEA code to operate offline AFIP"),
+        unique=True,
+    )
+
+    period = models.IntegerField(
+        help_text=_('Period to send in the CAEA request (yyyymm)')
+    )
+
+    order = models.IntegerField(choices=[(1,'1'),(2,'2')],
+        help_text=_('Month is divided in 1st quarter or 2nd quarter')
+    )
+
+    valid_since = models.DateTimeField(
+        _("valid_to"),
+    )
+    expires = models.DateTimeField(
+        _("expires"),
+    )
+
+    generated = models.DateTimeField(
+        _("generated"),
+    )
+    final_date_inform = models.DateTimeField(
+        _("final_date_inform"),
+    )
+
+    taxpayer = models.ForeignKey(
+        TaxPayer,
+        verbose_name=_("taxpayer"),
+        related_name="caea_tickets",
+        on_delete=models.CASCADE,
+    )
+
+    service = models.CharField(
+        _("service"),
+        max_length=34,
+        help_text=_("Service for which this ticket has been authorized."),
+    )
+
+    active = models.BooleanField(default=False)
+
+    def __str__(self) -> str:
+        return str(self.caea_code)
+
+    
+    def save(self, force_insert=False, force_update=False, *args, **kwargs):
+        if self.caea_code != '':
+            if self.__original_CAEA == None: #prevent to create a CAEA without code
+                self.generated = default_generated()
+                super().save(force_insert, force_update, *args, **kwargs)
+                self.__original_CAEA = self.caea_code
+            else:
+                if self.caea_code == self.__original_CAEA: #Allow modify the data only if the CAEA deosn't change.
+                    super().save(force_insert, force_update, *args, **kwargs)
+
+
