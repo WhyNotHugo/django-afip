@@ -1238,6 +1238,11 @@ class Receipt(models.Model):
         blank=True,
     )
 
+    generated = models.DateTimeField(
+        _('Time when the receipt was created'),
+        auto_now_add=True,
+        )
+
     objects = ReceiptManager()
 
     # TODO: Not implemented: optionals
