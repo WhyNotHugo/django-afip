@@ -2,6 +2,8 @@ from datetime import datetime
 from django.utils.functional import LazyObject
 
 from django_afip.clients import get_client
+from .models import Caea
+from .exceptions import CaeaCountError
 
 
 class _LazyFactory(LazyObject):
@@ -37,11 +39,79 @@ def serialize_ticket(ticket):
         Cuit=ticket.owner.cuit,
     )
 
-
-def serialize_multiple_receipts(receipts):
+def serialize_multiple_receipts_caea(receipts):
+    
     receipts = receipts.all().order_by("receipt_number")
 
     first = receipts.first()
+    receipts = [serialize_receipt_caea(receipt) for receipt in receipts]
+
+    serialised = f.FeCAEARegInfReq(
+        FeCabReq=f.FECAECabRequest(
+            CantReg=len(receipts),
+            PtoVta=first.point_of_sales.number,
+            CbteTipo=first.receipt_type.code,
+        ),
+        FeDetReq=f.ArrayOfFECAEDetRequest(receipts),
+    )
+
+    return serialised
+
+def serialize_receipt_caea(receipt):
+    taxes = receipt.taxes.all()
+    vats = receipt.vat.all()
+
+    serialized = f.FECAEADetRequest(
+        Concepto=receipt.concept.code,
+        DocTipo=receipt.document_type.code,
+        DocNro=receipt.document_number,
+        # TODO: Check that this is not None!,
+        CbteDesde=receipt.receipt_number,
+        CbteHasta=receipt.receipt_number,
+        CbteFch=serialize_date(receipt.issued_date),
+        ImpTotal=receipt.total_amount,
+        ImpTotConc=receipt.net_untaxed,
+        ImpNeto=receipt.net_taxed,
+        ImpOpEx=receipt.exempt_amount,
+        ImpIVA=sum(vat.amount for vat in vats),
+        ImpTrib=sum(tax.amount for tax in taxes),
+        MonId=receipt.currency.code,
+        MonCotiz=receipt.currency_quote,
+    )
+    if int(receipt.concept.code) in (2, 3):
+        serialized.FchServDesde = serialize_date(receipt.service_start)
+        serialized.FchServHasta = serialize_date(receipt.service_end)
+        serialized.FchVtoPago = serialize_date(receipt.expiration_date)
+
+    if taxes:
+        serialized.Tributos = f.ArrayOfTributo([serialize_tax(tax) for tax in taxes])
+
+    if vats:
+        serialized.Iva = f.ArrayOfAlicIva([serialize_vat(vat) for vat in vats])
+
+    related_receipts = receipt.related_receipts.all()
+    if related_receipts:
+        serialized.CbtesAsoc = f.ArrayOfCbteAsoc(
+            [
+                f.CbteAsoc(
+                    r.receipt_type.code,
+                    r.point_of_sales.number,
+                    r.receipt_number,
+                )
+                for r in related_receipts
+            ]
+        )
+    
+    serialized.CAEA = serialize_caea()
+
+    return serialized
+
+def serialize_multiple_receipts(receipts):
+    
+    receipts = receipts.all().order_by("receipt_number")
+
+    first = receipts.first()
+    is_caea = first.point_of_sales.issuance_type == 'CAEA'
     receipts = [serialize_receipt(receipt) for receipt in receipts]
 
     serialised = f.FECAERequest(
@@ -54,7 +124,6 @@ def serialize_multiple_receipts(receipts):
     )
 
     return serialised
-
 
 def serialize_receipt(receipt):
     taxes = receipt.taxes.all()
@@ -138,5 +207,12 @@ def serialize_caea_order(order:int = None):
     if order:
         return order
     else:
-        order = 1
-        return order
+        return 1
+
+def serialize_caea():
+    caea = Caea.objects.all().filter(active=True)
+
+    if caea.count() != 1:
+        raise CaeaCountError
+    else:
+        return caea.caea_code
