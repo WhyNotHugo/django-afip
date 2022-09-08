@@ -626,6 +626,71 @@ class TaxPayer(models.Model):
         verbose_name = _("taxpayer")
         verbose_name_plural = _("taxpayers")
 
+class Caea(models.Model):
+    """ Represents a CAEA code to continue operating when AFIP is offline.
+
+    The methods provideed by AFIP like: consulting CAEA or informing a Receipt will be attached to the Queryset o the TaxPayer model as appropiate.
+
+    Save() was overraided to ensure that once a CAEA was created the CAEA_code cannot be changed.
+
+    """
+
+    __original_CAEA = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__original_CAEA = self.caea_code
+
+    caea_code = models.PositiveBigIntegerField(
+        validators=[RegexValidator(regex="[0-9]{14}"),MaxValueValidator(99999999999999)],
+        help_text=_("CAEA code to operate offline AFIP"),
+        unique=True,
+    )
+
+    period = models.IntegerField(
+        help_text=_('Period to send in the CAEA request (yyyymm)')
+    )
+
+    order = models.IntegerField(choices=[(1,'1'),(2,'2')],
+        help_text=_('Month is divided in 1st quarter or 2nd quarter')
+    )
+
+    valid_since = models.DateField(
+        _("valid_to"),
+    )
+    expires = models.DateField(
+        _("expires"),
+    )
+
+    generated = models.DateTimeField(
+        _("generated"),
+    )
+    final_date_inform = models.DateField(
+        _("final_date_inform"),
+    )
+
+    taxpayer = models.ForeignKey(
+        TaxPayer,
+        verbose_name=_("taxpayer"),
+        related_name="caea_tickets",
+        on_delete=models.CASCADE,
+    )
+
+    active = models.BooleanField(default=False)
+
+    def __str__(self) -> str:
+        return str(self.caea_code)
+
+    
+    def save(self, force_insert=False, force_update=False, *args, **kwargs):
+        if self.caea_code != '':
+            if self.__original_CAEA == None: #prevent to create a CAEA without code
+                self.generated = default_generated()
+                super().save(force_insert, force_update, *args, **kwargs)
+                self.__original_CAEA = self.caea_code
+            else:
+                if self.caea_code == self.__original_CAEA: #Allow modify the data only if the CAEA deosn't change.
+                    super().save(force_insert, force_update, *args, **kwargs)
 
 class PointOfSales(models.Model):
     """
@@ -970,18 +1035,21 @@ class ReceiptQuerySet(models.QuerySet):
         # Skip any already-validated ones:
         qs = self.filter(validation__isnull=True).check_groupable()
         if qs.count() == 0:
-            print('paso por aca')
             return []
-        qs.order_by("issued_date", "id")._assign_numbers()
+        
+        pos = qs[0].point_of_sales.issuance_type == 'CAEA'
+
+        if pos:
+            qs.order_by("issued_date", "id")
+        else:
+            qs.order_by("issued_date", "id")._assign_numbers()
 
         return qs._validate(ticket)
 
     def _validate(self, ticket=None) -> list[str]:
         first = self.first()
         ticket = ticket or first.point_of_sales.owner.get_or_create_ticket("wsfe")
-        type_point = first.point_of_sales.issuance_type
         client = clients.get_client("wsfe", first.point_of_sales.owner.is_sandboxed)
-        print('\n',type_point,'\n')
 
         if first.point_of_sales.issuance_type == 'CAE':    
             
@@ -1024,17 +1092,13 @@ class ReceiptQuerySet(models.QuerySet):
             self.filter(validation__isnull=True).update(receipt_number=None)
             return errs
         else:
-            valor = True
-            if valor: #Eliminar esto
-                print('nothing to validate yet')
-                return None
-            else:
-                response = client.service.FECAEARegInformativo(
+            response = client.service.FECAEARegInformativo(
                     serializers.serialize_ticket(ticket),
                     serializers.serialize_multiple_receipts_caea(self),
                 )
-                check_response(response)
-                for cae_data in response.FeDetResp.FECAEADetResponse:
+            check_response(response)
+            errs = []
+            for cae_data in response.FeDetResp.FECAEADetResponse:
                     if cae_data.Resultado == ReceiptValidation.RESULT_APPROVED:
                         validation = ReceiptValidation.objects.create(
                             result=cae_data.Resultado,
@@ -1063,10 +1127,7 @@ class ReceiptQuerySet(models.QuerySet):
                                     parsers.parse_string(obs.Msg),
                                 )
                             )
-
-                # Remove the number from ones that failed to validate:
-                self.filter(validation__isnull=True).update(receipt_number=None)
-                return errs
+            return errs
 
 
 
@@ -1292,6 +1353,14 @@ class Receipt(models.Model):
         _('Time when the receipt was created'),
         auto_now_add=True,
         )
+    
+    caea = models.ForeignKey(
+        Caea,
+        on_delete=models.PROTECT,
+        help_text= _('CAEA in case that the receipt must contain it'),
+        blank=True,
+        null=True,
+        )
 
     objects = ReceiptManager()
 
@@ -1342,6 +1411,26 @@ class Receipt(models.Model):
             return self.validation.result == ReceiptValidation.RESULT_APPROVED
         except ReceiptValidation.DoesNotExist:
             return False
+    
+    def save(self, force_insert=False, force_update=False, *args, **kwargs):
+
+        if self.point_of_sales.issuance_type == 'CAEA':
+            if self.receipt_number == None or self.receipt_number == "":
+                counter = CaeaCounter.objects.get_or_create(pos=self.point_of_sales, receipt_type = self.receipt_type)[0]
+                self.receipt_number = counter.next_value
+                counter.next_value +=1
+                counter.save()
+
+            caea = Caea.objects.all().filter(active=True)            
+            if caea.count() != 1:
+                raise exceptions.CaeaCountError
+            else:
+                if self.caea == None or self.caea == "":
+                    self.caea = caea[0]
+            
+            super().save(force_insert, force_update, *args, **kwargs)
+
+
 
     def validate(self, ticket: AuthTicket = None, raise_=False) -> list[str]:
         """Validates this receipt.
@@ -1818,71 +1907,27 @@ class ReceiptValidation(models.Model):
         verbose_name = _("receipt validation")
         verbose_name_plural = _("receipt validations")
 
-class Caea(models.Model):
-    """ Represents a CAEA code to continue operating when AFIP is offline.
+class CaeaCounter(models.Model):
 
-    The methods provideed by AFIP like: consulting CAEA or informing a Receipt will be attached to the Queryset o the TaxPayer model as appropiate.
+    pos = models.ForeignKey(
+        PointOfSales,
+        related_name='counter',
+        on_delete=models.PROTECT)
 
-    Save() was overraided to ensure that once a CAEA was created the CAEA_code cannot be changed.
+    receipt_type = models.ForeignKey(
+        ReceiptType,
+        related_name='counter',
+        on_delete=models.PROTECT)
 
-    """
+    next_value = models.BigIntegerField(default=1)
 
-    __original_CAEA = None
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['pos', 'receipt_type'], name='unique_migration_pos_receipt_combination'
+            )
+        ]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.__original_CAEA = self.caea_code
-
-    caea_code = models.PositiveBigIntegerField(
-        validators=[RegexValidator(regex="[0-9]{14}"),MaxValueValidator(99999999999999)],
-        help_text=_("CAEA code to operate offline AFIP"),
-        unique=True,
-    )
-
-    period = models.IntegerField(
-        help_text=_('Period to send in the CAEA request (yyyymm)')
-    )
-
-    order = models.IntegerField(choices=[(1,'1'),(2,'2')],
-        help_text=_('Month is divided in 1st quarter or 2nd quarter')
-    )
-
-    valid_since = models.DateField(
-        _("valid_to"),
-    )
-    expires = models.DateField(
-        _("expires"),
-    )
-
-    generated = models.DateTimeField(
-        _("generated"),
-    )
-    final_date_inform = models.DateField(
-        _("final_date_inform"),
-    )
-
-    taxpayer = models.ForeignKey(
-        TaxPayer,
-        verbose_name=_("taxpayer"),
-        related_name="caea_tickets",
-        on_delete=models.CASCADE,
-    )
-
-    active = models.BooleanField(default=False)
-
-    def __str__(self) -> str:
-        return str(self.caea_code)
-
-    
-    def save(self, force_insert=False, force_update=False, *args, **kwargs):
-        if self.caea_code != '':
-            if self.__original_CAEA == None: #prevent to create a CAEA without code
-                self.generated = default_generated()
-                super().save(force_insert, force_update, *args, **kwargs)
-                self.__original_CAEA = self.caea_code
-            else:
-                if self.caea_code == self.__original_CAEA: #Allow modify the data only if the CAEA deosn't change.
-                    super().save(force_insert, force_update, *args, **kwargs)
     
 
 

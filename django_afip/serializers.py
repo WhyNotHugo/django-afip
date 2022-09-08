@@ -2,7 +2,6 @@ from datetime import datetime
 from django.utils.functional import LazyObject
 
 from django_afip.clients import get_client
-from .models import Caea
 from .exceptions import CaeaCountError
 
 
@@ -40,19 +39,19 @@ def serialize_ticket(ticket):
     )
 
 def serialize_multiple_receipts_caea(receipts):
-    
+
     receipts = receipts.all().order_by("receipt_number")
 
     first = receipts.first()
     receipts = [serialize_receipt_caea(receipt) for receipt in receipts]
 
-    serialised = f.FeCAEARegInfReq(
-        FeCabReq=f.FECAECabRequest(
+    serialised = f.FECAEARequest(
+        FeCabReq=f.FECAEACabRequest(
             CantReg=len(receipts),
             PtoVta=first.point_of_sales.number,
             CbteTipo=first.receipt_type.code,
         ),
-        FeDetReq=f.ArrayOfFECAEDetRequest(receipts),
+        FeDetReq=f.ArrayOfFECAEADetRequest(receipts),
     )
 
     return serialised
@@ -102,7 +101,7 @@ def serialize_receipt_caea(receipt):
             ]
         )
     
-    serialized.CAEA = serialize_caea()
+    serialized.CAEA = receipt.caea.caea_code
 
     return serialized
 
@@ -111,7 +110,6 @@ def serialize_multiple_receipts(receipts):
     receipts = receipts.all().order_by("receipt_number")
 
     first = receipts.first()
-    is_caea = first.point_of_sales.issuance_type == 'CAEA'
     receipts = [serialize_receipt(receipt) for receipt in receipts]
 
     serialised = f.FECAERequest(
@@ -208,11 +206,3 @@ def serialize_caea_order(order:int = None):
         return order
     else:
         return 1
-
-def serialize_caea():
-    caea = Caea.objects.all().filter(active=True)
-
-    if caea.count() != 1:
-        raise CaeaCountError
-    else:
-        return caea.caea_code
