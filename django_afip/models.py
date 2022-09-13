@@ -1413,13 +1413,7 @@ class Receipt(models.Model):
             return False
     
     def save(self, force_insert=False, force_update=False, *args, **kwargs):
-
         if self.point_of_sales.issuance_type == 'CAEA':
-            if self.receipt_number == None or self.receipt_number == "":
-                counter = CaeaCounter.objects.get_or_create(pos=self.point_of_sales, receipt_type = self.receipt_type)[0]
-                self.receipt_number = counter.next_value
-                counter.next_value +=1
-                counter.save()
 
             caea = Caea.objects.all().filter(active=True)            
             if caea.count() != 1:
@@ -1427,7 +1421,15 @@ class Receipt(models.Model):
             else:
                 if self.caea == None or self.caea == "":
                     self.caea = caea[0]
-            
+
+            if self.receipt_number == None or self.receipt_number == "":
+                counter = CaeaCounter.objects.get_or_create(pos=self.point_of_sales, receipt_type = self.receipt_type)[0]
+                self.receipt_number = counter.next_value
+                counter.next_value +=1
+                counter.save()
+
+            super().save(force_insert, force_update, *args, **kwargs)
+        else:
             super().save(force_insert, force_update, *args, **kwargs)
 
 
