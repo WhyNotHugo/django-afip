@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('afip', '0014_remove_caea_service'),
+        ("afip", "0014_remove_caea_service"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='caea',
-            name='expires',
-            field=models.DateField(verbose_name='expires'),
+            model_name="caea",
+            name="expires",
+            field=models.DateField(verbose_name="expires"),
         ),
         migrations.AlterField(
-            model_name='caea',
-            name='final_date_inform',
-            field=models.DateField(verbose_name='final_date_inform'),
+            model_name="caea",
+            name="final_date_inform",
+            field=models.DateField(verbose_name="final_date_inform"),
         ),
         migrations.AlterField(
-            model_name='caea',
-            name='valid_since',
-            field=models.DateField(verbose_name='valid_to'),
+            model_name="caea",
+            name="valid_since",
+            field=models.DateField(verbose_name="valid_to"),
         ),
     ]

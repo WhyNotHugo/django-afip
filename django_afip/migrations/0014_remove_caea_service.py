@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('afip', '0013_alter_caea_caea_code'),
+        ("afip", "0013_alter_caea_caea_code"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='caea',
-            name='service',
+            model_name="caea",
+            name="service",
         ),
     ]

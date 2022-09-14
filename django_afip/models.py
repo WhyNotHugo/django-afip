@@ -115,6 +115,7 @@ def _get_storage_from_settings(setting_name: str) -> Storage:
         return import_string(settings.DEFAULT_FILE_STORAGE)()
     return import_string(path)
 
+
 def caea_is_active(valid_since, valid_to) -> bool:
     valid_since = parsers.parse_date(valid_since)
     valid_to = parsers.parse_date(valid_to)
@@ -546,8 +547,13 @@ class TaxPayer(models.Model):
             )
 
         return results
-    
-    def get_caea(self,period:int=None , order:int = None, ticket: AuthTicket = None,) -> Caea:
+
+    def get_caea(
+        self,
+        period: int = None,
+        order: int = None,
+        ticket: AuthTicket = None,
+    ) -> Caea:
         """
         Get a CAEA code for the TaxPayer, if a CAEA alredy exists the check_response will raise and exception
 
@@ -559,25 +565,35 @@ class TaxPayer(models.Model):
 
         response = client.service.FECAEASolicitar(
             serializers.serialize_ticket(ticket),
-            Periodo = serializers.serialize_caea_period(period),
-            Orden = serializers.serialize_caea_order(order),
+            Periodo=serializers.serialize_caea_period(period),
+            Orden=serializers.serialize_caea_order(order),
         )
-        check_response(response) #be aware that this func raise an error if it's present
+        check_response(
+            response
+        )  # be aware that this func raise an error if it's present
 
         caea = Caea.objects.create(
-            caea_code = int(response.ResultGet.CAEA),
-            period = int(response.ResultGet.Periodo),
-            order = int(response.ResultGet.Orden),
-            valid_since = parsers.parse_date(response.ResultGet.FchVigDesde),
-            expires = parsers.parse_date(response.ResultGet.FchVigHasta),
-            generated = parsers.parse_datetime(response.ResultGet.FchProceso),
-            final_date_inform = parsers.parse_date(response.ResultGet.FchTopeInf),
-            taxpayer = self,
-            active = caea_is_active(valid_since=response.ResultGet.FchVigDesde, valid_to=response.ResultGet.FchVigHasta),
+            caea_code=int(response.ResultGet.CAEA),
+            period=int(response.ResultGet.Periodo),
+            order=int(response.ResultGet.Orden),
+            valid_since=parsers.parse_date(response.ResultGet.FchVigDesde),
+            expires=parsers.parse_date(response.ResultGet.FchVigHasta),
+            generated=parsers.parse_datetime(response.ResultGet.FchProceso),
+            final_date_inform=parsers.parse_date(response.ResultGet.FchTopeInf),
+            taxpayer=self,
+            active=caea_is_active(
+                valid_since=response.ResultGet.FchVigDesde,
+                valid_to=response.ResultGet.FchVigHasta,
+            ),
         )
         return caea
-    
-    def consult_caea(self,period: str = None, order:int = None, ticket: AuthTicket = None,) -> Caea:
+
+    def consult_caea(
+        self,
+        period: str = None,
+        order: int = None,
+        ticket: AuthTicket = None,
+    ) -> Caea:
         """
         Consult the CAEA code  given by AFIP, if for some reason the code it's not saved in the db it will be created
 
@@ -588,27 +604,31 @@ class TaxPayer(models.Model):
         client = clients.get_client("wsfe", self.is_sandboxed)
         response = client.service.FECAEAConsultar(
             serializers.serialize_ticket(ticket),
-            Periodo = serializers.serialize_caea_period(period),
-            Orden = serializers.serialize_caea_order(order),
+            Periodo=serializers.serialize_caea_period(period),
+            Orden=serializers.serialize_caea_order(order),
         )
 
-        check_response(response) #be aware that this func raise an error if it's present
+        check_response(
+            response
+        )  # be aware that this func raise an error if it's present
         update = {
-            'caea_code': int(response.ResultGet.CAEA),
-            'period' : int(response.ResultGet.Periodo),
-            'order' : int(response.ResultGet.Orden),
-            'valid_since' : parsers.parse_date(response.ResultGet.FchVigDesde),
-            'expires' : parsers.parse_date(response.ResultGet.FchVigHasta),
-            'generated' : parsers.parse_datetime(response.ResultGet.FchProceso),
-            'final_date_inform' : parsers.parse_date(response.ResultGet.FchTopeInf),
-            'taxpayer' : self,
-            'active' : caea_is_active(valid_since=response.ResultGet.FchVigDesde, valid_to=response.ResultGet.FchVigHasta),
-            }
+            "caea_code": int(response.ResultGet.CAEA),
+            "period": int(response.ResultGet.Periodo),
+            "order": int(response.ResultGet.Orden),
+            "valid_since": parsers.parse_date(response.ResultGet.FchVigDesde),
+            "expires": parsers.parse_date(response.ResultGet.FchVigHasta),
+            "generated": parsers.parse_datetime(response.ResultGet.FchProceso),
+            "final_date_inform": parsers.parse_date(response.ResultGet.FchTopeInf),
+            "taxpayer": self,
+            "active": caea_is_active(
+                valid_since=response.ResultGet.FchVigDesde,
+                valid_to=response.ResultGet.FchVigHasta,
+            ),
+        }
 
         caea = Caea.objects.update_or_create(
-            caea_code = int(response.ResultGet.CAEA),            
-            defaults=update)
-
+            caea_code=int(response.ResultGet.CAEA), defaults=update
+        )
 
         return caea
 
@@ -626,8 +646,9 @@ class TaxPayer(models.Model):
         verbose_name = _("taxpayer")
         verbose_name_plural = _("taxpayers")
 
+
 class Caea(models.Model):
-    """ Represents a CAEA code to continue operating when AFIP is offline.
+    """Represents a CAEA code to continue operating when AFIP is offline.
 
     The methods provideed by AFIP like: consulting CAEA or informing a Receipt will be attached to the Queryset o the TaxPayer model as appropiate.
 
@@ -642,17 +663,21 @@ class Caea(models.Model):
         self.__original_CAEA = self.caea_code
 
     caea_code = models.PositiveBigIntegerField(
-        validators=[RegexValidator(regex="[0-9]{14}"),MaxValueValidator(99999999999999)],
+        validators=[
+            RegexValidator(regex="[0-9]{14}"),
+            MaxValueValidator(99999999999999),
+        ],
         help_text=_("CAEA code to operate offline AFIP"),
         unique=True,
     )
 
     period = models.IntegerField(
-        help_text=_('Period to send in the CAEA request (yyyymm)')
+        help_text=_("Period to send in the CAEA request (yyyymm)")
     )
 
-    order = models.IntegerField(choices=[(1,'1'),(2,'2')],
-        help_text=_('Month is divided in 1st quarter or 2nd quarter')
+    order = models.IntegerField(
+        choices=[(1, "1"), (2, "2")],
+        help_text=_("Month is divided in 1st quarter or 2nd quarter"),
     )
 
     valid_since = models.DateField(
@@ -681,16 +706,18 @@ class Caea(models.Model):
     def __str__(self) -> str:
         return str(self.caea_code)
 
-    
     def save(self, force_insert=False, force_update=False, *args, **kwargs):
-        if self.caea_code != '':
-            if self.__original_CAEA == None: #prevent to create a CAEA without code
+        if self.caea_code != "":
+            if self.__original_CAEA == None:  # prevent to create a CAEA without code
                 self.generated = default_generated()
                 super().save(force_insert, force_update, *args, **kwargs)
                 self.__original_CAEA = self.caea_code
             else:
-                if self.caea_code == self.__original_CAEA: #Allow modify the data only if the CAEA deosn't change.
+                if (
+                    self.caea_code == self.__original_CAEA
+                ):  # Allow modify the data only if the CAEA deosn't change.
                     super().save(force_insert, force_update, *args, **kwargs)
+
 
 class PointOfSales(models.Model):
     """
@@ -1036,8 +1063,8 @@ class ReceiptQuerySet(models.QuerySet):
         qs = self.filter(validation__isnull=True).check_groupable()
         if qs.count() == 0:
             return []
-        
-        pos = qs[0].point_of_sales.issuance_type == 'CAEA'
+
+        pos = qs[0].point_of_sales.issuance_type == "CAEA"
 
         if pos:
             qs.order_by("issued_date", "id")
@@ -1051,8 +1078,8 @@ class ReceiptQuerySet(models.QuerySet):
         ticket = ticket or first.point_of_sales.owner.get_or_create_ticket("wsfe")
         client = clients.get_client("wsfe", first.point_of_sales.owner.is_sandboxed)
 
-        if first.point_of_sales.issuance_type == 'CAE':    
-            
+        if first.point_of_sales.issuance_type == "CAE":
+
             response = client.service.FECAESolicitar(
                 serializers.serialize_ticket(ticket),
                 serializers.serialize_multiple_receipts(self),
@@ -1093,42 +1120,41 @@ class ReceiptQuerySet(models.QuerySet):
             return errs
         else:
             response = client.service.FECAEARegInformativo(
-                    serializers.serialize_ticket(ticket),
-                    serializers.serialize_multiple_receipts_caea(self),
-                )
+                serializers.serialize_ticket(ticket),
+                serializers.serialize_multiple_receipts_caea(self),
+            )
             check_response(response)
             errs = []
             for cae_data in response.FeDetResp.FECAEADetResponse:
-                    if cae_data.Resultado == ReceiptValidation.RESULT_APPROVED:
-                        validation = ReceiptValidation.objects.create(
-                            result=cae_data.Resultado,
-                            cae=cae_data.CAEA,
-                            #cae_expiration=parsers.parse_date(self.caea.expires),
-                            receipt=self.get(
-                                receipt_number=cae_data.CbteDesde,
-                            ),
-                            processed_date=parsers.parse_datetime(
-                                response.FeCabResp.FchProceso,
-                            ),
-                            caea = True,
-                        )
-                        if cae_data.Observaciones:
-                            for obs in cae_data.Observaciones.Obs:
-                                observation = Observation.objects.create(
-                                    code=obs.Code,
-                                    message=obs.Msg,
-                                )
-                            validation.observations.add(observation)
-                    elif cae_data.Observaciones:
+                if cae_data.Resultado == ReceiptValidation.RESULT_APPROVED:
+                    validation = ReceiptValidation.objects.create(
+                        result=cae_data.Resultado,
+                        cae=cae_data.CAEA,
+                        # cae_expiration=parsers.parse_date(self.caea.expires),
+                        receipt=self.get(
+                            receipt_number=cae_data.CbteDesde,
+                        ),
+                        processed_date=parsers.parse_datetime(
+                            response.FeCabResp.FchProceso,
+                        ),
+                        caea=True,
+                    )
+                    if cae_data.Observaciones:
                         for obs in cae_data.Observaciones.Obs:
-                            errs.append(
-                                "Error {}: {}".format(
-                                    obs.Code,
-                                    parsers.parse_string(obs.Msg),
-                                )
+                            observation = Observation.objects.create(
+                                code=obs.Code,
+                                message=obs.Msg,
                             )
+                        validation.observations.add(observation)
+                elif cae_data.Observaciones:
+                    for obs in cae_data.Observaciones.Obs:
+                        errs.append(
+                            "Error {}: {}".format(
+                                obs.Code,
+                                parsers.parse_string(obs.Msg),
+                            )
+                        )
             return errs
-
 
 
 class ReceiptManager(models.Manager):
@@ -1350,18 +1376,18 @@ class Receipt(models.Model):
     )
 
     generated = models.DateTimeField(
-        _('Time when the receipt was created'),
+        _("Time when the receipt was created"),
         auto_now_add=True,
-        )
-    
+    )
+
     caea = models.ForeignKey(
         Caea,
-        related_name='caea',
+        related_name="caea",
         on_delete=models.PROTECT,
-        help_text= _('CAEA in case that the receipt must contain it'),
+        help_text=_("CAEA in case that the receipt must contain it"),
         blank=True,
         null=True,
-        )
+    )
 
     objects = ReceiptManager()
 
@@ -1412,11 +1438,11 @@ class Receipt(models.Model):
             return self.validation.result == ReceiptValidation.RESULT_APPROVED
         except ReceiptValidation.DoesNotExist:
             return False
-    
-    def save(self, force_insert=False, force_update=False, *args, **kwargs):
-        if self.point_of_sales.issuance_type == 'CAEA':
 
-            caea = Caea.objects.all().filter(active=True)            
+    def save(self, force_insert=False, force_update=False, *args, **kwargs):
+        if self.point_of_sales.issuance_type == "CAEA":
+
+            caea = Caea.objects.all().filter(active=True)
             if caea.count() != 1:
                 raise exceptions.CaeaCountError
             else:
@@ -1424,16 +1450,16 @@ class Receipt(models.Model):
                     self.caea = caea[0]
 
             if self.receipt_number == None or self.receipt_number == "":
-                counter = CaeaCounter.objects.get_or_create(pos=self.point_of_sales, receipt_type = self.receipt_type)[0]
+                counter = CaeaCounter.objects.get_or_create(
+                    pos=self.point_of_sales, receipt_type=self.receipt_type
+                )[0]
                 self.receipt_number = counter.next_value
-                counter.next_value +=1
+                counter.next_value += 1
                 counter.save()
 
             super().save(force_insert, force_update, *args, **kwargs)
         else:
             super().save(force_insert, force_update, *args, **kwargs)
-
-
 
     def validate(self, ticket: AuthTicket = None, raise_=False) -> list[str]:
         """Validates this receipt.
@@ -1490,9 +1516,8 @@ class Receipt(models.Model):
         if not receipt_data:
             return None
 
-
         if receipt_data.Resultado == ReceiptValidation.RESULT_APPROVED:
-            if receipt_data.EmisionTipo == 'CAEA':
+            if receipt_data.EmisionTipo == "CAEA":
                 cae_expiration = None
             else:
                 cae_expiration = receipt_data.EmisionTipo
@@ -1530,7 +1555,9 @@ class Receipt(models.Model):
             return _("Unnumbered %s") % self.receipt_type
 
     class Meta:
-        ordering = ("issued_date",) #this ordering return the same values for first(),last() when filter on 1 day
+        ordering = (
+            "issued_date",
+        )  # this ordering return the same values for first(),last() when filter on 1 day
         verbose_name = _("receipt")
         verbose_name_plural = _("receipts")
         unique_together = [["point_of_sales", "receipt_type", "receipt_number"]]
@@ -1872,7 +1899,7 @@ class ReceiptValidation(models.Model):
     cae_expiration = models.DateField(
         _("cae expiration"),
         help_text=_("The CAE expiration as returned by the AFIP."),
-        blank=True, #Must be blank or null when was approved from CAEA operations
+        blank=True,  # Must be blank or null when was approved from CAEA operations
         null=True,
     )
     observations = models.ManyToManyField(
@@ -1895,8 +1922,10 @@ class ReceiptValidation(models.Model):
 
     caea = models.BooleanField(
         default=False,
-        help_text=_('Indicate if the validation was from a CAEA receipt, in that case the field cae contains the CAEA number'),
-        verbose_name=_("is_caea")
+        help_text=_(
+            "Indicate if the validation was from a CAEA receipt, in that case the field cae contains the CAEA number"
+        ),
+        verbose_name=_("is_caea"),
     )
 
     def __str__(self) -> str:
@@ -1917,27 +1946,23 @@ class ReceiptValidation(models.Model):
         verbose_name = _("receipt validation")
         verbose_name_plural = _("receipt validations")
 
+
 class CaeaCounter(models.Model):
 
     pos = models.ForeignKey(
-        PointOfSales,
-        related_name='counter',
-        on_delete=models.PROTECT)
+        PointOfSales, related_name="counter", on_delete=models.PROTECT
+    )
 
     receipt_type = models.ForeignKey(
-        ReceiptType,
-        related_name='counter',
-        on_delete=models.PROTECT)
+        ReceiptType, related_name="counter", on_delete=models.PROTECT
+    )
 
     next_value = models.BigIntegerField(default=1)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['pos', 'receipt_type'], name='unique_migration_pos_receipt_combination'
+                fields=["pos", "receipt_type"],
+                name="unique_migration_pos_receipt_combination",
             )
         ]
-
-    
-
-

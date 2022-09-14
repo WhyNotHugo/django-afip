@@ -26,6 +26,7 @@ def serialize_datetime(datetime):
     """
     return datetime.strftime("%Y-%m-%dT%H:%M:%S-00:00")
 
+
 def serialize_datetime_caea(datetime):
     """
     A similar serealizer to the above one but, use a diferent format.
@@ -44,6 +45,7 @@ def serialize_ticket(ticket):
         Cuit=ticket.owner.cuit,
     )
 
+
 def serialize_multiple_receipts_caea(receipts):
 
     receipts = receipts.all().order_by("receipt_number")
@@ -61,6 +63,7 @@ def serialize_multiple_receipts_caea(receipts):
     )
 
     return serialised
+
 
 def serialize_receipt_caea(receipt):
     taxes = receipt.taxes.all()
@@ -106,14 +109,15 @@ def serialize_receipt_caea(receipt):
                 for r in related_receipts
             ]
         )
-    
+
     serialized.CAEA = receipt.caea.caea_code
     serialized.CbteFchHsGen = serialize_datetime_caea(receipt.generated)
 
     return serialized
 
+
 def serialize_multiple_receipts(receipts):
-    
+
     receipts = receipts.all().order_by("receipt_number")
 
     first = receipts.first()
@@ -129,6 +133,7 @@ def serialize_multiple_receipts(receipts):
     )
 
     return serialised
+
 
 def serialize_receipt(receipt):
     taxes = receipt.taxes.all()
@@ -201,14 +206,16 @@ def serialize_receipt_data(receipt_type, receipt_number, point_of_sales):
         CbteTipo=receipt_type, CbteNro=receipt_number, PtoVta=point_of_sales
     )
 
-def serialize_caea_period(period:str = None):
+
+def serialize_caea_period(period: str = None):
     if period:
         return period
     else:
         date = datetime.now()
         return date.strftime("%Y%m")
-    
-def serialize_caea_order(order:int = None):
+
+
+def serialize_caea_order(order: int = None):
     if order:
         return order
     else:

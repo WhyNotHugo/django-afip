@@ -7,21 +7,46 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('afip', '0017_receipt_caea_receiptvalidation_caea'),
+        ("afip", "0017_receipt_caea_receiptvalidation_caea"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='CaeaCounter',
+            name="CaeaCounter",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('value', models.BigIntegerField(default=1)),
-                ('pos', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='counter', to='afip.pointofsales')),
-                ('receipt_type', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='counter', to='afip.receipttype')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("value", models.BigIntegerField(default=1)),
+                (
+                    "pos",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="counter",
+                        to="afip.pointofsales",
+                    ),
+                ),
+                (
+                    "receipt_type",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="counter",
+                        to="afip.receipttype",
+                    ),
+                ),
             ],
         ),
         migrations.AddConstraint(
-            model_name='caeacounter',
-            constraint=models.UniqueConstraint(fields=('pos', 'receipt_type'), name='unique_migration_pos_receipt_combination'),
+            model_name="caeacounter",
+            constraint=models.UniqueConstraint(
+                fields=("pos", "receipt_type"),
+                name="unique_migration_pos_receipt_combination",
+            ),
         ),
     ]

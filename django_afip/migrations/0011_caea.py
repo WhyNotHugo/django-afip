@@ -8,24 +8,70 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('afip', '0010_alter_authticket_service'),
+        ("afip", "0010_alter_authticket_service"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Caea',
+            name="Caea",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('caea_code', models.BigIntegerField(help_text='CAEA code to operate offline AFIP', unique=True, validators=[django.core.validators.RegexValidator(regex='[0-9]{14}')])),
-                ('period', models.IntegerField(help_text='Period to send in the CAEA request (yyyymm)')),
-                ('order', models.IntegerField(choices=[(1, '1'), (2, '2')], help_text='Month is divided in 1st quarter or 2nd quarter')),
-                ('valid_since', models.DateTimeField(verbose_name='valid_to')),
-                ('expires', models.DateTimeField(verbose_name='expires')),
-                ('generated', models.DateTimeField(verbose_name='generated')),
-                ('final_date_inform', models.DateTimeField(verbose_name='final_date_inform')),
-                ('service', models.CharField(help_text='Service for which this ticket has been authorized.', max_length=34, verbose_name='service')),
-                ('active', models.BooleanField(default=False)),
-                ('taxpayer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='caea_tickets', to='afip.taxpayer', verbose_name='taxpayer')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "caea_code",
+                    models.BigIntegerField(
+                        help_text="CAEA code to operate offline AFIP",
+                        unique=True,
+                        validators=[
+                            django.core.validators.RegexValidator(regex="[0-9]{14}")
+                        ],
+                    ),
+                ),
+                (
+                    "period",
+                    models.IntegerField(
+                        help_text="Period to send in the CAEA request (yyyymm)"
+                    ),
+                ),
+                (
+                    "order",
+                    models.IntegerField(
+                        choices=[(1, "1"), (2, "2")],
+                        help_text="Month is divided in 1st quarter or 2nd quarter",
+                    ),
+                ),
+                ("valid_since", models.DateTimeField(verbose_name="valid_to")),
+                ("expires", models.DateTimeField(verbose_name="expires")),
+                ("generated", models.DateTimeField(verbose_name="generated")),
+                (
+                    "final_date_inform",
+                    models.DateTimeField(verbose_name="final_date_inform"),
+                ),
+                (
+                    "service",
+                    models.CharField(
+                        help_text="Service for which this ticket has been authorized.",
+                        max_length=34,
+                        verbose_name="service",
+                    ),
+                ),
+                ("active", models.BooleanField(default=False)),
+                (
+                    "taxpayer",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="caea_tickets",
+                        to="afip.taxpayer",
+                        verbose_name="taxpayer",
+                    ),
+                ),
             ],
         ),
     ]

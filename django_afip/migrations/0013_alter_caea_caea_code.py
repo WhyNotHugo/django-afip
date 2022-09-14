@@ -7,13 +7,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('afip', '0012_alter_caea_caea_code'),
+        ("afip", "0012_alter_caea_caea_code"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='caea',
-            name='caea_code',
-            field=models.PositiveBigIntegerField(help_text='CAEA code to operate offline AFIP', unique=True, validators=[django.core.validators.RegexValidator(regex='[0-9]{14}'), django.core.validators.MaxValueValidator(99999999999999)]),
+            model_name="caea",
+            name="caea_code",
+            field=models.PositiveBigIntegerField(
+                help_text="CAEA code to operate offline AFIP",
+                unique=True,
+                validators=[
+                    django.core.validators.RegexValidator(regex="[0-9]{14}"),
+                    django.core.validators.MaxValueValidator(99999999999999),
+                ],
+            ),
         ),
     ]

@@ -7,13 +7,20 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('afip', '0019_rename_value_caeacounter_next_value'),
+        ("afip", "0019_rename_value_caeacounter_next_value"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='receipt',
-            name='caea',
-            field=models.ForeignKey(blank=True, help_text='CAEA in case that the receipt must contain it', null=True, on_delete=django.db.models.deletion.PROTECT, related_name='caea', to='afip.caea'),
+            model_name="receipt",
+            name="caea",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="CAEA in case that the receipt must contain it",
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="caea",
+                to="afip.caea",
+            ),
         ),
     ]

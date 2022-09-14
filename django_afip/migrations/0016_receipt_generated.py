@@ -7,14 +7,18 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('afip', '0015_alter_caea_expires_alter_caea_final_date_inform_and_more'),
+        ("afip", "0015_alter_caea_expires_alter_caea_final_date_inform_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='receipt',
-            name='generated',
-            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now, verbose_name='Time when the receipt was created'),
+            model_name="receipt",
+            name="generated",
+            field=models.DateTimeField(
+                auto_now_add=True,
+                default=django.utils.timezone.now,
+                verbose_name="Time when the receipt was created",
+            ),
             preserve_default=False,
         ),
     ]
