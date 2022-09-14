@@ -1103,7 +1103,7 @@ class ReceiptQuerySet(models.QuerySet):
                         validation = ReceiptValidation.objects.create(
                             result=cae_data.Resultado,
                             cae=cae_data.CAEA,
-                            #cae_expiration=parsers.parse_date(cae_data.CAEFchVto),
+                            #cae_expiration=parsers.parse_date(self.caea.expires),
                             receipt=self.get(
                                 receipt_number=cae_data.CbteDesde,
                             ),
@@ -1356,6 +1356,7 @@ class Receipt(models.Model):
     
     caea = models.ForeignKey(
         Caea,
+        related_name='caea',
         on_delete=models.PROTECT,
         help_text= _('CAEA in case that the receipt must contain it'),
         blank=True,
@@ -1489,11 +1490,16 @@ class Receipt(models.Model):
         if not receipt_data:
             return None
 
+
         if receipt_data.Resultado == ReceiptValidation.RESULT_APPROVED:
+            if receipt_data.EmisionTipo == 'CAEA':
+                cae_expiration = None
+            else:
+                cae_expiration = receipt_data.EmisionTipo
             validation = ReceiptValidation.objects.create(
                 result=receipt_data.Resultado,
                 cae=receipt_data.CodAutorizacion,
-                cae_expiration=parsers.parse_date(receipt_data.FchVto),
+                cae_expiration=parsers.parse_date(cae_expiration),
                 receipt=self,
                 processed_date=parsers.parse_datetime(
                     receipt_data.FchProceso,
@@ -1524,7 +1530,7 @@ class Receipt(models.Model):
             return _("Unnumbered %s") % self.receipt_type
 
     class Meta:
-        ordering = ("issued_date",)
+        ordering = ("issued_date",) #this ordering return the same values for first(),last() when filter on 1 day
         verbose_name = _("receipt")
         verbose_name_plural = _("receipts")
         unique_together = [["point_of_sales", "receipt_type", "receipt_number"]]
@@ -1866,6 +1872,8 @@ class ReceiptValidation(models.Model):
     cae_expiration = models.DateField(
         _("cae expiration"),
         help_text=_("The CAE expiration as returned by the AFIP."),
+        blank=True, #Must be blank or null when was approved from CAEA operations
+        null=True,
     )
     observations = models.ManyToManyField(
         Observation,

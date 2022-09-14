@@ -26,6 +26,12 @@ def serialize_datetime(datetime):
     """
     return datetime.strftime("%Y-%m-%dT%H:%M:%S-00:00")
 
+def serialize_datetime_caea(datetime):
+    """
+    A similar serealizer to the above one but, use a diferent format.
+    """
+    return datetime.strftime("%Y%m%d%H%M%S")
+
 
 def serialize_date(date):
     return date.strftime("%Y%m%d")
@@ -102,6 +108,7 @@ def serialize_receipt_caea(receipt):
         )
     
     serialized.CAEA = receipt.caea.caea_code
+    serialized.CbteFchHsGen = serialize_datetime_caea(receipt.generated)
 
     return serialized
 
