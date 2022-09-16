@@ -77,6 +77,37 @@ def test_validate_invoice(populated_db):
     assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
     assert models.ReceiptValidation.objects.count() == 1
 
+@pytest.mark.django_db
+@pytest.mark.live
+@pytest.mark.xfail
+def test_fetch_pos_is_CAE(populated_db):
+    """Test validating valid receipts."""
+
+    payer = models.TaxPayer.objects.get(pk=1)
+
+    assert models.PointOfSales.objects.get(pk=1).issuance_type == 'CAE' #POS fixed in populated_db
+    
+    pos = payer.fetch_points_of_sales() #get_or_update the existing pos
+
+    assert len(pos) == 1
+    assert pos[0][0].issuance_type == 'CAE' #fail because the field was updated
+
+
+
+@pytest.mark.django_db
+@pytest.mark.live
+def test_validate_issuance_type(populated_db):
+    """Test validating valid receipts."""
+
+
+    receipt = ReceiptFactory()
+    another_receipt = ReceiptWithVatAndTaxFactory()
+
+    assert (receipt.point_of_sales.issuance_type == 'CAE')
+    assert ( another_receipt.point_of_sales.issuance_type == 'CAE')
+
+
+
 
 @pytest.mark.django_db
 @pytest.mark.live

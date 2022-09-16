@@ -1118,6 +1118,7 @@ class ReceiptQuerySet(models.QuerySet):
             # Remove the number from ones that failed to validate:
             self.filter(validation__isnull=True).update(receipt_number=None)
             return errs
+        
         else:
             response = client.service.FECAEARegInformativo(
                 serializers.serialize_ticket(ticket),
@@ -1520,7 +1521,8 @@ class Receipt(models.Model):
             if receipt_data.EmisionTipo == "CAEA":
                 cae_expiration = None
             else:
-                cae_expiration = receipt_data.EmisionTipo
+                cae_expiration = receipt_data.FchVto
+
             validation = ReceiptValidation.objects.create(
                 result=receipt_data.Resultado,
                 cae=receipt_data.CodAutorizacion,
