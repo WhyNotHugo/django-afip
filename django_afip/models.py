@@ -812,6 +812,7 @@ class ReceiptQuerySet(models.QuerySet):
         doing!
         """
         first = self.select_related("point_of_sales", "receipt_type").first()
+        assert first is not None  # should never happen; mostly a hint for mypy
 
         next_num = (
             Receipt.objects.fetch_last_receipt_number(
@@ -904,6 +905,7 @@ class ReceiptQuerySet(models.QuerySet):
 
     def _validate(self, ticket=None) -> list[str]:
         first = self.first()
+        assert first is not None  # should never happen; mostly a hint for mypy
         ticket = ticket or first.point_of_sales.owner.get_or_create_ticket("wsfe")
         client = clients.get_client("wsfe", first.point_of_sales.owner.is_sandboxed)
         response = client.service.FECAESolicitar(
