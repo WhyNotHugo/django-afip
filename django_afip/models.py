@@ -1264,6 +1264,8 @@ class Receipt(models.Model):
         # This may avoid unnecessary revalidation
         if self.is_validated:
             return self.validation
+        if not self.receipt_number:
+            return None
 
         receipt_data = Receipt.objects.fetch_receipt_data(
             self.receipt_type.code, self.receipt_number, self.point_of_sales
