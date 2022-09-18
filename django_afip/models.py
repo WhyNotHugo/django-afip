@@ -1039,7 +1039,7 @@ class ReceiptManager(models.Manager):
                 point_of_sales.owner.get_or_create_ticket("wsfe")
             ),
             serializers.serialize_receipt_data(
-                receipt_type, receipt_number, point_of_sales.number
+                receipt_type.code, receipt_number, point_of_sales.number
             ),
         )
         try:
@@ -1309,7 +1309,7 @@ class Receipt(models.Model):
             return None
 
         receipt_data = Receipt.objects.fetch_receipt_data(
-            self.receipt_type.code, self.receipt_number, self.point_of_sales
+            self.receipt_type, self.receipt_number, self.point_of_sales
         )
 
         if not receipt_data:
