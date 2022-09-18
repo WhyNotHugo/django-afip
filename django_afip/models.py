@@ -503,7 +503,10 @@ class TaxPayer(models.Model):
         """
         return self.get_ticket(service) or self.create_ticket(service)
 
-    def fetch_points_of_sales(self, ticket: AuthTicket = None) -> list[PointOfSales]:
+    def fetch_points_of_sales(
+        self,
+        ticket: AuthTicket = None,
+    ) -> list[tuple[PointOfSales, bool]]:
         """
         Fetch all point of sales objects.
 
@@ -1507,7 +1510,7 @@ class ReceiptEntry(models.Model):
     )
 
     @property
-    def total_price(self) -> int:
+    def total_price(self) -> Decimal:
         """The total price for this line (quantity * price)."""
         return self.quantity * self.unit_price
 
@@ -1550,7 +1553,7 @@ class Tax(models.Model):
         on_delete=models.PROTECT,
     )
 
-    def compute_amount(self) -> int:
+    def compute_amount(self) -> Decimal:
         """Auto-assign and return the total amount for this tax."""
         self.amount = self.base_amount * self.aliquot / 100
         return self.amount
