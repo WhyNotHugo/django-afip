@@ -1526,7 +1526,7 @@ class ReceiptEntry(models.Model):
     )
 
     @property
-    def total_price(self) -> float:
+    def total_price(self) -> Decimal:
         """The total price for this entry is: quantity * price - discount."""
         return self.quantity * self.unit_price - self.discount
 
