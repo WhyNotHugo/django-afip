@@ -120,6 +120,13 @@ class PointOfSalesFactory(DjangoModelFactory):
     sales_terms = "Credit Card"
 
 
+class PointOfSalesFactoryCaea(PointOfSalesFactory):
+    
+    number = Sequence(lambda n: n + 1)
+    issuance_type = "CAEA"
+
+
+
 class ReceiptFactory(DjangoModelFactory):
     class Meta:
         model = models.Receipt
@@ -142,6 +149,14 @@ class ReceiptWithVatAndTaxFactory(ReceiptFactory):
     """Receipt with a valid Vat and Tax, ready to validate."""
 
     point_of_sales = LazyFunction(lambda: models.PointOfSales.objects.first())
+
+    @post_generation
+    def post(obj: models.Receipt, create, extracted, **kwargs):
+        VatFactory(vat_type__code=5, receipt=obj)
+        TaxFactory(tax_type__code=3, receipt=obj)
+
+class ReceiptWithVatAndTaxFactoryCaea(ReceiptFactory):
+    """Receipt with a valid Vat and Tax, ready to validate."""
 
     @post_generation
     def post(obj: models.Receipt, create, extracted, **kwargs):
@@ -241,3 +256,18 @@ class TaxFactory(DjangoModelFactory):
     base_amount = 100
     receipt = SubFactory(ReceiptFactory)
     tax_type = SubFactory(TaxTypeFactory)
+
+class CaeaFactory(DjangoModelFactory):
+    class Meta:
+        model = models.Caea
+
+    caea_code = '12345678912345'
+    period = datetime.today().strftime('%Y%m')
+    order = '1'
+    valid_since = make_aware(datetime(2022, 6, 1))
+    expires = make_aware(datetime(2022, 6, 15))
+    generated = make_aware(datetime(2022, 5, 30, 21, 6, 4))
+    final_date_inform = make_aware(datetime(2022, 6, 20))
+    taxpayer = SubFactory(TaxPayerFactory)
+    active = True
+

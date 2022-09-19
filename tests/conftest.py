@@ -102,6 +102,6 @@ def populated_db(live_ticket, live_taxpayer):
 
     models.load_metadata()
     live_taxpayer.fetch_points_of_sales()
-    pos = models.PointOfSales.objects.get(pk=1)
-    pos.issuance_type = 'CAE'
-    pos.save()
+    # pos = models.PointOfSales.objects.get(pk=1)
+    # pos.issuance_type = 'CAE'
+    # pos.save()

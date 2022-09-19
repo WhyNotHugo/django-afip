@@ -650,17 +650,9 @@ class TaxPayer(models.Model):
 class Caea(models.Model):
     """Represents a CAEA code to continue operating when AFIP is offline.
 
-    The methods provideed by AFIP like: consulting CAEA or informing a Receipt will be attached to the Queryset o the TaxPayer model as appropiate.
-
-    Save() was overraided to ensure that once a CAEA was created the CAEA_code cannot be changed.
+    The methods provideed by AFIP like: consulting CAEA or informing a Receipt will be attached the TaxPayer model.
 
     """
-
-    __original_CAEA = None
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.__original_CAEA = self.caea_code
 
     caea_code = models.PositiveBigIntegerField(
         validators=[
@@ -669,6 +661,8 @@ class Caea(models.Model):
         ],
         help_text=_("CAEA code to operate offline AFIP"),
         unique=True,
+        null=False,
+        blank=False,
     )
 
     period = models.IntegerField(
@@ -705,18 +699,6 @@ class Caea(models.Model):
 
     def __str__(self) -> str:
         return str(self.caea_code)
-
-    def save(self, force_insert=False, force_update=False, *args, **kwargs):
-        if self.caea_code != "":
-            if self.__original_CAEA == None:  # prevent to create a CAEA without code
-                self.generated = default_generated()
-                super().save(force_insert, force_update, *args, **kwargs)
-                self.__original_CAEA = self.caea_code
-            else:
-                if (
-                    self.caea_code == self.__original_CAEA
-                ):  # Allow modify the data only if the CAEA deosn't change.
-                    super().save(force_insert, force_update, *args, **kwargs)
 
 
 class PointOfSales(models.Model):
@@ -1078,8 +1060,7 @@ class ReceiptQuerySet(models.QuerySet):
         ticket = ticket or first.point_of_sales.owner.get_or_create_ticket("wsfe")
         client = clients.get_client("wsfe", first.point_of_sales.owner.is_sandboxed)
 
-        if first.point_of_sales.issuance_type == "CAE":
-
+        if 'CAE' in first.point_of_sales.issuance_type:
             response = client.service.FECAESolicitar(
                 serializers.serialize_ticket(ticket),
                 serializers.serialize_multiple_receipts(self),
@@ -1383,7 +1364,7 @@ class Receipt(models.Model):
 
     caea = models.ForeignKey(
         Caea,
-        related_name="caea",
+        related_name="receipts",
         on_delete=models.PROTECT,
         help_text=_("CAEA in case that the receipt must contain it"),
         blank=True,
@@ -1441,7 +1422,7 @@ class Receipt(models.Model):
             return False
 
     def save(self, force_insert=False, force_update=False, *args, **kwargs):
-        if self.point_of_sales.issuance_type == "CAEA":
+        if "CAEA" in self.point_of_sales.issuance_type:
 
             caea = Caea.objects.all().filter(active=True)
             if caea.count() != 1:
@@ -1925,7 +1906,7 @@ class ReceiptValidation(models.Model):
     caea = models.BooleanField(
         default=False,
         help_text=_(
-            "Indicate if the validation was from a CAEA receipt, in that case the field cae contains the CAEA number"
+            "Indicate if the validation was from a CAEA receipt, in that case the field CAE contains the CAEA number"
         ),
         verbose_name=_("is_caea"),
     )
