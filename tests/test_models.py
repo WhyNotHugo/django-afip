@@ -389,3 +389,4 @@ def test_receipt_entry_gt_total_discount():
         Exception,
         match="CHECK constraint failed: discount_less_than_total"
     ):
+        factories.ReceiptEntryFactory(quantity=1, unit_price=1, discount=2)
