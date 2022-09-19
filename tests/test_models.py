@@ -370,8 +370,7 @@ def test_receipt_entry_negative_discount():
     """
 
     with pytest.raises(
-        Exception,
-        match="CHECK constraint failed: discount_positive_value"
+        Exception, match="CHECK constraint failed: discount_positive_value"
     ):
         factories.ReceiptEntryFactory(quantity=5, unit_price=10, discount=-3)
 
@@ -386,7 +385,6 @@ def test_receipt_entry_gt_total_discount():
     """
 
     with pytest.raises(
-        Exception,
-        match="CHECK constraint failed: discount_less_than_total"
+        Exception, match="CHECK constraint failed: discount_less_than_total"
     ):
         factories.ReceiptEntryFactory(quantity=1, unit_price=1, discount=2)

@@ -22,11 +22,11 @@ from django.core.files.storage import Storage
 from django.core.validators import MinValueValidator
 from django.db import connection
 from django.db import models
-from django.db.models import Count
-from django.db.models import Sum
-from django.db.models import Q
-from django.db.models import F
 from django.db.models import CheckConstraint
+from django.db.models import Count
+from django.db.models import F
+from django.db.models import Q
+from django.db.models import Sum
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from django_renderpdf.helpers import render_pdf
@@ -1514,7 +1514,7 @@ class ReceiptEntry(models.Model):
         decimal_places=2,
         default=0,
         help_text=_("Total net discount applied to tax base."),
-        validators=[MinValueValidator(Decimal('0.0'))]
+        validators=[MinValueValidator(Decimal("0.0"))],
     )
     vat = models.ForeignKey(
         VatType,
@@ -1535,12 +1535,11 @@ class ReceiptEntry(models.Model):
         verbose_name_plural = _("receipt entries")
         constraints = [
             CheckConstraint(
-                check=Q(discount__gte=Decimal('0.0')),
-                name='discount_positive_value'
+                check=Q(discount__gte=Decimal("0.0")), name="discount_positive_value"
             ),
             CheckConstraint(
                 check=Q(discount__lte=F("quantity") * F("unit_price")),
-                name='discount_less_than_total'
+                name="discount_less_than_total",
             ),
         ]
 
