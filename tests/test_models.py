@@ -369,9 +369,7 @@ def test_receipt_entry_negative_discount():
     raises.
     """
 
-    with pytest.raises(
-        Exception, match=r"\bdiscount_positive_value\b"
-    ):
+    with pytest.raises(Exception, match=r"\bdiscount_positive_value\b"):
         factories.ReceiptEntryFactory(quantity=5, unit_price=10, discount=-3)
 
 
@@ -384,7 +382,5 @@ def test_receipt_entry_gt_total_discount():
     greater than the total price before discount raises.
     """
 
-    with pytest.raises(
-        Exception, match=r"\bdiscount_less_than_total\b"
-    ):
+    with pytest.raises(Exception, match=r"\bdiscount_less_than_total\b"):
         factories.ReceiptEntryFactory(quantity=1, unit_price=1, discount=2)
