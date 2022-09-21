@@ -33,6 +33,7 @@ from OpenSSL.crypto import FILETYPE_PEM
 from OpenSSL.crypto import X509
 from OpenSSL.crypto import load_certificate
 from zeep.exceptions import Fault
+from django.utils.dateparse import parse_date
 
 from django_afip.clients import TZ_AR
 
@@ -631,6 +632,68 @@ class TaxPayer(models.Model):
         )
 
         return caea
+
+    def _inform_caea_without_operations(
+        self,
+        pos: PointOfSales = None,
+        caea: Caea = None,
+        ticket: AuthTicket = None,
+    ) -> InformedCaeas:
+        """
+        Inform to AFIP that the PointOfSales and CAEA passed have not any movement between the duration of the CAEA
+        """
+        ticket = ticket or self.get_or_create_ticket("wsfe")
+
+        client = clients.get_client("wsfe", self.is_sandboxed)
+        response = client.service.FECAEASinMovimientoInformar(
+            serializers.serialize_ticket(ticket),
+            PtoVta=pos.number,
+            CAEA=caea.caea_code,
+        )
+
+        check_response(
+            response
+        )  # be aware that this func raise an error if it's present
+        registry = InformedCaeas.objects.create(
+            pos=pos,
+            caea=caea,
+            processed_date=datetime.strptime(response.FchProceso, "%Y%m%d").date(),
+        )
+        return registry
+
+    def consult_caea_without_operations(
+        self,
+        pos: PointOfSales = None,
+        caea: Caea = None,
+        ticket: AuthTicket = None,
+    ) -> InformedCaeas:
+        """
+        Inform to AFIP that the PointOfSales and CAEA passed have not any movement between the duration of the CAEA
+        """
+
+        try:
+            registry = InformedCaeas.objects.get(pos=pos, caea=caea)
+            return registry
+        except InformedCaeas.DoesNotExist:
+            registry = None
+
+        ticket = ticket or self.get_or_create_ticket("wsfe")
+
+        client = clients.get_client("wsfe", self.is_sandboxed)
+        response = client.service.FECAEASinMovimientoConsultar(
+            serializers.serialize_ticket(ticket),
+            PtoVta=pos.number,
+            CAEA=caea.caea_code,
+        )
+        try:
+            check_response(
+                response
+            )  # be aware that this func raise an error if it's present
+        except exceptions.AfipException:
+            registry = self._inform_caea_without_operations(
+                pos=pos, caea=caea, ticket=ticket
+            )
+            return registry
 
     def __repr__(self) -> str:
         return "<TaxPayer {}: {}, CUIT {}>".format(
@@ -1493,7 +1556,7 @@ class Receipt(models.Model):
             )
             if receipt_data.Observaciones:
                 for obs in receipt_data.Observaciones.Obs:
-                    observation = Observation.objects.get_or_create(
+                    observation, _ = Observation.objects.get_or_create(
                         code=obs.Code,
                         message=obs.Msg,
                     )
@@ -1933,3 +1996,29 @@ class CaeaCounter(models.Model):
         return "Counter for POS:{}, receipt_type:{}. Next_value is {}".format(
             self.pos, self.receipt_type, self.next_value
         )
+
+
+class InformedCaeas(models.Model):
+
+    pos = models.ForeignKey(
+        PointOfSales, related_name="informed", on_delete=models.PROTECT
+    )
+
+    caea = models.ForeignKey(Caea, related_name="informed", on_delete=models.PROTECT)
+
+    processed_date = models.DateField(
+        _("processed date"),
+    )
+
+    def __str__(self):
+        return "POS:{}, with CAEA:{}, informed as without movement in {}".format(
+            self.pos, self.caea, self.processed_date
+        )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["pos", "caea"],
+                name="unique_migration_pos_caea_combination",
+            )
+        ]

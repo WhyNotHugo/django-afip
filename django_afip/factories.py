@@ -259,17 +259,17 @@ class TaxFactory(DjangoModelFactory):
     tax_type = SubFactory(TaxTypeFactory)
 
 
-# class CaeaFactory(DjangoModelFactory):
-#     class Meta:
-#         model = models.Caea
+class CaeaFactory(DjangoModelFactory):
+    class Meta:
+        model = models.Caea
 
-#     #payer = TaxPayerFactory
-#     caea_code = models.Caea.objects.get(pk=1).caea_code
-#     period = datetime.today().strftime('%Y%m')
-#     order = '1'
-#     valid_since = make_aware(datetime(2022, 6, 1))
-#     expires = make_aware(datetime(2022, 6, 15))
-#     generated = make_aware(datetime(2022, 5, 30, 21, 6, 4))
-#     final_date_inform = make_aware(datetime(2022, 6, 20))
-#     taxpayer = SubFactory(TaxPayerFactory)
-#     active = True
+    # payer = TaxPayerFactory
+    caea_code = "12345678974125"
+    period = datetime.today().strftime("%Y%m")
+    order = "1"
+    valid_since = make_aware(datetime(2022, 6, 1))
+    expires = make_aware(datetime(2022, 6, 15))
+    generated = make_aware(datetime(2022, 5, 30, 21, 6, 4))
+    final_date_inform = make_aware(datetime(2022, 6, 20))
+    taxpayer = SubFactory(TaxPayerFactory)
+    active = True
