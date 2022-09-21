@@ -1513,7 +1513,7 @@ class ReceiptEntry(models.Model):
         max_digits=15,
         decimal_places=2,
         default=0,
-        help_text=_("Total net discount applied to tax base."),
+        help_text=_("Total net discount applied to row's total."),
         validators=[MinValueValidator(Decimal("0.0"))],
     )
     vat = models.ForeignKey(
@@ -1527,7 +1527,7 @@ class ReceiptEntry(models.Model):
 
     @property
     def total_price(self) -> Decimal:
-        """The total price for this entry is: quantity * price - discount."""
+        """The total price for this entry is: ``quantity * price - discount``."""
         return self.quantity * self.unit_price - self.discount
 
     class Meta:
