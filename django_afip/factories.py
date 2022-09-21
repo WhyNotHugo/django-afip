@@ -14,6 +14,7 @@ from factory.django import FileField
 from factory.django import ImageField
 
 from django_afip import models
+import pytest
 
 
 def get_test_file(filename: str, mode="r") -> Path:
@@ -121,10 +122,9 @@ class PointOfSalesFactory(DjangoModelFactory):
 
 
 class PointOfSalesFactoryCaea(PointOfSalesFactory):
-    
+
     number = Sequence(lambda n: n + 1)
     issuance_type = "CAEA"
-
 
 
 class ReceiptFactory(DjangoModelFactory):
@@ -154,6 +154,7 @@ class ReceiptWithVatAndTaxFactory(ReceiptFactory):
     def post(obj: models.Receipt, create, extracted, **kwargs):
         VatFactory(vat_type__code=5, receipt=obj)
         TaxFactory(tax_type__code=3, receipt=obj)
+
 
 class ReceiptWithVatAndTaxFactoryCaea(ReceiptFactory):
     """Receipt with a valid Vat and Tax, ready to validate."""
@@ -257,17 +258,18 @@ class TaxFactory(DjangoModelFactory):
     receipt = SubFactory(ReceiptFactory)
     tax_type = SubFactory(TaxTypeFactory)
 
-class CaeaFactory(DjangoModelFactory):
-    class Meta:
-        model = models.Caea
 
-    caea_code = '12345678912345'
-    period = datetime.today().strftime('%Y%m')
-    order = '1'
-    valid_since = make_aware(datetime(2022, 6, 1))
-    expires = make_aware(datetime(2022, 6, 15))
-    generated = make_aware(datetime(2022, 5, 30, 21, 6, 4))
-    final_date_inform = make_aware(datetime(2022, 6, 20))
-    taxpayer = SubFactory(TaxPayerFactory)
-    active = True
+# class CaeaFactory(DjangoModelFactory):
+#     class Meta:
+#         model = models.Caea
 
+#     #payer = TaxPayerFactory
+#     caea_code = models.Caea.objects.get(pk=1).caea_code
+#     period = datetime.today().strftime('%Y%m')
+#     order = '1'
+#     valid_since = make_aware(datetime(2022, 6, 1))
+#     expires = make_aware(datetime(2022, 6, 15))
+#     generated = make_aware(datetime(2022, 5, 30, 21, 6, 4))
+#     final_date_inform = make_aware(datetime(2022, 6, 20))
+#     taxpayer = SubFactory(TaxPayerFactory)
+#     active = True

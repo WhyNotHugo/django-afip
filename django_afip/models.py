@@ -1060,7 +1060,7 @@ class ReceiptQuerySet(models.QuerySet):
         ticket = ticket or first.point_of_sales.owner.get_or_create_ticket("wsfe")
         client = clients.get_client("wsfe", first.point_of_sales.owner.is_sandboxed)
 
-        if 'CAE' in first.point_of_sales.issuance_type:
+        if not "CAEA" in first.point_of_sales.issuance_type:
             response = client.service.FECAESolicitar(
                 serializers.serialize_ticket(ticket),
                 serializers.serialize_multiple_receipts(self),
@@ -1099,7 +1099,7 @@ class ReceiptQuerySet(models.QuerySet):
             # Remove the number from ones that failed to validate:
             self.filter(validation__isnull=True).update(receipt_number=None)
             return errs
-        
+
         else:
             response = client.service.FECAEARegInformativo(
                 serializers.serialize_ticket(ticket),
@@ -1421,28 +1421,6 @@ class Receipt(models.Model):
         except ReceiptValidation.DoesNotExist:
             return False
 
-    def save(self, force_insert=False, force_update=False, *args, **kwargs):
-        if "CAEA" in self.point_of_sales.issuance_type:
-
-            caea = Caea.objects.all().filter(active=True)
-            if caea.count() != 1:
-                raise exceptions.CaeaCountError
-            else:
-                if self.caea == None or self.caea == "":
-                    self.caea = caea[0]
-
-            if self.receipt_number == None or self.receipt_number == "":
-                counter = CaeaCounter.objects.get_or_create(
-                    pos=self.point_of_sales, receipt_type=self.receipt_type
-                )[0]
-                self.receipt_number = counter.next_value
-                counter.next_value += 1
-                counter.save()
-
-            super().save(force_insert, force_update, *args, **kwargs)
-        else:
-            super().save(force_insert, force_update, *args, **kwargs)
-
     def validate(self, ticket: AuthTicket = None, raise_=False) -> list[str]:
         """Validates this receipt.
 
@@ -1684,9 +1662,10 @@ class ReceiptPDF(models.Model):
         from django_afip.views import ReceiptPDFView
 
         if not self.receipt.is_validated:
-            raise exceptions.DjangoAfipException(
-                _("Cannot generate pdf for non-authorized receipt")
-            )
+            if not "CAEA" in self.receipt.point_of_sales.issuance_type:
+                raise exceptions.DjangoAfipException(
+                    _("Cannot generate pdf for non-authorized receipt")
+                )
 
         self.pdf_file = File(BytesIO(), name=f"{uuid4().hex}.pdf")
         render_pdf(
@@ -1949,3 +1928,8 @@ class CaeaCounter(models.Model):
                 name="unique_migration_pos_receipt_combination",
             )
         ]
+
+    def __str__(self):
+        return "Counter for POS:{}, receipt_type:{}. Next_value is {}".format(
+            self.pos, self.receipt_type, self.next_value
+        )

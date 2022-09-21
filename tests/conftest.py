@@ -10,6 +10,8 @@ from django_afip.factories import TaxPayerFactory
 from django_afip.factories import get_test_file
 from django_afip.models import AuthTicket
 
+from datetime import datetime
+
 CACHED_TICKET_PATH = settings.BASE_DIR / "test_ticket.yaml"
 _live_mode = False
 
@@ -102,6 +104,14 @@ def populated_db(live_ticket, live_taxpayer):
 
     models.load_metadata()
     live_taxpayer.fetch_points_of_sales()
-    # pos = models.PointOfSales.objects.get(pk=1)
-    # pos.issuance_type = 'CAE'
-    # pos.save()
+
+    period = datetime.now().strftime("%Y%m")
+    if datetime.today().day > 15:
+        order = 2
+    else:
+        order = 1
+
+    try:
+        live_taxpayer.get_caea(period=period, order=order)
+    except:
+        live_taxpayer.consult_caea(period=period, order=order)
