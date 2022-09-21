@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
             field=models.DecimalField(
                 decimal_places=2,
                 default=0,
-                help_text="Total net discount applied to tax base.",
+                help_text="Total net discount applied to row's total.",
                 max_digits=15,
                 validators=[django.core.validators.MinValueValidator(Decimal("0.0"))],
                 verbose_name="discount",
