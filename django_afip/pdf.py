@@ -26,6 +26,12 @@ class ReceiptQrCode:
         #
         # Using floats seems to be the only viable solution, and SHOULD be fine for
         # values in the range supported.
+
+        if "CAEA" in receipt.point_of_sales.issuance_type:
+            authorization_code = receipt.caea.caea_code
+        else:
+            authorization_code = receipt.validation.cae
+
         self._data = {
             "ver": 1,
             "fecha": receipt.issued_date.strftime("%Y-%m-%d"),
@@ -39,7 +45,7 @@ class ReceiptQrCode:
             "tipoDocRec": receipt.document_type.code,
             "nroDocRec": receipt.document_number,
             "tipoCodAut": "E",  # We don't support anything except CAE.
-            "codAut": receipt.validation.cae,
+            "codAut": authorization_code,
         }
 
     def as_png(self) -> Image:

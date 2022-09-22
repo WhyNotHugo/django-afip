@@ -13,8 +13,14 @@ def update_certificate_expiration(sender, instance: models.TaxPayer, **kwargs):
 
 @receiver(post_save, sender=models.ReceiptPDF)
 def generate_receipt_pdf(sender, instance: models.ReceiptPDF, **kwargs):
-    if not instance.pdf_file and instance.receipt.is_validated:
-        instance.save_pdf(save_model=True)
+    if not instance.pdf_file:
+        if "CAEA" in instance.receipt.point_of_sales.issuance_type:
+            instance.save_pdf(save_model=True)
+        if (
+            "CAE" in instance.receipt.point_of_sales.issuance_type
+            and instance.receipt.is_validated
+        ):
+            instance.save_pdf(save_model=True)
 
 
 @receiver(pre_save, sender=models.Receipt)

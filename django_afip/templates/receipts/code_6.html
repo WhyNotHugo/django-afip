@@ -116,10 +116,17 @@
         </div>
 
         <p class="cae">
-          <strong>CAE</strong>
-          {{ pdf.receipt.validation.cae }}
-          <strong>Vto CAE</strong>
-          {{ pdf.receipt.validation.cae_expiration }}
+          {% if pdf.receipt.caea %}
+            <strong>CAEA</strong>
+            {{ pdf.receipt.caea.caea_code }}
+            <strong>Vto CAEA</strong>
+            {{ pdf.receipt.caea.expires }}
+          {% else %}
+            <strong>CAE</strong>
+            {{ pdf.receipt.validation.cae }}
+            <strong>Vto CAE</strong>
+            {{ pdf.receipt.validation.cae_expiration }}
+          {%endif%}
         </p>
 
         Consultas de validez:

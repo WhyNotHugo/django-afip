@@ -69,7 +69,7 @@ class ReceiptPDFView(PDFView):
                 "receipt",
                 "receipt__receipt_type",
                 "receipt__document_type",
-                "receipt__validation",
+                # "receipt__validation",
                 "receipt__point_of_sales",
                 "receipt__point_of_sales__owner",
             )
@@ -86,7 +86,7 @@ class ReceiptPDFView(PDFView):
             models.Receipt.objects.select_related(
                 "receipt_type",
                 "document_type",
-                "validation",
+                # "validation",
                 "point_of_sales",
                 "point_of_sales__owner",
             )
