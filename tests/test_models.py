@@ -573,3 +573,60 @@ def test_creation_informedcaea(populated_db):
     assert informed_caea.pk == 1
     assert informed_caea.caea == caea
     assert informed_caea.pos == pos
+
+
+@pytest.mark.django_db
+def test_receipt_entry_without_discount():
+    """
+    Test ReceiptEntry.
+
+    Ensures that total_price for a ReceiptEntry without a discount
+    works correctly.
+    """
+
+    receipt_entry = factories.ReceiptEntryFactory(
+        quantity=1,
+        unit_price=50,
+    )
+    assert receipt_entry.total_price == 50
+
+
+@pytest.mark.django_db
+def test_receipt_entry_with_valid_discount():
+    """
+    Test ReceiptEntry.
+
+    Ensures that total_price for a ReceiptEntry with a valid
+    discount works correctly.
+    """
+
+    receipt_entry = factories.ReceiptEntryFactory(
+        quantity=1, unit_price=50, discount=10
+    )
+    assert receipt_entry.total_price == 40
+
+
+@pytest.mark.django_db
+def test_receipt_entry_negative_discount():
+    """
+    Test ReceiptEntry negative discount.
+
+    Ensures that attempting to generate a ReceiptEntry with a negative discount
+    raises.
+    """
+
+    with pytest.raises(Exception, match=r"\bdiscount_positive_value\b"):
+        factories.ReceiptEntryFactory(quantity=5, unit_price=10, discount=-3)
+
+
+@pytest.mark.django_db
+def test_receipt_entry_gt_total_discount():
+    """
+    Test ReceiptEntry discount greater than total price.
+
+    Ensures that attempting to generate a ReceiptEntry with a discount
+    greater than the total price before discount raises.
+    """
+
+    with pytest.raises(Exception, match=r"\bdiscount_less_than_total\b"):
+        factories.ReceiptEntryFactory(quantity=1, unit_price=1, discount=2)

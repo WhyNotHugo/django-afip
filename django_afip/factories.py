@@ -272,3 +272,12 @@ class CaeaFactory(DjangoModelFactory):
     final_date_inform = make_aware(datetime(2022, 6, 20))
     taxpayer = SubFactory(TaxPayerFactory)
     active = True
+
+
+class ReceiptEntryFactory(DjangoModelFactory):
+    class Meta:
+        model = models.ReceiptEntry
+
+    receipt = SubFactory(ReceiptFactory)
+    description = "Test Entry"
+    vat = SubFactory(VatTypeFactory)

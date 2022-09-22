@@ -1,5 +1,3 @@
-from typing import List
-
 import django.db.models.deletion
 from django.db import migrations
 from django.db import models
@@ -50,7 +48,7 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies: List[str] = []
+    dependencies: list = []
 
     operations = [
         migrations.CreateModel(

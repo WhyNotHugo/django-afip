@@ -19,9 +19,13 @@ from django.conf import settings
 from django.core import management
 from django.core.files import File
 from django.core.files.storage import Storage
+from django.core.validators import MinValueValidator
 from django.db import connection
 from django.db import models
+from django.db.models import CheckConstraint
 from django.db.models import Count
+from django.db.models import F
+from django.db.models import Q
 from django.db.models import Sum
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
@@ -516,7 +520,10 @@ class TaxPayer(models.Model):
         """
         return self.get_ticket(service) or self.create_ticket(service)
 
-    def fetch_points_of_sales(self, ticket: AuthTicket = None) -> list[PointOfSales]:
+    def fetch_points_of_sales(
+        self,
+        ticket: AuthTicket = None,
+    ) -> list[tuple[PointOfSales, bool]]:
         """
         Fetch all point of sales objects.
 
@@ -1022,6 +1029,7 @@ class ReceiptQuerySet(models.QuerySet):
         doing!
         """
         first = self.select_related("point_of_sales", "receipt_type").first()
+        assert first is not None  # should never happen; mostly a hint for mypy
 
         next_num = (
             Receipt.objects.fetch_last_receipt_number(
@@ -1120,6 +1128,7 @@ class ReceiptQuerySet(models.QuerySet):
 
     def _validate(self, ticket=None) -> list[str]:
         first = self.first()
+        assert first is not None  # should never happen; mostly a hint for mypy
         ticket = ticket or first.point_of_sales.owner.get_or_create_ticket("wsfe")
         client = clients.get_client("wsfe", first.point_of_sales.owner.is_sandboxed)
 
@@ -1531,6 +1540,8 @@ class Receipt(models.Model):
         # This may avoid unnecessary revalidation
         if self.is_validated:
             return self.validation
+        if not self.receipt_number:
+            return None
 
         receipt_data = Receipt.objects.fetch_receipt_data(
             self.receipt_type.code, self.receipt_number, self.point_of_sales
@@ -1777,6 +1788,14 @@ class ReceiptEntry(models.Model):
         decimal_places=2,
         help_text=_("Price per unit before vat or taxes."),
     )
+    discount = models.DecimalField(
+        _("discount"),
+        max_digits=15,
+        decimal_places=2,
+        default=0,
+        help_text=_("Total net discount applied to row's total."),
+        validators=[MinValueValidator(Decimal("0.0"))],
+    )
     vat = models.ForeignKey(
         VatType,
         related_name="receipt_entries",
@@ -1787,13 +1806,22 @@ class ReceiptEntry(models.Model):
     )
 
     @property
-    def total_price(self) -> int:
-        """The total price for this line (quantity * price)."""
-        return self.quantity * self.unit_price
+    def total_price(self) -> Decimal:
+        """The total price for this entry is: ``quantity * price - discount``."""
+        return self.quantity * self.unit_price - self.discount
 
     class Meta:
         verbose_name = _("receipt entry")
         verbose_name_plural = _("receipt entries")
+        constraints = [
+            CheckConstraint(
+                check=Q(discount__gte=Decimal("0.0")), name="discount_positive_value"
+            ),
+            CheckConstraint(
+                check=Q(discount__lte=F("quantity") * F("unit_price")),
+                name="discount_less_than_total",
+            ),
+        ]
 
 
 class Tax(models.Model):
@@ -1830,7 +1858,7 @@ class Tax(models.Model):
         on_delete=models.PROTECT,
     )
 
-    def compute_amount(self) -> int:
+    def compute_amount(self) -> Decimal:
         """Auto-assign and return the total amount for this tax."""
         self.amount = self.base_amount * self.aliquot / 100
         return self.amount
