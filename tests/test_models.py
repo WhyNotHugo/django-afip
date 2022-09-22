@@ -333,7 +333,26 @@ def test_populate_method(live_ticket):
 
 @pytest.mark.django_db
 def test_caea_creation(populated_db):
-    # caea = factories.CaeaFactory()
+    caea = factories.CaeaFactory()
+
+    assert len(str(caea.caea_code)) == 14
+    assert str(caea.caea_code) == "12345678974125"
+
+
+@pytest.mark.django_db
+def test_caea_creation_should_fail(populated_db):
+
+    with pytest.raises(
+        ValueError,
+        match="Field 'caea_code' expected a number but got 'A234567897412B'.",
+    ):
+        caea = factories.CaeaFactory(caea_code="A234567897412B")
+
+
+@pytest.mark.django_db
+@pytest.mark.live
+def test_caea_creation_live(populated_db):
+
     caea = models.Caea.objects.get(pk=1)
 
     assert len(str(caea.caea_code)) == 14
@@ -346,12 +365,13 @@ def test_create_caea_counter(populated_db):
 
     receipt_type = models.ReceiptType.objects.get(code=6)
     pos = factories.PointOfSalesFactoryCaea()
-    try:
+    number = None
+    with pytest.raises(
+        models.CaeaCounter.DoesNotExist,
+    ):
         number = models.CaeaCounter.objects.get(
             pos=pos, receipt_type=receipt_type
         ).next_value
-    except models.CaeaCounter.DoesNotExist:
-        number = None
 
     assert number == None
 
@@ -380,14 +400,15 @@ def test_create_receipt_caea(populated_db):
 
 
 @pytest.mark.django_db
-@pytest.mark.xfail
 def test_receipt_with_two_caea_should_fail(populated_db):
 
     pos = factories.PointOfSalesFactoryCaea()
-    # caea = factories.CaeaFactory()
     caea = models.Caea.objects.get(pk=1)
     caea2 = factories.CaeaFactory(caea_code="12345678912346")
-    receipt = factories.ReceiptFactory(point_of_sales=pos)
+    with pytest.raises(
+        exceptions.CaeaCountError,
+    ):
+        receipt = factories.ReceiptFactory(point_of_sales=pos)
 
 
 @pytest.mark.django_db
@@ -521,3 +542,33 @@ def test_validate_credit_note_caea(populated_db):
     credit_note.validate(raise_=True)
     assert credit_note.receipt_number == (caea_counter_cn.next_value - 1)
     assert credit_note.validation.result == models.ReceiptValidation.RESULT_APPROVED
+
+
+@pytest.mark.django_db
+@pytest.mark.live
+def test_inform_caea_without_movement(populated_db):
+    pos = factories.PointOfSalesFactoryCaea()
+    caea = models.Caea.objects.get(pk=1)
+    payer = factories.TaxPayerFactory()
+
+    resp = payer.consult_caea_without_operations(pos=pos, caea=caea)
+    assert isinstance(resp, models.InformedCaeas)
+
+
+@pytest.mark.django_db
+@pytest.mark.live
+def test_creation_informedcaea(populated_db):
+    pos = factories.PointOfSalesFactoryCaea()
+    caea = models.Caea.objects.get(pk=1)
+    payer = factories.TaxPayerFactory()
+
+    with pytest.raises(
+        models.InformedCaeas.DoesNotExist,
+    ):
+        informed_caea = models.InformedCaeas.objects.get(pos=pos, caea=caea)
+
+    payer.consult_caea_without_operations(pos=pos, caea=caea)
+    informed_caea = models.InformedCaeas.objects.get(pos=pos, caea=caea)
+    assert informed_caea.pk == 1
+    assert informed_caea.caea == caea
+    assert informed_caea.pos == pos

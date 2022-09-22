@@ -263,7 +263,6 @@ class CaeaFactory(DjangoModelFactory):
     class Meta:
         model = models.Caea
 
-    # payer = TaxPayerFactory
     caea_code = "12345678974125"
     period = datetime.today().strftime("%Y%m")
     order = "1"

@@ -110,7 +110,6 @@ def populated_db(live_ticket, live_taxpayer):
         order = 2
     else:
         order = 1
-
     try:
         live_taxpayer.get_caea(period=period, order=order)
     except:
