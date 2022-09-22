@@ -19,9 +19,13 @@ from django.conf import settings
 from django.core import management
 from django.core.files import File
 from django.core.files.storage import Storage
+from django.core.validators import MinValueValidator
 from django.db import connection
 from django.db import models
+from django.db.models import CheckConstraint
 from django.db.models import Count
+from django.db.models import F
+from django.db.models import Q
 from django.db.models import Sum
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
@@ -1504,6 +1508,14 @@ class ReceiptEntry(models.Model):
         decimal_places=2,
         help_text=_("Price per unit before vat or taxes."),
     )
+    discount = models.DecimalField(
+        _("discount"),
+        max_digits=15,
+        decimal_places=2,
+        default=0,
+        help_text=_("Total net discount applied to row's total."),
+        validators=[MinValueValidator(Decimal("0.0"))],
+    )
     vat = models.ForeignKey(
         VatType,
         related_name="receipt_entries",
@@ -1515,12 +1527,21 @@ class ReceiptEntry(models.Model):
 
     @property
     def total_price(self) -> Decimal:
-        """The total price for this line (quantity * price)."""
-        return self.quantity * self.unit_price
+        """The total price for this entry is: ``quantity * price - discount``."""
+        return self.quantity * self.unit_price - self.discount
 
     class Meta:
         verbose_name = _("receipt entry")
         verbose_name_plural = _("receipt entries")
+        constraints = [
+            CheckConstraint(
+                check=Q(discount__gte=Decimal("0.0")), name="discount_positive_value"
+            ),
+            CheckConstraint(
+                check=Q(discount__lte=F("quantity") * F("unit_price")),
+                name="discount_less_than_total",
+            ),
+        ]
 
 
 class Tax(models.Model):
