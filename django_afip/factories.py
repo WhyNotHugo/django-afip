@@ -2,6 +2,7 @@ from datetime import date
 from datetime import datetime
 from pathlib import Path
 
+import pytest
 from django.contrib.auth.models import User
 from django.utils.timezone import make_aware
 from factory import LazyFunction
@@ -14,7 +15,6 @@ from factory.django import FileField
 from factory.django import ImageField
 
 from django_afip import models
-import pytest
 
 
 def get_test_file(filename: str, mode="r") -> Path:

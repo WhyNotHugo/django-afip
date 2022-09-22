@@ -2,7 +2,8 @@ from django.db.models.signals import post_save
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
-from django_afip import models, exceptions
+from django_afip import exceptions
+from django_afip import models
 
 
 @receiver(pre_save, sender=models.TaxPayer)

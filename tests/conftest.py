@@ -1,3 +1,4 @@
+from datetime import datetime
 from unittest.mock import patch
 
 import pytest
@@ -9,8 +10,6 @@ from django_afip.exceptions import AuthenticationError
 from django_afip.factories import TaxPayerFactory
 from django_afip.factories import get_test_file
 from django_afip.models import AuthTicket
-
-from datetime import datetime
 
 CACHED_TICKET_PATH = settings.BASE_DIR / "test_ticket.yaml"
 _live_mode = False

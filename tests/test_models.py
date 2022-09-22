@@ -1,3 +1,4 @@
+from datetime import datetime
 from unittest.mock import MagicMock
 from unittest.mock import call
 from unittest.mock import patch
@@ -13,8 +14,6 @@ from django_afip.factories import ReceiptValidationFactory
 from django_afip.factories import ReceiptWithApprovedValidation
 from django_afip.factories import ReceiptWithInconsistentVatAndTaxFactory
 from django_afip.factories import ReceiptWithVatAndTaxFactory
-
-from datetime import datetime
 
 
 def test_default_receipt_queryset():
@@ -389,7 +388,7 @@ def test_create_receipt_caea():
 
     pos = factories.PointOfSalesFactoryCaea()
     caea = factories.CaeaFactory()
-    #caea = models.Caea.objects.get(pk=1)
+    # caea = models.Caea.objects.get(pk=1)
     pos_caea = models.PointOfSales.objects.all().filter(issuance_type="CAEA")
     receipt = factories.ReceiptFactory(point_of_sales=pos)
 
@@ -403,7 +402,7 @@ def test_create_receipt_caea():
 def test_receipt_with_two_caea_should_fail():
 
     pos = factories.PointOfSalesFactoryCaea()
-    #caea = models.Caea.objects.get(pk=1)
+    # caea = models.Caea.objects.get(pk=1)
     caea = factories.CaeaFactory()
     caea2 = factories.CaeaFactory(caea_code="12345678912346")
     with pytest.raises(
@@ -417,7 +416,7 @@ def test_caea_reverse_relation_receipts():
 
     pos = factories.PointOfSalesFactoryCaea()
     caea = factories.CaeaFactory()
-    #caea = models.Caea.objects.get(pk=1)
+    # caea = models.Caea.objects.get(pk=1)
     receipt_1 = factories.ReceiptFactory(point_of_sales=pos)
     receipt_2 = factories.ReceiptFactory(point_of_sales=pos)
     assert receipt_1 != receipt_2
