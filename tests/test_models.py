@@ -332,7 +332,7 @@ def test_populate_method(live_ticket):
 
 
 @pytest.mark.django_db
-def test_caea_creation(populated_db):
+def test_caea_creation():
     caea = factories.CaeaFactory()
 
     assert len(str(caea.caea_code)) == 14
@@ -340,7 +340,7 @@ def test_caea_creation(populated_db):
 
 
 @pytest.mark.django_db
-def test_caea_creation_should_fail(populated_db):
+def test_caea_creation_should_fail():
 
     with pytest.raises(
         ValueError,
@@ -385,25 +385,26 @@ def test_create_caea_counter(populated_db):
 
 
 @pytest.mark.django_db
-def test_create_receipt_caea(populated_db):
+def test_create_receipt_caea():
 
     pos = factories.PointOfSalesFactoryCaea()
-    # caea = factories.CaeaFactory()
-    caea = models.Caea.objects.get(pk=1)
+    caea = factories.CaeaFactory()
+    #caea = models.Caea.objects.get(pk=1)
     pos_caea = models.PointOfSales.objects.all().filter(issuance_type="CAEA")
     receipt = factories.ReceiptFactory(point_of_sales=pos)
 
     assert len(pos_caea) == 1
     assert receipt.point_of_sales.issuance_type == "CAEA"
-    assert receipt.caea.caea_code == caea.caea_code
+    assert str(receipt.caea.caea_code) == caea.caea_code
     assert receipt.receipt_number == 1
 
 
 @pytest.mark.django_db
-def test_receipt_with_two_caea_should_fail(populated_db):
+def test_receipt_with_two_caea_should_fail():
 
     pos = factories.PointOfSalesFactoryCaea()
-    caea = models.Caea.objects.get(pk=1)
+    #caea = models.Caea.objects.get(pk=1)
+    caea = factories.CaeaFactory()
     caea2 = factories.CaeaFactory(caea_code="12345678912346")
     with pytest.raises(
         exceptions.CaeaCountError,
@@ -412,11 +413,11 @@ def test_receipt_with_two_caea_should_fail(populated_db):
 
 
 @pytest.mark.django_db
-def test_caea_reverse_relation_receipts(populated_db):
+def test_caea_reverse_relation_receipts():
 
     pos = factories.PointOfSalesFactoryCaea()
-    # caea = factories.CaeaFactory()
-    caea = models.Caea.objects.get(pk=1)
+    caea = factories.CaeaFactory()
+    #caea = models.Caea.objects.get(pk=1)
     receipt_1 = factories.ReceiptFactory(point_of_sales=pos)
     receipt_2 = factories.ReceiptFactory(point_of_sales=pos)
     assert receipt_1 != receipt_2
