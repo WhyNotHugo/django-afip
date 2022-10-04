@@ -123,7 +123,7 @@ class PointOfSalesFactory(DjangoModelFactory):
 
 class PointOfSalesFactoryCaea(PointOfSalesFactory):
 
-    number = Sequence(lambda n: n + 1)
+    number = 4
     issuance_type = "CAEA"
 
 
