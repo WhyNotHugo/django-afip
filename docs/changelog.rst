@@ -7,6 +7,11 @@ dependencia en cada versión, en orden cronológicamente inverso.
 Todos los cambios que necesites tener en cuenta al actualizar están listados
 acá.
 
+11.1.0
+------
+
+- Django 4.1 is now supported.
+
 11.0.0
 ------
 
