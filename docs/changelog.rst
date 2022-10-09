@@ -10,6 +10,8 @@ acá.
 11.1.0
 ------
 
+- ``setuptools_scm`` is no longer a runtime dependency. It was never required
+  at runtime, but mistakenly listed as a dependency.
 - Fix crash when a receipt validation has an observation.
 - Django 4.1 is now supported.
 

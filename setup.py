@@ -25,7 +25,6 @@ setup(
         "pyopenssl>=16.2.0",
         'backports.zoneinfo;python_version<"3.9"',
         "setuptools-git>=1.1",
-        "setuptools-scm>=1.7.0",
         "wheel>=0.24.0",
         "zeep>=1.1.0,<5.0.0",
         "qrcode[pil]>=6.1,<7.0",
