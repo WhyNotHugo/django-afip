@@ -10,6 +10,7 @@ acá.
 11.1.0
 ------
 
+- Fix crash when a receipt validation has an observation.
 - Django 4.1 is now supported.
 
 11.0.0
