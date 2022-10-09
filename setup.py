@@ -12,6 +12,7 @@ setup(
         "Documentation": "https://django-afip.readthedocs.io/",
         "Issue Tracker": "https://github.com/WhyNotHugo/django-afip/issues",
         "Donate": "https://liberapay.com/WhyNotHugo/",
+        "Changelog": "https://django-afip.readthedocs.io/en/latest/changelog.html",
     },
     license="ISC",
     packages=find_packages(),
