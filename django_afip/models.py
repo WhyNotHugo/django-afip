@@ -699,12 +699,12 @@ class TaxPayer(models.Model):
                 response
             )  # be aware that this func raise an error if it's present
 
-            #if for some reason a CAEA code was informed into AFIP DB but we have not a InformedCAEA this solve that
+            # if for some reason a CAEA code was informed into AFIP DB but we have not a InformedCAEA this solve that
             registry = InformedCaeas.objects.create(
-            pos=pos,
-            caea=caea,
-            processed_date=datetime.strptime(response.FchProceso, "%Y%m%d").date(),
-        )
+                pos=pos,
+                caea=caea,
+                processed_date=datetime.strptime(response.FchProceso, "%Y%m%d").date(),
+            )
             return registry
         except exceptions.AfipException:
             registry = self._inform_caea_without_operations(
