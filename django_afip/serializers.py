@@ -209,7 +209,7 @@ def serialize_receipt_data(receipt_type, receipt_number, point_of_sales):
     )
 
 
-def serialize_caea_period(period: str = None):
+def serialize_caea_period(period: int = None):
     if period:
         return period
     else:

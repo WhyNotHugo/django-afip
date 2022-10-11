@@ -643,8 +643,8 @@ class TaxPayer(models.Model):
 
     def _inform_caea_without_operations(
         self,
-        pos: PointOfSales = None,
-        caea: Caea = None,
+        pos: PointOfSales,
+        caea: Caea,
         ticket: AuthTicket = None,
     ) -> InformedCaeas:
         """
@@ -671,12 +671,13 @@ class TaxPayer(models.Model):
 
     def consult_caea_without_operations(
         self,
-        pos: PointOfSales = None,
-        caea: Caea = None,
+        pos: PointOfSales,
+        caea: Caea,
         ticket: AuthTicket = None,
-    ) -> InformedCaeas:
+    ) -> InformedCaeas or None:
         """
-        Inform to AFIP that the PointOfSales and CAEA passed have not any movement between the duration of the CAEA
+        Consult the state of the CAEA with AFIP, if the consult raise an error (probably CAEA without movement was never informed)
+        the method handle this an inform to AFIP the CAEA and POS
         """
 
         try:
@@ -697,6 +698,14 @@ class TaxPayer(models.Model):
             check_response(
                 response
             )  # be aware that this func raise an error if it's present
+
+            #if for some reason a CAEA code was informed into AFIP DB but we have not a InformedCAEA this solve that
+            registry = InformedCaeas.objects.create(
+            pos=pos,
+            caea=caea,
+            processed_date=datetime.strptime(response.FchProceso, "%Y%m%d").date(),
+        )
+            return registry
         except exceptions.AfipException:
             registry = self._inform_caea_without_operations(
                 pos=pos, caea=caea, ticket=ticket
