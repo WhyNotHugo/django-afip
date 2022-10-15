@@ -763,6 +763,7 @@ class Caea(models.Model):
 
     generated = models.DateTimeField(
         _("generated"),
+        help_text=_("When this CAEA was generated"),
     )
     final_date_inform = models.DateField(
         _("final_date_inform"),
