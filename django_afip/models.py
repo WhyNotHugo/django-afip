@@ -564,7 +564,7 @@ class TaxPayer(models.Model):
         ticket: AuthTicket = None,
     ) -> Caea:
         """
-        Get a CAEA code for the TaxPayer, if a CAEA alredy exists the check_response will raise and exception
+        Get a CAEA code for the TaxPayer, if a CAEA alredy exists the check_response will raise an exception
 
         Returns a caea object.
         """
