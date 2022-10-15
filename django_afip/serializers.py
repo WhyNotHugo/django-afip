@@ -217,7 +217,7 @@ def serialize_caea_period(period: int = None):
         return date.strftime("%Y%m")
 
 
-def serialize_caea_order(order: int = None):
+def serialize_caea_order(order: int = None) -> int:
     if order:
         return order
     else:
