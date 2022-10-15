@@ -2,6 +2,7 @@ from datetime import datetime
 from unittest.mock import MagicMock
 from unittest.mock import call
 from unittest.mock import patch
+import django
 
 import pytest
 from django.utils.timezone import make_aware
@@ -403,16 +404,17 @@ def test_create_receipt_caea():
 
 
 @pytest.mark.django_db
-def test_receipt_with_two_caea_should_fail():
+def test_two_caea_unique_constraint_should_fail():
+    """
+    Test that 2 caea with same order,period and taxpayer cannot be created
+    """
 
     pos = factories.PointOfSalesFactoryCaea()
-    # caea = models.Caea.objects.get(pk=1)
     caea = factories.CaeaFactory()
-    caea2 = factories.CaeaFactory(caea_code="12345678912346")
     with pytest.raises(
-        exceptions.CaeaCountError,
+        django.db.utils.IntegrityError,
     ):
-        receipt = factories.ReceiptFactory(point_of_sales=pos)
+        caea2 = factories.CaeaFactory(caea_code="12345678912346")
 
 
 @pytest.mark.django_db

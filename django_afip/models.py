@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import base64
 import logging
 import os
@@ -780,6 +779,10 @@ class Caea(models.Model):
 
     def __str__(self) -> str:
         return str(self.caea_code)
+
+    class Meta:
+        unique_together = ('order', 'period','taxpayer')
+
 
 
 class PointOfSales(models.Model):
