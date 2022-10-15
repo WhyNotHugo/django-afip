@@ -356,7 +356,7 @@ def test_caea_creation_should_fail():
 @pytest.mark.live
 def test_caea_creation_live(populated_db):
 
-    caea = models.Caea.objects.get(pk=1)
+    caea = models.Caea.objects.first()
 
     assert len(str(caea.caea_code)) == 14
     assert str(caea.period) == datetime.today().strftime("%Y%m")
