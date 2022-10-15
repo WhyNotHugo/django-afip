@@ -693,3 +693,13 @@ def test_caea_assigned_receipt_correct():
         .count()
         == 2
     )
+
+@pytest.mark.django_db
+@pytest.mark.este
+def test_ordering_receipts_work():
+
+    receipt_1 = ReceiptFactory()
+    receipt_2 = ReceiptFactory()
+    receipt_3 = ReceiptFactory()
+
+    assert models.Receipt.objects.last() == receipt_3

@@ -1614,6 +1614,9 @@ class Receipt(models.Model):
     class Meta:
         ordering = (
             "issued_date",
+            "point_of_sales_id",
+            "receipt_number",
+            "pk"
         )  # this ordering return the same values for first(),last() when filter on 1 day
         verbose_name = _("receipt")
         verbose_name_plural = _("receipts")
