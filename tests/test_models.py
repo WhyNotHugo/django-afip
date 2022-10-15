@@ -1,4 +1,5 @@
 from datetime import datetime
+from django.utils.timezone import make_aware
 from unittest.mock import MagicMock
 from unittest.mock import call
 from unittest.mock import patch
@@ -9,7 +10,7 @@ from pytest_django.asserts import assertQuerysetEqual
 from django_afip import exceptions
 from django_afip import factories
 from django_afip import models
-from django_afip.factories import ReceiptFactory
+from django_afip.factories import CaeaFactory, ReceiptFactory, TaxPayerFactory, SubFactory
 from django_afip.factories import ReceiptValidationFactory
 from django_afip.factories import ReceiptWithApprovedValidation
 from django_afip.factories import ReceiptWithInconsistentVatAndTaxFactory
@@ -629,3 +630,54 @@ def test_receipt_entry_gt_total_discount():
 
     with pytest.raises(Exception, match=r"\bdiscount_less_than_total\b"):
         factories.ReceiptEntryFactory(quantity=1, unit_price=1, discount=2)
+    
+@pytest.mark.django_db
+@pytest.mark.este
+def test_bad_retrive_caea():
+    """
+    Test that in the way that the CAEA is assigned in the save signal even if
+    there are multiple taxpayer with 1 CAEA each the code assigned well.
+
+    It not ensure that if the same taxpayer has multiples actives CAEAs the correct will be assigned
+
+    """
+    caea_good = CaeaFactory()
+    caea_bad = CaeaFactory(
+        caea_code = "12345678974188",
+        valid_since = make_aware(datetime(2022, 5, 15)),
+        expires = make_aware(datetime(2022, 5, 30)),
+        generated = make_aware(datetime(2022, 5, 30, 21, 6, 4)),
+        taxpayer = TaxPayerFactory(
+            name = "Jane Doe",
+            cuit = 20366642330,
+        )
+    )
+
+    pos = factories.PointOfSalesFactoryCaea()
+    receipt = factories.ReceiptFactory(point_of_sales=pos)
+
+    assert caea_bad.caea_code != receipt.caea.caea_code
+
+@pytest.mark.django_db
+@pytest.mark.este
+def test_caea_assigned_receipt_correct():
+    """
+    Test that even if a taxpayer has multiples actives CAEAs the correct will be assigned
+    """
+    caea_good = CaeaFactory()
+    caea_bad = CaeaFactory(
+        caea_code = "12345678974188",
+        period = 202209,
+        order = "1",
+        valid_since = make_aware(datetime(2022, 4, 15)),
+        expires = make_aware(datetime(2022, 4, 30)),
+        generated = make_aware(datetime(2022, 4, 14, 21, 6, 4)),
+    )
+
+    assert caea_bad != caea_good
+
+    pos = factories.PointOfSalesFactoryCaea()
+    receipt = factories.ReceiptFactory(point_of_sales=pos)
+
+    assert caea_bad.caea_code != receipt.caea.caea_code
+    assert models.Caea.objects.all().filter(active=True, taxpayer = receipt.point_of_sales.owner).count() == 2
