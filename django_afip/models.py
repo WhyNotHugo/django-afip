@@ -1755,7 +1755,7 @@ class ReceiptPDF(models.Model):
         from django_afip.views import ReceiptPDFView
 
         if not self.receipt.is_validated:
-            if not "CAEA" in self.receipt.point_of_sales.issuance_type:
+            if "CAEA" not in self.receipt.point_of_sales.issuance_type:
                 raise exceptions.DjangoAfipException(
                     _("Cannot generate pdf for non-authorized receipt")
                 )
