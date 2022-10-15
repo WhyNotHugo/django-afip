@@ -44,7 +44,7 @@ class ReceiptQrCode:
             "ctz": float(receipt.currency_quote),
             "tipoDocRec": receipt.document_type.code,
             "nroDocRec": receipt.document_number,
-            "tipoCodAut": "E",  # We don't support anything except CAE.
+            "tipoCodAut": "E",
             "codAut": authorization_code,
         }
 
