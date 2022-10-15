@@ -1502,16 +1502,13 @@ class Receipt(models.Model):
             return self.validation.result == ReceiptValidation.RESULT_APPROVED
         except ReceiptValidation.DoesNotExist:
             return False
-    
+
     @property
-    def ready_to_print(self)->bool:
+    def ready_to_print(self) -> bool:
         if "CAEA" in self.point_of_sales.issuance_type:
             return True
 
-        if (
-            "CAE" in self.point_of_sales.issuance_type
-            and self.is_validated
-        ):
+        if "CAE" in self.point_of_sales.issuance_type and self.is_validated:
             return True
 
     def validate(self, ticket: AuthTicket = None, raise_=False) -> list[str]:
