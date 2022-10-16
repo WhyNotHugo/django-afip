@@ -22,14 +22,13 @@ def get_test_file(filename: str, mode="r") -> Path:
     path = Path(__file__).parent / "testing" / filename
     return path
 
-def get_order_of_date()-> int:
+
+def get_order_of_date() -> int:
     today = datetime.now()
     order = 1
     if today.day > 15:
         order = 2
     return order
-
-    
 
 
 class UserFactory(DjangoModelFactory):

@@ -2,8 +2,8 @@ from datetime import datetime
 from unittest.mock import MagicMock
 from unittest.mock import call
 from unittest.mock import patch
-import django
 
+import django
 import pytest
 from django.utils.timezone import make_aware
 from pytest_django.asserts import assertQuerysetEqual
@@ -693,6 +693,7 @@ def test_caea_assigned_receipt_correct():
         .count()
         == 2
     )
+
 
 @pytest.mark.django_db
 @pytest.mark.este

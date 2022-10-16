@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import base64
 import logging
 import os
@@ -781,8 +782,7 @@ class Caea(models.Model):
         return str(self.caea_code)
 
     class Meta:
-        unique_together = ('order', 'period','taxpayer')
-
+        unique_together = ("order", "period", "taxpayer")
 
 
 class PointOfSales(models.Model):
@@ -1616,7 +1616,7 @@ class Receipt(models.Model):
             "issued_date",
             "point_of_sales_id",
             "receipt_number",
-            "pk"
+            "pk",
         )  # this ordering return the same values for first(),last() when filter on 1 day
         verbose_name = _("receipt")
         verbose_name_plural = _("receipts")
