@@ -22,6 +22,15 @@ def get_test_file(filename: str, mode="r") -> Path:
     path = Path(__file__).parent / "testing" / filename
     return path
 
+def get_order_of_date()-> int:
+    today = datetime.now()
+    order = 1
+    if today.day > 15:
+        order = 2
+    return order
+
+    
+
 
 class UserFactory(DjangoModelFactory):
     class Meta:
@@ -265,7 +274,7 @@ class CaeaFactory(DjangoModelFactory):
 
     caea_code = "12345678974125"
     period = datetime.today().strftime("%Y%m")
-    order = "1"
+    order = LazyFunction(get_order_of_date)
     valid_since = make_aware(datetime(2022, 6, 1))
     expires = make_aware(datetime(2022, 6, 15))
     generated = make_aware(datetime(2022, 5, 30, 21, 6, 4))

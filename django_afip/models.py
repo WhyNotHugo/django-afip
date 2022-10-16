@@ -1146,7 +1146,7 @@ class ReceiptQuerySet(models.QuerySet):
         ticket = ticket or first.point_of_sales.owner.get_or_create_ticket("wsfe")
         client = clients.get_client("wsfe", first.point_of_sales.owner.is_sandboxed)
 
-        if not "CAEA" in first.point_of_sales.issuance_type:
+        if "CAEA" not in first.point_of_sales.issuance_type:
             response = client.service.FECAESolicitar(
                 serializers.serialize_ticket(ticket),
                 serializers.serialize_multiple_receipts(self),
