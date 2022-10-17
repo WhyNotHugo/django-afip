@@ -30,10 +30,9 @@ def get_order_of_date() -> int:
     corresponds to the first quarter (1) or the second (2)
     """
     today = datetime.now()
-    order = 1
     if today.day > 15:
-        order = 2
-    return order
+        return 2
+    return 1
 
 
 def valid_since_caea():
