@@ -557,7 +557,7 @@ class TaxPayer(models.Model):
 
         return results
 
-    def get_caea(
+    def request_new_caea(
         self,
         period: int = None,
         order: int = None,
@@ -597,7 +597,7 @@ class TaxPayer(models.Model):
         )
         return caea
 
-    def consult_caea(
+    def fetch_caea(
         self,
         period: str = None,
         order: int = None,
@@ -640,6 +640,13 @@ class TaxPayer(models.Model):
         )
 
         return caea
+    
+    def fetch_or_create_caea(self, period:int, order:int):
+        try:
+            self.request_new_caea(period=period, order=order)
+        except:
+            self.fetch_caea(period=period, order=order)
+
 
     def _inform_caea_without_operations(
         self,
@@ -1446,6 +1453,7 @@ class Receipt(models.Model):
     generated = models.DateTimeField(
         _("Time when the receipt was created"),
         auto_now_add=True,
+
     )
 
     caea = models.ForeignKey(
