@@ -719,8 +719,6 @@ class Caea(models.Model):
     class Meta:
         unique_together = ("order", "period", "taxpayer")
 
-
-    
     def _inform_caea_without_operations(
         self,
         pos: PointOfSales,
@@ -785,9 +783,7 @@ class Caea(models.Model):
             )
             return registry
         except exceptions.AfipException:
-            registry = self._inform_caea_without_operations(
-                pos=pos, ticket=ticket
-            )
+            registry = self._inform_caea_without_operations(pos=pos, ticket=ticket)
             return registry
 
 
