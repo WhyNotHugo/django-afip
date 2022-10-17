@@ -1142,89 +1142,101 @@ class ReceiptQuerySet(models.QuerySet):
 
         return qs._validate(ticket)
 
+    def _validate_with_cae(self,client,ticket):
+        """
+        A helper method to validate the Receipt made with CAE
+        """
+        response = client.service.FECAESolicitar(
+                serializers.serialize_ticket(ticket),
+                serializers.serialize_multiple_receipts(self),
+            )
+        check_response(response)
+        errs = []
+        for cae_data in response.FeDetResp.FECAEDetResponse:
+            if cae_data.Resultado == ReceiptValidation.RESULT_APPROVED:
+                validation = ReceiptValidation.objects.create(
+                    result=cae_data.Resultado,
+                    cae=cae_data.CAE,
+                    cae_expiration=parsers.parse_date(cae_data.CAEFchVto),
+                    receipt=self.get(
+                        receipt_number=cae_data.CbteDesde,
+                    ),
+                    processed_date=parsers.parse_datetime(
+                        response.FeCabResp.FchProceso,
+                    ),
+                )
+                if cae_data.Observaciones:
+                    for obs in cae_data.Observaciones.Obs:
+                        observation = Observation.objects.create(
+                            code=obs.Code,
+                            message=obs.Msg,
+                        )
+                    validation.observations.add(observation)
+            elif cae_data.Observaciones:
+                for obs in cae_data.Observaciones.Obs:
+                    errs.append(
+                        "Error {}: {}".format(
+                            obs.Code,
+                            parsers.parse_string(obs.Msg),
+                        )
+                    )
+        # Remove the number from ones that failed to validate:
+        self.filter(validation__isnull=True).update(receipt_number=None)
+        return errs
+    
+    def _validate_with_caea(self,client,ticket):
+        """
+        A helper method to validate the Receipt made with CAEA
+        """
+        response = client.service.FECAEARegInformativo(
+                serializers.serialize_ticket(ticket),
+                serializers.serialize_multiple_receipts_caea(self),
+            )
+        check_response(response)
+        errs = []
+        for cae_data in response.FeDetResp.FECAEADetResponse:
+            if cae_data.Resultado == ReceiptValidation.RESULT_APPROVED:
+                validation = ReceiptValidation.objects.create(
+                    result=cae_data.Resultado,
+                    cae=cae_data.CAEA,
+                    # cae_expiration=parsers.parse_date(self.caea.expires),
+                    receipt=self.get(
+                        receipt_number=cae_data.CbteDesde,
+                    ),
+                    processed_date=parsers.parse_datetime(
+                        response.FeCabResp.FchProceso,
+                    ),
+                    caea=True,
+                )
+                if cae_data.Observaciones:
+                    for obs in cae_data.Observaciones.Obs:
+                        observation = Observation.objects.create(
+                            code=obs.Code,
+                            message=obs.Msg,
+                        )
+                    validation.observations.add(observation)
+            elif cae_data.Observaciones:
+                for obs in cae_data.Observaciones.Obs:
+                    errs.append(
+                        "Error {}: {}".format(
+                            obs.Code,
+                            parsers.parse_string(obs.Msg),
+                        )
+                    )
+        return errs
+
     def _validate(self, ticket=None) -> list[str]:
         first = self.first()
         assert first is not None  # should never happen; mostly a hint for mypy
         ticket = ticket or first.point_of_sales.owner.get_or_create_ticket("wsfe")
         client = clients.get_client("wsfe", first.point_of_sales.owner.is_sandboxed)
 
+        errs = []
         if "CAEA" not in first.point_of_sales.issuance_type:
-            response = client.service.FECAESolicitar(
-                serializers.serialize_ticket(ticket),
-                serializers.serialize_multiple_receipts(self),
-            )
-            check_response(response)
-            errs = []
-            for cae_data in response.FeDetResp.FECAEDetResponse:
-                if cae_data.Resultado == ReceiptValidation.RESULT_APPROVED:
-                    validation = ReceiptValidation.objects.create(
-                        result=cae_data.Resultado,
-                        cae=cae_data.CAE,
-                        cae_expiration=parsers.parse_date(cae_data.CAEFchVto),
-                        receipt=self.get(
-                            receipt_number=cae_data.CbteDesde,
-                        ),
-                        processed_date=parsers.parse_datetime(
-                            response.FeCabResp.FchProceso,
-                        ),
-                    )
-                    if cae_data.Observaciones:
-                        for obs in cae_data.Observaciones.Obs:
-                            observation = Observation.objects.create(
-                                code=obs.Code,
-                                message=obs.Msg,
-                            )
-                        validation.observations.add(observation)
-                elif cae_data.Observaciones:
-                    for obs in cae_data.Observaciones.Obs:
-                        errs.append(
-                            "Error {}: {}".format(
-                                obs.Code,
-                                parsers.parse_string(obs.Msg),
-                            )
-                        )
-
-            # Remove the number from ones that failed to validate:
-            self.filter(validation__isnull=True).update(receipt_number=None)
-            return errs
-
+            errs = self._validate_with_cae(ticket=ticket,client=client)
         else:
-            response = client.service.FECAEARegInformativo(
-                serializers.serialize_ticket(ticket),
-                serializers.serialize_multiple_receipts_caea(self),
-            )
-            check_response(response)
-            errs = []
-            for cae_data in response.FeDetResp.FECAEADetResponse:
-                if cae_data.Resultado == ReceiptValidation.RESULT_APPROVED:
-                    validation = ReceiptValidation.objects.create(
-                        result=cae_data.Resultado,
-                        cae=cae_data.CAEA,
-                        # cae_expiration=parsers.parse_date(self.caea.expires),
-                        receipt=self.get(
-                            receipt_number=cae_data.CbteDesde,
-                        ),
-                        processed_date=parsers.parse_datetime(
-                            response.FeCabResp.FchProceso,
-                        ),
-                        caea=True,
-                    )
-                    if cae_data.Observaciones:
-                        for obs in cae_data.Observaciones.Obs:
-                            observation = Observation.objects.create(
-                                code=obs.Code,
-                                message=obs.Msg,
-                            )
-                        validation.observations.add(observation)
-                elif cae_data.Observaciones:
-                    for obs in cae_data.Observaciones.Obs:
-                        errs.append(
-                            "Error {}: {}".format(
-                                obs.Code,
-                                parsers.parse_string(obs.Msg),
-                            )
-                        )
-            return errs
+            errs = self._validate_with_caea(ticket=ticket,client=client)
+        return errs
 
 
 class ReceiptManager(models.Manager):
