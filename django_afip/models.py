@@ -589,8 +589,8 @@ class TaxPayer(models.Model):
             expires=parsers.parse_date(response.ResultGet.FchVigHasta),
             generated=parsers.parse_datetime(response.ResultGet.FchProceso),
             report_deadline=parsers.parse_date(response.ResultGet.FchTopeInf),
-            taxpayer=self
-            )
+            taxpayer=self,
+        )
         return caea
 
     def fetch_caea(
@@ -624,7 +624,7 @@ class TaxPayer(models.Model):
             "expires": parsers.parse_date(response.ResultGet.FchVigHasta),
             "generated": parsers.parse_datetime(response.ResultGet.FchProceso),
             "report_deadline": parsers.parse_date(response.ResultGet.FchTopeInf),
-            "taxpayer": self
+            "taxpayer": self,
         }
 
         caea = Caea.objects.update_or_create(
@@ -653,10 +653,12 @@ class TaxPayer(models.Model):
         verbose_name = _("taxpayer")
         verbose_name_plural = _("taxpayers")
 
+
 class CaeaQuerySet(models.QuerySet):
     def active(self):
         today = datetime.today()
-        return self.filter(Q(valid_since__lte=today),Q(expires__gte=today))
+        return self.filter(Q(valid_since__lte=today), Q(expires__gte=today))
+
 
 class Caea(models.Model):
     """Represents a CAEA code to continue operating when AFIP is offline.
@@ -711,7 +713,7 @@ class Caea(models.Model):
     objects = CaeaQuerySet.as_manager()
 
     @property
-    def caea_is_active(self)-> bool:
+    def caea_is_active(self) -> bool:
         today = datetime.today()
         if self.valid_since <= today <= self.expires:
             return True

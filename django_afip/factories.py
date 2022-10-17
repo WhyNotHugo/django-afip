@@ -1,3 +1,4 @@
+import calendar
 from datetime import date
 from datetime import datetime
 from pathlib import Path
@@ -15,7 +16,6 @@ from factory.django import FileField
 from factory.django import ImageField
 
 from django_afip import models
-import calendar
 
 
 def get_test_file(filename: str, mode="r") -> Path:
@@ -26,7 +26,7 @@ def get_test_file(filename: str, mode="r") -> Path:
 
 def get_order_of_date() -> int:
     """
-    Helper method to detect if  the day of the month 
+    Helper method to detect if  the day of the month
     corresponds to the first quarter (1) or the second (2)
     """
     today = datetime.now()
@@ -34,6 +34,7 @@ def get_order_of_date() -> int:
     if today.day > 15:
         order = 2
     return order
+
 
 def valid_since_caea():
     """
@@ -46,6 +47,7 @@ def valid_since_caea():
         valid_since = datetime(datetime.now().year, datetime.now().month, 16)
     return valid_since
 
+
 def expires_caea():
     """
     Helper method to assign the expires field from Caea model
@@ -55,9 +57,8 @@ def expires_caea():
     expires = datetime(datetime.now().year, datetime.now().month, 15)
     if order == 2:
         final = calendar.monthrange(datetime.now().year, datetime.now().month)[1]
-        expires = datetime(datetime.now().year, datetime.now().month,final)
+        expires = datetime(datetime.now().year, datetime.now().month, final)
     return expires
-
 
 
 class UserFactory(DjangoModelFactory):
