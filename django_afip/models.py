@@ -647,77 +647,6 @@ class TaxPayer(models.Model):
         except:
             self.fetch_caea(period=period, order=order)
 
-    def _inform_caea_without_operations(
-        self,
-        pos: PointOfSales,
-        caea: Caea,
-        ticket: AuthTicket = None,
-    ) -> InformedCaeas:
-        """
-        Inform to AFIP that the PointOfSales and CAEA passed have not any movement between the duration of the CAEA
-        """
-        ticket = ticket or self.get_or_create_ticket("wsfe")
-
-        client = clients.get_client("wsfe", self.is_sandboxed)
-        response = client.service.FECAEASinMovimientoInformar(
-            serializers.serialize_ticket(ticket),
-            PtoVta=pos.number,
-            CAEA=caea.caea_code,
-        )
-
-        check_response(
-            response
-        )  # be aware that this func raise an error if it's present
-        registry = InformedCaeas.objects.create(
-            pos=pos,
-            caea=caea,
-            processed_date=datetime.strptime(response.FchProceso, "%Y%m%d").date(),
-        )
-        return registry
-
-    def consult_caea_without_operations(
-        self,
-        pos: PointOfSales,
-        caea: Caea,
-        ticket: AuthTicket = None,
-    ) -> InformedCaeas or None:
-        """
-        Consult the state of the CAEA with AFIP, if the consult raise an error (probably CAEA without movement was never informed)
-        the method handle this an inform to AFIP the CAEA and POS
-        """
-
-        try:
-            registry = InformedCaeas.objects.get(pos=pos, caea=caea)
-            return registry
-        except InformedCaeas.DoesNotExist:
-            registry = None
-
-        ticket = ticket or self.get_or_create_ticket("wsfe")
-
-        client = clients.get_client("wsfe", self.is_sandboxed)
-        response = client.service.FECAEASinMovimientoConsultar(
-            serializers.serialize_ticket(ticket),
-            PtoVta=pos.number,
-            CAEA=caea.caea_code,
-        )
-        try:
-            check_response(
-                response
-            )  # be aware that this func raise an error if it's present
-
-            # if for some reason a CAEA code was informed into AFIP DB but we have not a InformedCAEA this solve that
-            registry = InformedCaeas.objects.create(
-                pos=pos,
-                caea=caea,
-                processed_date=datetime.strptime(response.FchProceso, "%Y%m%d").date(),
-            )
-            return registry
-        except exceptions.AfipException:
-            registry = self._inform_caea_without_operations(
-                pos=pos, caea=caea, ticket=ticket
-            )
-            return registry
-
     def __repr__(self) -> str:
         return "<TaxPayer {}: {}, CUIT {}>".format(
             self.pk,
@@ -789,6 +718,77 @@ class Caea(models.Model):
 
     class Meta:
         unique_together = ("order", "period", "taxpayer")
+
+
+    
+    def _inform_caea_without_operations(
+        self,
+        pos: PointOfSales,
+        ticket: AuthTicket = None,
+    ) -> InformedCaeas:
+        """
+        Inform to AFIP that the PointOfSales and CAEA passed have not any movement between the duration of the CAEA
+        """
+        ticket = ticket or pos.owner.get_or_create_ticket("wsfe")
+
+        client = clients.get_client("wsfe", pos.owner.is_sandboxed)
+        response = client.service.FECAEASinMovimientoInformar(
+            serializers.serialize_ticket(ticket),
+            PtoVta=pos.number,
+            CAEA=self.caea_code,
+        )
+
+        check_response(
+            response
+        )  # be aware that this func raise an error if it's present
+        registry = InformedCaeas.objects.create(
+            pos=pos,
+            caea=self,
+            processed_date=datetime.strptime(response.FchProceso, "%Y%m%d").date(),
+        )
+        return registry
+
+    def consult_caea_without_operations(
+        self,
+        pos: PointOfSales,
+        ticket: AuthTicket = None,
+    ) -> InformedCaeas or None:
+        """
+        Consult the state of the CAEA with AFIP, if the consult raise an error (probably CAEA without movement was never informed)
+        the method handle this an inform to AFIP the CAEA and POS
+        """
+
+        try:
+            registry = InformedCaeas.objects.get(pos=pos, caea=self.caea_code)
+            return registry
+        except InformedCaeas.DoesNotExist:
+            registry = None
+
+        ticket = ticket or pos.owner.get_or_create_ticket("wsfe")
+
+        client = clients.get_client("wsfe", pos.owner.is_sandboxed)
+        response = client.service.FECAEASinMovimientoConsultar(
+            serializers.serialize_ticket(ticket),
+            PtoVta=pos.number,
+            CAEA=self.caea_code,
+        )
+        try:
+            check_response(
+                response
+            )  # be aware that this func raise an error if it's present
+
+            # if for some reason a CAEA code was informed into AFIP DB but we have not a InformedCAEA this solve that
+            registry = InformedCaeas.objects.create(
+                pos=pos,
+                caea=self,
+                processed_date=datetime.strptime(response.FchProceso, "%Y%m%d").date(),
+            )
+            return registry
+        except exceptions.AfipException:
+            registry = self._inform_caea_without_operations(
+                pos=pos, ticket=ticket
+            )
+            return registry
 
 
 class PointOfSales(models.Model):

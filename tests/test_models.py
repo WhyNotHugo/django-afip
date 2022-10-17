@@ -549,7 +549,6 @@ def test_validate_credit_note_caea(populated_db):
     assert credit_note.receipt_number == (caea_counter_cn.next_value - 1)
     assert credit_note.validation.result == models.ReceiptValidation.RESULT_APPROVED
 
-
 @pytest.mark.django_db
 @pytest.mark.live
 def test_inform_caea_without_movement(populated_db):
@@ -557,9 +556,8 @@ def test_inform_caea_without_movement(populated_db):
     caea = models.Caea.objects.get(pk=1)
     payer = factories.TaxPayerFactory()
 
-    resp = payer.consult_caea_without_operations(pos=pos, caea=caea)
+    resp = caea.consult_caea_without_operations(pos=pos)
     assert isinstance(resp, models.InformedCaeas)
-
 
 @pytest.mark.django_db
 @pytest.mark.live
@@ -573,7 +571,7 @@ def test_creation_informedcaea(populated_db):
     ):
         informed_caea = models.InformedCaeas.objects.get(pos=pos, caea=caea)
 
-    payer.consult_caea_without_operations(pos=pos, caea=caea)
+    caea.consult_caea_without_operations(pos=pos)
     informed_caea = models.InformedCaeas.objects.get(pos=pos, caea=caea)
     assert informed_caea.pk == 1
     assert informed_caea.caea == caea
