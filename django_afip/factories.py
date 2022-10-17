@@ -15,6 +15,7 @@ from factory.django import FileField
 from factory.django import ImageField
 
 from django_afip import models
+import calendar
 
 
 def get_test_file(filename: str, mode="r") -> Path:
@@ -24,11 +25,39 @@ def get_test_file(filename: str, mode="r") -> Path:
 
 
 def get_order_of_date() -> int:
+    """
+    Helper method to detect if  the day of the month 
+    corresponds to the first quarter (1) or the second (2)
+    """
     today = datetime.now()
     order = 1
     if today.day > 15:
         order = 2
     return order
+
+def valid_since_caea():
+    """
+    Helper method to assign the valid_since field from Caea model
+    to the correspondent year,month,day in the quarter
+    """
+    order = get_order_of_date()
+    valid_since = datetime(datetime.now().year, datetime.now().month, 1)
+    if order == 2:
+        valid_since = datetime(datetime.now().year, datetime.now().month, 16)
+    return valid_since
+
+def expires_caea():
+    """
+    Helper method to assign the expires field from Caea model
+    to the correspondent year,month,day in the quarter
+    """
+    order = get_order_of_date()
+    expires = datetime(datetime.now().year, datetime.now().month, 15)
+    if order == 2:
+        final = calendar.monthrange(datetime.now().year, datetime.now().month)[1]
+        expires = datetime(datetime.now().year, datetime.now().month,final)
+    return expires
+
 
 
 class UserFactory(DjangoModelFactory):
@@ -274,12 +303,11 @@ class CaeaFactory(DjangoModelFactory):
     caea_code = "12345678974125"
     period = datetime.today().strftime("%Y%m")
     order = LazyFunction(get_order_of_date)
-    valid_since = make_aware(datetime(2022, 6, 1))
-    expires = make_aware(datetime(2022, 6, 15))
+    valid_since = LazyFunction(valid_since_caea)
+    expires = LazyFunction(expires_caea)
     generated = make_aware(datetime(2022, 5, 30, 21, 6, 4))
     report_deadline = make_aware(datetime(2022, 6, 20))
     taxpayer = SubFactory(TaxPayerFactory)
-    active = True
 
 
 class ReceiptEntryFactory(DjangoModelFactory):

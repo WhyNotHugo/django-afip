@@ -589,12 +589,8 @@ class TaxPayer(models.Model):
             expires=parsers.parse_date(response.ResultGet.FchVigHasta),
             generated=parsers.parse_datetime(response.ResultGet.FchProceso),
             report_deadline=parsers.parse_date(response.ResultGet.FchTopeInf),
-            taxpayer=self,
-            active=caea_is_active(
-                valid_since=response.ResultGet.FchVigDesde,
-                valid_to=response.ResultGet.FchVigHasta,
-            ),
-        )
+            taxpayer=self
+            )
         return caea
 
     def fetch_caea(
@@ -628,11 +624,7 @@ class TaxPayer(models.Model):
             "expires": parsers.parse_date(response.ResultGet.FchVigHasta),
             "generated": parsers.parse_datetime(response.ResultGet.FchProceso),
             "report_deadline": parsers.parse_date(response.ResultGet.FchTopeInf),
-            "taxpayer": self,
-            "active": caea_is_active(
-                valid_since=response.ResultGet.FchVigDesde,
-                valid_to=response.ResultGet.FchVigHasta,
-            ),
+            "taxpayer": self
         }
 
         caea = Caea.objects.update_or_create(
@@ -661,6 +653,10 @@ class TaxPayer(models.Model):
         verbose_name = _("taxpayer")
         verbose_name_plural = _("taxpayers")
 
+class CaeaQuerySet(models.QuerySet):
+    def active(self):
+        today = datetime.today()
+        return self.filter(Q(valid_since__lte=today),Q(expires__gte=today))
 
 class Caea(models.Model):
     """Represents a CAEA code to continue operating when AFIP is offline.
@@ -712,7 +708,15 @@ class Caea(models.Model):
         on_delete=models.CASCADE,
     )
 
-    active = models.BooleanField(default=False)
+    objects = CaeaQuerySet.as_manager()
+
+    @property
+    def caea_is_active(self)-> bool:
+        today = datetime.today()
+        if self.valid_since <= today <= self.expires:
+            return True
+        else:
+            return False
 
     def __str__(self) -> str:
         return str(self.caea_code)

@@ -638,7 +638,6 @@ def test_receipt_entry_gt_total_discount():
 
 
 @pytest.mark.django_db
-@pytest.mark.este
 def test_bad_retrive_caea():
     """
     Test that in the way that the CAEA is assigned in the save signal even if
@@ -666,7 +665,6 @@ def test_bad_retrive_caea():
 
 
 @pytest.mark.django_db
-@pytest.mark.este
 def test_caea_assigned_receipt_correct():
     """
     Test that even if a taxpayer has multiples actives CAEAs the correct will be assigned
@@ -689,14 +687,13 @@ def test_caea_assigned_receipt_correct():
     assert caea_bad.caea_code != receipt.caea.caea_code
     assert (
         models.Caea.objects.all()
-        .filter(active=True, taxpayer=receipt.point_of_sales.owner)
+        .filter(taxpayer=receipt.point_of_sales.owner)
         .count()
         == 2
     )
 
 
 @pytest.mark.django_db
-@pytest.mark.este
 def test_ordering_receipts_work():
 
     receipt_1 = ReceiptFactory()
@@ -704,3 +701,56 @@ def test_ordering_receipts_work():
     receipt_3 = ReceiptFactory()
 
     assert models.Receipt.objects.last() == receipt_3
+
+@pytest.mark.django_db
+def test_isactive_caea():
+
+    caea = CaeaFactory(
+        period = datetime.today().strftime("%Y%m"),
+        order = 1,
+        valid_since = datetime(2022, 10, 1),
+        expires = datetime(2022, 10, 15),
+    )
+
+    caea_2 = CaeaFactory(
+        caea_code = "12345678974128",
+        period = datetime.today().strftime("%Y%m"),
+        order = 2,
+        valid_since = datetime(2022, 10, 16),
+        expires = datetime(2022, 10, 31),
+    )
+
+    assert caea.valid_since <= datetime(2022,10,1) #Should be true
+    assert caea.expires <= datetime(2022,10,15) #Should be true
+    
+    assert caea.valid_since <= datetime(2022,10,15) <= caea.expires  #Should be true
+    assert caea.valid_since <= datetime(2022,10,1) <= caea.expires  #Should be true
+
+    assert caea.valid_since > datetime(2022,9,30) #Should be true
+    assert caea.expires < datetime(2022,10,16) #Should be true
+
+    assert not caea.caea_is_active
+    assert caea_2.caea_is_active
+
+@pytest.mark.django_db
+def test_caea_queryset():
+
+    caea = CaeaFactory(
+        valid_since = datetime(2022, 10, 16),
+        expires = datetime(2022, 10, 31),
+        )       
+
+    caea_2 = CaeaFactory(
+        caea_code = "12345678974128",
+        period = datetime.today().strftime("%Y%m"),
+        order = 1,
+        valid_since = datetime(2022, 8, 16),
+        expires = datetime(2022, 8, 31),
+    )
+    caea_active = models.Caea.objects.first()
+    caea_active_count = models.Caea.objects.active().count()
+
+    assert not caea_2.caea_is_active
+    assert caea.caea_is_active
+    assert caea == caea_active
+    assert caea_active_count == 1

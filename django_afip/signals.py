@@ -32,8 +32,7 @@ def save_caea_data(sender, instance: models.TaxPayer, **kwargs):
         order = 1
         if date.day > 15:
             order = 2
-        caea = models.Caea.objects.all().filter(
-            active=True,
+        caea = models.Caea.objects.active().filter(
             taxpayer=instance.point_of_sales.owner,
             period=int(period),
             order=order,
