@@ -109,5 +109,5 @@ def populated_db(live_ticket, live_taxpayer):
         order = 2
     else:
         order = 1
-    
+
     live_taxpayer.fetch_or_create_caea(period=period, order=order)
