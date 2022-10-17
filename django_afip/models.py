@@ -1460,6 +1460,7 @@ class Receipt(models.Model):
     generated = models.DateTimeField(
         _("Time when the receipt was created"),
         auto_now_add=True,
+        null=True,
     )
 
     caea = models.ForeignKey(
