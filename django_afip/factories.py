@@ -277,7 +277,7 @@ class CaeaFactory(DjangoModelFactory):
     valid_since = make_aware(datetime(2022, 6, 1))
     expires = make_aware(datetime(2022, 6, 15))
     generated = make_aware(datetime(2022, 5, 30, 21, 6, 4))
-    final_date_inform = make_aware(datetime(2022, 6, 20))
+    report_deadline = make_aware(datetime(2022, 6, 20))
     taxpayer = SubFactory(TaxPayerFactory)
     active = True
 

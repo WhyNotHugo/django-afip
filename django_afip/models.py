@@ -588,7 +588,7 @@ class TaxPayer(models.Model):
             valid_since=parsers.parse_date(response.ResultGet.FchVigDesde),
             expires=parsers.parse_date(response.ResultGet.FchVigHasta),
             generated=parsers.parse_datetime(response.ResultGet.FchProceso),
-            final_date_inform=parsers.parse_date(response.ResultGet.FchTopeInf),
+            report_deadline=parsers.parse_date(response.ResultGet.FchTopeInf),
             taxpayer=self,
             active=caea_is_active(
                 valid_since=response.ResultGet.FchVigDesde,
@@ -627,7 +627,7 @@ class TaxPayer(models.Model):
             "valid_since": parsers.parse_date(response.ResultGet.FchVigDesde),
             "expires": parsers.parse_date(response.ResultGet.FchVigHasta),
             "generated": parsers.parse_datetime(response.ResultGet.FchProceso),
-            "final_date_inform": parsers.parse_date(response.ResultGet.FchTopeInf),
+            "report_deadline": parsers.parse_date(response.ResultGet.FchTopeInf),
             "taxpayer": self,
             "active": caea_is_active(
                 valid_since=response.ResultGet.FchVigDesde,
@@ -700,8 +700,9 @@ class Caea(models.Model):
         _("generated"),
         help_text=_("When this CAEA was generated"),
     )
-    final_date_inform = models.DateField(
-        _("final_date_inform"),
+    report_deadline = models.DateField(
+        _("report deadline"),
+        help_text=_("Activities for this CAEA must be informed before this date"),
     )
 
     taxpayer = models.ForeignKey(
