@@ -1142,14 +1142,14 @@ class ReceiptQuerySet(models.QuerySet):
 
         return qs._validate(ticket)
 
-    def _validate_with_cae(self,client,ticket):
+    def _validate_with_cae(self, client, ticket):
         """
         A helper method to validate the Receipt made with CAE
         """
         response = client.service.FECAESolicitar(
-                serializers.serialize_ticket(ticket),
-                serializers.serialize_multiple_receipts(self),
-            )
+            serializers.serialize_ticket(ticket),
+            serializers.serialize_multiple_receipts(self),
+        )
         check_response(response)
         errs = []
         for cae_data in response.FeDetResp.FECAEDetResponse:
@@ -1183,15 +1183,15 @@ class ReceiptQuerySet(models.QuerySet):
         # Remove the number from ones that failed to validate:
         self.filter(validation__isnull=True).update(receipt_number=None)
         return errs
-    
-    def _validate_with_caea(self,client,ticket):
+
+    def _validate_with_caea(self, client, ticket):
         """
         A helper method to validate the Receipt made with CAEA
         """
         response = client.service.FECAEARegInformativo(
-                serializers.serialize_ticket(ticket),
-                serializers.serialize_multiple_receipts_caea(self),
-            )
+            serializers.serialize_ticket(ticket),
+            serializers.serialize_multiple_receipts_caea(self),
+        )
         check_response(response)
         errs = []
         for cae_data in response.FeDetResp.FECAEADetResponse:
@@ -1233,9 +1233,9 @@ class ReceiptQuerySet(models.QuerySet):
 
         errs = []
         if "CAEA" not in first.point_of_sales.issuance_type:
-            errs = self._validate_with_cae(ticket=ticket,client=client)
+            errs = self._validate_with_cae(ticket=ticket, client=client)
         else:
-            errs = self._validate_with_caea(ticket=ticket,client=client)
+            errs = self._validate_with_caea(ticket=ticket, client=client)
         return errs
 
 
