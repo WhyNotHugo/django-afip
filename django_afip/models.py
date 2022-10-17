@@ -1531,11 +1531,17 @@ class Receipt(models.Model):
 
     @property
     def ready_to_print(self) -> bool:
+        """Whether this receipt is ready to print (or a PDF can be generated).
+        
+        Will return ``False`` is some validation is required before this instance can be printed. 
+        """
+        
         if "CAEA" in self.point_of_sales.issuance_type:
             return True
-
-        if "CAE" in self.point_of_sales.issuance_type and self.is_validated:
-            return True
+        
+        if "CAE" in self.point_of_sales.issuance_type:
+            return self.is_validated
+        raise AssertionError("unreachable")
 
     def validate(self, ticket: AuthTicket = None, raise_=False) -> list[str]:
         """Validates this receipt.
