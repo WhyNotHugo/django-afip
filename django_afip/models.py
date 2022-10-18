@@ -2053,32 +2053,6 @@ class ReceiptValidation(models.Model):
         verbose_name_plural = _("receipt validations")
 
 
-class CaeaCounter(models.Model):
-
-    pos = models.ForeignKey(
-        PointOfSales, related_name="counter", on_delete=models.PROTECT
-    )
-
-    receipt_type = models.ForeignKey(
-        ReceiptType, related_name="counter", on_delete=models.PROTECT
-    )
-
-    next_value = models.BigIntegerField(default=1)
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["pos", "receipt_type"],
-                name="unique_migration_pos_receipt_combination",
-            )
-        ]
-
-    def __str__(self):
-        return "Counter for POS:{}, receipt_type:{}. Next_value is {}".format(
-            self.pos, self.receipt_type, self.next_value
-        )
-
-
 class InformedCaeas(models.Model):
 
     pos = models.ForeignKey(
