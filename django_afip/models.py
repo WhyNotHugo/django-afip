@@ -657,7 +657,7 @@ class TaxPayer(models.Model):
 class CaeaQuerySet(models.QuerySet):
     def active(self):
         today = datetime.today()
-        return self.filter(valid_since__lte=today,expires__gte=today)
+        return self.filter(valid_since__lte=today, expires__gte=today)
 
 
 class Caea(models.Model):
