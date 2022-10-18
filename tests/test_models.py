@@ -686,8 +686,8 @@ def test_isactive_caea():
     assert caea.valid_since > datetime(2022, 9, 30)  # Should be true
     assert caea.expires < datetime(2022, 10, 16)  # Should be true
 
-    assert not caea.caea_is_active
-    assert caea_2.caea_is_active
+    assert not caea.is_active
+    assert caea_2.is_active
 
 
 @pytest.mark.django_db
@@ -708,8 +708,8 @@ def test_caea_queryset():
     caea_active = models.Caea.objects.first()
     caea_active_count = models.Caea.objects.active().count()
 
-    assert not caea_2.caea_is_active
-    assert caea.caea_is_active
+    assert not caea_2.is_active
+    assert caea.is_active
     assert caea == caea_active
     assert caea_active_count == 1
 

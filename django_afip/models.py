@@ -657,7 +657,7 @@ class TaxPayer(models.Model):
 class CaeaQuerySet(models.QuerySet):
     def active(self):
         today = datetime.today()
-        return self.filter(Q(valid_since__lte=today), Q(expires__gte=today))
+        return self.filter(valid_since__lte=today,expires__gte=today)
 
 
 class Caea(models.Model):
@@ -713,12 +713,9 @@ class Caea(models.Model):
     objects = CaeaQuerySet.as_manager()
 
     @property
-    def caea_is_active(self) -> bool:
+    def is_active(self) -> bool:
         today = datetime.today()
-        if self.valid_since <= today <= self.expires:
-            return True
-        else:
-            return False
+        return self.valid_since <= today <= self.expires
 
     def __str__(self) -> str:
         return str(self.caea_code)
