@@ -42,20 +42,20 @@ def save_caea_data(sender, instance: models.TaxPayer, **kwargs):
         else:
             if instance.caea == None or instance.caea == "":
                 instance.caea = caea[0]
-        
+
         if instance.receipt_number == None or instance.receipt_number == "":
 
-            last_number = models.Receipt.objects.filter(
-                point_of_sales=instance.point_of_sales,
-                receipt_type=instance.receipt_type
-            ).order_by(
-                "-receipt_number"
-            ).values_list(
-                "receipt_number",
-                flat=True
-            ).first()
+            last_number = (
+                models.Receipt.objects.filter(
+                    point_of_sales=instance.point_of_sales,
+                    receipt_type=instance.receipt_type,
+                )
+                .order_by("-receipt_number")
+                .values_list("receipt_number", flat=True)
+                .first()
+            )
 
-            if last_number == None: #First record on the db
+            if last_number == None:  # First record on the db
                 last_number = 0
 
             correct_number = last_number + 1

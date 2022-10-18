@@ -713,6 +713,7 @@ def test_caea_queryset():
     assert caea == caea_active
     assert caea_active_count == 1
 
+
 @pytest.mark.django_db
 def test_receipt_caea_get_correct_numeration():
 
@@ -727,6 +728,7 @@ def test_receipt_caea_get_correct_numeration():
     assert receipt_1.receipt_number == 28930
     assert receipt_2.receipt_number == 28931
 
+
 @pytest.mark.django_db
 def test_mixed_receipts_caea_get_correct_numeration():
 
@@ -736,10 +738,14 @@ def test_mixed_receipts_caea_get_correct_numeration():
     receipt_1 = factories.ReceiptFactory(point_of_sales=pos)
     receipt_2 = factories.ReceiptFactory(point_of_sales=pos)
 
-    #factura A
+    # factura A
     receipt_type = factories.ReceiptTypeFactory(code=1)
-    receipt_a_1 = factories.ReceiptFactory(receipt_type=receipt_type, point_of_sales=pos)
-    receipt_a_2 = factories.ReceiptFactory(receipt_type=receipt_type, point_of_sales=pos)
+    receipt_a_1 = factories.ReceiptFactory(
+        receipt_type=receipt_type, point_of_sales=pos
+    )
+    receipt_a_2 = factories.ReceiptFactory(
+        receipt_type=receipt_type, point_of_sales=pos
+    )
 
     assert receipt_1.receipt_number == 1
     assert receipt_2.receipt_number == 2

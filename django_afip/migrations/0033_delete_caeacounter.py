@@ -6,11 +6,11 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('afip', '0032_alter_caea_managers_remove_caea_active'),
+        ("afip", "0032_alter_caea_managers_remove_caea_active"),
     ]
 
     operations = [
         migrations.DeleteModel(
-            name='CaeaCounter',
+            name="CaeaCounter",
         ),
     ]
