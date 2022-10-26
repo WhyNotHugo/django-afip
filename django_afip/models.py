@@ -19,7 +19,9 @@ from django.conf import settings
 from django.core import management
 from django.core.files import File
 from django.core.files.storage import Storage
+from django.core.validators import MaxValueValidator
 from django.core.validators import MinValueValidator
+from django.core.validators import RegexValidator
 from django.db import connection
 from django.db import models
 from django.db.models import CheckConstraint
@@ -27,6 +29,7 @@ from django.db.models import Count
 from django.db.models import F
 from django.db.models import Q
 from django.db.models import Sum
+from django.utils.dateparse import parse_date
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from django_renderpdf.helpers import render_pdf
@@ -117,6 +120,17 @@ def _get_storage_from_settings(setting_name: str) -> Storage:
     if not path:
         return import_string(settings.DEFAULT_FILE_STORAGE)()
     return import_string(path)
+
+
+def caea_is_active(valid_since, valid_to) -> bool:
+    valid_since = parsers.parse_date(valid_since)
+    valid_to = parsers.parse_date(valid_to)
+    today = datetime.now().date()
+
+    if valid_since <= today <= valid_to:
+        return True
+    else:
+        return False
 
 
 class GenericAfipTypeManager(models.Manager):
@@ -543,6 +557,88 @@ class TaxPayer(models.Model):
 
         return results
 
+    def request_new_caea(
+        self,
+        period: int = None,
+        order: int = None,
+        ticket: AuthTicket = None,
+    ) -> Caea:
+        """
+        Get a CAEA code for the TaxPayer, if a CAEA alredy exists the check_response will raise an exception
+
+        Returns a caea object.
+        """
+        ticket = ticket or self.get_or_create_ticket("wsfe")
+
+        client = clients.get_client("wsfe", self.is_sandboxed)
+
+        response = client.service.FECAEASolicitar(
+            serializers.serialize_ticket(ticket),
+            Periodo=serializers.serialize_caea_period(period),
+            Orden=serializers.serialize_caea_order(order),
+        )
+        check_response(
+            response
+        )  # be aware that this func raise an error if it's present
+
+        caea = Caea.objects.create(
+            caea_code=int(response.ResultGet.CAEA),
+            period=int(response.ResultGet.Periodo),
+            order=int(response.ResultGet.Orden),
+            valid_since=parsers.parse_date(response.ResultGet.FchVigDesde),
+            expires=parsers.parse_date(response.ResultGet.FchVigHasta),
+            generated=parsers.parse_datetime(response.ResultGet.FchProceso),
+            report_deadline=parsers.parse_date(response.ResultGet.FchTopeInf),
+            taxpayer=self,
+        )
+        return caea
+
+    def fetch_caea(
+        self,
+        period: str = None,
+        order: int = None,
+        ticket: AuthTicket = None,
+    ) -> Caea:
+        """
+        Consult the CAEA code  given by AFIP, if for some reason the code it's not saved in the db it will be created
+
+        Returns a CAEA model.
+        """
+        ticket = ticket or self.get_or_create_ticket("wsfe")
+
+        client = clients.get_client("wsfe", self.is_sandboxed)
+        response = client.service.FECAEAConsultar(
+            serializers.serialize_ticket(ticket),
+            Periodo=serializers.serialize_caea_period(period),
+            Orden=serializers.serialize_caea_order(order),
+        )
+
+        check_response(
+            response
+        )  # be aware that this func raise an error if it's present
+        update = {
+            "caea_code": int(response.ResultGet.CAEA),
+            "period": int(response.ResultGet.Periodo),
+            "order": int(response.ResultGet.Orden),
+            "valid_since": parsers.parse_date(response.ResultGet.FchVigDesde),
+            "expires": parsers.parse_date(response.ResultGet.FchVigHasta),
+            "generated": parsers.parse_datetime(response.ResultGet.FchProceso),
+            "report_deadline": parsers.parse_date(response.ResultGet.FchTopeInf),
+            "taxpayer": self,
+        }
+
+        caea = Caea.objects.update_or_create(
+            caea_code=int(response.ResultGet.CAEA), defaults=update
+        )
+
+        return caea
+
+    def fetch_or_create_caea(self, period: int, order: int):
+        try:
+            self.request_new_caea(period=period, order=order)
+        except:
+            self.fetch_caea(period=period, order=order)
+
     def __repr__(self) -> str:
         return "<TaxPayer {}: {}, CUIT {}>".format(
             self.pk,
@@ -556,6 +652,143 @@ class TaxPayer(models.Model):
     class Meta:
         verbose_name = _("taxpayer")
         verbose_name_plural = _("taxpayers")
+
+
+class CaeaQuerySet(models.QuerySet):
+    def active(self):
+        today = datetime.today()
+        return self.filter(valid_since__lte=today, expires__gte=today)
+
+
+class Caea(models.Model):
+    """Represents a CAEA code to continue operating when AFIP is offline.
+
+    The methods provideed by AFIP like: consulting CAEA or informing a Receipt will be attached the TaxPayer model.
+
+    """
+
+    caea_code = models.PositiveBigIntegerField(
+        validators=[
+            RegexValidator(regex="[0-9]{14}"),
+            MaxValueValidator(99999999999999),
+        ],
+        help_text=_("CAEA code to operate offline AFIP"),
+        unique=True,
+        null=False,
+        blank=False,
+    )
+
+    period = models.IntegerField(
+        help_text=_("Period to send in the CAEA request (yyyymm)")
+    )
+
+    order = models.IntegerField(
+        choices=[(1, "1"), (2, "2")],
+        help_text=_("Month is divided in 1st quarter or 2nd quarter"),
+    )
+
+    valid_since = models.DateField(
+        _("valid_to"),
+    )
+    expires = models.DateField(
+        _("expires"),
+    )
+
+    generated = models.DateTimeField(
+        _("generated"),
+        help_text=_("When this CAEA was generated"),
+    )
+    report_deadline = models.DateField(
+        _("report deadline"),
+        help_text=_("Activities for this CAEA must be informed before this date"),
+    )
+
+    taxpayer = models.ForeignKey(
+        TaxPayer,
+        verbose_name=_("taxpayer"),
+        related_name="caea_tickets",
+        on_delete=models.CASCADE,
+    )
+
+    objects = CaeaQuerySet.as_manager()
+
+    @property
+    def is_active(self) -> bool:
+        today = datetime.today()
+        return self.valid_since <= today <= self.expires
+
+    def __str__(self) -> str:
+        return str(self.caea_code)
+
+    class Meta:
+        unique_together = ("order", "period", "taxpayer")
+
+    def _inform_caea_without_operations(
+        self,
+        pos: PointOfSales,
+        ticket: AuthTicket = None,
+    ) -> InformedCaeas:
+        """
+        Inform to AFIP that the PointOfSales and CAEA passed have not any movement between the duration of the CAEA
+        """
+        ticket = ticket or pos.owner.get_or_create_ticket("wsfe")
+
+        client = clients.get_client("wsfe", pos.owner.is_sandboxed)
+        response = client.service.FECAEASinMovimientoInformar(
+            serializers.serialize_ticket(ticket),
+            PtoVta=pos.number,
+            CAEA=self.caea_code,
+        )
+
+        check_response(
+            response
+        )  # be aware that this func raise an error if it's present
+        registry = InformedCaeas.objects.create(
+            pos=pos,
+            caea=self,
+            processed_date=datetime.strptime(response.FchProceso, "%Y%m%d").date(),
+        )
+        return registry
+
+    def consult_caea_without_operations(
+        self,
+        pos: PointOfSales,
+        ticket: AuthTicket = None,
+    ) -> InformedCaeas or None:
+        """
+        Consult the state of the CAEA with AFIP, if the consult raise an error (probably CAEA without movement was never informed)
+        the method handle this an inform to AFIP the CAEA and POS
+        """
+
+        try:
+            registry = InformedCaeas.objects.get(pos=pos, caea=self.caea_code)
+            return registry
+        except InformedCaeas.DoesNotExist:
+            registry = None
+
+        ticket = ticket or pos.owner.get_or_create_ticket("wsfe")
+
+        client = clients.get_client("wsfe", pos.owner.is_sandboxed)
+        response = client.service.FECAEASinMovimientoConsultar(
+            serializers.serialize_ticket(ticket),
+            PtoVta=pos.number,
+            CAEA=self.caea_code,
+        )
+        try:
+            check_response(
+                response
+            )  # be aware that this func raise an error if it's present
+
+            # if for some reason a CAEA code was informed into AFIP DB but we have not a InformedCAEA this solve that
+            registry = InformedCaeas.objects.create(
+                pos=pos,
+                caea=self,
+                processed_date=datetime.strptime(response.FchProceso, "%Y%m%d").date(),
+            )
+            return registry
+        except exceptions.AfipException:
+            registry = self._inform_caea_without_operations(pos=pos, ticket=ticket)
+            return registry
 
 
 class PointOfSales(models.Model):
@@ -903,15 +1136,20 @@ class ReceiptQuerySet(models.QuerySet):
         qs = self.filter(validation__isnull=True).check_groupable()
         if qs.count() == 0:
             return []
-        qs.order_by("issued_date", "id")._assign_numbers()
+
+        pos = qs[0].point_of_sales.issuance_type == "CAEA"
+
+        if pos:
+            qs.order_by("issued_date", "id")
+        else:
+            qs.order_by("issued_date", "id")._assign_numbers()
 
         return qs._validate(ticket)
 
-    def _validate(self, ticket=None) -> list[str]:
-        first = self.first()
-        assert first is not None  # should never happen; mostly a hint for mypy
-        ticket = ticket or first.point_of_sales.owner.get_or_create_ticket("wsfe")
-        client = clients.get_client("wsfe", first.point_of_sales.owner.is_sandboxed)
+    def _validate_with_cae(self, client, ticket):
+        """
+        A helper method to validate the Receipt made with CAE
+        """
         response = client.service.FECAESolicitar(
             serializers.serialize_ticket(ticket),
             serializers.serialize_multiple_receipts(self),
@@ -946,10 +1184,62 @@ class ReceiptQuerySet(models.QuerySet):
                             parsers.parse_string(obs.Msg),
                         )
                     )
-
         # Remove the number from ones that failed to validate:
         self.filter(validation__isnull=True).update(receipt_number=None)
+        return errs
 
+    def _validate_with_caea(self, client, ticket):
+        """
+        A helper method to validate the Receipt made with CAEA
+        """
+        response = client.service.FECAEARegInformativo(
+            serializers.serialize_ticket(ticket),
+            serializers.serialize_multiple_receipts_caea(self),
+        )
+        check_response(response)
+        errs = []
+        for cae_data in response.FeDetResp.FECAEADetResponse:
+            if cae_data.Resultado == ReceiptValidation.RESULT_APPROVED:
+                validation = ReceiptValidation.objects.create(
+                    result=cae_data.Resultado,
+                    cae=cae_data.CAEA,
+                    # cae_expiration=parsers.parse_date(self.caea.expires),
+                    receipt=self.get(
+                        receipt_number=cae_data.CbteDesde,
+                    ),
+                    processed_date=parsers.parse_datetime(
+                        response.FeCabResp.FchProceso,
+                    ),
+                    caea=True,
+                )
+                if cae_data.Observaciones:
+                    for obs in cae_data.Observaciones.Obs:
+                        observation = Observation.objects.create(
+                            code=obs.Code,
+                            message=obs.Msg,
+                        )
+                    validation.observations.add(observation)
+            elif cae_data.Observaciones:
+                for obs in cae_data.Observaciones.Obs:
+                    errs.append(
+                        "Error {}: {}".format(
+                            obs.Code,
+                            parsers.parse_string(obs.Msg),
+                        )
+                    )
+        return errs
+
+    def _validate(self, ticket=None) -> list[str]:
+        first = self.first()
+        assert first is not None  # should never happen; mostly a hint for mypy
+        ticket = ticket or first.point_of_sales.owner.get_or_create_ticket("wsfe")
+        client = clients.get_client("wsfe", first.point_of_sales.owner.is_sandboxed)
+
+        errs = []
+        if "CAEA" not in first.point_of_sales.issuance_type:
+            errs = self._validate_with_cae(ticket=ticket, client=client)
+        else:
+            errs = self._validate_with_caea(ticket=ticket, client=client)
         return errs
 
 
@@ -1171,6 +1461,21 @@ class Receipt(models.Model):
         blank=True,
     )
 
+    generated = models.DateTimeField(
+        _("Time when the receipt was created"),
+        auto_now_add=True,
+        null=True,
+    )
+
+    caea = models.ForeignKey(
+        Caea,
+        related_name="receipts",
+        on_delete=models.PROTECT,
+        help_text=_("CAEA in case that the receipt must contain it"),
+        blank=True,
+        null=True,
+    )
+
     objects = ReceiptManager()
 
     # TODO: Not implemented: optionals
@@ -1220,6 +1525,20 @@ class Receipt(models.Model):
             return self.validation.result == ReceiptValidation.RESULT_APPROVED
         except ReceiptValidation.DoesNotExist:
             return False
+
+    @property
+    def ready_to_print(self) -> bool:
+        """Whether this receipt is ready to print (or a PDF can be generated).
+
+        Will return ``False`` is some validation is required before this instance can be printed.
+        """
+
+        if "CAEA" in self.point_of_sales.issuance_type:
+            return True
+
+        if "CAE" in self.point_of_sales.issuance_type:
+            return self.is_validated
+        raise AssertionError("unreachable")
 
     def validate(self, ticket: AuthTicket = None, raise_=False) -> list[str]:
         """Validates this receipt.
@@ -1279,10 +1598,15 @@ class Receipt(models.Model):
             return None
 
         if receipt_data.Resultado == ReceiptValidation.RESULT_APPROVED:
+            if receipt_data.EmisionTipo == "CAEA":
+                cae_expiration = None
+            else:
+                cae_expiration = receipt_data.FchVto
+
             validation = ReceiptValidation.objects.create(
                 result=receipt_data.Resultado,
                 cae=receipt_data.CodAutorizacion,
-                cae_expiration=parsers.parse_date(receipt_data.FchVto),
+                cae_expiration=parsers.parse_date(cae_expiration),
                 receipt=self,
                 processed_date=parsers.parse_datetime(
                     receipt_data.FchProceso,
@@ -1313,7 +1637,12 @@ class Receipt(models.Model):
             return _("Unnumbered %s") % self.receipt_type
 
     class Meta:
-        ordering = ("issued_date",)
+        ordering = (
+            "issued_date",
+            "point_of_sales_id",
+            "receipt_number",
+            "pk",
+        )  # this ordering return the same values for first(),last() when filter on 1 day
         verbose_name = _("receipt")
         verbose_name_plural = _("receipts")
         unique_together = [["point_of_sales", "receipt_type", "receipt_number"]]
@@ -1457,9 +1786,10 @@ class ReceiptPDF(models.Model):
         from django_afip.views import ReceiptPDFView
 
         if not self.receipt.is_validated:
-            raise exceptions.DjangoAfipException(
-                _("Cannot generate pdf for non-authorized receipt")
-            )
+            if "CAEA" not in self.receipt.point_of_sales.issuance_type:
+                raise exceptions.DjangoAfipException(
+                    _("Cannot generate pdf for non-authorized receipt")
+                )
 
         self.pdf_file = File(BytesIO(), name=f"{uuid4().hex}.pdf")
         render_pdf(
@@ -1672,6 +2002,8 @@ class ReceiptValidation(models.Model):
     cae_expiration = models.DateField(
         _("cae expiration"),
         help_text=_("The CAE expiration as returned by the AFIP."),
+        blank=True,  # Must be blank or null when was approved from CAEA operations
+        null=True,
     )
     observations = models.ManyToManyField(
         Observation,
@@ -1691,6 +2023,14 @@ class ReceiptValidation(models.Model):
         on_delete=models.PROTECT,
     )
 
+    caea = models.BooleanField(
+        default=False,
+        help_text=_(
+            "Indicate if the validation was from a CAEA receipt, in that case the field CAE contains the CAEA number"
+        ),
+        verbose_name=_("is_caea"),
+    )
+
     def __str__(self) -> str:
         return _("Validation for %s. Result: %s") % (
             self.receipt,
@@ -1708,3 +2048,29 @@ class ReceiptValidation(models.Model):
     class Meta:
         verbose_name = _("receipt validation")
         verbose_name_plural = _("receipt validations")
+
+
+class InformedCaeas(models.Model):
+
+    pos = models.ForeignKey(
+        PointOfSales, related_name="informed", on_delete=models.PROTECT
+    )
+
+    caea = models.ForeignKey(Caea, related_name="informed", on_delete=models.PROTECT)
+
+    processed_date = models.DateField(
+        _("processed date"),
+    )
+
+    def __str__(self):
+        return "POS:{}, with CAEA:{}, informed as without movement in {}".format(
+            self.pos, self.caea, self.processed_date
+        )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["pos", "caea"],
+                name="unique_migration_pos_caea_combination",
+            )
+        ]

@@ -18,3 +18,7 @@ django_afip/version.py
 testapp/test_ticket.yaml
 test.csr
 test2.csr
+
+#Branch files
+Pipfile
+Pipfile.lock

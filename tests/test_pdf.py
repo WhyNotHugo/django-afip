@@ -91,3 +91,81 @@ def test_qrcode_data():
         "tipoDocRec": 96,
         "ver": 1,
     }
+
+
+# --------------------------------------------
+@pytest.mark.django_db
+def test_pdf_generation_caea():
+    """Test PDF file generation.
+
+    For the moment, this test case mostly verifies that pdf generation
+    *works*, but does not actually validate the pdf file itself.
+
+    Running this locally *will* yield the file itself, which is useful for
+    manual inspection.
+    """
+    caea = factories.CaeaFactory()
+    pdf = factories.ReceiptPDFFactory(
+        receipt=factories.ReceiptFactory(
+            point_of_sales=factories.SubFactory(factories.PointOfSalesFactoryCaea)
+        ),
+        receipt__receipt_number=3,
+    )
+    factories.ReceiptValidationFactory(receipt=pdf.receipt)
+    pdf.save_pdf()
+    regex = r"afip/receipts/[a-f0-9]{2}/[a-f0-9]{2}/[a-f0-9]{32}.pdf"
+
+    assert re.match(regex, pdf.pdf_file.name)
+    assert pdf.pdf_file.name.endswith(".pdf")
+
+
+@pytest.mark.django_db
+def test_qrcode_data_caea():
+    caea = factories.CaeaFactory()
+    pos_caea = factories.PointOfSalesFactoryCaea()
+    receipt = factories.ReceiptFactory(point_of_sales=pos_caea)
+    pdf = factories.ReceiptPDFFactory(
+        receipt=receipt,
+    )
+    factories.ReceiptValidationFactory(receipt=pdf.receipt, cae=caea.caea_code)
+
+    qrcode = ReceiptQrCode(pdf.receipt)
+    assert qrcode._data == {
+        "codAut": int(caea.caea_code),
+        "ctz": 1.0,
+        "cuit": "20329642330",
+        "fecha": str(date.today()),
+        "importe": 130.0,
+        "moneda": "PES",
+        "nroCmp": receipt.receipt_number,
+        "nroDocRec": receipt.document_number,
+        "ptoVta": receipt.point_of_sales.number,
+        "tipoCmp": receipt.receipt_type.code,
+        "tipoCodAut": "E",
+        "tipoDocRec": receipt.document_type.code,
+        "ver": 1,
+    }
+
+
+@pytest.mark.django_db
+def test_signal_generation_for_not_validated_receipt():
+    caea = factories.CaeaFactory()
+    pos = factories.PointOfSalesFactoryCaea()
+    receipt = factories.ReceiptFactory(point_of_sales=pos)
+    printable = factories.ReceiptPDFFactory(receipt=receipt)
+    assert (
+        printable.pdf_file
+    )  # even if is not validated with CAEA must print make a PDF
+    assert not receipt.is_validated
+
+
+@pytest.mark.django_db
+def test_signal_generation_for_not_validated_receipt():
+    caea = factories.CaeaFactory()
+    pos = factories.PointOfSalesFactoryCaea()
+    receipt = factories.ReceiptFactory(point_of_sales=pos)
+    validation = factories.ReceiptValidationFactory(receipt=receipt)
+
+    printable = factories.ReceiptPDFFactory(receipt=receipt)
+    assert printable.pdf_file
+    assert receipt.is_validated

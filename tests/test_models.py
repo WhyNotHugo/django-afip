@@ -1,18 +1,24 @@
+from datetime import datetime
 from unittest.mock import MagicMock
 from unittest.mock import call
 from unittest.mock import patch
 
+import django
 import pytest
+from django.utils.timezone import make_aware
 from pytest_django.asserts import assertQuerysetEqual
 
 from django_afip import exceptions
 from django_afip import factories
 from django_afip import models
+from django_afip.factories import CaeaFactory
 from django_afip.factories import ReceiptFactory
 from django_afip.factories import ReceiptValidationFactory
 from django_afip.factories import ReceiptWithApprovedValidation
 from django_afip.factories import ReceiptWithInconsistentVatAndTaxFactory
 from django_afip.factories import ReceiptWithVatAndTaxFactory
+from django_afip.factories import SubFactory
+from django_afip.factories import TaxPayerFactory
 
 
 def test_default_receipt_queryset():
@@ -142,7 +148,6 @@ def test_fetch_existing_data(populated_db):
         receipt_number=last_receipt_number,
         point_of_sales=pos,
     )
-
     assert receipt.CbteDesde == last_receipt_number
     assert receipt.PtoVta == pos.number
 
@@ -330,6 +335,210 @@ def test_populate_method(live_ticket):
 
 
 @pytest.mark.django_db
+def test_caea_creation():
+    caea = factories.CaeaFactory()
+
+    assert len(str(caea.caea_code)) == 14
+    assert str(caea.caea_code) == "12345678974125"
+
+
+@pytest.mark.django_db
+def test_caea_creation_should_fail():
+
+    with pytest.raises(
+        ValueError,
+        match="Field 'caea_code' expected a number but got 'A234567897412B'.",
+    ):
+        caea = factories.CaeaFactory(caea_code="A234567897412B")
+
+
+@pytest.mark.django_db
+@pytest.mark.live
+def test_caea_creation_live(populated_db):
+
+    caea = models.Caea.objects.first()
+
+    assert len(str(caea.caea_code)) == 14
+    assert str(caea.period) == datetime.today().strftime("%Y%m")
+
+
+@pytest.mark.django_db
+def test_create_receipt_caea():
+
+    pos = factories.PointOfSalesFactoryCaea()
+    caea = factories.CaeaFactory()
+    # caea = models.Caea.objects.get(pk=1)
+    pos_caea = models.PointOfSales.objects.all().filter(issuance_type="CAEA")
+    receipt = factories.ReceiptFactory(point_of_sales=pos)
+
+    assert len(pos_caea) == 1
+    assert receipt.point_of_sales.issuance_type == "CAEA"
+    assert str(receipt.caea.caea_code) == caea.caea_code
+    assert receipt.receipt_number == 1
+
+
+@pytest.mark.django_db
+def test_two_caea_unique_constraint_should_fail():
+    """
+    Test that 2 caea with same order,period and taxpayer cannot be created
+    """
+
+    pos = factories.PointOfSalesFactoryCaea()
+    caea = factories.CaeaFactory()
+    with pytest.raises(
+        django.db.utils.IntegrityError,
+    ):
+        caea2 = factories.CaeaFactory(caea_code="12345678912346")
+
+
+@pytest.mark.django_db
+def test_caea_reverse_relation_receipts():
+
+    pos = factories.PointOfSalesFactoryCaea()
+    caea = factories.CaeaFactory()
+    # caea = models.Caea.objects.get(pk=1)
+    receipt_1 = factories.ReceiptFactory(point_of_sales=pos)
+    receipt_2 = factories.ReceiptFactory(point_of_sales=pos)
+    assert receipt_1 != receipt_2
+
+    receipts_with_caea = caea.receipts.all()
+    assert receipt_1 and receipt_2 in receipts_with_caea
+    assert len(receipts_with_caea) == 2
+    assert receipt_1.receipt_number == 1
+    assert receipt_2.receipt_number == 2
+
+
+@pytest.mark.django_db
+@pytest.mark.live
+def test_validate_caea_receipt(populated_db):
+
+    manager = models.ReceiptManager()
+    receipt_type = models.ReceiptType.objects.get(code=6)
+    pos = factories.PointOfSalesFactoryCaea()
+    # caea = factories.CaeaFactory()
+    caea = models.Caea.objects.get(pk=1)
+    last_number = manager.fetch_last_receipt_number(
+        point_of_sales=pos, receipt_type=receipt_type
+    )
+
+    receipt_1 = factories.ReceiptWithVatAndTaxFactoryCaea(point_of_sales=pos)
+    receipt_1.receipt_number = last_number + 1
+    receipt_1.save()
+
+    errs = receipt_1.validate()
+
+    assert len(errs) == 0
+    assert receipt_1.validation.result == models.ReceiptValidation.RESULT_APPROVED
+    assert models.ReceiptValidation.objects.count() == 1
+
+
+@pytest.mark.django_db
+@pytest.mark.live
+def test_validate_caea_receipt_another_pos(populated_db):
+
+    manager = models.ReceiptManager()
+    receipt_type = models.ReceiptType.objects.get(code=6)
+    pos = factories.PointOfSalesFactoryCaea()
+    # caea = factories.CaeaFactory()
+    caea = models.Caea.objects.get(pk=1)
+    last_number = manager.fetch_last_receipt_number(
+        point_of_sales=pos, receipt_type=receipt_type
+    )
+
+    receipt_1 = factories.ReceiptWithVatAndTaxFactoryCaea(point_of_sales=pos)
+    receipt_1.receipt_number = last_number + 1
+    receipt_1.save()
+    receipt_2 = factories.ReceiptWithVatAndTaxFactoryCaea(point_of_sales=pos)
+    receipt_2.receipt_number = last_number + 2
+    receipt_2.save()
+
+    assert receipt_1 != receipt_2
+    assert last_number + 1 == receipt_1.receipt_number
+    assert last_number + 2 == receipt_2.receipt_number
+
+    qs = models.Receipt.objects.filter(point_of_sales=pos).filter(
+        validation__isnull=True
+    )
+    errs = qs.validate()
+
+    assert len(errs) == 0
+    assert receipt_1.validation.result == models.ReceiptValidation.RESULT_APPROVED
+    assert receipt_2.validation.result == models.ReceiptValidation.RESULT_APPROVED
+    assert models.ReceiptValidation.objects.count() == 2
+
+
+@pytest.mark.django_db
+@pytest.mark.live
+def test_validate_credit_note_caea(populated_db):
+
+    """Test validating a receipt with credit note attached."""
+    # fetch data from afip to set the receipt number
+    manager = models.ReceiptManager()
+    receipt_type_fact = models.ReceiptType.objects.get(code=6)
+    receipt_type_cn = models.ReceiptType.objects.get(code=8)
+    pos = factories.PointOfSalesFactoryCaea()
+    # caea = factories.CaeaFactory()
+    caea = models.Caea.objects.get(pk=1)
+    last_number_fact = manager.fetch_last_receipt_number(
+        point_of_sales=pos, receipt_type=receipt_type_fact
+    )
+
+    last_number_cn = manager.fetch_last_receipt_number(
+        point_of_sales=pos, receipt_type=receipt_type_cn
+    )
+
+    # Create a receipt (this credit note relates to it):
+    receipt = factories.ReceiptWithVatAndTaxFactoryCaea(point_of_sales=pos)
+    receipt.receipt_number = last_number_fact + 1
+    receipt.save()
+
+    errs = receipt.validate()
+    assert len(errs) == 0
+
+    # Create a credit note for the above receipt:
+    credit_note = ReceiptWithVatAndTaxFactory(
+        receipt_type__code=8, point_of_sales=pos
+    )  # Nota de Crédito B
+    credit_note.related_receipts.add(receipt)
+    credit_note.receipt_number = last_number_cn + 1
+    credit_note.save()
+
+    credit_note.validate(raise_=True)
+    assert credit_note.receipt_number == (last_number_cn + 1)
+    assert credit_note.validation.result == models.ReceiptValidation.RESULT_APPROVED
+
+
+@pytest.mark.django_db
+@pytest.mark.live
+def test_inform_caea_without_movement(populated_db):
+    pos = factories.PointOfSalesFactoryCaea()
+    caea = models.Caea.objects.get(pk=1)
+    payer = factories.TaxPayerFactory()
+
+    resp = caea.consult_caea_without_operations(pos=pos)
+    assert isinstance(resp, models.InformedCaeas)
+
+
+@pytest.mark.django_db
+@pytest.mark.live
+def test_creation_informedcaea(populated_db):
+    pos = factories.PointOfSalesFactoryCaea()
+    caea = models.Caea.objects.get(pk=1)
+    payer = factories.TaxPayerFactory()
+
+    with pytest.raises(
+        models.InformedCaeas.DoesNotExist,
+    ):
+        informed_caea = models.InformedCaeas.objects.get(pos=pos, caea=caea)
+
+    caea.consult_caea_without_operations(pos=pos)
+    informed_caea = models.InformedCaeas.objects.get(pos=pos, caea=caea)
+    assert informed_caea.pk == 1
+    assert informed_caea.caea == caea
+    assert informed_caea.pos == pos
+
+
+@pytest.mark.django_db
 def test_receipt_entry_without_discount():
     """
     Test ReceiptEntry.
@@ -384,3 +593,161 @@ def test_receipt_entry_gt_total_discount():
 
     with pytest.raises(Exception, match=r"\bdiscount_less_than_total\b"):
         factories.ReceiptEntryFactory(quantity=1, unit_price=1, discount=2)
+
+
+@pytest.mark.django_db
+def test_bad_retrive_caea():
+    """
+    Test that in the way that the CAEA is assigned in the save signal even if
+    there are multiple taxpayer with 1 CAEA each the code assigned well.
+
+    It not ensure that if the same taxpayer has multiples actives CAEAs the correct will be assigned
+
+    """
+    caea_good = CaeaFactory()
+    caea_bad = CaeaFactory(
+        caea_code="12345678974188",
+        valid_since=make_aware(datetime(2022, 5, 15)),
+        expires=make_aware(datetime(2022, 5, 30)),
+        generated=make_aware(datetime(2022, 5, 30, 21, 6, 4)),
+        taxpayer=TaxPayerFactory(
+            name="Jane Doe",
+            cuit=20366642330,
+        ),
+    )
+
+    pos = factories.PointOfSalesFactoryCaea()
+    receipt = factories.ReceiptFactory(point_of_sales=pos)
+
+    assert caea_bad.caea_code != receipt.caea.caea_code
+
+
+@pytest.mark.django_db
+def test_caea_assigned_receipt_correct():
+    """
+    Test that even if a taxpayer has multiples actives CAEAs the correct will be assigned
+    """
+    caea_good = CaeaFactory()
+    caea_bad = CaeaFactory(
+        caea_code="12345678974188",
+        period=202209,
+        order="1",
+        valid_since=make_aware(datetime(2022, 4, 15)),
+        expires=make_aware(datetime(2022, 4, 30)),
+        generated=make_aware(datetime(2022, 4, 14, 21, 6, 4)),
+    )
+
+    assert caea_bad != caea_good
+
+    pos = factories.PointOfSalesFactoryCaea()
+    receipt = factories.ReceiptFactory(point_of_sales=pos)
+
+    assert caea_bad.caea_code != receipt.caea.caea_code
+    assert (
+        models.Caea.objects.all().filter(taxpayer=receipt.point_of_sales.owner).count()
+        == 2
+    )
+
+
+@pytest.mark.django_db
+def test_ordering_receipts_work():
+
+    receipt_1 = ReceiptFactory()
+    receipt_2 = ReceiptFactory()
+    receipt_3 = ReceiptFactory()
+
+    assert models.Receipt.objects.last() == receipt_3
+
+
+@pytest.mark.django_db
+def test_isactive_caea():
+
+    caea = CaeaFactory(
+        period=datetime.today().strftime("%Y%m"),
+        order=1,
+        valid_since=datetime(2022, 10, 1),
+        expires=datetime(2022, 10, 15),
+    )
+
+    caea_2 = CaeaFactory(
+        caea_code="12345678974128",
+        period=datetime.today().strftime("%Y%m"),
+        order=2,
+        valid_since=datetime(2022, 10, 16),
+        expires=datetime(2022, 10, 31),
+    )
+
+    assert caea.valid_since <= datetime(2022, 10, 1)  # Should be true
+    assert caea.expires <= datetime(2022, 10, 15)  # Should be true
+
+    assert caea.valid_since <= datetime(2022, 10, 15) <= caea.expires  # Should be true
+    assert caea.valid_since <= datetime(2022, 10, 1) <= caea.expires  # Should be true
+
+    assert caea.valid_since > datetime(2022, 9, 30)  # Should be true
+    assert caea.expires < datetime(2022, 10, 16)  # Should be true
+
+    assert not caea.is_active
+    assert caea_2.is_active
+
+
+@pytest.mark.django_db
+def test_caea_queryset():
+
+    caea = CaeaFactory(
+        valid_since=datetime(2022, 10, 16),
+        expires=datetime(2022, 10, 31),
+    )
+
+    caea_2 = CaeaFactory(
+        caea_code="12345678974128",
+        period=datetime.today().strftime("%Y%m"),
+        order=1,
+        valid_since=datetime(2022, 8, 16),
+        expires=datetime(2022, 8, 31),
+    )
+    caea_active = models.Caea.objects.first()
+    caea_active_count = models.Caea.objects.active().count()
+
+    assert not caea_2.is_active
+    assert caea.is_active
+    assert caea == caea_active
+    assert caea_active_count == 1
+
+
+@pytest.mark.django_db
+def test_receipt_caea_get_correct_numeration():
+
+    pos = factories.PointOfSalesFactoryCaea()
+    caea = factories.CaeaFactory()
+    # caea = models.Caea.objects.get(pk=1)
+    receipt_1 = factories.ReceiptFactory(point_of_sales=pos)
+    receipt_1.receipt_number = 28930
+    receipt_1.save()
+    receipt_2 = factories.ReceiptFactory(point_of_sales=pos)
+
+    assert receipt_1.receipt_number == 28930
+    assert receipt_2.receipt_number == 28931
+
+
+@pytest.mark.django_db
+def test_mixed_receipts_caea_get_correct_numeration():
+
+    pos = factories.PointOfSalesFactoryCaea()
+    caea = factories.CaeaFactory()
+    # caea = models.Caea.objects.get(pk=1)
+    receipt_1 = factories.ReceiptFactory(point_of_sales=pos)
+    receipt_2 = factories.ReceiptFactory(point_of_sales=pos)
+
+    # factura A
+    receipt_type = factories.ReceiptTypeFactory(code=1)
+    receipt_a_1 = factories.ReceiptFactory(
+        receipt_type=receipt_type, point_of_sales=pos
+    )
+    receipt_a_2 = factories.ReceiptFactory(
+        receipt_type=receipt_type, point_of_sales=pos
+    )
+
+    assert receipt_1.receipt_number == 1
+    assert receipt_2.receipt_number == 2
+    assert receipt_a_1.receipt_number == 1
+    assert receipt_a_2.receipt_number == 2

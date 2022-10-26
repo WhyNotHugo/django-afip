@@ -1,7 +1,9 @@
+import calendar
 from datetime import date
 from datetime import datetime
 from pathlib import Path
 
+import pytest
 from django.contrib.auth.models import User
 from django.utils.timezone import make_aware
 from factory import LazyFunction
@@ -20,6 +22,40 @@ def get_test_file(filename: str, mode="r") -> Path:
     """Helper to get test files."""
     path = Path(__file__).parent / "testing" / filename
     return path
+
+
+def get_current_order() -> int:
+    """
+    Helper method to detect if  the day of the month
+    corresponds to the first quarter (1) or the second (2)
+    """
+    today = datetime.now()
+    if today.day > 15:
+        return 2
+    return 1
+
+
+def valid_since_caea():
+    """
+    Helper method to assign the valid_since field from Caea model
+    to the correspondent year,month,day in the quarter
+    """
+    order = get_current_order()
+    if order == 2:
+        return datetime(datetime.now().year, datetime.now().month, 16)
+    return datetime(datetime.now().year, datetime.now().month, 1)
+
+
+def expires_caea():
+    """
+    Helper method to assign the expires field from Caea model
+    to the correspondent year,month,day in the quarter
+    """
+    order = get_current_order()
+    if order == 2:
+        final = calendar.monthrange(datetime.now().year, datetime.now().month)[1]
+        return datetime(datetime.now().year, datetime.now().month, final)
+    return datetime(datetime.now().year, datetime.now().month, 15)
 
 
 class UserFactory(DjangoModelFactory):
@@ -120,6 +156,12 @@ class PointOfSalesFactory(DjangoModelFactory):
     sales_terms = "Credit Card"
 
 
+class PointOfSalesFactoryCaea(PointOfSalesFactory):
+
+    number = 4
+    issuance_type = "CAEA"
+
+
 class ReceiptFactory(DjangoModelFactory):
     class Meta:
         model = models.Receipt
@@ -142,6 +184,15 @@ class ReceiptWithVatAndTaxFactory(ReceiptFactory):
     """Receipt with a valid Vat and Tax, ready to validate."""
 
     point_of_sales = LazyFunction(lambda: models.PointOfSales.objects.first())
+
+    @post_generation
+    def post(obj: models.Receipt, create, extracted, **kwargs):
+        VatFactory(vat_type__code=5, receipt=obj)
+        TaxFactory(tax_type__code=3, receipt=obj)
+
+
+class ReceiptWithVatAndTaxFactoryCaea(ReceiptFactory):
+    """Receipt with a valid Vat and Tax, ready to validate."""
 
     @post_generation
     def post(obj: models.Receipt, create, extracted, **kwargs):
@@ -241,6 +292,20 @@ class TaxFactory(DjangoModelFactory):
     base_amount = 100
     receipt = SubFactory(ReceiptFactory)
     tax_type = SubFactory(TaxTypeFactory)
+
+
+class CaeaFactory(DjangoModelFactory):
+    class Meta:
+        model = models.Caea
+
+    caea_code = "12345678974125"
+    period = datetime.today().strftime("%Y%m")
+    order = LazyFunction(get_current_order)
+    valid_since = LazyFunction(valid_since_caea)
+    expires = LazyFunction(expires_caea)
+    generated = make_aware(datetime(2022, 5, 30, 21, 6, 4))
+    report_deadline = make_aware(datetime(2022, 6, 20))
+    taxpayer = SubFactory(TaxPayerFactory)
 
 
 class ReceiptEntryFactory(DjangoModelFactory):

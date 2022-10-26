@@ -63,3 +63,7 @@ class CannotValidateTogether(DjangoAfipException):
 
 class ValidationError(DjangoAfipException):
     """Raised when a single Receipt failed to validate with AFIP's WS."""
+
+
+class CaeaCountError(DjangoAfipException):
+    """Raised when query the caea to obtain the number but 0 or 2 or more."""

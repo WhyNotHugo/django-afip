@@ -1,3 +1,4 @@
+from datetime import datetime
 from unittest.mock import patch
 
 import pytest
@@ -102,3 +103,11 @@ def populated_db(live_ticket, live_taxpayer):
 
     models.load_metadata()
     live_taxpayer.fetch_points_of_sales()
+
+    period = datetime.now().strftime("%Y%m")
+    if datetime.today().day > 15:
+        order = 2
+    else:
+        order = 1
+
+    live_taxpayer.fetch_or_create_caea(period=period, order=order)
