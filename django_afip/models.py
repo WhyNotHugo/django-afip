@@ -132,7 +132,7 @@ class GenericAfipTypeManager(models.Manager):
         self.__service_name = service_name
         self.__type_name = type_name
 
-    def populate(self, ticket: AuthTicket = None) -> None:
+    def populate(self, ticket: AuthTicket | None = None) -> None:
         """Fetch and save data for this model from AFIP's WS.
 
         Direct usage of this method is discouraged, use
@@ -509,7 +509,7 @@ class TaxPayer(models.Model):
 
     def fetch_points_of_sales(
         self,
-        ticket: AuthTicket = None,
+        ticket: AuthTicket | None = None,
     ) -> list[tuple[PointOfSales, bool]]:
         """
         Fetch all point of sales objects.
@@ -854,7 +854,7 @@ class ReceiptQuerySet(models.QuerySet):
 
         return self
 
-    def validate(self, ticket: AuthTicket = None) -> list[str]:
+    def validate(self, ticket: AuthTicket | None = None) -> list[str]:
         """Validate all receipts matching this queryset.
 
         Note that, due to how AFIP implements its numbering, this method is not
@@ -1221,7 +1221,7 @@ class Receipt(models.Model):
         except ReceiptValidation.DoesNotExist:
             return False
 
-    def validate(self, ticket: AuthTicket = None, raise_=False) -> list[str]:
+    def validate(self, ticket: AuthTicket | None = None, raise_=False) -> list[str]:
         """Validates this receipt.
 
         This is a shortcut to :meth:`~.ReceiptQuerySet.validate`. See the documentation
@@ -1362,7 +1362,7 @@ class ReceiptPDF(models.Model):
     PDF generation is skipped if the receipt has not been validated.
     """
 
-    def upload_to(self, filename="untitled", instance: ReceiptPDF = None) -> str:
+    def upload_to(self, filename="untitled", instance: ReceiptPDF | None = None) -> str:
         """
         Returns the full path for generated receipts.
 

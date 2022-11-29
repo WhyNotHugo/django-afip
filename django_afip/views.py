@@ -32,7 +32,7 @@ class ReceiptPDFView(PDFView):
     def download_name(self):
         return f"{self.receipt.formatted_number}.pdf"
 
-    def get_template_names(self, receipt: models.Receipt = None):
+    def get_template_names(self, receipt: models.Receipt | None = None):
         """Return the templates use to render the Receipt PDF.
 
         Template discovery tries to find any of the below receipts::
