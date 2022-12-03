@@ -111,6 +111,8 @@ def first_currency() -> int | None:
     if ct:
         return ct.pk
 
+    return None
+
 
 def _get_storage_from_settings(setting_name: str) -> Storage:
     path = getattr(settings, setting_name, None)
