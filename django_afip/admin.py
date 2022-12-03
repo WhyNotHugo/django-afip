@@ -27,26 +27,29 @@ def catch_errors(self, request):
     """Catches specific errors in admin actions and shows a friendly error."""
     try:
         yield
-    except exceptions.CertificateExpired:
+    except exceptions.CertificateExpired as e:
+        logger.exception(e)
         self.message_user(
             request,
             _("The AFIP Taxpayer certificate has expired."),
             messages.ERROR,
         )
-    except exceptions.UntrustedCertificate:
+    except exceptions.UntrustedCertificate as e:
+        logger.exception(e)
         self.message_user(
             request,
             _("The AFIP Taxpayer certificate is untrusted."),
             messages.ERROR,
         )
-    except exceptions.CorruptCertificate:
+    except exceptions.CorruptCertificate as e:
+        logger.exception(e)
         self.message_user(
             request,
             _("The AFIP Taxpayer certificate is corrupt."),
             messages.ERROR,
         )
     except exceptions.AuthenticationError as e:
-        logger.exception("AFIP auth failed")
+        logger.exception(e)
         self.message_user(
             request,
             _("An unknown authentication error has ocurred: %s") % e,
