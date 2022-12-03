@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from django.utils.functional import LazyObject
 
 from django_afip.clients import get_client
@@ -121,7 +123,12 @@ def serialize_vat(vat):
     )
 
 
-def serialize_receipt_data(receipt_type, receipt_number, point_of_sales):
-    return f.FECompConsultaReq(
+def serialize_receipt_data(
+    receipt_type: str,
+    receipt_number: int,
+    point_of_sales: int,
+):
+    # TYPING: Types for zeep's factories are not inferred.
+    return f.FECompConsultaReq(  # type: ignore
         CbteTipo=receipt_type, CbteNro=receipt_number, PtoVta=point_of_sales
     )

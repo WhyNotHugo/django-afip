@@ -996,7 +996,7 @@ class ReceiptManager(models.Manager):
 
     def fetch_receipt_data(
         self,
-        receipt_type: ReceiptType,
+        receipt_type: str,
         receipt_number: int,
         point_of_sales: PointOfSales,
     ):  # TODO: Wrap this in a dataclass
