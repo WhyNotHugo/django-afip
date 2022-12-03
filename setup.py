@@ -15,7 +15,7 @@ setup(
         "Changelog": "https://django-afip.readthedocs.io/en/latest/changelog.html",
     },
     license="ISC",
-    packages=find_packages(),
+    packages=find_packages(exclude=["testapp"]),
     include_package_data=True,
     long_description=open("README.rst").read(),
     install_requires=[
