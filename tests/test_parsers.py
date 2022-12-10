@@ -6,11 +6,11 @@ from django_afip.clients import TZ_AR
 
 
 def test_parse_null_datetime():
-    assert parsers.parse_datetime("NULL") is None
+    assert parsers.parse_datetime_maybe("NULL") is None
 
 
 def test_parse_none_datetime():
-    assert parsers.parse_datetime(None) is None
+    assert parsers.parse_datetime_maybe(None) is None
 
 
 def test_parse_datetimes():
@@ -18,17 +18,22 @@ def test_parse_datetimes():
         2017, 7, 30, 15, 43, 30, tzinfo=TZ_AR
     )
 
+    assert parsers.parse_datetime_maybe("20170730154330") == datetime(
+        2017, 7, 30, 15, 43, 30, tzinfo=TZ_AR
+    )
+
 
 def test_parse_null_date():
-    assert parsers.parse_date("NULL") is None
+    assert parsers.parse_date_maybe("NULL") is None
 
 
 def test_parse_none_date():
-    assert parsers.parse_date(None) is None
+    assert parsers.parse_date_maybe(None) is None
 
 
 def test_parse_dates():
     assert parsers.parse_date("20170730") == date(2017, 7, 30)
+    assert parsers.parse_date_maybe("20170730") == date(2017, 7, 30)
 
 
 def test_weirdly_encoded():
