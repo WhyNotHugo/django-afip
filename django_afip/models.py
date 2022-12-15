@@ -152,7 +152,7 @@ class GenericAfipTypeManager(models.Manager):
                 code=result.Id,
                 description=result.Desc,
                 valid_from=parsers.parse_date(result.FchDesde),
-                valid_to=parsers.parse_date(result.FchHasta),
+                valid_to=parsers.parse_date_maybe(result.FchHasta),
             )
 
     def get_by_natural_key(self, code: str) -> GenericAfipType:
