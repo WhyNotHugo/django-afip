@@ -100,3 +100,14 @@ jobs:
       - run: codecov
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+  mypy:
+    runs-on: ubuntu-latest
+    name: mypy
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.10
+      - run: pip install -e .
+      - run: pip install -r requirements-dev.txt
+      - run: mypy .
