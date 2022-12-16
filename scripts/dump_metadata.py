@@ -19,7 +19,9 @@ if __name__ == "__main__":
 
     # Fetch and dump data:
     for model in GenericAfipType.SUBCLASSES:
-        model.objects.populate()
+        # TYPING: mypy can't see custom manager type.
+        # See: https://github.com/typeddjango/django-stubs/issues/1067
+        model.objects.populate()  # type: ignore
 
         label = model._meta.label.split(".")[1].lower()
 
