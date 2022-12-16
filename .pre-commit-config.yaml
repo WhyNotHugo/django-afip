@@ -23,17 +23,18 @@ repos:
         additional_dependencies:
           - flake8-comprehensions
           - flake8-bugbear
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "v0.991"
-    hooks:
-      - id: mypy
-        additional_dependencies:
-          - types-pytz
-          - types-freezegun
-          - types-pyOpenSSL
-          - types-requests
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.2.2
     hooks:
-    -   id: pyupgrade
+      - id: pyupgrade
         args: [--py37-plus]
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy
+        language: system
+        entry: mypy
+        types_or: [python, pyi]
+ci:
+  skip:
+    - mypy
