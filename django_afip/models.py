@@ -13,6 +13,8 @@ from decimal import Decimal
 from io import BytesIO
 from tempfile import NamedTemporaryFile
 from typing import BinaryIO
+from typing import Generic
+from typing import TypeVar
 from uuid import uuid4
 
 from django.conf import settings
@@ -121,7 +123,10 @@ def _get_storage_from_settings(setting_name: str) -> Storage:
     return import_string(path)
 
 
-class GenericAfipTypeManager(models.Manager):
+_T = TypeVar("_T", bound="GenericAfipType", covariant=True)
+
+
+class GenericAfipTypeManager(models.Manager, Generic[_T]):
     """Default Manager for GenericAfipType."""
 
     def __init__(self, service_name: str, type_name: str):
@@ -155,7 +160,7 @@ class GenericAfipTypeManager(models.Manager):
                 valid_to=parsers.parse_date_maybe(result.FchHasta),
             )
 
-    def get_by_natural_key(self, code: str) -> GenericAfipType:
+    def get_by_natural_key(self, code: str) -> _T:
         return self.get(code=code)
 
     def exists_by_natural_key(self, code: str) -> bool:
