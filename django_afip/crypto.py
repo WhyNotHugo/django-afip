@@ -1,6 +1,7 @@
 from typing import IO
 
 from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
 from cryptography.hazmat.primitives.serialization import Encoding
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 from cryptography.hazmat.primitives.serialization.pkcs7 import PKCS7Options
@@ -24,6 +25,9 @@ def create_embeded_pkcs7_signature(data: bytes, cert: bytes, key: bytes) -> byte
         signcert = load_pem_x509_certificate(cert)
     except Exception as e:
         raise exceptions.CorruptCertificate from e
+
+    if not isinstance(pkey, RSAPrivateKey):
+        raise exceptions.CorruptCertificate("Private key is not RSA")
 
     signed_data = (
         PKCS7SignatureBuilder()
