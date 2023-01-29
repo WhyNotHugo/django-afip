@@ -103,4 +103,4 @@ def get_client(service_name: str, sandbox=False) -> Client:
     try:
         return Client(WSDLS[key], transport=get_or_create_transport())
     except KeyError:
-        raise ValueError(f"Unknown service name, {service_name}")
+        raise ValueError(f"Unknown service name, {service_name}") from None
