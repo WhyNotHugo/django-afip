@@ -110,7 +110,7 @@ def test_with_key(admin_client):
     )
 
     taxpayer.refresh_from_db()
-    assert "Blah" == taxpayer.key.file.read().decode()
+    assert taxpayer.key.file.read().decode() == "Blah"
 
 
 def test_admin_taxpayer_request_generation_with_csr(admin_client):
