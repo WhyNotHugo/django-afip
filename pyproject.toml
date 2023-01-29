@@ -12,9 +12,32 @@ plugins = ["mypy_django_plugin.main"]
 [tool.django-stubs]
 django_settings_module = "testapp.settings"
 
-[tool.isort]
-profile = "black"
-force_single_line = true
+[tool.ruff.isort]
+force-single-line = true
 
 [tool.coverage.run]
 source = ["django_afip"]
+
+[tool.ruff]
+exclude = [
+    ".eggs",
+    ".tox",
+    "build",
+    "docs",
+]
+select = [
+    "E",
+    "F",
+    "W",
+    "B",
+    "I",
+    "UP",
+    # "N",
+    # "ANN",
+    # "A",
+    "C4",
+    # "PT",
+    # "SIM",
+    "TID",
+]
+target-version = "py37"
