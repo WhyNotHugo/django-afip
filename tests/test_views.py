@@ -81,10 +81,14 @@ class ReceiptPDFTestCase(TestCase):
             <strong>Condición de Pago:</strong> Contado
           </div>
           <div class="client-data">
-            John Doe, DNI 203012345<br>
+            John Doe,
+            DNI
+            203012345<br>
             La Rioja 123<br />X5000EVX Córdoba<br>
           </div>
         </div>
+
+
 
       </header>
 
