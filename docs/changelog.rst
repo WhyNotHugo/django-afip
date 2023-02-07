@@ -7,7 +7,7 @@ dependencia en cada versión, en orden cronológicamente inverso.
 Todos los cambios que necesites tener en cuenta al actualizar están listados
 acá.
 
-11.1.0
+11.2.0
 ------
 
 - Python 3.11 is now supported.
