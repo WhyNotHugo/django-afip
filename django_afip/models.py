@@ -97,9 +97,8 @@ def check_response(response) -> None:
     if "Errors" in response:
         if response.Errors:
             raise exceptions.AfipException(response)
-    elif "errorConstancia" in response:
-        if response.errorConstancia:
-            raise exceptions.AfipException(response)
+    elif "errorConstancia" in response and response.errorConstancia:
+        raise exceptions.AfipException(response)
 
 
 def first_currency() -> int | None:

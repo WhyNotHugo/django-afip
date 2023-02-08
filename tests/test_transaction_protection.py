@@ -26,9 +26,10 @@ def test_raises():
     ) as mocked_assign_numbers, patch(
         "django_afip.models.ReceiptQuerySet._validate",
         spec=True,
-    ) as mocked__validate:
-        with pytest.raises(RuntimeError):
-            queryset.validate(ticket)
+    ) as mocked__validate, pytest.raises(
+        RuntimeError
+    ):
+        queryset.validate(ticket)
 
     assert mocked_assign_numbers.call_count == 0
     assert mocked__validate.call_count == 0

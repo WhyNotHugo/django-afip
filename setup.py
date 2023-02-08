@@ -2,6 +2,9 @@
 from setuptools import find_packages
 from setuptools import setup
 
+with open("README.rst") as f:
+    readme = f.read()
+
 setup(
     name="django-afip",
     description="AFIP integration for django",
@@ -17,7 +20,7 @@ setup(
     license="ISC",
     packages=find_packages(exclude=["testapp"]),
     include_package_data=True,
-    long_description=open("README.rst").read(),
+    long_description=readme,
     install_requires=[
         "cryptography>=3.2,<39",
         "django>=3.2,<4.2",
