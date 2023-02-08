@@ -16,7 +16,7 @@ class ReceiptQrCode:
     # I'm assuming it's a human error and that the URL doesn't take a space.
     BASE_URL = "https://www.afip.gob.ar/fe/qr/?p="
 
-    def __init__(self, receipt: Receipt):
+    def __init__(self, receipt: Receipt) -> None:
         self._receipt = receipt
         # The examples on the website say that "importe" and "ctz" are both "decimal"
         # type. JS/JSON has no decimal type. The examples use integeres.

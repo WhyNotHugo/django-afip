@@ -7,7 +7,7 @@ class AfipException(DjangoAfipException):
     Wraps around errors returned by AFIP's WS.
     """
 
-    def __init__(self, response):
+    def __init__(self, response) -> None:
         if "Errors" in response:
             message = "Error {}: {}".format(
                 response.Errors.Err[0].Code,

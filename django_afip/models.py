@@ -128,7 +128,7 @@ _T = TypeVar("_T", bound="GenericAfipType", covariant=True)
 class GenericAfipTypeManager(models.Manager, Generic[_T]):
     """Default Manager for GenericAfipType."""
 
-    def __init__(self, service_name: str, type_name: str):
+    def __init__(self, service_name: str, type_name: str) -> None:
         """Create a new Manager instance for a GenericAfipType.
 
         This should generally only be required to manually populate a single
