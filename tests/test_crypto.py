@@ -5,7 +5,7 @@ import pytest
 from django_afip import crypto
 
 
-@pytest.fixture
+@pytest.fixture()
 def signed_data():
     path = Path(__file__).parent / "signed_data.bin"
     with open(path, "rb") as data:

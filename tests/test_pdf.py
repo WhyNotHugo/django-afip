@@ -8,7 +8,7 @@ from django_afip import models
 from django_afip.pdf import ReceiptQrCode
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db()
 def test_pdf_generation():
     """Test PDF file generation.
 
@@ -27,7 +27,7 @@ def test_pdf_generation():
     assert pdf.pdf_file.name.endswith(".pdf")
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db()
 def test_unauthorized_receipt_generation():
     """
     Test PDF file generation for unauthorized receipts.
@@ -51,14 +51,14 @@ def test_unauthorized_receipt_generation():
         pdf.save_pdf()
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db()
 def test_signal_generation_for_not_validated_receipt():
     printable = factories.ReceiptPDFFactory()
 
     assert not (printable.pdf_file)
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db()
 def test_signal_generation_for_validated_receipt():
     validation = factories.ReceiptValidationFactory()
     printable = factories.ReceiptPDFFactory(receipt=validation.receipt)
@@ -67,7 +67,7 @@ def test_signal_generation_for_validated_receipt():
     assert printable.pdf_file.name.endswith(".pdf")
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db()
 def test_qrcode_data():
     pdf = factories.ReceiptPDFFactory(
         receipt__receipt_number=3,

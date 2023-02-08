@@ -7,12 +7,12 @@ from django_afip import models
 from django_afip.factories import ReceiptFactory
 
 
-@pytest.fixture
+@pytest.fixture()
 def disable_durability_check():
     """Disable the global fixture of the same name."""
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db()
 def test_raises():
     """Calling ``validate`` inside a transaction should raise."""
 

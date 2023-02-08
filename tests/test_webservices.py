@@ -14,8 +14,8 @@ from django_afip import factories
 from django_afip import models
 
 
-@pytest.mark.live
-@pytest.mark.django_db
+@pytest.mark.live()
+@pytest.mark.django_db()
 def test_authentication_with_bad_cuit():
     """Test using the wrong cuit for a key pair."""
 
@@ -30,8 +30,8 @@ def test_authentication_with_bad_cuit():
         taxpayer.fetch_points_of_sales()
 
 
-@pytest.mark.live
-@pytest.mark.django_db
+@pytest.mark.live()
+@pytest.mark.django_db()
 def test_authentication_with_bogus_certificate_exception():
     """Test that using a junk ceritificates raises as expected."""
 
@@ -54,8 +54,8 @@ def test_authentication_with_bogus_certificate_exception():
     assert not isinstance(e, exceptions.AfipException)
 
 
-@pytest.mark.live
-@pytest.mark.django_db
+@pytest.mark.live()
+@pytest.mark.django_db()
 def test_authentication_with_no_active_taxpayer():
     """Test that no TaxPayers raises an understandable error."""
     with pytest.raises(
@@ -65,8 +65,8 @@ def test_authentication_with_no_active_taxpayer():
         models.AuthTicket.objects.get_any_active("wsfe")
 
 
-@pytest.mark.live
-@pytest.mark.django_db
+@pytest.mark.live()
+@pytest.mark.django_db()
 def test_authentication_with_expired_certificate_exception():
     """Test that using an expired ceritificate raises as expected."""
     taxpayer = factories.TaxPayerFactory(
@@ -78,8 +78,8 @@ def test_authentication_with_expired_certificate_exception():
         taxpayer.create_ticket("wsfe")
 
 
-@pytest.mark.live
-@pytest.mark.django_db
+@pytest.mark.live()
+@pytest.mark.django_db()
 def test_authentication_with_untrusted_certificate_exception():
     """
     Test that using an untrusted ceritificate raises as expected.
@@ -91,7 +91,7 @@ def test_authentication_with_untrusted_certificate_exception():
         taxpayer.create_ticket("wsfe")
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db()
 def test_population_command():
     """Test the afipmetadata command."""
     management.call_command("afipmetadata")
@@ -104,7 +104,7 @@ def test_population_command():
     assert models.CurrencyType.objects.count() > 0
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db()
 def test_metadata_deserialization():
     """Test that we deserialize descriptions properly."""
     management.call_command("afipmetadata")
@@ -116,8 +116,8 @@ def test_metadata_deserialization():
     assert fac_c.description == "Factura C"
 
 
-@pytest.mark.django_db
-@pytest.mark.live
+@pytest.mark.django_db()
+@pytest.mark.live()
 def test_taxpayer_fetch_points_of_sale(populated_db):
     """Test the ``fetch_points_of_sales`` method."""
     taxpayer = models.TaxPayer.objects.first()
@@ -127,8 +127,8 @@ def test_taxpayer_fetch_points_of_sale(populated_db):
     assert points_of_sales > 0
 
 
-@pytest.mark.django_db
-@pytest.mark.live
+@pytest.mark.django_db()
+@pytest.mark.live()
 def test_receipt_queryset_validate_empty(populated_db):
     factories.ReceiptFactory()
 
@@ -138,8 +138,8 @@ def test_receipt_queryset_validate_empty(populated_db):
     assert models.ReceiptValidation.objects.count() == 0
 
 
-@pytest.mark.django_db
-@pytest.mark.live
+@pytest.mark.django_db()
+@pytest.mark.live()
 def test_receipt_queryset_validation_good(populated_db):
     """Test validating valid receipts."""
     r1 = factories.ReceiptWithVatAndTaxFactory()
@@ -155,8 +155,8 @@ def test_receipt_queryset_validation_good(populated_db):
     assert models.ReceiptValidation.objects.count() == 3
 
 
-@pytest.mark.django_db
-@pytest.mark.live
+@pytest.mark.django_db()
+@pytest.mark.live()
 def test_receipt_queryset_validation_bad(populated_db):
     """Test validating invalid receipts."""
     factories.ReceiptWithInconsistentVatAndTaxFactory()
@@ -175,8 +175,8 @@ def test_receipt_queryset_validation_bad(populated_db):
     assert models.ReceiptValidation.objects.count() == 0
 
 
-@pytest.mark.django_db
-@pytest.mark.live
+@pytest.mark.django_db()
+@pytest.mark.live()
 def test_receipt_queryset_validation_mixed(populated_db):
     """
     Test validating a mixture of valid and invalid receipts.
@@ -205,8 +205,8 @@ def test_receipt_queryset_validation_mixed(populated_db):
     )
 
 
-@pytest.mark.django_db
-@pytest.mark.live
+@pytest.mark.django_db()
+@pytest.mark.live()
 def test_receipt_queryset_validation_validated(populated_db):
     """Test validating invalid receipts."""
     factories.ReceiptWithApprovedValidation()
@@ -217,8 +217,8 @@ def test_receipt_queryset_validation_validated(populated_db):
     assert errs == []
 
 
-@pytest.mark.django_db
-@pytest.mark.live
+@pytest.mark.django_db()
+@pytest.mark.live()
 def test_receipt_queryset_validation_good_service(populated_db):
     """Test validating a receipt for a service (rather than product)."""
     receipt = factories.ReceiptWithVatAndTaxFactory(
@@ -235,8 +235,8 @@ def test_receipt_queryset_validation_good_service(populated_db):
     assert models.ReceiptValidation.objects.count() == 1
 
 
-@pytest.mark.django_db
-@pytest.mark.live
+@pytest.mark.django_db()
+@pytest.mark.live()
 def test_receipt_queryset_validation_good_without_tax(populated_db):
     """Test validating valid receipts."""
     receipt = factories.ReceiptFactory(
@@ -252,8 +252,8 @@ def test_receipt_queryset_validation_good_without_tax(populated_db):
     assert models.ReceiptValidation.objects.count() == 1
 
 
-@pytest.mark.django_db
-@pytest.mark.live
+@pytest.mark.django_db()
+@pytest.mark.live()
 def test_receipt_queryset_validation_good_without_vat(populated_db):
     """Test validating valid receipts."""
     receipt = factories.ReceiptFactory(
@@ -271,8 +271,8 @@ def test_receipt_queryset_validation_good_without_vat(populated_db):
 
 
 @pytest.mark.xfail(reason="Currently not working -- needs to get looked at.")
-@pytest.mark.django_db
-@pytest.mark.live
+@pytest.mark.django_db()
+@pytest.mark.live()
 def test_receipt_queryset_validation_with_observations(populated_db):
     receipt = factories.ReceiptFactory(
         document_number=20291144404,
@@ -292,8 +292,8 @@ def test_receipt_queryset_validation_with_observations(populated_db):
     assert receipt.validation.observations.count() == 1
 
 
-@pytest.mark.django_db
-@pytest.mark.live
+@pytest.mark.django_db()
+@pytest.mark.live()
 def test_receipt_queryset_credit_note(populated_db):
     """Test validating valid a credit note."""
     # Create an invoice (code=6) and validate it...

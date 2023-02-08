@@ -190,7 +190,7 @@ class ReceiptPDFTestCase(TestCase):
         assert "Content-Type: application/pdf" in headers
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db()
 def test_template_discovery(client):
     taxpayer = factories.TaxPayerFactory(cuit="20329642330")
     pdf = factories.ReceiptPDFFactory(
