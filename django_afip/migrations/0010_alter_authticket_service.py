@@ -3,7 +3,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("afip", "0009_alter_pointofsales_issuance_type"),
     ]

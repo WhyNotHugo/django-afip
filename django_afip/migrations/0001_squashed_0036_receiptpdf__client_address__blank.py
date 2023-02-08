@@ -6,7 +6,6 @@ import django_afip.models
 
 
 class Migration(migrations.Migration):
-
     replaces = [
         ("afip", "0001_initial"),
         ("afip", "0002_auto_20150909_1837"),

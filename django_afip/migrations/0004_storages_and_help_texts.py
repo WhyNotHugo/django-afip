@@ -5,7 +5,6 @@ import django_afip.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("afip", "0003_issuance_type_length"),
     ]

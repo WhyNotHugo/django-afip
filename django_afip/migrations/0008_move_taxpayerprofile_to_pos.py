@@ -17,7 +17,6 @@ def merge_taxpayer_profile(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("afip", "0007_auto_20210409_1641"),
     ]

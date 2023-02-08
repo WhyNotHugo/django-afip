@@ -4,7 +4,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("afip", "0001_squashed_0036_receiptpdf__client_address__blank"),
     ]

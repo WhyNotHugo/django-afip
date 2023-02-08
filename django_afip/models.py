@@ -835,7 +835,10 @@ class ReceiptQuerySet(models.QuerySet):
 
         for receipt in self.filter(receipt_number__isnull=True):
             # Atomically update receipt number
-            Receipt.objects.filter(pk=receipt.id, receipt_number__isnull=True,).update(
+            Receipt.objects.filter(
+                pk=receipt.id,
+                receipt_number__isnull=True,
+            ).update(
                 receipt_number=next_num,
             )
             next_num += 1

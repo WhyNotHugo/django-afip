@@ -3,7 +3,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("afip", "0008_move_taxpayerprofile_to_pos"),
     ]

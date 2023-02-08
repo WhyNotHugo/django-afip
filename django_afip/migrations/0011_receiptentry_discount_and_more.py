@@ -9,7 +9,6 @@ from django.db import models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("afip", "0010_alter_authticket_service"),
     ]
