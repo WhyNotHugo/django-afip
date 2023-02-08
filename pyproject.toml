@@ -30,8 +30,11 @@ select = [
     # "ANN",
     "A",
     "C4",
-    # "PT",
+    "PT",
     # "SIM",
     "TID",
+]
+ignore = [
+  "PT004"
 ]
 target-version = "py37"
