@@ -19,12 +19,6 @@ force-single-line = true
 source = ["django_afip"]
 
 [tool.ruff]
-exclude = [
-    ".eggs",
-    ".tox",
-    "build",
-    "docs",
-]
 select = [
     "E",
     "F",
