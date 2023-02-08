@@ -5,7 +5,7 @@ from django_afip import models
 
 
 class Command(BaseCommand):
-    help = _("Loads fixtures with metadata from AFIP.")
+    help = _("Loads fixtures with metadata from AFIP.")  # noqa: A003
     requires_migrations_checks = True
 
     def handle(self, *args, **options):
