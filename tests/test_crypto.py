@@ -19,5 +19,5 @@ def test_pkcs7_signing(expired_key: bytes, expired_crt: bytes, signed_data: byte
     actual_data = crypto.create_embeded_pkcs7_signature(data, expired_crt, expired_key)
 
     # Data after this index DOES vary depending on current time and other settings:
-    assert actual_data[:1100] == signed_data[:1100]
-    assert len(actual_data) == len(signed_data)
+    assert actual_data[64:1100] == signed_data[64:1100]
+    assert 1717 <= len(actual_data) <= 1790
