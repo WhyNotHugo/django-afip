@@ -22,7 +22,7 @@ setup(
     include_package_data=True,
     long_description=readme,
     install_requires=[
-        "cryptography>=3.2,<39",
+        "cryptography>=3.2,<40",
         "django>=3.2,<4.2",
         "django_renderpdf>=3.0.0,<4.0.0",
         "lxml>=3.4.4",
