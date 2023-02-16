@@ -21,7 +21,7 @@ import django_afip
 BASE_DIR = dirname(dirname(abspath(__file__)))
 
 sys.path.insert(0, abspath(join(dirname(__file__), "_ext")))
-sys.path.insert(0, abspath(join(BASE_DIR, "testapp")))
+sys.path.insert(0, abspath(BASE_DIR))
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "testapp.settings")
 
