@@ -5,6 +5,19 @@ requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
 write_to = "django_afip/version.py"
 version_scheme = "post-release"
 
+[tool.pytest.ini_options]
+addopts = """
+  --reuse-db
+  --cov=django_afip
+  --cov-report=term-missing:skip-covered
+  --no-cov-on-fail
+  --color=yes
+"""
+markers = [
+  "live: Tests done with the live test environment."
+]
+DJANGO_SETTINGS_MODULE = "testapp.settings"
+
 [tool.mypy]
 ignore_missing_imports = true
 plugins = ["mypy_django_plugin.main"]
