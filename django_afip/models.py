@@ -1264,17 +1264,18 @@ class Receipt(models.Model):
         return rv
 
     def revalidate(self) -> ReceiptValidation | None:
-        """Revalidate this receipt.
+        """Fetches data of a validated receipt from AFIP's servers.
 
-        Fetches data of a validated receipt from AFIP's servers.
-        If the receipt exists a ``ReceiptValidation`` instance is
-        created and returned, otherwise, returns ``None``.
-        If there is already a ``ReceiptValidation`` for this instance,
-        returns ``self.validation``.
-        This should be used for verification purpose, here's a list of
-        some use cases:
-         - Incomplete validation process
-         - Fetch CAE data from AFIP's servers
+        If the receipt was already sent to AFIP before this method will create a
+        ``ReceiptValidation`` instance and return it. Otherwise returns ``None``.
+        If there is already a ``ReceiptValidation`` for this instance that one is
+        returned instead.
+
+        This should be used for verification purpose, for example, to fetch missing data
+        from AFIP's servers or to complete an incompelte validation (e.g.: after a power
+        failure).
+
+        Any new validation data is persisted into the database before returning.
         """
         # This may avoid unnecessary revalidation
         if self.is_validated:
