@@ -24,7 +24,7 @@ setup(
     install_requires=[
         "cryptography>=3.2,<40",
         "django>=3.2,<4.2",
-        "django_renderpdf>=3.0.0,<4.0.0",
+        "django_renderpdf>=3.0.0,<5.0.0",
         "lxml>=3.4.4",
         "pyopenssl>=16.2.0",
         'backports.zoneinfo;python_version<"3.9"',
