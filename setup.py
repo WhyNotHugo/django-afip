@@ -23,7 +23,7 @@ setup(
     long_description=readme,
     install_requires=[
         "cryptography>=3.2,<40",
-        "django>=3.2,<4.2",
+        "django>=3.2,<4.3",
         "django_renderpdf>=3.0.0,<5.0.0",
         "lxml>=3.4.4",
         "pyopenssl>=16.2.0",
@@ -48,6 +48,9 @@ setup(
         "Framework :: Django :: 3.0",
         "Framework :: Django :: 3.1",
         "Framework :: Django :: 3.2",
+        "Framework :: Django :: 4.0",
+        "Framework :: Django :: 4.1",
+        "Framework :: Django :: 4.2",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: ISC License (ISCL)",
         "Operating System :: OS Independent",
