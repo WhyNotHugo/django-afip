@@ -149,6 +149,33 @@ class ReceiptWithVatAndTaxFactory(ReceiptFactory):
         TaxFactory(tax_type__code=3, receipt=obj)
 
 
+class ReceiptFCEAWithVatAndTaxFactory(ReceiptFactory):
+    """Receipt FCEA with a valid Vat and Tax, ready to validate."""
+
+    document_number = 20111111112
+    point_of_sales = LazyFunction(lambda: models.PointOfSales.objects.first())
+    receipt_type = SubFactory(ReceiptTypeFactory, code=201)
+    document_type = SubFactory(DocumentTypeFactory, code=80)
+    expiration_date = LazyFunction(date.today)
+
+    @post_generation
+    def post(obj: models.Receipt, create, extracted, **kwargs):
+        VatFactory(vat_type__code=5, receipt=obj)
+        TaxFactory(tax_type__code=3, receipt=obj)
+
+
+class ReceiptFCEAWithVatTaxAndOptionalsFactory(ReceiptFCEAWithVatAndTaxFactory):
+    """Receipt FCEA with a valid Vat, Tax and Optionals, ready to validate."""
+
+    @post_generation
+    def post(obj: models.Receipt, create, extracted, **kwargs):
+        VatFactory(vat_type__code=5, receipt=obj)
+        TaxFactory(tax_type__code=3, receipt=obj)
+        OptionalFactory(optional_type__code=2101, receipt=obj)
+        # Value SCA stands for TRANSFERENCIA AL SISTEMA DE CIRCULACION ABIERTA
+        OptionalFactory(optional_type__code=27, receipt=obj, value="SCA")
+
+
 class ReceiptWithInconsistentVatAndTaxFactory(ReceiptWithVatAndTaxFactory):
     """Receipt with a valid Vat and Tax, ready to validate."""
 
@@ -222,6 +249,14 @@ class TaxTypeFactory(GenericAfipTypeFactory):
         model = models.TaxType
 
 
+class OptionalTypeFactory(GenericAfipTypeFactory):
+    class Meta:
+        model = models.OptionalType
+
+    code = 2101
+    description = "Excepcion computo IVA Credito Fiscal"
+
+
 class VatFactory(DjangoModelFactory):
     class Meta:
         model = models.Vat
@@ -239,8 +274,19 @@ class TaxFactory(DjangoModelFactory):
     aliquot = 9
     amount = 9
     base_amount = 100
+    description = "Test description"
     receipt = SubFactory(ReceiptFactory)
     tax_type = SubFactory(TaxTypeFactory)
+
+
+class OptionalFactory(DjangoModelFactory):
+    class Meta:
+        model = models.Optional
+
+    # This value represent a valid CBU
+    value = "1064169911100089878669"
+    receipt = SubFactory(ReceiptFactory)
+    optional_type = SubFactory(OptionalTypeFactory)
 
 
 class ReceiptEntryFactory(DjangoModelFactory):
