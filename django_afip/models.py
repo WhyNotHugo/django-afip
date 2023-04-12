@@ -182,7 +182,7 @@ class GenericAfipType(models.Model):
 
     code = models.CharField(
         _("code"),
-        max_length=3,
+        max_length=4,
     )
     description = models.CharField(
         _("description"),
