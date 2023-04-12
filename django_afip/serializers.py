@@ -60,6 +60,7 @@ def serialize_multiple_receipts(receipts):
 def serialize_receipt(receipt):
     taxes = receipt.taxes.all()
     vats = receipt.vat.all()
+    optionals = receipt.optionals.all()
 
     serialized = f.FECAEDetRequest(
         Concepto=receipt.concept.code,
@@ -81,6 +82,8 @@ def serialize_receipt(receipt):
     if int(receipt.concept.code) in (2, 3):
         serialized.FchServDesde = serialize_date(receipt.service_start)
         serialized.FchServHasta = serialize_date(receipt.service_end)
+
+    if receipt.expiration_date is not None:
         serialized.FchVtoPago = serialize_date(receipt.expiration_date)
 
     if taxes:
@@ -88,6 +91,11 @@ def serialize_receipt(receipt):
 
     if vats:
         serialized.Iva = f.ArrayOfAlicIva([serialize_vat(vat) for vat in vats])
+
+    if optionals:
+        serialized.Opcionales = f.ArrayOfOpcional(
+            [serialize_optional(optional) for optional in optionals]
+        )
 
     related_receipts = receipt.related_receipts.all()
     if related_receipts:
@@ -120,6 +128,13 @@ def serialize_vat(vat):
         Id=vat.vat_type.code,
         BaseImp=vat.base_amount,
         Importe=vat.amount,
+    )
+
+
+def serialize_optional(optional):
+    return f.Opcional(
+        Id=optional.optional_type.code,
+        Valor=optional.value,
     )
 
 
