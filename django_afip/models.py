@@ -1198,7 +1198,6 @@ class Receipt(models.Model):
 
     objects = ReceiptManager()
 
-    # TODO: Not implemented: optionals
     # TODO: methods to validate totals
 
     @property
