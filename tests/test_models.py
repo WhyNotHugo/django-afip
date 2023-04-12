@@ -13,6 +13,8 @@ from django_afip.factories import ReceiptValidationFactory
 from django_afip.factories import ReceiptWithApprovedValidation
 from django_afip.factories import ReceiptWithInconsistentVatAndTaxFactory
 from django_afip.factories import ReceiptWithVatAndTaxFactory
+from django_afip.factories import ReceiptFCEAWithVatAndTaxFactory
+from django_afip.factories import ReceiptFCEAWithVatTaxAndOptionalsFactory
 
 
 def test_default_receipt_queryset():
@@ -76,6 +78,31 @@ def test_validate_invoice(populated_db):
     assert len(errs) == 0
     assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
     assert models.ReceiptValidation.objects.count() == 1
+
+
+@pytest.mark.django_db()
+@pytest.mark.live()
+def test_validate_fcea_invoice(populated_db):
+    """Test validating valid receipts."""
+
+    receipt = ReceiptFCEAWithVatTaxAndOptionalsFactory()
+    errs = receipt.validate()
+
+    assert len(errs) == 0
+    assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
+    assert models.ReceiptValidation.objects.count() == 1
+
+
+@pytest.mark.django_db()
+@pytest.mark.live()
+def test_fail_validate_fcea_invoice(populated_db):
+    """Test case to ensure that an invalid FCEA invoice fails."""
+
+    receipt = ReceiptFCEAWithVatAndTaxFactory()
+    errs = receipt.validate()
+
+    assert len(errs) == 1
+    assert models.ReceiptValidation.objects.count() == 0
 
 
 @pytest.mark.django_db()
