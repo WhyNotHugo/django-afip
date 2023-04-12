@@ -319,6 +319,22 @@ class CurrencyType(GenericAfipType):
         verbose_name_plural = _("currency types")
 
 
+class OptionalType(GenericAfipType):
+    """An AFIP optional type.
+
+    See the AFIP's documentation for details on each optional type.
+    """
+
+    objects = GenericAfipTypeManager("FEParamGetTiposOpcional", "OpcionalTipo")
+
+    def __str__(self) -> str:
+        return f"{self.description} ({self.code})"
+
+    class Meta:
+        verbose_name = _("optional type")
+        verbose_name_plural = _("optional types")
+
+
 class TaxPayer(models.Model):
     """Represents an AFIP TaxPayer.
 
@@ -1637,6 +1653,30 @@ class Vat(models.Model):
     class Meta:
         verbose_name = _("vat")
         verbose_name_plural = _("vat")
+
+
+class Optional(models.Model):
+    """A optional (type+value) for a specific Receipt."""
+
+    optional_type = models.ForeignKey(
+        OptionalType,
+        verbose_name=_("optional type"),
+        on_delete=models.PROTECT,
+    )
+    value = models.CharField(
+        _("optional value"),
+        max_length=250
+    )
+
+    receipt = models.ForeignKey(
+        Receipt,
+        related_name="optionals",
+        on_delete=models.PROTECT,
+    )
+
+    class Meta:
+        verbose_name = _("optional")
+        verbose_name_plural = _("optionals")
 
 
 class Observation(models.Model):
