@@ -11,9 +11,8 @@ acá.
 ------
 
 - Python 3.11 is now supported.
-- Added support for AFIP Optionals, especially for use in FCEA receipts
-``OptionalType`` and ``Optional`` models were added.
-- ``serialize_optional`` function was created to handle the serialization of individual optionals.
+- Added support for AFIP Optionals, especially for use in FCEA receipts: ``OptionalType`` and ``Optional`` models were added.
+- Serialization of individual optionals was implemented as ``serialize_optional``.
 
 
 11.1.0
