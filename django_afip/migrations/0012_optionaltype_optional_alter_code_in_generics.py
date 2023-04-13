@@ -3,7 +3,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("afip", "0011_receiptentry_discount_and_more"),
     ]

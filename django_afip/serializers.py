@@ -93,7 +93,9 @@ def serialize_receipt(receipt):
         serialized.Iva = f.ArrayOfAlicIva([serialize_vat(vat) for vat in vats])
 
     if optionals:
-        serialized.Opcionales = f.ArrayOfOpcional([serialize_optional(optional) for optional in optionals])
+        serialized.Opcionales = f.ArrayOfOpcional(
+            [serialize_optional(optional) for optional in optionals]
+        )
 
     related_receipts = receipt.related_receipts.all()
     if related_receipts:

@@ -1662,10 +1662,7 @@ class Optional(models.Model):
         verbose_name=_("optional type"),
         on_delete=models.PROTECT,
     )
-    value = models.CharField(
-        _("optional value"),
-        max_length=250
-    )
+    value = models.CharField(_("optional value"), max_length=250)
 
     receipt = models.ForeignKey(
         Receipt,

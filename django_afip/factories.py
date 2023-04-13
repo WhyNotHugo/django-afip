@@ -173,7 +173,7 @@ class ReceiptFCEAWithVatTaxAndOptionalsFactory(ReceiptFCEAWithVatAndTaxFactory):
         TaxFactory(tax_type__code=3, receipt=obj)
         OptionalFactory(optional_type__code=2101, receipt=obj)
         # Value SCA stands for TRANSFERENCIA AL SISTEMA DE CIRCULACION ABIERTA
-        OptionalFactory(optional_type__code=27, receipt=obj, value='SCA')
+        OptionalFactory(optional_type__code=27, receipt=obj, value="SCA")
 
 
 class ReceiptWithInconsistentVatAndTaxFactory(ReceiptWithVatAndTaxFactory):
@@ -274,7 +274,7 @@ class TaxFactory(DjangoModelFactory):
     aliquot = 9
     amount = 9
     base_amount = 100
-    description = 'Test description'
+    description = "Test description"
     receipt = SubFactory(ReceiptFactory)
     tax_type = SubFactory(TaxTypeFactory)
 
@@ -284,7 +284,7 @@ class OptionalFactory(DjangoModelFactory):
         model = models.Optional
 
     # This value represent a valid CBU
-    value = '1064169911100089878669'
+    value = "1064169911100089878669"
     receipt = SubFactory(ReceiptFactory)
     optional_type = SubFactory(OptionalTypeFactory)
 
