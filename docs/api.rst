@@ -4,7 +4,7 @@ API
 Core models
 -----------
 
-These are the code models which will normally be used for  ``Receipt`` validation.
+These are the core models which will normally be used for  ``Receipt`` validation.
 
 .. autoclass:: django_afip.models.PointOfSales
     :members:
