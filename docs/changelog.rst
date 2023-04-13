@@ -11,9 +11,9 @@ acá.
 ------
 
 - Python 3.11 is now supported.
+- Django 4.2 is now supported.
 - Added support for AFIP Optionals, especially for use in FCEA receipts: ``OptionalType`` and ``Optional`` models were added.
 - Serialization of individual optionals was implemented as ``serialize_optional``.
-
 
 11.1.0
 ------
