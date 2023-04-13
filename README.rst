@@ -13,10 +13,6 @@ django-afip
   :target: https://results.pre-commit.ci/latest/github/WhyNotHugo/django-afip/main
   :alt: pre-commit.ci status
 
-.. image:: https://codecov.io/gh/WhyNotHugo/django-afip/branch/main/graph/badge.svg
-  :target: https://codecov.io/gh/WhyNotHugo/django-afip
-  :alt: Build coverage
-
 .. image:: https://readthedocs.org/projects/django-afip/badge/?version=latest
   :target: http://django-afip.readthedocs.io/en/latest/?badge=latest
   :alt: Documentation Status
