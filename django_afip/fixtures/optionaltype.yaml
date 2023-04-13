@@ -1,144 +1,144 @@
 - model: afip.optionaltype
   fields:
     code: '2'
-    description: RG Empresas Promovidas - Indentificador de proyecto vinculado a Regimen de Promocion Industrial
-    valid_from: 2010-09-17
+    description: RG Empresas Promovidas - Indentificador de proyecto vinculado a Régimen de Promoción Industrial
+    valid_from: '2010-09-17'
     valid_to: null
 - model: afip.optionaltype
   fields:
     code: '91'
-    description: RG Bienes Usados 3411 - Nombre y Apellido o Denominacion del vendedor del bien usado
-    valid_from: 2010-09-17
+    description: RG Bienes Usados 3411 - Nombre y Apellido o Denominación del vendedor del bien usado.
+    valid_from: '2013-04-01'
     valid_to: null
 - model: afip.optionaltype
   fields:
     code: '92'
     description: RG Bienes Usados 3411 - Nacionalidad del vendedor del bien usado.
-    valid_from: 2010-09-17
+    valid_from: '2013-04-01'
     valid_to: null
 - model: afip.optionaltype
   fields:
     code: '93'
     description: RG Bienes Usados 3411 - Domicilio del vendedor del bien usado.
-    valid_from: 2010-09-17
+    valid_from: '2013-04-01'
     valid_to: null
 - model: afip.optionaltype
   fields:
     code: '5'
     description: Excepcion computo IVA Credito Fiscal
-    valid_from: 2010-09-17
+    valid_from: '2014-10-16'
     valid_to: null
 - model: afip.optionaltype
   fields:
     code: '61'
     description: RG 3668 Impuesto al Valor Agregado - Art.12 IVA Firmante Doc Tipo
-    valid_from: 2010-09-17
+    valid_from: '2014-10-16'
     valid_to: null
 - model: afip.optionaltype
   fields:
     code: '62'
     description: RG 3668 Impuesto al Valor Agregado - Art.12 IVA Firmante Doc Nro
-    valid_from: 2010-09-17
+    valid_from: '2014-10-16'
     valid_to: null
 - model: afip.optionaltype
   fields:
     code: '7'
     description: RG 3668 Impuesto al Valor Agregado - Art.12 IVA Carácter del Firmante
-    valid_from: 2010-09-17
+    valid_from: '2014-10-16'
     valid_to: null
 - model: afip.optionaltype
   fields:
     code: '10'
     description: RG 3.368 Establecimientos de educación pública de gestión privada - Actividad Comprendida
-    valid_from: 2010-09-17
+    valid_from: '2015-06-05'
     valid_to: null
 - model: afip.optionaltype
   fields:
     code: '1011'
     description: RG 3.368 Establecimientos de educación pública de gestión privada - Tipo de Documento
-    valid_from: 2010-09-17
+    valid_from: '2015-06-05'
     valid_to: null
 - model: afip.optionaltype
   fields:
     code: '1012'
     description: RG 3.368 Establecimientos de educación pública de gestión privada - Número de Documento
-    valid_from: 2010-09-17
+    valid_from: '2015-06-05'
     valid_to: null
 - model: afip.optionaltype
   fields:
     code: '11'
     description: RG 2.820 Operaciones económicas vinculadas con bienes inmuebles - Actividad Comprendida
-    valid_from: 2010-09-17
+    valid_from: '2015-06-05'
     valid_to: null
 - model: afip.optionaltype
   fields:
     code: '12'
     description: RG 3.687 Locación temporaria de inmuebles con fines turísticos - Actividad Comprendida
-    valid_from: 2010-09-17
+    valid_from: '2015-06-05'
     valid_to: null
 - model: afip.optionaltype
   fields:
     code: '13'
     description: RG 2.863 Representantes de Modelos
-    valid_from: 2010-09-17
+    valid_from: '2016-01-01'
     valid_to: null
 - model: afip.optionaltype
   fields:
     code: '14'
     description: RG 2.863 Agencias de publicidad
-    valid_from: 2010-09-17
+    valid_from: '2016-01-01'
     valid_to: null
 - model: afip.optionaltype
   fields:
     code: '15'
-    description: RG 2.863 Personas físicas que desarrollen actividad de modelaje
-    valid_from: 2010-09-17
+    description: RG 2.863 Personas físicas que desarrollen actividad de- modelaje
+    valid_from: '2016-01-01'
     valid_to: null
 - model: afip.optionaltype
   fields:
     code: '17'
-    description: RG 4004-E Locación de inmuebles destino casa-habitación. Dato 2 (dos) = facturación directa / Dato 1 (uno) = facturación a través de intermediario
-    valid_from: 2010-09-17
+    description: RG 4004-E Locación de inmuebles destino 'casa-habitación'. Dato 2 (dos) = facturación directa / Dato 1 (uno) = facturación a través de intermediario
+    valid_from: '2017-03-09'
     valid_to: null
 - model: afip.optionaltype
   fields:
     code: '1801'
-    description: RG 4004-E Locación de inmuebles destino casa-habitación. Clave única de Identificación Tributaria (CUIT).
-    valid_from: 2010-09-17
+    description: RG 4004-E Locación de inmuebles destino 'casa-habitación'. Clave única de Identificación Tributaria (CUIT).
+    valid_from: '2017-03-09'
     valid_to: null
 - model: afip.optionaltype
   fields:
     code: '1802'
-    description: RG 4004-E Locación de inmuebles destino casa-habitación. Apellido y nombres, denominación y/o razón social.
-    valid_from: 2010-09-17
+    description: RG 4004-E Locación de inmuebles destino 'casa-habitación'. Apellido y nombres, denominación y/o razón social.
+    valid_from: '2017-03-09'
     valid_to: null
 - model: afip.optionaltype
   fields:
     code: '2101'
     description: Factura de Crédito Electrónica MiPyMEs (FCE) - CBU del Emisor
-    valid_from: 2010-09-17
+    valid_from: '2018-12-26'
     valid_to: null
 - model: afip.optionaltype
   fields:
     code: '2102'
     description: Factura de Crédito Electrónica MiPyMEs (FCE) - Alias del Emisor
-    valid_from: 2010-09-17
+    valid_from: '2018-12-26'
     valid_to: null
 - model: afip.optionaltype
   fields:
     code: '22'
     description: Factura de Crédito Electrónica MiPyMEs (FCE) - Anulación
-    valid_from: 2010-09-17
+    valid_from: '2018-12-26'
     valid_to: null
 - model: afip.optionaltype
   fields:
     code: '23'
     description: Factura de Crédito Electrónica MiPyMEs (FCE) - Referencia Comercial
-    valid_from: 2010-09-17
+    valid_from: '2019-03-08'
     valid_to: null
 - model: afip.optionaltype
   fields:
     code: '27'
     description: Factura de Credito Electronica MiPyMEs (FCE) - Transferencia
-    valid_from: 2010-09-17
+    valid_from: '2020-11-26'
     valid_to: null
