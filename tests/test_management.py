@@ -6,7 +6,7 @@ from django_afip.models import GenericAfipType
 
 @pytest.mark.django_db()
 def test_afip_metadata_command():
-    assert len(GenericAfipType.SUBCLASSES) == 6
+    assert len(GenericAfipType.SUBCLASSES) == 7
 
     for model in GenericAfipType.SUBCLASSES:
         assert model.objects.count() == 0
