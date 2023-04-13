@@ -325,6 +325,12 @@ class OptionalType(GenericAfipType):
     See the AFIP's documentation for details on each optional type.
     """
 
+    # This specific type has length = 4.
+    code = models.CharField(
+        _("code"),
+        max_length=4,
+    )
+
     objects = GenericAfipTypeManager("FEParamGetTiposOpcional", "OpcionalTipo")
 
     def __str__(self) -> str:
