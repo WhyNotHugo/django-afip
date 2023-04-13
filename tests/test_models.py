@@ -9,12 +9,12 @@ from django_afip import exceptions
 from django_afip import factories
 from django_afip import models
 from django_afip.factories import ReceiptFactory
+from django_afip.factories import ReceiptFCEAWithVatAndTaxFactory
+from django_afip.factories import ReceiptFCEAWithVatTaxAndOptionalsFactory
 from django_afip.factories import ReceiptValidationFactory
 from django_afip.factories import ReceiptWithApprovedValidation
 from django_afip.factories import ReceiptWithInconsistentVatAndTaxFactory
 from django_afip.factories import ReceiptWithVatAndTaxFactory
-from django_afip.factories import ReceiptFCEAWithVatAndTaxFactory
-from django_afip.factories import ReceiptFCEAWithVatTaxAndOptionalsFactory
 
 
 def test_default_receipt_queryset():
