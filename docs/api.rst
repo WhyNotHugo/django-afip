@@ -18,6 +18,8 @@ These are the code models which will normally be used for  ``Receipt`` validatio
     :members:
 .. autoclass:: django_afip.models.Vat
     :members:
+.. autoclass:: django_afip.models.Optional
+    :members:
 
 PDF-related models
 ------------------
@@ -56,6 +58,8 @@ command, or the ``load_metadata`` function:
 .. autoclass:: django_afip.models.TaxType
     :members:
 .. autoclass:: django_afip.models.VatType
+    :members:
+.. autoclass:: django_afip.models.OptionalType
     :members:
 
 Managers
