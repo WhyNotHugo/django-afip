@@ -23,6 +23,7 @@ repos:
     rev: 'v0.0.249'
     hooks:
       - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
 ci:
   skip:
     - mypy
