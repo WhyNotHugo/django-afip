@@ -4,3 +4,4 @@ types-freezegun
 types-pyOpenSSL
 types-pytz
 types-requests
+types-backports

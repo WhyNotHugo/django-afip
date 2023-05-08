@@ -13,7 +13,7 @@ from zeep.transports import Transport
 try:
     from zoneinfo import ZoneInfo
 except ImportError:
-    from backports.zoneinfo import ZoneInfo  # type: ignore # noqa
+    from backports.zoneinfo import ZoneInfo  # type: ignore[no-redef]
 
 TZ_AR = ZoneInfo("America/Argentina/Buenos_Aires")
 
