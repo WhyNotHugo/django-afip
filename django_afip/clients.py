@@ -5,7 +5,6 @@ from urllib.parse import urlparse
 
 from requests import Session
 from requests.adapters import HTTPAdapter
-from urllib3.util.ssl_ import DEFAULT_CIPHERS  # type:ignore
 from urllib3.util.ssl_ import create_urllib3_context
 from zeep import Client
 from zeep.cache import SqliteCache
@@ -17,7 +16,19 @@ except ImportError:
     from backports.zoneinfo import ZoneInfo  # type: ignore # noqa
 
 TZ_AR = ZoneInfo("America/Argentina/Buenos_Aires")
-CIPHERS = DEFAULT_CIPHERS + "HIGH:!DH:!aNULL"
+
+# _ctx = ssl.create_default_context()
+_ctx = create_urllib3_context()
+_default_ciphers = [c["name"] for c in _ctx.get_ciphers()]
+
+# SECURITY: These values are substandard and less secure that Python's default!
+#
+# They are required to talk to AFIP's servers which use insecure DH ciphers. I reported
+# this issue in 2020, but all the responses I got seemed to indicate that the people
+# responding to messages had no idea what I was talking about, nor did they seem to be
+# willing to forward my request to their webservices/security team.
+CIPHERS = ":".join(_default_ciphers + ["!DH"])
+
 WSDLS = {
     ("wsaa", False): "https://wsaa.afip.gov.ar/ws/services/LoginCms?wsdl",
     ("wsfe", False): "https://servicios1.afip.gov.ar/wsfev1/service.asmx?WSDL",

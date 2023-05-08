@@ -7,6 +7,11 @@ dependencia en cada versión, en orden cronológicamente inverso.
 Todos los cambios que necesites tener en cuenta al actualizar están listados
 acá.
 
+11.3.0
+------
+
+- Fixed compatibility issue with ``urllib3 >= 2.0.0``.
+
 11.2.0
 ------
 
