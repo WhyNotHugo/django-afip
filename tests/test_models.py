@@ -266,7 +266,7 @@ def test_receipt_is_validted_when_failed_validation():
 def test_default_currency_no_currencies():
     receipt = models.Receipt()
     with pytest.raises(models.CurrencyType.DoesNotExist):
-        receipt.currency
+        receipt.currency  # noqa: B018  # expression raises
 
 
 @pytest.mark.django_db()
