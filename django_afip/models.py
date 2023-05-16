@@ -1342,8 +1342,8 @@ class Receipt(models.Model):
     def __str__(self) -> str:
         if self.receipt_number:
             return f"{self.receipt_type} {self.formatted_number}"
-        else:
-            return _("Unnumbered %s") % self.receipt_type
+
+        return _("Unnumbered %s") % self.receipt_type
 
     class Meta:
         ordering = ("issued_date",)
