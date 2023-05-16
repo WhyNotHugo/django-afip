@@ -1,3 +1,4 @@
+# noqa: INP001
 """Script used to generate AFIP metadata fixtures.
 
 This script is used to generate the fixtures with AFIP metadata. It is only used to

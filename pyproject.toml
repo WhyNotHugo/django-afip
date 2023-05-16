@@ -39,13 +39,29 @@ select = [
     "I",
     # "N",
     "UP",
+    "YTT",
     # "ANN",
     "B",
     "A",
     "C4",
+
+    "ISC",
+    "ICN",
+    "G",
+    "INP",
+    "PIE",
+    "PYI",
+
     "PT",
+    "Q",
+    "RSE",
+    "RET",
     "SIM",
     "TID",
+    "INT",
+    "PGH",
+    "PLE",
+    "RUF",
 ]
 ignore = [
   "PT004"

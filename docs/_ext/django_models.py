@@ -1,3 +1,4 @@
+# noqa: INP001
 """
 Automatically list fields from django models.
 
