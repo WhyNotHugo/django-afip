@@ -880,7 +880,7 @@ class ReceiptQuerySet(models.QuerySet):
         )
 
         if set(types.values()) > {1}:
-            raise exceptions.CannotValidateTogether()
+            raise exceptions.CannotValidateTogether
 
         return self
 
