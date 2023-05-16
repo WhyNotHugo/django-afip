@@ -1276,7 +1276,8 @@ class Receipt(models.Model):
         # XXX: Maybe actually have this sortcut raise an exception?
         # TYPING: queryset method `validate` is not resolved.
         # See: https://github.com/typeddjango/django-stubs/issues/1067
-        rv = Receipt.objects.filter(pk=self.pk).validate(ticket)  # type: ignore
+        qs = Receipt.objects.filter(pk=self.pk)
+        rv = qs.validate(ticket)  # type: ignore[attr-defined]
         # Since we're operating via a queryset, this instance isn't properly
         # updated:
         self.refresh_from_db()

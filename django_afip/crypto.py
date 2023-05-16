@@ -62,7 +62,7 @@ def create_csr(
 
     subj.O = organization_name
     subj.CN = common_name
-    subj.serialNumber = serial_number  # type: ignore  # TODO: double-check this.
+    subj.serialNumber = serial_number  # type: ignore[attr-defined]
 
     req.set_pubkey(key)
     req.sign(key, "md5")

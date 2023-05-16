@@ -144,6 +144,6 @@ def serialize_receipt_data(
     point_of_sales: int,
 ):
     # TYPING: Types for zeep's factories are not inferred.
-    return f.FECompConsultaReq(  # type: ignore
+    return f.FECompConsultaReq(  # type: ignore[attr-defined]
         CbteTipo=receipt_type, CbteNro=receipt_number, PtoVta=point_of_sales
     )

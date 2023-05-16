@@ -1,4 +1,4 @@
-from . import version  # type: ignore
+from . import version  # type: ignore # noqa: PGH003
 
 __version__ = version.version
 
