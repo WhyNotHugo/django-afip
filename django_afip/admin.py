@@ -123,6 +123,7 @@ class ReceiptStatusFilter(admin.SimpleListFilter):
             return queryset.exclude(
                 validation__result=models.ReceiptValidation.RESULT_APPROVED
             )
+        return None
 
 
 class ReceiptTypeFilter(admin.SimpleListFilter):
@@ -329,7 +330,7 @@ class TaxPayerAdmin(admin.ModelAdmin):
                 message=_("Can only generate CSR for one taxpayer at a time."),
                 level=messages.ERROR,
             )
-            return
+            return None
 
         taxpayer = queryset.first()
         if not taxpayer.key:
