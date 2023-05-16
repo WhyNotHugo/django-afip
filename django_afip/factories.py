@@ -18,8 +18,7 @@ from django_afip import models
 
 def get_test_file(filename: str, mode="r") -> Path:
     """Helper to get test files."""
-    path = Path(__file__).parent / "testing" / filename
-    return path
+    return Path(__file__).parent / "testing" / filename
 
 
 class UserFactory(DjangoModelFactory):

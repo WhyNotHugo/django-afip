@@ -721,8 +721,7 @@ def default_generated() -> datetime:
 
 def default_expires() -> datetime:
     """The default expiration date for new tickets."""
-    tomorrow = datetime.now(TZ_AR) + timedelta(hours=12)
-    return tomorrow
+    return datetime.now(TZ_AR) + timedelta(hours=12)
 
 
 def default_unique_id() -> int:
@@ -1375,7 +1374,7 @@ class ReceiptPDFManager(models.Manager):
         except AssertionError as e:
             raise ValueError("Required field in point of sales is null.") from e
 
-        pdf = ReceiptPDF.objects.create(
+        return ReceiptPDF.objects.create(
             receipt=receipt,
             issuing_name=receipt.point_of_sales.issuing_name,
             issuing_address=receipt.point_of_sales.issuing_address,
@@ -1385,7 +1384,6 @@ class ReceiptPDFManager(models.Manager):
             sales_terms=receipt.point_of_sales.sales_terms,
             **kwargs,
         )
-        return pdf
 
 
 class ReceiptPDF(models.Model):

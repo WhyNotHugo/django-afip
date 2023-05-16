@@ -29,13 +29,12 @@ def create_embeded_pkcs7_signature(data: bytes, cert: bytes, key: bytes) -> byte
     if not isinstance(pkey, RSAPrivateKey):
         raise exceptions.CorruptCertificate("Private key is not RSA")
 
-    signed_data = (
+    return (
         PKCS7SignatureBuilder()
         .set_data(data)
         .add_signer(signcert, pkey, hashes.SHA256())
         .sign(Encoding.DER, [PKCS7Options.Binary])
     )
-    return signed_data
 
 
 def create_key(file_: IO[bytes]) -> None:

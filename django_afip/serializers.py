@@ -45,7 +45,7 @@ def serialize_multiple_receipts(receipts):
     first = receipts.first()
     receipts = [serialize_receipt(receipt) for receipt in receipts]
 
-    serialised = f.FECAERequest(
+    return f.FECAERequest(
         FeCabReq=f.FECAECabRequest(
             CantReg=len(receipts),
             PtoVta=first.point_of_sales.number,
@@ -53,8 +53,6 @@ def serialize_multiple_receipts(receipts):
         ),
         FeDetReq=f.ArrayOfFECAEDetRequest(receipts),
     )
-
-    return serialised
 
 
 def serialize_receipt(receipt):
