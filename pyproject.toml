@@ -33,14 +33,14 @@ source = ["django_afip"]
 
 [tool.ruff]
 select = [
-    "E",
     "F",
+    "E",
     "W",
-    "B",
     "I",
-    "UP",
     # "N",
+    "UP",
     # "ANN",
+    "B",
     "A",
     "C4",
     "PT",
