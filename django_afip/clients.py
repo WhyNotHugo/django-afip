@@ -27,7 +27,7 @@ _default_ciphers = [c["name"] for c in _ctx.get_ciphers()]
 # this issue in 2020, but all the responses I got seemed to indicate that the people
 # responding to messages had no idea what I was talking about, nor did they seem to be
 # willing to forward my request to their webservices/security team.
-CIPHERS = ":".join(_default_ciphers + ["!DH"])
+CIPHERS = ":".join([*_default_ciphers, "!DH"])
 
 WSDLS = {
     ("wsaa", False): "https://wsaa.afip.gov.ar/ws/services/LoginCms?wsdl",
