@@ -1,6 +1,3 @@
-# Mypy doesn't play well with action-functions.
-#
-# type: ignore
 import logging
 from contextlib import contextmanager
 from datetime import datetime
@@ -8,6 +5,8 @@ from datetime import datetime
 from django.contrib import admin
 from django.contrib import messages
 from django.db.models import F
+from django.db.models import QuerySet
+from django.http import HttpRequest
 from django.http import HttpResponse
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -198,27 +197,26 @@ class ReceiptAdmin(admin.ModelAdmin):
             )
         )
 
+    @admin.display(description=_("receipt number"), ordering="receipt_number")
     def number(self, obj):
         return obj.formatted_number
 
-    number.short_description = _("receipt number")
-    number.admin_order_field = "receipt_number"
-
+    @admin.display(description=_("total amount"))
     def friendly_total_amount(self, obj):
         return "{:0.2f} ARS{}".format(
             obj.total_amount * obj.currency_quote,
             "*" if obj.currency_quote != 1 else "",
         )
 
-    friendly_total_amount.short_description = _("total amount")
-
+    @admin.display(
+        boolean=True,
+        description=_("validated"),
+        ordering="validation__result",
+    )
     def validated(self, obj):
         return obj.validation_result == models.ReceiptValidation.RESULT_APPROVED
 
-    validated.short_description = _("validated")
-    validated.admin_order_field = "validation__result"
-    validated.boolean = True
-
+    @admin.display(description=_("PDF"), ordering="receiptpdf__id")
     def pdf_link(self, obj):
         if not obj.pdf_id:
             return mark_safe(
@@ -238,18 +236,18 @@ class ReceiptAdmin(admin.ModelAdmin):
             )
         )
 
-    pdf_link.short_description = _("PDF")
-    pdf_link.admin_order_field = "receiptpdf__id"
-
+    @admin.display(description=_("cae"), ordering="validation__cae")
     def cae(self, obj):
         return obj.validation.cae
 
-    cae.short_description = _("cae")
-    cae.admin_order_field = "validation__cae"
-
-    def validate(self, request, queryset):
+    @admin.display(description=_("Validate"))
+    def validate(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[models.Receipt],
+    ) -> None:
         with catch_errors(self, request):
-            errs = queryset.validate()
+            errs = queryset.validate()  # type: ignore[attr-defined]
 
         if errs:
             self.message_user(
@@ -257,8 +255,6 @@ class ReceiptAdmin(admin.ModelAdmin):
                 _("Receipt validation failed: %s.") % errs,
                 messages.ERROR,
             )
-
-    validate.short_description = _("Validate")
 
     actions = [validate]
 
@@ -282,6 +278,7 @@ class TaxPayerAdmin(admin.ModelAdmin):
         "certificate_expiration",
     )
 
+    @admin.display(description=_("Fetch points of sales"))
     def fetch_points_of_sales(self, request, queryset):
         with catch_errors(self, request):
             poses = [
@@ -304,8 +301,7 @@ class TaxPayerAdmin(admin.ModelAdmin):
                 level=messages.WARNING,
             )
 
-    fetch_points_of_sales.short_description = _("Fetch points of sales")
-
+    @admin.display(description=_("Generate key"))
     def generate_key(self, request, queryset):
         key_count = sum(t.generate_key() for t in queryset.all())
 
@@ -325,8 +321,7 @@ class TaxPayerAdmin(admin.ModelAdmin):
             level=level,
         )
 
-    generate_key.short_description = _("Generate key")
-
+    @admin.display(description=_("Generate CSR"))
     def generate_csr(self, request, queryset):
         if queryset.count() > 1:
             self.message_user(
@@ -351,8 +346,6 @@ class TaxPayerAdmin(admin.ModelAdmin):
 
         response.write(csr.read())
         return response
-
-    generate_csr.short_description = _("Generate CSR")
 
     actions = (
         fetch_points_of_sales,
@@ -449,23 +442,18 @@ class ReceiptPDFAdmin(admin.ModelAdmin):
             )
         )
 
+    @admin.display(description=_("taxpayer"))
     def taxpayer(self, obj):
         return obj.receipt.point_of_sales.owner
 
-    taxpayer.short_description = models.TaxPayer._meta.verbose_name
-
+    @admin.display(boolean=True, description=_("Has file"), ordering="pdf_file")
     def has_file(self, obj):
         return bool(obj.pdf_file)
 
-    has_file.admin_order_field = "pdf_file"
-    has_file.boolean = True
-    has_file.short_description = _("Has file")
-
+    @admin.display(description=_("Generate pdf"))
     def generate_pdf(self, request, queryset):
         for pdf in queryset:
             pdf.save_pdf()
-
-    generate_pdf.short_description = _("Generate pdf")
 
     actions = (generate_pdf,)
 
@@ -482,18 +470,13 @@ class ReceiptValidationAdmin(admin.ModelAdmin):
 
     raw_id_fields = ("receipt",)
 
+    @admin.display(description=_("receipt number"), ordering="receipt_id")
     def receipt_number(self, obj):
         return obj.receipt.formatted_number
 
-    receipt_number.short_description = _("receipt number")
-    receipt_number.admin_order_field = "receipt_id"
-
+    @admin.display(boolean=True, description=_("result"), ordering="result")
     def successful(self, obj):
         return obj.result == models.ReceiptValidation.RESULT_APPROVED
-
-    successful.short_description = _("result")
-    successful.admin_order_field = "result"
-    successful.boolean = True
 
 
 admin.site.register(models.ConceptType)
