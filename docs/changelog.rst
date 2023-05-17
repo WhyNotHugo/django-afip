@@ -7,6 +7,11 @@ dependencia en cada versión, en orden cronológicamente inverso.
 Todos los cambios que necesites tener en cuenta al actualizar están listados
 acá.
 
+11.3.1
+------
+
+- Fix crash sending "Nota de Crédito electrónica MiPyMEs (FCE) A".
+
 11.3.0
 ------
 

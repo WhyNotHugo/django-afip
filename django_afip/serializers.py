@@ -103,6 +103,8 @@ def serialize_receipt(receipt):
                     r.receipt_type.code,
                     r.point_of_sales.number,
                     r.receipt_number,
+                    r.point_of_sales.owner.cuit,
+                    serialize_date(r.issued_date),
                 )
                 for r in related_receipts
             ]
