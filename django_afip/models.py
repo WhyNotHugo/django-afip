@@ -693,7 +693,7 @@ class PointOfSales(models.Model):
         verbose_name_plural = _("points of sales")
 
 
-class AuthTicketManager(models.Manager):
+class AuthTicketManager(models.Manager["AuthTicket"]):
     def get_any_active(self, service: str) -> AuthTicket:
         """Return a valid, active ticket for a given service."""
         ticket = AuthTicket.objects.filter(
@@ -712,6 +712,9 @@ class AuthTicketManager(models.Manager):
             )
 
         return taxpayer.create_ticket(service)
+
+    def get_by_natural_key(self, unique_id: int) -> AuthTicket:
+        return self.get(unique_id=unique_id)
 
 
 def default_generated() -> datetime:
@@ -820,6 +823,9 @@ class AuthTicket(models.Model):
         self.signature = response.xpath(self.SIGN_XPATH)[0].text
 
         self.save()
+
+    def natural_key(self) -> tuple[int]:
+        return (self.unique_id,)
 
     def __str__(self) -> str:
         return str(self.unique_id)

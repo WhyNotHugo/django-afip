@@ -89,7 +89,7 @@ def live_ticket(db, live_taxpayer):
     # No matter how we go it, we must have at least one ticket in the DB:
     assert models.AuthTicket.objects.count() >= 1
 
-    data = serializers.serialize("yaml", [ticket])
+    data = serializers.serialize("yaml", [ticket], use_natural_primary_keys=True)
     with open(CACHED_TICKET_PATH, "w") as f:
         f.write(data)
 
