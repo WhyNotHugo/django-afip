@@ -11,6 +11,7 @@ acá.
 ------
 
 - Fix crash sending "Nota de Crédito electrónica MiPyMEs (FCE) A".
+- Add ``py.typed`` to explicitly indicate we supply type annotations.
 
 11.3.0
 ------
