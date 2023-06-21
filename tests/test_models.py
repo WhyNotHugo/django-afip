@@ -84,8 +84,7 @@ def test_validate_invoice(populated_db):
 @pytest.mark.live()
 def test_validate_fcea_invoice(populated_db):
     """Test validating valid receipts."""
-
-    receipt = ReceiptFCEAWithVatTaxAndOptionalsFactory()
+    receipt = ReceiptFCEAWithVatTaxAndOptionalsFactory(document_number=20054100605)
     errs = receipt.validate()
 
     assert len(errs) == 0
