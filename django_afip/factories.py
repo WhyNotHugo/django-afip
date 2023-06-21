@@ -166,10 +166,25 @@ class ReceiptFCEAWithVatAndTaxFactory(ReceiptFactory):
 class ReceiptFCEAWithVatTaxAndOptionalsFactory(ReceiptFCEAWithVatAndTaxFactory):
     """Receipt FCEA with a valid Vat, Tax and Optionals, ready to validate."""
 
+    total_amount = 13_000_000
+    net_untaxed = 0
+    net_taxed = 10_000_000
+
     @post_generation
     def post(obj: models.Receipt, create, extracted, **kwargs):
-        VatFactory(vat_type__code=5, receipt=obj)
-        TaxFactory(tax_type__code=3, receipt=obj)
+        VatFactory(
+            vat_type__code=5,
+            receipt=obj,
+            base_amount=10_000_000,
+            amount=2_100_000,
+        )
+        TaxFactory(
+            tax_type__code=3,
+            receipt=obj,
+            base_amount=10_000_000,
+            aliquot=9,
+            amount=900_000,
+        )
         OptionalFactory(optional_type__code=2101, receipt=obj)
         # Value SCA stands for TRANSFERENCIA AL SISTEMA DE CIRCULACION ABIERTA
         OptionalFactory(optional_type__code=27, receipt=obj, value="SCA")
