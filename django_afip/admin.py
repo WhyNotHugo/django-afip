@@ -241,7 +241,7 @@ class ReceiptAdmin(admin.ModelAdmin):
     def cae(self, obj):
         return obj.validation.cae
 
-    @admin.display(description=_("Validate"))
+    @admin.action(description=_("Validate"))
     def validate(
         self,
         request: HttpRequest,
@@ -279,7 +279,7 @@ class TaxPayerAdmin(admin.ModelAdmin):
         "certificate_expiration",
     )
 
-    @admin.display(description=_("Fetch points of sales"))
+    @admin.action(description=_("Fetch points of sales"))
     def fetch_points_of_sales(self, request, queryset):
         with catch_errors(self, request):
             poses = [
@@ -302,7 +302,7 @@ class TaxPayerAdmin(admin.ModelAdmin):
                 level=messages.WARNING,
             )
 
-    @admin.display(description=_("Generate key"))
+    @admin.action(description=_("Generate key"))
     def generate_key(self, request, queryset):
         key_count = sum(t.generate_key() for t in queryset.all())
 
@@ -322,7 +322,7 @@ class TaxPayerAdmin(admin.ModelAdmin):
             level=level,
         )
 
-    @admin.display(description=_("Generate CSR"))
+    @admin.action(description=_("Generate CSR"))
     def generate_csr(self, request, queryset):
         if queryset.count() > 1:
             self.message_user(
@@ -451,7 +451,7 @@ class ReceiptPDFAdmin(admin.ModelAdmin):
     def has_file(self, obj):
         return bool(obj.pdf_file)
 
-    @admin.display(description=_("Generate pdf"))
+    @admin.action(description=_("Generate pdf"))
     def generate_pdf(self, request, queryset):
         for pdf in queryset:
             pdf.save_pdf()
