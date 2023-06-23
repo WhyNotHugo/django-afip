@@ -1,5 +1,5 @@
 dj_database_url
-django-stubs
+django-stubs[compatible-mypy]
 types-freezegun
 types-pyOpenSSL
 types-pytz
