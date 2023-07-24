@@ -54,10 +54,10 @@ jobs:
           MARIADB_PASSWORD: mysql
           MARIADB_ROOT_PASSWORD: mysql
         options: >-
-          --health-cmd "mysql --user=root --password=mysql --execute 'SHOW DATABASES;'"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=2s
+          --health-retries=3
         ports:
           - 3306:3306
     strategy:
