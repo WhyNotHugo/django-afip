@@ -51,7 +51,8 @@ jobs:
       mysql:
         image: mariadb
         env:
-          MYSQL_ROOT_PASSWORD: mysql
+          MARIADB_PASSWORD: mysql
+          MARIADB_ROOT_PASSWORD: mysql
         options: >-
           --health-cmd "mysql --user=root --password=mysql --execute 'SHOW DATABASES;'"
           --health-interval 10s
