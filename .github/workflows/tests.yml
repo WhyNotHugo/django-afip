@@ -36,8 +36,8 @@ jobs:
             django: "32"
     name: django-${{ matrix.django }}, python${{ matrix.python }}, postgres
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
       - run: pip install tox
@@ -67,8 +67,8 @@ jobs:
         django: ["32", "42"]
     name: django-${{ matrix.django }}, python${{ matrix.python }}, mysql
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
       - run: pip install tox
@@ -86,8 +86,8 @@ jobs:
             django: "42"
     name: django-${{ matrix.django }}, python${{ matrix.python }}, sqlite
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
       - run: pip install tox
@@ -98,8 +98,8 @@ jobs:
     runs-on: ubuntu-latest
     name: mypy
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: "3.10"
       - run: pip install -e .
