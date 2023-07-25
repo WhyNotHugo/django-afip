@@ -12,8 +12,10 @@ logger = logging.getLogger(__name__)
 
 
 class ReceiptQrCode:
-    # Note: There's a space in the middle in the docs.
-    # I'm assuming it's a human error and that the URL doesn't take a space.
+    """A QR code for receipt
+
+    See: https://www.afip.gob.ar/fe/qr/especificaciones.asp"""
+
     BASE_URL = "https://www.afip.gob.ar/fe/qr/?p="
 
     def __init__(self, receipt: Receipt) -> None:
@@ -29,17 +31,17 @@ class ReceiptQrCode:
         self._data = {
             "ver": 1,
             "fecha": receipt.issued_date.strftime("%Y-%m-%d"),
-            "cuit": str(receipt.point_of_sales.owner.cuit),
+            "cuit": receipt.point_of_sales.owner.cuit,
             "ptoVta": receipt.point_of_sales.number,
-            "tipoCmp": receipt.receipt_type.code,
+            "tipoCmp": int(receipt.receipt_type.code),
             "nroCmp": receipt.receipt_number,
             "importe": float(receipt.total_amount),
             "moneda": receipt.currency.code,
             "ctz": float(receipt.currency_quote),
-            "tipoDocRec": receipt.document_type.code,
+            "tipoDocRec": int(receipt.document_type.code),
             "nroDocRec": receipt.document_number,
-            "tipoCodAut": "E",  # We don't support anything except CAE.
-            "codAut": receipt.validation.cae,
+            "tipoCodAut": "E",  # TODO: need to implement CAEA
+            "codAut": int(receipt.validation.cae),
         }
 
     def as_png(self) -> Image:

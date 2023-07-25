@@ -77,9 +77,9 @@ def test_qrcode_data():
 
     qrcode = ReceiptQrCode(pdf.receipt)
     assert qrcode._data == {
-        "codAut": "67190616790549",
+        "codAut": 67190616790549,
         "ctz": 1.0,
-        "cuit": "20329642330",
+        "cuit": 20329642330,
         "fecha": "2021-03-02",
         "importe": 130.0,
         "moneda": "PES",

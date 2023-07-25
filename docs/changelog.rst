@@ -12,6 +12,11 @@ acá.
 
 - Fix crash sending "Nota de Crédito electrónica MiPyMEs (FCE) A".
 - Add ``py.typed`` to explicitly indicate we supply type annotations.
+- Fix QR codes for PDF receipts.
+  The original implementation happened before AFIP's website had implemented
+  the page where these QR point, so there was no way of testing them. The
+  encoding was incorrect (some numbers were rendered as strings), but data was
+  not incorrect for receipts of type "CAE".
 
 11.3.0
 ------
