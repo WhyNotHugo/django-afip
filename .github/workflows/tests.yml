@@ -27,14 +27,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ["3.9", "3.11"]
-        django: ["32", "42"]
-        include:
-          - python: "3.7"
-            django: "32"
-          - python: "3.8"
-            django: "32"
-    name: django-${{ matrix.django }}, python${{ matrix.python }}, postgres
+        python: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+    name: postgres, python${{ matrix.python }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -42,9 +36,7 @@ jobs:
           python-version: ${{ matrix.python }}
       - run: pip install tox
       - run: sudo apt-get update && sudo apt-get install libpq-dev
-      - run: tox
-        env:
-          TOXENV: django${{ matrix.django }}-postgres
+      - run: tox -e py-postgres
   mysql:
     runs-on: ubuntu-latest
     services:
@@ -63,9 +55,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ["3.9", "3.10"]
-        django: ["32", "42"]
-    name: django-${{ matrix.django }}, python${{ matrix.python }}, mysql
+        python: ["3.9", "3.11"]
+    name: mysql, python${{ matrix.python }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -73,27 +64,17 @@ jobs:
           python-version: ${{ matrix.python }}
       - run: pip install tox
       - run: sudo apt-get update && sudo apt-get install libmysqlclient-dev
-      - run: tox
-        env:
-         TOXENV: django${{ matrix.django }}-mysql
+      - run: tox -e py-mysql
   sqlite:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - python: "3.10"
-            django: "42"
-    name: django-${{ matrix.django }}, python${{ matrix.python }}, sqlite
+    name: sqlite
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python }}
+          python-version: "3.10"
       - run: pip install tox
-      - run: tox
-        env:
-          TOXENV: django${{ matrix.django }}-sqlite
+      - run: tox -e py-sqlite
   mypy:
     runs-on: ubuntu-latest
     name: mypy
