@@ -21,6 +21,7 @@ setup(
     packages=find_packages(exclude=["testapp"]),
     include_package_data=True,
     long_description=readme,
+    long_description_content_type="text/x-rst",
     install_requires=[
         "cryptography>=3.2,<40",
         "django>=3.2,<4.3",
