@@ -423,9 +423,8 @@ class TaxPayer(models.Model):
         with self.logo.open() as f:
             data = base64.b64encode(f.read())
 
-        return "data:image/{};base64,{}".format(
-            ext[1:], data.decode()  # Remove the leading dot.
-        )
+        image_fmt = ext[1:]  # Remove the leading dot.
+        return f"data:image/{image_fmt};base64,{data.decode()}"
 
     @property
     def certificate_object(self) -> X509 | None:
@@ -572,11 +571,7 @@ class TaxPayer(models.Model):
         return results
 
     def __repr__(self) -> str:
-        return "<TaxPayer {}: {}, CUIT {}>".format(
-            self.pk,
-            self.name,
-            self.cuit,
-        )
+        return f"<TaxPayer {self.pk}: {self.name}, CUIT {self.cuit}>"
 
     def __str__(self) -> str:
         return str(self.name)
@@ -976,12 +971,7 @@ class ReceiptQuerySet(models.QuerySet):
                     validation.observations.add(observation)
             elif cae_data.Observaciones:
                 for obs in cae_data.Observaciones.Obs:
-                    errs.append(
-                        "Error {}: {}".format(
-                            obs.Code,
-                            parsers.parse_string(obs.Msg),
-                        )
-                    )
+                    errs.append(f"Error {obs.Code}: {parsers.parse_string(obs.Msg)}")
 
         # Remove the number from ones that failed to validate:
         self.filter(validation__isnull=True).update(receipt_number=None)
@@ -1227,10 +1217,7 @@ class Receipt(models.Model):
     def formatted_number(self) -> str | None:
         """This receipt's number in the usual format: ``0001-00003087``."""
         if self.receipt_number:
-            return "{:04d}-{:08d}".format(
-                self.point_of_sales.number,
-                self.receipt_number,
-            )
+            return f"{self.point_of_sales.number:04d}-{self.receipt_number:08d}"
         return None
 
     @property

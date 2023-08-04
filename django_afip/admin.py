@@ -337,10 +337,7 @@ class TaxPayerAdmin(admin.ModelAdmin):
             taxpayer.generate_key()
 
         csr = taxpayer.generate_csr()
-        filename = "cuit-{}-{}.csr".format(
-            taxpayer.cuit,
-            int(datetime.now().timestamp()),
-        )
+        filename = f"cuit-{taxpayer.cuit}-{int(datetime.now().timestamp())}.csr"
 
         response = HttpResponse(content_type="application/pkcs10")
         response["Content-Disposition"] = f"attachment; filename={filename}"
