@@ -67,3 +67,9 @@ ignore = [
   "PT004"
 ]
 target-version = "py37"
+
+[tool.ruff.per-file-ignores]
+# Fails with auto-generated migrations. Unsolvable contradiction between ruff and mypy.
+# This likely needs to be addressed in Django itself (either use an immutable
+# type or annotate these fields as ClassVar)
+"django_afip/migrations/0*.py"= ["RUF012"]
