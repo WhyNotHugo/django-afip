@@ -169,10 +169,10 @@ class ReceiptAdmin(admin.ModelAdmin):
     )
     date_hierarchy = "issued_date"
 
-    __related_fields = [
+    __related_fields = (
         "validated",
         "cae",
-    ]
+    )
 
     inlines = (
         VatInline,
@@ -257,7 +257,7 @@ class ReceiptAdmin(admin.ModelAdmin):
                 messages.ERROR,
             )
 
-    actions = [validate]
+    actions = (validate,)
 
 
 @admin.register(models.AuthTicket)

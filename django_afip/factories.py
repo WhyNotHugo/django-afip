@@ -76,7 +76,7 @@ class ReceiptTypeFactory(DjangoModelFactory):
 class TaxPayerFactory(DjangoModelFactory):
     class Meta:
         model = models.TaxPayer
-        django_get_or_create = ["cuit"]
+        django_get_or_create = ("cuit",)
 
     name = "John Smith"
     cuit = 20329642330
@@ -104,7 +104,10 @@ class AlternateTaxpayerFactory(DjangoModelFactory):
 class PointOfSalesFactory(DjangoModelFactory):
     class Meta:
         model = models.PointOfSales
-        django_get_or_create = ["owner", "number"]
+        django_get_or_create = (
+            "owner",
+            "number",
+        )
 
     number = 1
     issuance_type = "CAE"

@@ -1342,7 +1342,7 @@ class Receipt(models.Model):
         ordering = ("issued_date",)
         verbose_name = _("receipt")
         verbose_name_plural = _("receipts")
-        unique_together = [["point_of_sales", "receipt_type", "receipt_number"]]
+        unique_together = ("point_of_sales", "receipt_type", "receipt_number")
         # TODO: index_together...
 
 
@@ -1567,7 +1567,7 @@ class ReceiptEntry(models.Model):
     class Meta:
         verbose_name = _("receipt entry")
         verbose_name_plural = _("receipt entries")
-        constraints = [
+        constraints = (
             CheckConstraint(
                 check=Q(discount__gte=Decimal("0.0")), name="discount_positive_value"
             ),
@@ -1575,7 +1575,7 @@ class ReceiptEntry(models.Model):
                 check=Q(discount__lte=F("quantity") * F("unit_price")),
                 name="discount_less_than_total",
             ),
-        ]
+        )
 
 
 class Tax(models.Model):
