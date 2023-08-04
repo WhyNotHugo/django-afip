@@ -13,6 +13,7 @@ from decimal import Decimal
 from io import BytesIO
 from tempfile import NamedTemporaryFile
 from typing import BinaryIO
+from typing import ClassVar
 from typing import Generic
 from typing import TypeVar
 from uuid import uuid4
@@ -173,7 +174,7 @@ class GenericAfipType(models.Model):
     not create subclasses of this model unless you really know what you're doing.
     """
 
-    SUBCLASSES: list[type[models.Model]] = []
+    SUBCLASSES: ClassVar[list[type[models.Model]]] = []
 
     def __init_subclass__(cls, **kwargs):
         """Keeps a registry of known subclasses."""
