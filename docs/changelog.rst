@@ -7,10 +7,11 @@ dependencia en cada versión, en orden cronológicamente inverso.
 Todos los cambios que necesites tener en cuenta al actualizar están listados
 acá.
 
-11.4.0
+12.0.0
 ------
 
 - Type hints have been added everywhere that is feasible.
+- Drop support for Python 3.7.
 
 11.3.1
 ------
