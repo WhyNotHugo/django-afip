@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 from datetime import date
 
@@ -9,7 +11,7 @@ from django_afip.pdf import ReceiptQrCode
 
 
 @pytest.mark.django_db()
-def test_pdf_generation():
+def test_pdf_generation() -> None:
     """Test PDF file generation.
 
     For the moment, this test case mostly verifies that pdf generation
@@ -28,7 +30,7 @@ def test_pdf_generation():
 
 
 @pytest.mark.django_db()
-def test_unauthorized_receipt_generation():
+def test_unauthorized_receipt_generation() -> None:
     """
     Test PDF file generation for unauthorized receipts.
 
@@ -52,14 +54,14 @@ def test_unauthorized_receipt_generation():
 
 
 @pytest.mark.django_db()
-def test_signal_generation_for_not_validated_receipt():
+def test_signal_generation_for_not_validated_receipt() -> None:
     printable = factories.ReceiptPDFFactory()
 
     assert not (printable.pdf_file)
 
 
 @pytest.mark.django_db()
-def test_signal_generation_for_validated_receipt():
+def test_signal_generation_for_validated_receipt() -> None:
     validation = factories.ReceiptValidationFactory()
     printable = factories.ReceiptPDFFactory(receipt=validation.receipt)
 
@@ -68,7 +70,7 @@ def test_signal_generation_for_validated_receipt():
 
 
 @pytest.mark.django_db()
-def test_qrcode_data():
+def test_qrcode_data() -> None:
     pdf = factories.ReceiptPDFFactory(
         receipt__receipt_number=3,
         receipt__issued_date=date(2021, 3, 2),

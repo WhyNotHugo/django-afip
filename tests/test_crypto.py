@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pathlib import Path
 
 import pytest
@@ -6,13 +8,17 @@ from django_afip import crypto
 
 
 @pytest.fixture()
-def signed_data():
+def signed_data() -> bytes:
     path = Path(__file__).parent / "signed_data.bin"
     with open(path, "rb") as data:
         return data.read()
 
 
-def test_pkcs7_signing(expired_key: bytes, expired_crt: bytes, signed_data: bytes):
+def test_pkcs7_signing(
+    expired_key: bytes,
+    expired_crt: bytes,
+    signed_data: bytes,
+) -> None:
     # Use an expired cert here since this won't change on a yearly basis.
     data = b"Some data."
 

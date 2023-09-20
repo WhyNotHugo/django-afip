@@ -12,6 +12,7 @@ from datetime import timezone
 from decimal import Decimal
 from io import BytesIO
 from tempfile import NamedTemporaryFile
+from typing import TYPE_CHECKING
 from typing import BinaryIO
 from typing import ClassVar
 from typing import Generic
@@ -21,7 +22,6 @@ from uuid import uuid4
 from django.conf import settings
 from django.core import management
 from django.core.files import File
-from django.core.files.storage import Storage
 from django.core.validators import MinValueValidator
 from django.db import connection
 from django.db import models
@@ -47,6 +47,9 @@ from . import crypto
 from . import exceptions
 from . import parsers
 from . import serializers
+
+if TYPE_CHECKING:
+    from django.core.files.storage import Storage
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +86,7 @@ def load_metadata() -> None:
         management.call_command("loaddata", label, app="afip")
 
 
-def check_response(response) -> None:
+def check_response(response) -> None:  # noqa: ANN001
     """Check that a response is not an error.
 
     AFIP allows us to create valid tickets with invalid key/CUIT pairs, so we
@@ -176,7 +179,7 @@ class GenericAfipType(models.Model):
 
     SUBCLASSES: ClassVar[list[type[models.Model]]] = []
 
-    def __init_subclass__(cls, **kwargs):
+    def __init_subclass__(cls, **kwargs) -> None:
         """Keeps a registry of known subclasses."""
         super().__init_subclass__(**kwargs)
         GenericAfipType.SUBCLASSES.append(cls)
@@ -458,7 +461,7 @@ class TaxPayer(models.Model):
         dt = datetime.strptime(datestring, "%Y%m%d%H%M%SZ")
         return dt.replace(tzinfo=timezone.utc)
 
-    def generate_key(self, force=False) -> bool:
+    def generate_key(self, force: bool = False) -> bool:
         """Creates a key file for this TaxPayer
 
         Creates a key file for this TaxPayer if it does not have one, and
@@ -480,7 +483,7 @@ class TaxPayer(models.Model):
 
         return True
 
-    def generate_csr(self, basename="djangoafip") -> BinaryIO:
+    def generate_csr(self, basename: str = "djangoafip") -> BinaryIO:
         """Creates a CSR with this TaxPayer's key
 
         The CSR (certificate signing request) can be used to request a new certificate
@@ -939,7 +942,7 @@ class ReceiptQuerySet(models.QuerySet):
 
         return qs._validate(ticket)
 
-    def _validate(self, ticket=None) -> list[str]:
+    def _validate(self, ticket: AuthTicket | None = None) -> list[str]:
         first = self.first()
         assert first is not None  # should never happen; mostly a hint for mypy
         ticket = ticket or first.point_of_sales.owner.get_or_create_ticket("wsfe")
@@ -1019,7 +1022,7 @@ class ReceiptManager(models.Manager):
 
         return response_xml.CbteNro
 
-    def fetch_receipt_data(
+    def fetch_receipt_data(  # noqa: ANN201
         self,
         receipt_type: str,
         receipt_number: int,
@@ -1244,7 +1247,11 @@ class Receipt(models.Model):
         except ReceiptValidation.DoesNotExist:
             return False
 
-    def validate(self, ticket: AuthTicket | None = None, raise_=False) -> list[str]:
+    def validate(
+        self,
+        ticket: AuthTicket | None = None,
+        raise_: bool = False,
+    ) -> list[str]:
         """Validates this receipt.
 
         This is a shortcut to :meth:`~.ReceiptQuerySet.validate`. See the documentation
@@ -1397,7 +1404,11 @@ class ReceiptPDF(models.Model):
     PDF generation is skipped if the receipt has not been validated.
     """
 
-    def upload_to(self, filename="untitled", instance: ReceiptPDF | None = None) -> str:
+    def upload_to(
+        self,
+        filename: str = "untitled",
+        instance: ReceiptPDF | None = None,
+    ) -> str:
         """
         Returns the full path for generated receipts.
 

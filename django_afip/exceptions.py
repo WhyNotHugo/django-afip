@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 class DjangoAfipException(Exception):
     """Superclass for all exceptions explicitly thrown by this app."""
 
@@ -7,7 +10,7 @@ class AfipException(DjangoAfipException):
     Wraps around errors returned by AFIP's WS.
     """
 
-    def __init__(self, response) -> None:
+    def __init__(self, response) -> None:  # noqa: ANN001
         if "Errors" in response:
             message = "Error {}: {}".format(
                 response.Errors.Err[0].Code,

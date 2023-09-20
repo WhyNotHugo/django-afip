@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+from typing import Generator
 from unittest.mock import patch
 
 import pytest
@@ -15,7 +18,7 @@ _live_mode = False
 
 
 @pytest.fixture(autouse=True)
-def disable_durability_check():
+def disable_durability_check() -> Generator[None, None, None]:
     with patch(
         "django_afip.models.ReceiptQuerySet._ensure_durability",
         False,
@@ -24,7 +27,7 @@ def disable_durability_check():
         yield
 
 
-def pytest_runtest_setup(item):
+def pytest_runtest_setup(item: pytest.Function) -> None:
     """Set live mode if the marker has been passed to pytest.
 
     This avoid accidentally using any of the live-mode fixtures in non-live mode."""
@@ -46,13 +49,13 @@ def expired_key() -> bytes:
 
 
 @pytest.fixture()
-def live_taxpayer(db):
+def live_taxpayer(db: None) -> models.TaxPayer:
     """Return a taxpayer usable with AFIP's test servers."""
     return TaxPayerFactory(pk=1)
 
 
 @pytest.fixture()
-def live_ticket(db, live_taxpayer):
+def live_ticket(db: None, live_taxpayer: models.TaxPayer) -> models.AuthTicket:
     """Return an authentication ticket usable with AFIP's test servers.
 
     AFIP doesn't allow requesting tickets too often, so we after a few runs
@@ -97,7 +100,10 @@ def live_ticket(db, live_taxpayer):
 
 
 @pytest.fixture()
-def populated_db(live_ticket, live_taxpayer):
+def populated_db(
+    live_ticket: models.AuthTicket,
+    live_taxpayer: models.TaxPayer,
+) -> None:
     """Populate the database with fixtures and a POS"""
 
     models.load_metadata()

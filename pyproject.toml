@@ -27,6 +27,7 @@ django_settings_module = "testapp.settings"
 
 [tool.ruff.isort]
 force-single-line = true
+required-imports = ["from __future__ import annotations"]
 
 [tool.coverage.run]
 source = ["django_afip"]
@@ -40,7 +41,7 @@ select = [
     # "N",
     "UP",
     "YTT",
-    # "ANN",
+    "ANN",
     "B",
     "A",
     "C4",
@@ -58,12 +59,16 @@ select = [
     "RET",
     "SIM",
     "TID",
+    "TCH",
     "INT",
     "PGH",
     "PLE",
     "RUF",
 ]
 ignore = [
+  "ANN101",  # Annotation for 'self'
+  "ANN002",  # Annotations for *args
+  "ANN003",  # Annotations for **kwargs
   "PT004"
 ]
 target-version = "py37"

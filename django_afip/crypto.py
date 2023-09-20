@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import IO
 
 from cryptography.hazmat.primitives import hashes

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 
 from django_afip import clients
@@ -23,7 +25,7 @@ class ServerStatus:
     #: Whether the authentication server is working.
     auth: bool
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return self.app and self.db and self.auth
 
 

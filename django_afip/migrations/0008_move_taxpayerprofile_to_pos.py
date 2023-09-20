@@ -1,8 +1,16 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.db import migrations
 from django.db import models
 
+if TYPE_CHECKING:
+    from django.apps.registry import Apps
+    from django.db.backends.base.schema import BaseDatabaseSchemaEditor
 
-def merge_taxpayer_profile(apps, schema_editor):
+
+def merge_taxpayer_profile(apps: Apps, schema_editor: BaseDatabaseSchemaEditor) -> None:
     TaxPayerProfile = apps.get_model("afip", "TaxPayerProfile")
 
     for profile in TaxPayerProfile.objects.all():  # pragma: no cover

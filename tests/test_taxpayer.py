@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 
 import pytest
@@ -9,7 +11,7 @@ from django_afip import factories
 
 
 @pytest.mark.django_db()
-def test_key_generation():
+def test_key_generation() -> None:
     taxpayer = factories.TaxPayerFactory.build(key=None)
     taxpayer.generate_key()
 
@@ -21,7 +23,7 @@ def test_key_generation():
     assert isinstance(loaded_key, crypto.PKey)
 
 
-def test_dont_overwrite_keys():
+def test_dont_overwrite_keys() -> None:
     text = b"Hello! I'm not really a key :D"
     taxpayer = factories.TaxPayerFactory.build(key=FileField(data=text))
 
@@ -32,7 +34,7 @@ def test_dont_overwrite_keys():
 
 
 @pytest.mark.django_db()
-def test_overwrite_keys_force():
+def test_overwrite_keys_force() -> None:
     text = b"Hello! I'm not really a key :D"
     taxpayer = factories.TaxPayerFactory.build(key__data=text)
 
@@ -49,7 +51,7 @@ def test_overwrite_keys_force():
 
 @freeze_time(datetime.fromtimestamp(1489537017))
 @pytest.mark.django_db()
-def test_csr_generation():
+def test_csr_generation() -> None:
     taxpayer = factories.TaxPayerFactory.build(key=None)
     taxpayer.generate_key()
 
@@ -72,28 +74,28 @@ def test_csr_generation():
     assert expected_components == loaded_csr.get_subject().get_components()
 
 
-def test_certificate_object():
+def test_certificate_object() -> None:
     taxpayer = factories.TaxPayerFactory.build()
     cert = taxpayer.certificate_object
 
     assert isinstance(cert, crypto.X509)
 
 
-def test_null_certificate_object():
+def test_null_certificate_object() -> None:
     taxpayer = factories.TaxPayerFactory.build(certificate=None)
     cert = taxpayer.certificate_object
 
     assert cert is None
 
 
-def test_expiration_getter():
+def test_expiration_getter() -> None:
     taxpayer = factories.TaxPayerFactory.build(certificate=None)
     expiration = taxpayer.get_certificate_expiration()
 
     assert expiration is None
 
 
-def test_expiration_getter_no_cert():
+def test_expiration_getter_no_cert() -> None:
     taxpayer = factories.TaxPayerFactory.build()
     expiration = taxpayer.get_certificate_expiration()
 
@@ -101,7 +103,7 @@ def test_expiration_getter_no_cert():
 
 
 @pytest.mark.django_db()
-def test_expiration_signal_update():
+def test_expiration_signal_update() -> None:
     taxpayer = factories.TaxPayerFactory(certificate_expiration=None)
     taxpayer.save()
     expiration = taxpayer.certificate_expiration

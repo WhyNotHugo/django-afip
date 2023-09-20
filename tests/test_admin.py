@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from unittest import mock
 from unittest.mock import patch
 
@@ -5,6 +7,7 @@ import pytest
 from django.contrib import messages
 from django.contrib.admin import site
 from django.http import HttpRequest
+from django.test import Client
 from django.test import RequestFactory
 from django.utils.translation import gettext as _
 from factory.django import FileField
@@ -18,7 +21,7 @@ from django_afip.admin import ReceiptAdmin  # type: ignore[attr-defined]
 from django_afip.admin import catch_errors  # type: ignore[attr-defined]
 
 
-def test_certificate_expired():
+def test_certificate_expired() -> None:
     admin = mock.MagicMock()
     request = HttpRequest()
 
@@ -33,7 +36,7 @@ def test_certificate_expired():
     )
 
 
-def test_certificate_untrusted_cert():
+def test_certificate_untrusted_cert() -> None:
     admin = mock.MagicMock()
     request = HttpRequest()
 
@@ -48,7 +51,7 @@ def test_certificate_untrusted_cert():
     )
 
 
-def test_certificate_corrupt_cert():
+def test_certificate_corrupt_cert() -> None:
     admin = mock.MagicMock()
     request = HttpRequest()
 
@@ -63,7 +66,7 @@ def test_certificate_corrupt_cert():
     )
 
 
-def test_certificate_auth_error():
+def test_certificate_auth_error() -> None:
     admin = mock.MagicMock()
     request = HttpRequest()
 
@@ -78,7 +81,7 @@ def test_certificate_auth_error():
     )
 
 
-def test_without_key(admin_client):
+def test_without_key(admin_client: Client) -> None:
     taxpayer = factories.TaxPayerFactory(key=None)
 
     response = admin_client.post(
@@ -94,7 +97,7 @@ def test_without_key(admin_client):
     assert "-----BEGIN PRIVATE KEY-----" in taxpayer.key.file.read().decode()
 
 
-def test_with_key(admin_client):
+def test_with_key(admin_client: Client) -> None:
     taxpayer = factories.TaxPayerFactory(key=FileField(data=b"Blah"))
 
     response = admin_client.post(
@@ -113,7 +116,7 @@ def test_with_key(admin_client):
     assert taxpayer.key.file.read().decode() == "Blah"
 
 
-def test_admin_taxpayer_request_generation_with_csr(admin_client):
+def test_admin_taxpayer_request_generation_with_csr(admin_client: Client) -> None:
     taxpayer = factories.TaxPayerFactory(key=None)
     taxpayer.generate_key()
 
@@ -130,7 +133,7 @@ def test_admin_taxpayer_request_generation_with_csr(admin_client):
     assertContains(response, "-----BEGIN CERTIFICATE REQUEST-----")
 
 
-def test_admin_taxpayer_request_generation_without_key(admin_client):
+def test_admin_taxpayer_request_generation_without_key(admin_client: Client) -> None:
     taxpayer = factories.TaxPayerFactory(key=None)
     taxpayer.generate_key()
 
@@ -147,7 +150,9 @@ def test_admin_taxpayer_request_generation_without_key(admin_client):
     assertContains(response, "-----BEGIN CERTIFICATE REQUEST-----")
 
 
-def test_admin_taxpayer_request_generation_multiple_taxpayers(admin_client):
+def test_admin_taxpayer_request_generation_multiple_taxpayers(
+    admin_client: Client,
+) -> None:
     taxpayer1 = factories.TaxPayerFactory(key__data=b"Blah")
     taxpayer2 = factories.TaxPayerFactory(key__data=b"Blah", cuit="20401231230")
 
@@ -164,7 +169,7 @@ def test_admin_taxpayer_request_generation_multiple_taxpayers(admin_client):
     assertContains(response, "Can only generate CSR for one taxpayer at a time")
 
 
-def test_validation_filters(admin_client):
+def test_validation_filters(admin_client: Client) -> None:
     """Test the admin validation filters.
 
     This filters receipts by the validation status.
@@ -222,7 +227,7 @@ def test_validation_filters(admin_client):
 
 
 @pytest.mark.django_db()
-def test_receipt_admin_get_exclude():
+def test_receipt_admin_get_exclude() -> None:
     admin = ReceiptAdmin(models.Receipt, site)
     request = RequestFactory().get("/admin/afip/receipt")
     request.user = factories.UserFactory()
@@ -231,7 +236,7 @@ def test_receipt_admin_get_exclude():
 
 
 @pytest.mark.django_db()
-def test_receipt_pdf_factories_and_files():
+def test_receipt_pdf_factories_and_files() -> None:
     with_file = factories.ReceiptPDFWithFileFactory()
     without_file = factories.ReceiptPDFFactory()
 
@@ -239,7 +244,7 @@ def test_receipt_pdf_factories_and_files():
     assert with_file.pdf_file
 
 
-def test_has_file_filter_all(admin_client):
+def test_has_file_filter_all(admin_client: Client) -> None:
     """Check that the has_file filter applies properly
 
     In order to confirm that it's working, we check that the link to the
@@ -254,7 +259,7 @@ def test_has_file_filter_all(admin_client):
     assertContains(response, f"/admin/afip/receiptpdf/{without_file.pk}/change/")
 
 
-def test_has_file_filter_with_file(admin_client):
+def test_has_file_filter_with_file(admin_client: Client) -> None:
     with_file = factories.ReceiptPDFWithFileFactory()
     without_file = factories.ReceiptPDFFactory()
 
@@ -263,7 +268,7 @@ def test_has_file_filter_with_file(admin_client):
     assertNotContains(response, f"/admin/afip/receiptpdf/{without_file.pk}/change/")
 
 
-def test_has_file_filter_without_file(admin_client):
+def test_has_file_filter_without_file(admin_client: Client) -> None:
     with_file = factories.ReceiptPDFWithFileFactory()
     without_file = factories.ReceiptPDFFactory()
 
@@ -272,7 +277,7 @@ def test_has_file_filter_without_file(admin_client):
     assertContains(response, f"/admin/afip/receiptpdf/{without_file.pk}/change/")
 
 
-def test_validate_certs_action_success(admin_client):
+def test_validate_certs_action_success(admin_client: Client) -> None:
     receipt = factories.ReceiptFactory()
 
     with patch(
@@ -289,7 +294,7 @@ def test_validate_certs_action_success(admin_client):
     assert list(response.context["messages"]) == []
 
 
-def test_validate_certs_action_errors(admin_client):
+def test_validate_certs_action_errors(admin_client: Client) -> None:
     receipt = factories.ReceiptFactory()
 
     with patch(
@@ -313,7 +318,7 @@ def test_validate_certs_action_errors(admin_client):
     assert message == "Receipt validation failed: ['Something went wrong']."
 
 
-def test_admin_fetch_points_of_sales(admin_client):
+def test_admin_fetch_points_of_sales(admin_client: Client) -> None:
     taxpayer1 = factories.TaxPayerFactory()
     taxpayer2 = factories.TaxPayerFactory(cuit="20401231230")
     with patch(

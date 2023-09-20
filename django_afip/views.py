@@ -31,10 +31,10 @@ class ReceiptPDFView(PDFView):
         )
 
     @property
-    def download_name(self):
+    def download_name(self) -> str:
         return f"{self.receipt.formatted_number}.pdf"
 
-    def get_template_names(self, receipt: models.Receipt | None = None):
+    def get_template_names(self, receipt: models.Receipt | None = None) -> list[str]:
         """Return the templates use to render the Receipt PDF.
 
         Template discovery tries to find any of the below receipts::
@@ -63,8 +63,8 @@ class ReceiptPDFView(PDFView):
         ]
 
     @staticmethod
-    def get_context_for_pk(pk, *args, **kwargs):
-        context = {}
+    def get_context_for_pk(pk: int, *args, **kwargs) -> dict:
+        context: dict = {}
 
         receipt_pdf = (
             models.ReceiptPDF.objects.select_related(
@@ -107,7 +107,7 @@ class ReceiptPDFView(PDFView):
 
         return context
 
-    def get_context_data(self, *args, pk=None, **kwargs):
+    def get_context_data(self, *args, pk: int, **kwargs) -> dict:
         context = super().get_context_data(*args, pk=pk, **kwargs)
         context.update(self.get_context_for_pk(pk, *args, **kwargs))
         return context

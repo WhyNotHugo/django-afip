@@ -1,19 +1,33 @@
 # noqa: INP001
-"""
-Automatically list fields from django models.
+"""Automatically list fields from django models.
 
 Based on https://djangosnippets.org/snippets/2533/
 """
+from __future__ import annotations
+
 import inspect
+from typing import TYPE_CHECKING
 
 from django.db import models
+from django.db.models.fields import Field
 from django.utils.encoding import force_str
 from django.utils.html import strip_tags
 
+if TYPE_CHECKING:
+    from django.db.models import Model
+    from sphinx.application import Sphinx
+    from sphinx.ext.autodoc import Options
 
-def process_docstring(app, what, name, obj, options, lines):
-    """
-    Process docstrings for django models.
+
+def process_docstring(
+    app: Sphinx,
+    what: str,
+    name: str,
+    obj: type[Model],
+    options: Options,
+    lines: list[str],
+) -> list[str]:
+    """Process docstrings for django models.
 
     Process docstrings for django models and add field description from
     their help_text attribute.
@@ -27,7 +41,7 @@ def process_docstring(app, what, name, obj, options, lines):
             if field.name == "id":
                 continue
 
-            if not hasattr(field, "help_text") and not hasattr(field, "verbose"):
+            if not isinstance(field, Field):
                 # XXX: log these?
                 continue
 
@@ -58,6 +72,6 @@ def process_docstring(app, what, name, obj, options, lines):
     return lines
 
 
-def setup(app):
+def setup(app: Sphinx) -> None:
     """Register the docstring processor with sphinx."""
     app.connect("autodoc-process-docstring", process_docstring)

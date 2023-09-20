@@ -1,21 +1,36 @@
 from __future__ import annotations
 
+import typing
+from typing import TYPE_CHECKING
+
 from django.utils.functional import LazyObject
 
 from django_afip.clients import get_client
+
+if TYPE_CHECKING:
+    from datetime import date
+    from datetime import datetime
+
+    from django.db.models import QuerySet
+
+    from django_afip.models import AuthTicket
+    from django_afip.models import Optional
+    from django_afip.models import Receipt
+    from django_afip.models import Tax
+    from django_afip.models import Vat
 
 
 class _LazyFactory(LazyObject):
     """A lazy-initialised factory for WSDL objects."""
 
-    def _setup(self):
+    def _setup(self) -> None:
         self._wrapped = get_client("wsfe").type_factory("ns0")
 
 
 f = _LazyFactory()
 
 
-def serialize_datetime(datetime):
+def serialize_datetime(datetime: datetime) -> str:
     """
     "Another date formatting function?" you're thinking, eh? Well, this
     actually formats dates in the *exact* format the AFIP's WS expects it,
@@ -27,11 +42,12 @@ def serialize_datetime(datetime):
     return datetime.strftime("%Y-%m-%dT%H:%M:%S-00:00")
 
 
-def serialize_date(date):
+def serialize_date(date: date) -> str:
     return date.strftime("%Y%m%d")
 
 
-def serialize_ticket(ticket):
+@typing.no_type_check  # zeep's dynamic types cannot be type-checked
+def serialize_ticket(ticket: AuthTicket):  # noqa: ANN201
     return f.FEAuthRequest(
         Token=ticket.token,
         Sign=ticket.signature,
@@ -39,7 +55,8 @@ def serialize_ticket(ticket):
     )
 
 
-def serialize_multiple_receipts(receipts):
+@typing.no_type_check  # zeep's dynamic types cannot be type-checked
+def serialize_multiple_receipts(receipts: QuerySet[Receipt]):  # noqa: ANN201
     receipts = receipts.all().order_by("receipt_number")
 
     first = receipts.first()
@@ -55,7 +72,8 @@ def serialize_multiple_receipts(receipts):
     )
 
 
-def serialize_receipt(receipt):
+@typing.no_type_check  # zeep's dynamic types cannot be type-checked
+def serialize_receipt(receipt: Receipt):  # noqa: ANN201
     taxes = receipt.taxes.all()
     vats = receipt.vat.all()
     optionals = receipt.optionals.all()
@@ -113,7 +131,8 @@ def serialize_receipt(receipt):
     return serialized
 
 
-def serialize_tax(tax):
+@typing.no_type_check  # zeep's dynamic types cannot be type-checked
+def serialize_tax(tax: Tax):  # noqa: ANN201
     return f.Tributo(
         Id=tax.tax_type.code,
         Desc=tax.description,
@@ -123,7 +142,8 @@ def serialize_tax(tax):
     )
 
 
-def serialize_vat(vat):
+@typing.no_type_check  # zeep's dynamic types cannot be type-checked
+def serialize_vat(vat: Vat):  # noqa: ANN201
     return f.AlicIva(
         Id=vat.vat_type.code,
         BaseImp=vat.base_amount,
@@ -131,14 +151,15 @@ def serialize_vat(vat):
     )
 
 
-def serialize_optional(optional):
+@typing.no_type_check  # zeep's dynamic types cannot be type-checked
+def serialize_optional(optional: Optional):  # noqa: ANN201
     return f.Opcional(
         Id=optional.optional_type.code,
         Valor=optional.value,
     )
 
 
-def serialize_receipt_data(
+def serialize_receipt_data(  # noqa: ANN201
     receipt_type: str,
     receipt_number: int,
     point_of_sales: int,

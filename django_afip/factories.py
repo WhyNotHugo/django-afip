@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import date
 from datetime import datetime
 from pathlib import Path
@@ -16,7 +18,7 @@ from factory.django import ImageField
 from django_afip import models
 
 
-def get_test_file(filename: str, mode="r") -> Path:
+def get_test_file(filename: str, mode: str = "r") -> Path:
     """Helper to get test files."""
     return Path(__file__).parent / "testing" / filename
 
@@ -146,7 +148,7 @@ class ReceiptWithVatAndTaxFactory(ReceiptFactory):
     point_of_sales = LazyFunction(lambda: models.PointOfSales.objects.first())
 
     @post_generation
-    def post(obj: models.Receipt, create, extracted, **kwargs):
+    def post(obj: models.Receipt, create: bool, extracted: None, **kwargs) -> None:
         VatFactory(vat_type__code=5, receipt=obj)
         TaxFactory(tax_type__code=3, receipt=obj)
 
@@ -161,7 +163,7 @@ class ReceiptFCEAWithVatAndTaxFactory(ReceiptFactory):
     expiration_date = LazyFunction(date.today)
 
     @post_generation
-    def post(obj: models.Receipt, create, extracted, **kwargs):
+    def post(obj: models.Receipt, create: bool, extracted: None, **kwargs) -> None:
         VatFactory(vat_type__code=5, receipt=obj)
         TaxFactory(tax_type__code=3, receipt=obj)
 
@@ -174,7 +176,7 @@ class ReceiptFCEAWithVatTaxAndOptionalsFactory(ReceiptFCEAWithVatAndTaxFactory):
     net_taxed = 10_000_000
 
     @post_generation
-    def post(obj: models.Receipt, create, extracted, **kwargs):
+    def post(obj: models.Receipt, create: bool, extracted: None, **kwargs) -> None:
         VatFactory(
             vat_type__code=5,
             receipt=obj,
@@ -199,7 +201,7 @@ class ReceiptWithInconsistentVatAndTaxFactory(ReceiptWithVatAndTaxFactory):
     document_type = SubFactory(DocumentTypeFactory, code=80)
 
     @post_generation
-    def post(obj: models.Receipt, create, extracted, **kwargs):
+    def post(obj: models.Receipt, create: bool, extracted: None, **kwargs) -> None:
         VatFactory(vat_type__code=5, receipt=obj)
         TaxFactory(tax_type__code=3, receipt=obj)
 
@@ -210,7 +212,7 @@ class ReceiptWithApprovedValidation(ReceiptFactory):
     receipt_number = Sequence(lambda n: n + 1)
 
     @post_generation
-    def post(obj: models.Receipt, create, extracted, **kwargs):
+    def post(obj: models.Receipt, create: bool, extracted: None, **kwargs) -> None:
         ReceiptValidationFactory(receipt=obj)
 
 

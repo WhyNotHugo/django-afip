@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import date
 
 import pytest
@@ -12,7 +14,7 @@ from django_afip import views
 
 
 class ReceiptPDFTestCase(TestCase):
-    def test_html_view(self):
+    def test_html_view(self) -> None:
         """Test the HTML generation view."""
         pdf = factories.ReceiptPDFFactory(
             receipt__concept__code=1,
@@ -143,7 +145,7 @@ class ReceiptPDFTestCase(TestCase):
             """,  # noqa: E501: It's just long stuff. :(
         )
 
-    def test_logo_in_html(self):
+    def test_logo_in_html(self) -> None:
         """Test the HTML generation view."""
         pdf = factories.ReceiptPDFFactory()
         factories.ReceiptValidationFactory(receipt=pdf.receipt)
@@ -169,7 +171,7 @@ class ReceiptPDFTestCase(TestCase):
             html=True,
         )
 
-    def test_pdf_view(self):
+    def test_pdf_view(self) -> None:
         """
         Test the PDF generation view.
         """
@@ -191,7 +193,7 @@ class ReceiptPDFTestCase(TestCase):
 
 
 @pytest.mark.django_db()
-def test_template_discovery(client):
+def test_template_discovery(client: Client) -> None:
     taxpayer = factories.TaxPayerFactory(cuit="20329642330")
     pdf = factories.ReceiptPDFFactory(
         receipt__point_of_sales__owner=taxpayer,
@@ -211,7 +213,7 @@ def test_template_discovery(client):
 
 
 class ReceiptPDFViewDownloadNameTestCase(TestCase):
-    def test_download_name(self):
+    def test_download_name(self) -> None:
         factories.ReceiptFactory(pk=9, receipt_number=32)
 
         view = views.ReceiptPDFView()

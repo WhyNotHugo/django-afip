@@ -1,12 +1,18 @@
+from __future__ import annotations
+
 import base64
 import json
 import logging
 from io import BytesIO
+from typing import TYPE_CHECKING
 
 import qrcode
-from PIL import Image
 
-from django_afip.models import Receipt
+if TYPE_CHECKING:
+    from PIL import Image
+
+    from django_afip.models import Receipt
+    from django_afip.models import ReceiptPDF
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +62,7 @@ class ReceiptQrCode:
         return qr.make_image()
 
 
-def get_encoded_qrcode(receipt_pdf) -> str:
+def get_encoded_qrcode(receipt_pdf: ReceiptPDF) -> str:
     """Return a QRCode encoded for embeding in HTML."""
 
     img_data = BytesIO()

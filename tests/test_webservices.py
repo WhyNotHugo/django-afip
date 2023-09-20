@@ -1,4 +1,5 @@
 """Tests for AFIP-WS related classes."""
+from __future__ import annotations
 
 from datetime import date
 from datetime import timedelta
@@ -16,7 +17,7 @@ from django_afip import models
 
 @pytest.mark.live()
 @pytest.mark.django_db()
-def test_authentication_with_bad_cuit():
+def test_authentication_with_bad_cuit() -> None:
     """Test using the wrong cuit for a key pair."""
 
     taxpayer = factories.AlternateTaxpayerFactory(cuit=20329642339)
@@ -32,7 +33,7 @@ def test_authentication_with_bad_cuit():
 
 @pytest.mark.live()
 @pytest.mark.django_db()
-def test_authentication_with_bogus_certificate_exception():
+def test_authentication_with_bogus_certificate_exception() -> None:
     """Test that using a junk ceritificates raises as expected."""
 
     # New TaxPayers will fail to save with an invalid cert, but many
@@ -56,7 +57,7 @@ def test_authentication_with_bogus_certificate_exception():
 
 @pytest.mark.live()
 @pytest.mark.django_db()
-def test_authentication_with_no_active_taxpayer():
+def test_authentication_with_no_active_taxpayer() -> None:
     """Test that no TaxPayers raises an understandable error."""
     with pytest.raises(
         exceptions.AuthenticationError,
@@ -67,7 +68,7 @@ def test_authentication_with_no_active_taxpayer():
 
 @pytest.mark.live()
 @pytest.mark.django_db()
-def test_authentication_with_expired_certificate_exception():
+def test_authentication_with_expired_certificate_exception() -> None:
     """Test that using an expired ceritificate raises as expected."""
     taxpayer = factories.TaxPayerFactory(
         key=FileField(from_path=factories.get_test_file("test_expired.key")),
@@ -80,7 +81,7 @@ def test_authentication_with_expired_certificate_exception():
 
 @pytest.mark.live()
 @pytest.mark.django_db()
-def test_authentication_with_untrusted_certificate_exception():
+def test_authentication_with_untrusted_certificate_exception() -> None:
     """
     Test that using an untrusted ceritificate raises as expected.
     """
@@ -92,7 +93,7 @@ def test_authentication_with_untrusted_certificate_exception():
 
 
 @pytest.mark.django_db()
-def test_population_command():
+def test_population_command() -> None:
     """Test the afipmetadata command."""
     management.call_command("afipmetadata")
 
@@ -105,7 +106,7 @@ def test_population_command():
 
 
 @pytest.mark.django_db()
-def test_metadata_deserialization():
+def test_metadata_deserialization() -> None:
     """Test that we deserialize descriptions properly."""
     management.call_command("afipmetadata")
 
@@ -118,9 +119,11 @@ def test_metadata_deserialization():
 
 @pytest.mark.django_db()
 @pytest.mark.live()
-def test_taxpayer_fetch_points_of_sale(populated_db):
+def test_taxpayer_fetch_points_of_sale(populated_db: None) -> None:
     """Test the ``fetch_points_of_sales`` method."""
     taxpayer = models.TaxPayer.objects.first()
+
+    assert taxpayer is not None
     taxpayer.fetch_points_of_sales()
 
     points_of_sales = models.PointOfSales.objects.count()
@@ -129,10 +132,11 @@ def test_taxpayer_fetch_points_of_sale(populated_db):
 
 @pytest.mark.django_db()
 @pytest.mark.live()
-def test_receipt_queryset_validate_empty(populated_db):
+def test_receipt_queryset_validate_empty(populated_db: None) -> None:
     factories.ReceiptFactory()
 
-    errs = models.Receipt.objects.none().validate()
+    # TYPING: django-stubs can't handle methods in querysets
+    errs = models.Receipt.objects.none().validate()  # type: ignore[attr-defined]
 
     assert errs == []
     assert models.ReceiptValidation.objects.count() == 0
@@ -140,13 +144,14 @@ def test_receipt_queryset_validate_empty(populated_db):
 
 @pytest.mark.django_db()
 @pytest.mark.live()
-def test_receipt_queryset_validation_good(populated_db):
+def test_receipt_queryset_validation_good(populated_db: None) -> None:
     """Test validating valid receipts."""
     r1 = factories.ReceiptWithVatAndTaxFactory()
     r2 = factories.ReceiptWithVatAndTaxFactory()
     r3 = factories.ReceiptWithVatAndTaxFactory()
 
-    errs = models.Receipt.objects.all().validate()
+    # TYPING: django-stubs can't handle methods in querysets
+    errs = models.Receipt.objects.all().validate()  # type: ignore[attr-defined]
 
     assert len(errs) == 0
     assert r1.validation.result == models.ReceiptValidation.RESULT_APPROVED
@@ -157,13 +162,13 @@ def test_receipt_queryset_validation_good(populated_db):
 
 @pytest.mark.django_db()
 @pytest.mark.live()
-def test_receipt_queryset_validation_bad(populated_db):
+def test_receipt_queryset_validation_bad(populated_db: None) -> None:
     """Test validating invalid receipts."""
     factories.ReceiptWithInconsistentVatAndTaxFactory()
     factories.ReceiptWithInconsistentVatAndTaxFactory()
     factories.ReceiptWithInconsistentVatAndTaxFactory()
 
-    errs = models.Receipt.objects.all().validate()
+    errs = models.Receipt.objects.all().validate()  # type: ignore[attr-defined]
 
     assert len(errs) == 1
     assert errs[0] == (
@@ -177,7 +182,7 @@ def test_receipt_queryset_validation_bad(populated_db):
 
 @pytest.mark.django_db()
 @pytest.mark.live()
-def test_receipt_queryset_validation_mixed(populated_db):
+def test_receipt_queryset_validation_mixed(populated_db: None) -> None:
     """
     Test validating a mixture of valid and invalid receipts.
 
@@ -189,7 +194,7 @@ def test_receipt_queryset_validation_mixed(populated_db):
     factories.ReceiptWithInconsistentVatAndTaxFactory()
     factories.ReceiptWithVatAndTaxFactory()
 
-    errs = models.Receipt.objects.all().validate()
+    errs = models.Receipt.objects.all().validate()  # type: ignore[attr-defined]
 
     assert len(errs) == 1
     assert errs[0] == (
@@ -207,11 +212,11 @@ def test_receipt_queryset_validation_mixed(populated_db):
 
 @pytest.mark.django_db()
 @pytest.mark.live()
-def test_receipt_queryset_validation_validated(populated_db):
+def test_receipt_queryset_validation_validated(populated_db: None) -> None:
     """Test validating invalid receipts."""
     factories.ReceiptWithApprovedValidation()
 
-    errs = models.Receipt.objects.all().validate()
+    errs = models.Receipt.objects.all().validate()  # type: ignore[attr-defined]
 
     assert models.ReceiptValidation.objects.count() == 1
     assert errs == []
@@ -219,7 +224,7 @@ def test_receipt_queryset_validation_validated(populated_db):
 
 @pytest.mark.django_db()
 @pytest.mark.live()
-def test_receipt_queryset_validation_good_service(populated_db):
+def test_receipt_queryset_validation_good_service(populated_db: None) -> None:
     """Test validating a receipt for a service (rather than product)."""
     receipt = factories.ReceiptWithVatAndTaxFactory(
         concept__code=2,
@@ -228,7 +233,7 @@ def test_receipt_queryset_validation_good_service(populated_db):
         expiration_date=date.today() + timedelta(days=10),
     )
 
-    errs = models.Receipt.objects.all().validate()
+    errs = models.Receipt.objects.all().validate()  # type: ignore[attr-defined]
 
     assert len(errs) == 0
     assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
@@ -237,7 +242,7 @@ def test_receipt_queryset_validation_good_service(populated_db):
 
 @pytest.mark.django_db()
 @pytest.mark.live()
-def test_receipt_queryset_validation_good_without_tax(populated_db):
+def test_receipt_queryset_validation_good_without_tax(populated_db: None) -> None:
     """Test validating valid receipts."""
     receipt = factories.ReceiptFactory(
         point_of_sales=models.PointOfSales.objects.first(),
@@ -245,7 +250,7 @@ def test_receipt_queryset_validation_good_without_tax(populated_db):
     )
     factories.VatFactory(vat_type__code=5, receipt=receipt)
 
-    errs = models.Receipt.objects.all().validate()
+    errs = models.Receipt.objects.all().validate()  # type: ignore[attr-defined]
 
     assert len(errs) == 0
     assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
@@ -254,7 +259,7 @@ def test_receipt_queryset_validation_good_without_tax(populated_db):
 
 @pytest.mark.django_db()
 @pytest.mark.live()
-def test_receipt_queryset_validation_good_without_vat(populated_db):
+def test_receipt_queryset_validation_good_without_vat(populated_db: None) -> None:
     """Test validating valid receipts."""
     receipt = factories.ReceiptFactory(
         point_of_sales=models.PointOfSales.objects.first(),
@@ -263,7 +268,7 @@ def test_receipt_queryset_validation_good_without_vat(populated_db):
     )
     factories.TaxFactory(tax_type__code=3, receipt=receipt)
 
-    errs = models.Receipt.objects.all().validate()
+    errs = models.Receipt.objects.all().validate()  # type: ignore[attr-defined]
 
     assert len(errs) == 0
     assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
@@ -273,7 +278,7 @@ def test_receipt_queryset_validation_good_without_vat(populated_db):
 @pytest.mark.xfail(reason="Currently not working -- needs to get looked at.")
 @pytest.mark.django_db()
 @pytest.mark.live()
-def test_receipt_queryset_validation_with_observations(populated_db):
+def test_receipt_queryset_validation_with_observations(populated_db: None) -> None:
     receipt = factories.ReceiptFactory(
         document_number=20291144404,
         document_type__code=80,
@@ -283,7 +288,7 @@ def test_receipt_queryset_validation_with_observations(populated_db):
     factories.VatFactory(vat_type__code=5, receipt=receipt)
     factories.TaxFactory(tax_type__code=3, receipt=receipt)
 
-    errs = models.Receipt.objects.all().validate()
+    errs = models.Receipt.objects.all().validate()  # type: ignore[attr-defined]
 
     assert len(errs) == 0
     assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
@@ -294,12 +299,15 @@ def test_receipt_queryset_validation_with_observations(populated_db):
 
 @pytest.mark.django_db()
 @pytest.mark.live()
-def test_receipt_queryset_credit_note(populated_db):
+def test_receipt_queryset_credit_note(populated_db: None) -> None:
     """Test validating valid a credit note."""
     # Create an invoice (code=6) and validate it...
     invoice = factories.ReceiptWithVatAndTaxFactory()
 
-    errs = models.Receipt.objects.filter(pk=invoice.pk).validate()
+    qs = models.Receipt.objects.filter(
+        pk=invoice.pk,
+    )
+    errs = qs.validate()  # type: ignore[attr-defined]
     assert len(errs) == 0
     assert models.ReceiptValidation.objects.count() == 1
 
@@ -308,6 +316,7 @@ def test_receipt_queryset_credit_note(populated_db):
     credit.related_receipts.set([invoice])
     credit.save()
 
-    errs = models.Receipt.objects.filter(pk=credit.pk).validate()
+    qs = models.Receipt.objects.filter(pk=credit.pk)
+    errs = qs.validate()  # type: ignore[attr-defined]
     assert len(errs) == 0
     assert models.ReceiptValidation.objects.count() == 2

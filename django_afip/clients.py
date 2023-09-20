@@ -1,6 +1,7 @@
-__all__ = ("get_client",)
+from __future__ import annotations
 
 from functools import lru_cache
+from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
 from requests import Session
@@ -9,6 +10,12 @@ from urllib3.util.ssl_ import create_urllib3_context
 from zeep import Client
 from zeep.cache import SqliteCache
 from zeep.transports import Transport
+
+if TYPE_CHECKING:
+    from urllib3 import PoolManager
+    from urllib3 import ProxyManager
+
+__all__ = ("get_client",)
 
 try:
     from zoneinfo import ZoneInfo
@@ -56,12 +63,12 @@ WSDLS = {
 class AFIPAdapter(HTTPAdapter):
     """An adapter with reduced security so it'll work with AFIP."""
 
-    def init_poolmanager(self, *args, **kwargs):
+    def init_poolmanager(self, *args, **kwargs) -> PoolManager:
         context = create_urllib3_context(ciphers=CIPHERS)
         kwargs["ssl_context"] = context
         return super().init_poolmanager(*args, **kwargs)
 
-    def proxy_manager_for(self, *args, **kwargs):
+    def proxy_manager_for(self, *args, **kwargs) -> ProxyManager:
         context = create_urllib3_context(ciphers=CIPHERS)
         kwargs["ssl_context"] = context
         return super().proxy_manager_for(*args, **kwargs)
@@ -92,7 +99,7 @@ def get_or_create_transport() -> Transport:
 
 
 @lru_cache(maxsize=32)
-def get_client(service_name: str, sandbox=False) -> Client:
+def get_client(service_name: str, sandbox: bool = False) -> Client:
     """
     Return a client for a given service.
 

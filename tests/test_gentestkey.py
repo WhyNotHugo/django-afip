@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 
 import pytest
@@ -7,7 +9,7 @@ from django_afip import factories
 
 @pytest.mark.skipif(os.environ.get("GENTESTCSR") is None, reason="not a test")
 @pytest.mark.django_db()
-def test_generate_test_csr():
+def test_generate_test_csr() -> None:
     """Generate a new test CSR (this is not really a test)
 
     Run this with:

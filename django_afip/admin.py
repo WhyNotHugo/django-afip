@@ -1,6 +1,13 @@
+from __future__ import annotations
+
 import logging
 from contextlib import contextmanager
 from datetime import datetime
+from typing import TYPE_CHECKING
+from typing import Generator
+from typing import Iterable
+from typing import Sequence
+from typing import TypedDict
 
 from django.contrib import admin
 from django.contrib import messages
@@ -15,6 +22,9 @@ from django.utils.translation import gettext as _
 from django_afip import exceptions
 from django_afip import models
 
+if TYPE_CHECKING:
+    from django_stubs_ext import WithAnnotations
+
 logger = logging.getLogger(__name__)
 
 
@@ -22,7 +32,10 @@ logger = logging.getLogger(__name__)
 
 
 @contextmanager
-def catch_errors(self, request):
+def catch_errors(
+    self: admin.ModelAdmin,
+    request: HttpRequest,
+) -> Generator[None, None, None]:
     """Catches specific errors in admin actions and shows a friendly error."""
     try:
         yield
@@ -108,13 +121,18 @@ class ReceiptStatusFilter(admin.SimpleListFilter):
     VALIDATED = "validated"
     NOT_VALIDATED = "not_validated"
 
-    def lookups(self, request, model_admin):
+    def lookups(
+        self,
+        request: HttpRequest,
+        model_admin: admin.ModelAdmin,
+    ) -> Iterable[tuple[str, str]]:
         return (
             (self.VALIDATED, _("Validated")),
             (self.NOT_VALIDATED, _("Not validated")),
         )
 
-    def queryset(self, request, queryset):
+    # TODO: generics
+    def queryset(self, request: HttpRequest, queryset: QuerySet) -> QuerySet:
         if self.value() == self.VALIDATED:
             return queryset.filter(
                 validation__result=models.ReceiptValidation.RESULT_APPROVED
@@ -123,14 +141,18 @@ class ReceiptStatusFilter(admin.SimpleListFilter):
             return queryset.exclude(
                 validation__result=models.ReceiptValidation.RESULT_APPROVED
             )
-        return None
+        return queryset.none()
 
 
 class ReceiptTypeFilter(admin.SimpleListFilter):
     title = models.ReceiptType._meta.verbose_name
     parameter_name = "receipt_type"
 
-    def lookups(self, request, model_admin):
+    def lookups(
+        self,
+        request: HttpRequest,
+        model_admin: admin.ModelAdmin,
+    ) -> Iterable[tuple[str, str]]:
         return (
             (receipt_type.code, receipt_type.description)
             for receipt_type in models.ReceiptType.objects.filter(
@@ -138,7 +160,7 @@ class ReceiptTypeFilter(admin.SimpleListFilter):
             ).distinct()
         )
 
-    def queryset(self, request, queryset):
+    def queryset(self, request: HttpRequest, queryset: QuerySet) -> QuerySet:
         value = self.value()
         if value:
             queryset = queryset.filter(receipt_type__code=value)
@@ -184,7 +206,11 @@ class ReceiptAdmin(admin.ModelAdmin):
 
     readonly_fields = __related_fields
 
-    def get_queryset(self, request):
+    class Annotations(TypedDict):
+        pdf_id: int
+        validation_result: str
+
+    def get_queryset(self, request: HttpRequest) -> QuerySet:
         return (
             super()
             .get_queryset(request)
@@ -199,11 +225,11 @@ class ReceiptAdmin(admin.ModelAdmin):
         )
 
     @admin.display(description=_("receipt number"), ordering="receipt_number")
-    def number(self, obj):
+    def number(self, obj: models.Receipt) -> str | None:
         return obj.formatted_number
 
     @admin.display(description=_("total amount"))
-    def friendly_total_amount(self, obj):
+    def friendly_total_amount(self, obj: models.Receipt) -> str:
         return "{:0.2f} ARS{}".format(
             obj.total_amount * obj.currency_quote,
             "*" if obj.currency_quote != 1 else "",
@@ -214,11 +240,12 @@ class ReceiptAdmin(admin.ModelAdmin):
         description=_("validated"),
         ordering="validation__result",
     )
-    def validated(self, obj):
-        return obj.validation_result == models.ReceiptValidation.RESULT_APPROVED
+    def validated(self, obj: WithAnnotations[models.Receipt, Annotations]) -> bool:
+        validation_result = obj.validation_result
+        return validation_result == models.ReceiptValidation.RESULT_APPROVED
 
     @admin.display(description=_("PDF"), ordering="receiptpdf__id")
-    def pdf_link(self, obj):
+    def pdf_link(self, obj: WithAnnotations[models.Receipt, Annotations]) -> str:
         if not obj.pdf_id:
             return mark_safe(
                 '<a href="{}?receipt={}">{}</a>'.format(
@@ -238,7 +265,7 @@ class ReceiptAdmin(admin.ModelAdmin):
         )
 
     @admin.display(description=_("cae"), ordering="validation__cae")
-    def cae(self, obj):
+    def cae(self, obj: models.Receipt) -> str:
         return obj.validation.cae
 
     @admin.action(description=_("Validate"))
@@ -280,7 +307,11 @@ class TaxPayerAdmin(admin.ModelAdmin):
     )
 
     @admin.action(description=_("Fetch points of sales"))
-    def fetch_points_of_sales(self, request, queryset):
+    def fetch_points_of_sales(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[models.TaxPayer],
+    ) -> None:
         with catch_errors(self, request):
             poses = [
                 pos
@@ -303,7 +334,11 @@ class TaxPayerAdmin(admin.ModelAdmin):
             )
 
     @admin.action(description=_("Generate key"))
-    def generate_key(self, request, queryset):
+    def generate_key(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[models.TaxPayer],
+    ) -> None:
         key_count = sum(t.generate_key() for t in queryset.all())
 
         if key_count == 1:
@@ -323,7 +358,11 @@ class TaxPayerAdmin(admin.ModelAdmin):
         )
 
     @admin.action(description=_("Generate CSR"))
-    def generate_csr(self, request, queryset):
+    def generate_csr(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[models.TaxPayer],
+    ) -> HttpResponse | None:
         if queryset.count() > 1:
             self.message_user(
                 request,
@@ -333,6 +372,7 @@ class TaxPayerAdmin(admin.ModelAdmin):
             return None
 
         taxpayer = queryset.first()
+        assert taxpayer is not None, "At least one taxpayer must be selected"
         if not taxpayer.key:
             taxpayer.generate_key()
 
@@ -399,13 +439,21 @@ class ReceiptHasFileFilter(admin.SimpleListFilter):
     YES = "yes"
     NO = "no"
 
-    def lookups(self, request, model_admin):
+    def lookups(
+        self,
+        request: HttpRequest,
+        model_admin: admin.ModelAdmin,
+    ) -> Sequence[tuple[str, str]]:
         return (
             (self.YES, _("Yes")),
             (self.NO, _("No")),
         )
 
-    def queryset(self, request, queryset):
+    def queryset(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[models.ReceiptPDF],
+    ) -> QuerySet[models.ReceiptPDF]:
         if self.value() == self.YES:
             return queryset.exclude(pdf_file="")
         if self.value() == self.NO:
@@ -429,7 +477,7 @@ class ReceiptPDFAdmin(admin.ModelAdmin):
     )
     raw_id_fields = ("receipt",)
 
-    def get_queryset(self, request):
+    def get_queryset(self, request: HttpRequest) -> QuerySet[models.ReceiptPDF]:
         return (
             super()
             .get_queryset(request)
@@ -441,15 +489,19 @@ class ReceiptPDFAdmin(admin.ModelAdmin):
         )
 
     @admin.display(description=_("taxpayer"))
-    def taxpayer(self, obj):
-        return obj.receipt.point_of_sales.owner
+    def taxpayer(self, obj: models.ReceiptPDF) -> str:
+        return str(obj.receipt.point_of_sales.owner)
 
     @admin.display(boolean=True, description=_("Has file"), ordering="pdf_file")
-    def has_file(self, obj):
+    def has_file(self, obj: models.ReceiptPDF) -> bool:
         return bool(obj.pdf_file)
 
     @admin.action(description=_("Generate pdf"))
-    def generate_pdf(self, request, queryset):
+    def generate_pdf(
+        self,
+        request: HttpRequest,
+        queryset: QuerySet[models.ReceiptPDF],
+    ) -> None:
         for pdf in queryset:
             pdf.save_pdf()
 
@@ -469,11 +521,11 @@ class ReceiptValidationAdmin(admin.ModelAdmin):
     raw_id_fields = ("receipt",)
 
     @admin.display(description=_("receipt number"), ordering="receipt_id")
-    def receipt_number(self, obj):
+    def receipt_number(self, obj: models.ReceiptValidation) -> str | None:
         return obj.receipt.formatted_number
 
     @admin.display(boolean=True, description=_("result"), ordering="result")
-    def successful(self, obj):
+    def successful(self, obj: models.ReceiptValidation) -> bool:
         return obj.result == models.ReceiptValidation.RESULT_APPROVED
 
 

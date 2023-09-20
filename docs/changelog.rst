@@ -7,6 +7,11 @@ dependencia en cada versión, en orden cronológicamente inverso.
 Todos los cambios que necesites tener en cuenta al actualizar están listados
 acá.
 
+11.4.0
+------
+
+- Type hints have been added everywhere that is feasible.
+
 11.3.1
 ------
 
