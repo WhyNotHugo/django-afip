@@ -444,13 +444,15 @@ def test_receipt_entry_manage_decimal_quantities() -> None:
     """
     Test that ReceiptEntry can manage a decimal quantity
     """
-    factories.ReceiptEntryFactory(
-        quantity=Decimal("2"), unit_price=3.33
-    )
-    factories.ReceiptEntryFactory(
-        quantity=Decimal("5.23"), unit_price=3.33
-    )
+    factories.ReceiptEntryFactory(quantity=Decimal("2"), unit_price=3.33)
+    factories.ReceiptEntryFactory(quantity=Decimal("5.23"), unit_price=3.33)
 
     assert models.ReceiptEntry.objects.all().count() == 2
-    assert models.ReceiptEntry.objects.first().quantity == Decimal("2")
-    assert models.ReceiptEntry.objects.last().quantity == Decimal("5.23")
+
+    first = models.ReceiptEntry.objects.first()
+    assert first is not None
+    assert first.quantity == Decimal("2")
+
+    last = models.ReceiptEntry.objects.last()
+    assert last is not None
+    assert last.quantity == Decimal("5.23")
