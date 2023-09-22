@@ -177,7 +177,7 @@ class GenericAfipType(models.Model):
     not create subclasses of this model unless you really know what you're doing.
     """
 
-    SUBCLASSES: ClassVar[list[type[models.Model]]] = []
+    SUBCLASSES: ClassVar[list[type[GenericAfipType]]] = []
 
     def __init_subclass__(cls, **kwargs) -> None:
         """Keeps a registry of known subclasses."""
