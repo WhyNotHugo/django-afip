@@ -33,14 +33,14 @@ Generalmente correr los tests con `sqlite` basta, pero para evitar problemas de
 compatibilidad, CI corre con los tres.
 
 Para corer los servidores de prueba localmente de forma efímera, podés usar
-podman o docker:
+docker:
 
 .. code-block:: bash
 
     # Para postgres:
-    podman run --env=POSTGRES_PASSWORD=postgres --publish=5432:5432 --rm postgres:13
+    docker run --env=POSTGRES_PASSWORD=postgres --publish=5432:5432 --rm postgres:13
     # Para mysql / mariadb:
-    podman run --env=MYSQL_ROOT_PASSWORD=mysql --publish=3306:3306 --rm -it mariadb:10
+    docker run --env=MYSQL_ROOT_PASSWORD=mysql --publish=3306:3306 --rm -it mariadb:10
 
 Tené en cuenta que los servidores pueden tardar un par de segundos en
 arrancar. Si estás corriendo tests a mano no es un problema, pero si estás
