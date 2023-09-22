@@ -7,6 +7,12 @@ dependencia en cada versión, en orden cronológicamente inverso.
 Todos los cambios que necesites tener en cuenta al actualizar están listados
 acá.
 
+12.0.0
+------
+
+- Change model field in quantity field from ReceiptEntry from ``PositiveSmallIntegerField`` to ``DecimalField`` to allow
+  decimal quantities.
+
 11.4.0
 ------
 

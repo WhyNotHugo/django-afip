@@ -18,6 +18,8 @@ from django_afip.factories import ReceiptValidationFactory
 from django_afip.factories import ReceiptWithApprovedValidation
 from django_afip.factories import ReceiptWithInconsistentVatAndTaxFactory
 from django_afip.factories import ReceiptWithVatAndTaxFactory
+from django.db.models import DecimalField
+from decimal import Decimal
 
 if TYPE_CHECKING:
     from django.db.models import QuerySet
@@ -422,3 +424,28 @@ def test_receipt_entry_gt_total_discount() -> None:
 
     with pytest.raises(Exception, match=r"\bdiscount_less_than_total\b"):
         factories.ReceiptEntryFactory(quantity=1, unit_price=1, discount=2)
+
+@pytest.mark.django_db()
+def test_receipt_entry_has_quantity_decimal_field() -> None:
+    """
+    Test that ReceiptEntry quantity now is a DecimalField
+    """
+    field = models.ReceiptEntry._meta.get_field('quantity')
+
+    # Verifica que el campo ahora es de tipo DecimalField
+    assert isinstance(field,DecimalField)
+    assert field.max_digits == 15
+    assert field.decimal_places == 2
+
+@pytest.mark.django_db()
+def test_receipt_entry_manage_decimal_quantities() -> None:
+    """
+    Test that ReceiptEntry can manage a decimal quantity
+    """
+    receipt_entry_1 = factories.ReceiptEntryFactory(quantity = Decimal('2'), unit_price=3.33)
+    receipt_entry_2 = factories.ReceiptEntryFactory(quantity=Decimal("5.23"), unit_price=3.33)
+    
+    assert models.ReceiptEntry.objects.all().count() == 2
+    assert models.ReceiptEntry.objects.first().quantity == Decimal('2')
+    assert models.ReceiptEntry.objects.last().quantity == Decimal('5.23')
+    
