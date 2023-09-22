@@ -12,6 +12,8 @@ acá.
 
 - Type hints have been added everywhere that is feasible.
 - Drop support for Python 3.7.
+- Change model field in quantity field from ReceiptEntry from ``PositiveSmallIntegerField``
+  to ``DecimalField`` to allow decimal quantities.
 
 11.3.1
 ------

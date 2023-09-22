@@ -1545,8 +1545,10 @@ class ReceiptEntry(models.Model):
         max_length=128,
         verbose_name=_("description"),
     )
-    quantity = models.PositiveSmallIntegerField(
-        _("quantity"),
+    quantity = models.DecimalField(
+        verbose_name=_("quantity"),
+        max_digits=15,
+        decimal_places=2,
     )
     unit_price = models.DecimalField(
         _("unit price"),
