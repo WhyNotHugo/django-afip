@@ -1,3 +1,0 @@
-dj-database-url
-django
-sphinx-rtd-theme
