@@ -11,9 +11,11 @@ def test_afip_metadata_command() -> None:
     assert len(GenericAfipType.SUBCLASSES) == 7
 
     for model in GenericAfipType.SUBCLASSES:
-        assert model.objects.count() == 0
+        # TYPING: mypy doesn't know about `.objects`.
+        assert model.objects.count() == 0  # type: ignore[attr-defined]
 
     management.call_command("afipmetadata")
 
     for model in GenericAfipType.SUBCLASSES:
-        assert model.objects.count() > 0
+        # TYPING: mypy doesn't know about `.objects`.
+        assert model.objects.count() > 0  # type: ignore[attr-defined]
