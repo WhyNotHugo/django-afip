@@ -1,3 +1,82 @@
+[project]
+name = "django-afip"
+authors = [
+    {name = "Hugo Osvaldo Barrera", email = "hugo@whynothugo.ln"},
+]
+description = "AFIP integration for django"
+readme = "README.rst"
+requires-python = ">=3.8"
+# keywords = ["TODO"]
+license = {text = "ISC"}
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Web Environment",
+  "Framework :: Django",
+  "Framework :: Django :: 3.2",
+  "Framework :: Django :: 4.0",
+  "Framework :: Django :: 4.1",
+  "Framework :: Django :: 4.2",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: ISC License (ISCL)",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Internet :: WWW/HTTP",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+  "cryptography>=3.2,<40",
+  "django>=3.2,<4.3",
+  "django_renderpdf>=3.0.0,<5.0.0",
+  "lxml>=3.4.4",
+  "pyopenssl>=16.2.0",
+  'backports.zoneinfo;python_version<"3.9"',
+  "setuptools-git>=1.1",
+  "wheel>=0.24.0",
+  "zeep>=1.1.0,<5.0.0",
+  "qrcode[pil]>=6.1,<8.0",
+  "pyyaml>=5.3.1,<7.0.0",
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+docs = [
+  "Sphinx",
+  "sphinx-autobuild",
+  "sphinx_rtd_theme"
+]
+postgres = [
+  "psycopg2",
+]
+mysql = [
+  "mysqlclient",
+]
+factories = [
+  "factory-boy",
+]
+dev = [
+  "dj_database_url",
+  "django-stubs[compatible-mypy]",
+  "types-freezegun",
+  "types-pyOpenSSL",
+  "types-pytz",
+  "types-requests",
+  "types-backports",
+]
+
+[project.urls]
+homepage = "https://github.com/WhyNotHugo/django-afip"
+documentation = "https://django-afip.readthedocs.io/"
+issues = "https://github.com/WhyNotHugo/django-afip/issues"
+changelog = "https://django-afip.readthedocs.io/en/latest/changelog.html"
+donate = "https://liberapay.com/WhyNotHugo/"
+
+[tool.setuptools]
+packages = ["django_afip"]
+
 [build-system]
 requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
 
