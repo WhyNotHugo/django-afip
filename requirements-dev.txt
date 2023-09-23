@@ -1,7 +1,0 @@
-dj_database_url
-django-stubs[compatible-mypy]
-types-freezegun
-types-pyOpenSSL
-types-pytz
-types-requests
-types-backports
