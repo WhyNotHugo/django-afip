@@ -63,7 +63,7 @@ command, or the ``load_metadata`` function:
     :members:
 
 Managers
-~~~~~~~~
+--------
 
 Managers should be accessed via models. For example, ``ReceiptManager``
 should be accessed using ``Receipt.objects``.
