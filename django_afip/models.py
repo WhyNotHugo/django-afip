@@ -1367,7 +1367,7 @@ class ReceiptPDFManager(models.Manager):
         :class:`~.PointOfSales` instance.
 
         :param receipt: The receipt for the PDF which will be generated.
-        :param **kwargs: Passed directly to the :class:`~.ReceiptPDF` constructor.
+        :param kwargs: Passed directly to the :class:`~.ReceiptPDF` constructor.
         """
         try:
             assert receipt.point_of_sales.issuing_name is not None
