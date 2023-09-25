@@ -69,7 +69,7 @@ acá.
 - ``pyyaml`` version 6 is now supported.
 
 10.0.0
------
+------
 
 * Soporte para Python 3.10 y Django 4.0.
 * Django 3.1 ya no es soportado.
