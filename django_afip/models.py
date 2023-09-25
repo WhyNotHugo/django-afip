@@ -1497,7 +1497,7 @@ class ReceiptPDF(models.Model):
     def save_pdf(
         self,
         save_model: bool = True,
-        builder_class: type[PdfBuilder] = PdfBuilder,
+        builder: PdfBuilder | None = None,
     ) -> None:
         """Save the receipt as a PDF related to this model.
 
@@ -1505,7 +1505,10 @@ class ReceiptPDF(models.Model):
         This model instance must have been saved prior to calling this method.
 
         :param save_model: If True, immediately save this model instance.
+        :param builder: A custom pdf builder to use. If ``None`` is provided, the
+            default :class:`~.PdfBuilder` is used.
         """
+        builder = builder or PdfBuilder()
 
         if not self.receipt.is_validated:
             raise exceptions.DjangoAfipException(
@@ -1513,7 +1516,7 @@ class ReceiptPDF(models.Model):
             )
 
         self.pdf_file = File(BytesIO(), name=f"{uuid4().hex}.pdf")
-        builder_class(self.receipt).render_pdf(self.pdf_file)
+        builder.render_pdf(self.receipt, self.pdf_file)
 
         if save_model:
             self.save()

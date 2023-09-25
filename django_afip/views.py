@@ -34,7 +34,7 @@ class ReceiptPDFView(PDFView):
 
         Returns the same in-memory instance during the whole request."""
 
-        return self.builder_class(self.receipt)
+        return self.builder_class()
 
     @property
     def download_name(self) -> str:
@@ -46,7 +46,7 @@ class ReceiptPDFView(PDFView):
 
         See :meth:`~.PdfBuilder.get_template_names` for exact implementation details.
         """
-        return self.builder.get_template_names()
+        return self.builder.get_template_names(self.receipt)
 
     @staticmethod
     def get_context_for_pk(pk: int, *args, **kwargs) -> dict:
@@ -66,9 +66,9 @@ class ReceiptPDFView(PDFView):
             stacklevel=2,
         )
         receipt = models.Receipt.objects.get(pk=pk)
-        return PdfBuilder(receipt).get_context()
+        return PdfBuilder().get_context(receipt)
 
     def get_context_data(self, pk: int, **kwargs) -> dict:
         context = super().get_context_data(pk=pk, **kwargs)
-        context.update(self.builder.get_context())
+        context.update(self.builder.get_context(self.receipt))
         return context

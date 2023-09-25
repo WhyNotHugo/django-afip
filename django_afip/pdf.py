@@ -95,10 +95,10 @@ class PdfBuilder:
     This type can be subclassed to add custom behaviour or data into PDF files.
     """
 
-    def __init__(self, receipt: Receipt) -> None:
-        self.receipt = receipt
+    def __init__(self) -> None:
+        pass
 
-    def get_template_names(self) -> list[str]:
+    def get_template_names(self, receipt: Receipt) -> list[str]:
         """Return the templates use to render the Receipt PDF.
 
         Template discovery tries to find any of the below receipts::
@@ -115,14 +115,14 @@ class PdfBuilder:
         """
         return [
             template.format(
-                taxpayer=self.receipt.point_of_sales.owner.cuit,
-                point_of_sales=self.receipt.point_of_sales.number,
-                code=self.receipt.receipt_type.code,
+                taxpayer=receipt.point_of_sales.owner.cuit,
+                point_of_sales=receipt.point_of_sales.number,
+                code=receipt.receipt_type.code,
             )
             for template in TEMPLATE_NAMES
         ]
 
-    def get_context(self) -> dict:
+    def get_context(self, receipt: Receipt) -> dict:
         """Returns the context used to render the PDF file."""
         from django_afip.models import Receipt
         from django_afip.models import ReceiptPDF
@@ -141,7 +141,7 @@ class PdfBuilder:
             .prefetch_related(
                 "receipt__entries",
             )
-            .get(receipt=self.receipt)
+            .get(receipt=receipt)
         )
 
         # Prefetch required data in a single query:
@@ -168,10 +168,10 @@ class PdfBuilder:
 
         return context
 
-    def render_pdf(self, file_: IO) -> None:
+    def render_pdf(self, receipt: Receipt, file_: IO) -> None:
         """Renders the PDF into ``file_``."""
         render_pdf(
-            template=self.get_template_names(),
+            template=self.get_template_names(receipt),
             file_=file_,
-            context=self.get_context(),
+            context=self.get_context(receipt),
         )
