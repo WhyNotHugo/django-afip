@@ -36,7 +36,8 @@ acá.
 
 - Python 3.11 is now supported.
 - Django 4.2 is now supported.
-- Added support for AFIP Optionals, especially for use in FCEA receipts: ``OptionalType`` and ``Optional`` models were added.
+- Added support for AFIP Optionals, especially for use in FCEA receipts:
+  :class:`~.OptionalType` and :class:`~.Optional` models were added.
 - Serialization of individual optionals was implemented as ``serialize_optional``.
 
 11.1.0
@@ -93,7 +94,7 @@ acá.
   model. A migration will handle copying data from table to the other for you.
   If you have any references to this model (e.g.: forms for your users, custom
   admins, etc), make sure you update these to point to the
-  :class:`~PointOfSales` model.
+  :class:`~.PointOfSales` model.
   This allow customising invoices for different points of sales differently.
   Noticeably, different points of sales commonly have different address,
   websites, and/or phone number.
@@ -131,7 +132,7 @@ acá.
 8.0.0
 -----
 * Receipts now show validation details in the admin.
-* The ``__str__`` for ``TaxPayer`` has changed. If you relied on this for rendering
+* The ``__str__`` for :class:`~.TaxPayer` has changed. If you relied on this for rendering
   content, please updated those references to :attr:`.TaxPayer.cuit`.
 * Python 3.6 to 3.9 are supported.
 * Django 2.2 to 3.1 are supported.
