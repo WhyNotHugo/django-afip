@@ -51,3 +51,9 @@ class CannotValidateTogether(DjangoAfipException):
 
 class ValidationError(DjangoAfipException):
     """Raised when a single Receipt failed to validate with AFIP's WS."""
+
+    #: Error messages as returned by AFIP.
+    errors: list[str]
+
+    def __init__(self, errors: list[str]) -> None:
+        self.errors = errors

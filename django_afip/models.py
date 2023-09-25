@@ -1307,33 +1307,38 @@ class Receipt(models.Model):
         This is a shortcut to :meth:`~.ReceiptQuerySet.validate`. See the documentation
         for that method for details. Calling this validates only this instance.
 
+        If validating receipts fails, raises :class:`.ValidationError`.
 
         .. versionchanged:: 11
 
             The ``raise_`` flag has been deprecated.
 
+        .. versionchanged:: 12
+
+            The default value of ``raise_`` changed to ``True``.
+
         :param ticket: Use this ticket. If None, one will be loaded or created
             automatically.
-        :param raise_: If True, an exception will be raised when validation fails.
+        :param raise_: If ``False``, do not raise an exception, instead, return a list
+            of error strings.
         """
-        if raise_:
+        if not raise_:
             warnings.warn(
-                "The raise_ flag is deprecated and will be removed in django_afip 12.",
+                "The raise_ flag is deprecated and will be removed in django_afip 13.",
                 DeprecationWarning,
                 stacklevel=2,
             )
 
-        # XXX: Maybe actually have this sortcut raise an exception?
+        qs = Receipt.objects.filter(pk=self.pk)
         # TYPING: queryset method `validate` is not resolved.
         # See: https://github.com/typeddjango/django-stubs/issues/1067
-        qs = Receipt.objects.filter(pk=self.pk)
         assert isinstance(qs, ReceiptQuerySet)  # required for mypy
         rv = qs.validate(ticket)
-        # Since we're operating via a queryset, this instance isn't properly
-        # updated:
+        # Since we're operating via a queryset, this instance isn't properly updated:
         self.refresh_from_db()
+        # TODO: write an article on why this is changing (maybe just in CHANGELOG?).
         if raise_ and rv:
-            raise exceptions.ValidationError(rv[0])
+            raise exceptions.ValidationError(rv)
         return rv
 
     def revalidate(self) -> ReceiptValidation | None:

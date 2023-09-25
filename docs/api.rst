@@ -100,6 +100,8 @@ Exceptions
 ----------
 
 .. autoclass:: django_afip.exceptions.CannotValidateTogether
+
+.. autoclass:: django_afip.exceptions.ValidationError
     :members:
 
 WebService clients
