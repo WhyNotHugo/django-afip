@@ -1203,7 +1203,7 @@ class Receipt(models.Model):
 
     #: The default manager includes extra methods including helpers for validation.
     #:
-    #: See :class:`~.ReceiptManager`.
+    #: See :class:`~.ReceiptManager` and also :class:`~.ReceiptQuerySet`.
     objects = ReceiptManager()
 
     # TODO: methods to validate totals
