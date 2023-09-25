@@ -1,22 +1,20 @@
 from __future__ import annotations
 
+import warnings
+
 from django.utils.functional import cached_property
 from django_renderpdf.views import PDFView
 
 from django_afip import models
-from django_afip.pdf import get_encoded_qrcode
-
-# Note: When updating this, be sure to update the docstring of the method that uses
-# these below.
-TEMPLATE_NAMES = [
-    "receipts/{taxpayer}/pos_{point_of_sales}/code_{code}.html",
-    "receipts/{taxpayer}/code_{code}.html",
-    "receipts/code_{code}.html",
-    "receipts/{code}.html",
-]
+from django_afip.pdf import PdfBuilder
 
 
 class ReceiptPDFView(PDFView):
+    #: The PDF Builder class to use for generating PDF files.
+    #:
+    #: Set this to a custom subclass if you need custom behaviour for your PDF files.
+    builder_class = PdfBuilder
+
     @cached_property
     def receipt(self) -> models.Receipt:
         """Returns the receipt.
@@ -30,85 +28,47 @@ class ReceiptPDFView(PDFView):
             pk=self.kwargs["pk"],
         )
 
+    @cached_property
+    def builder(self) -> PdfBuilder:
+        """Returns the pdf builder.
+
+        Returns the same in-memory instance during the whole request."""
+
+        return self.builder_class(self.receipt)
+
     @property
     def download_name(self) -> str:
         """Return the filename to be used when downloading this receipt."""
         return f"{self.receipt.formatted_number}.pdf"
 
-    def get_template_names(self, receipt: models.Receipt | None = None) -> list[str]:
+    def get_template_names(self) -> list[str]:
         """Return the templates use to render the Receipt PDF.
 
-        Template discovery tries to find any of the below receipts::
-
-            receipts/{taxpayer}/pos_{point_of_sales}/code_{code}.html
-            receipts/{taxpayer}/code_{code}.html
-            receipts/code_{code}.html
-            receipts/{code}.html
-
-        To override, for example, the "Factura C" template for point of sales 0002 for
-        Taxpayer 20-32964233-0, use::
-
-            receipts/20329642330/pos_2/code_6.html
+        See :meth:`~.PdfBuilder.get_template_names` for exact implementation details.
         """
-        # Non-request usages may explicitly pass a receipt.
-        receipt = receipt or self.receipt
-        assert receipt is not None
-
-        return [
-            template.format(
-                taxpayer=receipt.point_of_sales.owner.cuit,
-                point_of_sales=receipt.point_of_sales.number,
-                code=receipt.receipt_type.code,
-            )
-            for template in TEMPLATE_NAMES
-        ]
+        return self.builder.get_template_names()
 
     @staticmethod
     def get_context_for_pk(pk: int, *args, **kwargs) -> dict:
-        context: dict = {}
+        """Returns the context for a receipt.
 
-        receipt_pdf = (
-            models.ReceiptPDF.objects.select_related(
-                "receipt",
-                "receipt__receipt_type",
-                "receipt__document_type",
-                "receipt__validation",
-                "receipt__point_of_sales",
-                "receipt__point_of_sales__owner",
-            )
-            .prefetch_related(
-                "receipt__entries",
-            )
-            .get(
-                receipt__pk=pk,
-            )
+        Note that this uses ``PdfBuilder`` and not ``self.builder_class`` due to legacy
+        reasons.
+
+        .. deprecated:: 12.0
+
+            This method is deprecated, use :meth:`~.PdfBuilder.get_context` instead.
+        """
+        warnings.warn(
+            "ReceiptPDFView.get_context_for_pk is deprecated; "
+            "use PdfBuilder.get_context instead",
+            DeprecationWarning,
+            stacklevel=2,
         )
+        receipt = models.Receipt.objects.get(pk=pk)
+        return PdfBuilder(receipt).get_context()
 
-        # Prefetch required data in a single query:
-        receipt_pdf.receipt = (
-            models.Receipt.objects.select_related(
-                "receipt_type",
-                "document_type",
-                "validation",
-                "point_of_sales",
-                "point_of_sales__owner",
-            )
-            .prefetch_related(
-                "entries",
-            )
-            .get(
-                pk=receipt_pdf.receipt_id,
-            )
-        )
-        taxpayer = receipt_pdf.receipt.point_of_sales.owner
-
-        context["pdf"] = receipt_pdf
-        context["taxpayer"] = taxpayer
-        context["qrcode"] = get_encoded_qrcode(receipt_pdf)
-
-        return context
-
-    def get_context_data(self, *args, pk: int, **kwargs) -> dict:
-        context = super().get_context_data(*args, pk=pk, **kwargs)
-        context.update(self.get_context_for_pk(pk, *args, **kwargs))
+    def get_context_data(self, pk: int, **kwargs) -> dict:
+        context = super().get_context_data(pk=pk, **kwargs)
+        context.update(self.builder.get_context())
         return context
