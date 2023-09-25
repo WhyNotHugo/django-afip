@@ -8,12 +8,12 @@ Tené en cuenta estos términos mientras leas la documentación. Nótese que no
 estamos reinventando nada acá, estos son los términos que usa el AFIP, aunque
 pueden ser no-obvios para desarrolladores.
 
-- **Contribuyente** / ``TaxPayer``: La persona o entidad de parte de la cual vas
-  a estar generando comprobantes.
-- **Comprobante** / ``Receipt``: Estos pueden ser facturas, notas de créditos,
-  etc.
-- **Punto de ventas** / ``PointOfSale``:  Cada punto de ventas sigue una
-  sequencia de numeración propia. El punto de ventas 9 emite comprobantes con
+- **Contribuyente** / :class:`.TaxPayer`: La persona o entidad de parte de la
+  cual vas a estar generando comprobantes.
+- **Comprobante** / :class:`.Receipt`: Estos pueden ser facturas, notas de
+  créditos, etc.
+- **Punto de ventas** / :class:`.PointOfSales`:  Cada punto de ventas sigue una
+  secuencia de numeración propia. El punto de ventas 9 emite comprobantes con
   números ``0009-00000001``, ``0009-00000002``, etc.
 
 Cómo empezar
