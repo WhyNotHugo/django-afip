@@ -90,6 +90,12 @@ Helpers
 .. autoclass:: django_afip.helpers.ServerStatus
     :members:
 
+Exceptions
+----------
+
+.. autoclass:: django_afip.exceptions.CannotValidateTogether
+    :members:
+
 WebService clients
 ------------------
 

@@ -2,13 +2,11 @@ from __future__ import annotations
 
 
 class DjangoAfipException(Exception):
-    """Superclass for all exceptions explicitly thrown by this app."""
+    """Superclass for exceptions thrown by `django_afip`."""
 
 
 class AfipException(DjangoAfipException):
-    """
-    Wraps around errors returned by AFIP's WS.
-    """
+    """Wraps around errors returned by AFIP's WS."""
 
     def __init__(self, response) -> None:  # noqa: ANN001
         if "Errors" in response:
@@ -25,34 +23,30 @@ class AfipException(DjangoAfipException):
 
 
 class AuthenticationError(DjangoAfipException):
-    """
-    Raised when there is a non-specific error during an authentication attempt.
+    """Raised when there is an error during an authentication attempt.
+
+    Usually, subclasses of this error are raised, but for unexpected errors, this type
+    may be raised.
     """
 
 
 class CertificateExpired(AuthenticationError):
-    """
-    Raised when an authentication was attempted with an expired certificate.
-    """
+    """Raised when an authentication was attempted with an expired certificate."""
 
 
 class UntrustedCertificate(AuthenticationError):
-    """
-    Raise when an untrusted certificate is used in an authentication attempt.
-    """
+    """Raise when an untrusted certificate is used in an authentication attempt."""
 
 
 class CorruptCertificate(AuthenticationError):
-    """
-    Raised when a corrupt ceritificate file is used in an authenticaiton
-    attempt.
-    """
+    """Raised when a corrupt certificate file is used in an authentication attempt."""
 
 
 class CannotValidateTogether(DjangoAfipException):
-    """
-    Raised when attempting to validate receipts that cannot be validated
-    together (eg: different receipt types, or different point of sales).
+    """Raised when attempting to validate invalid combinations of receipts.
+
+    Receipts of different ``receipt_type`` or ``point_of_sales`` cannot be validated
+    together.
     """
 
 
