@@ -21,6 +21,12 @@ acá.
   generation.
 - The :meth:`~.ReceiptPDF.save_pdf` method now optionally takes an instance of
   the above :class:`~.PdfBuilder`.
+- **BREAKING**: The ``raise_`` flag for :meth:`~.Receipt.validate` now defaults
+  to ``True``. I.e: failure to validate a ``Receipt`` will raise a
+  :class:`~.ValidationError` exception by default. This is the pythonic
+  approach and should prevent accidental situations where errors go unnoticed
+  and are not handled properly. The ``raise_`` flag is still deprecated and
+  pending removal.
 - Type hints have been added everywhere that is feasible.
 - **BREAKING**: The signal that auto-generated receipt pdfs for validated
   ReceiptPDFs  has been removed. Applications now need to explicitly call
