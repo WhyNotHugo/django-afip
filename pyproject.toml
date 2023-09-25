@@ -158,3 +158,8 @@ target-version = "py38"
 # This likely needs to be addressed in Django itself (either use an immutable
 # type or annotate these fields as ClassVar)
 "django_afip/migrations/0*.py"= ["RUF012"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "if TYPE_CHECKING:",
+]
