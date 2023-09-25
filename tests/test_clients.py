@@ -9,6 +9,7 @@ from requests.exceptions import SSLError
 from django_afip.clients import get_client
 
 
+@pytest.mark.live()
 def test_services_are_cached() -> None:
     service1 = get_client("wsfe", False)
     with patch.dict("django_afip.clients.WSDLS", values={}, clear=True):
