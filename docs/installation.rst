@@ -99,8 +99,8 @@ Recomendamos pinnear versiones de dependencias. Las versiones mayores (e.g.:
 de 8.X a 9.X) pueden requerir actualizar código. Esto no implica re-escribir
 todo, pero suelen haber consideraciones que tenés que tener en cuenta.
 
-El CHANGELOG siempre incluye detalles de cambios en la API y que ajustes puede
-que necesites hacer.
+El  :doc:`changelog <changelog>` siempre incluye detalles de cambios en la API
+y ajustes que sean necesario.
 
 Si estás usando ``requirements.txt``, usá algo como::
 
