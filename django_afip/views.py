@@ -32,6 +32,7 @@ class ReceiptPDFView(PDFView):
 
     @property
     def download_name(self) -> str:
+        """Return the filename to be used when downloading this receipt."""
         return f"{self.receipt.formatted_number}.pdf"
 
     def get_template_names(self, receipt: models.Receipt | None = None) -> list[str]:
