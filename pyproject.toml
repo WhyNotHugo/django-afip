@@ -45,8 +45,8 @@ dynamic = ["version"]
 [project.optional-dependencies]
 docs = [
   "Sphinx",
-  "sphinx-autobuild",
   "sphinx_rtd_theme",
+  "sphinxcontrib_django",
   "dj_database_url",
 ]
 postgres = [

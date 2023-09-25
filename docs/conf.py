@@ -50,9 +50,10 @@ release = django_afip.__version__
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.viewcode",
-    "django_models",
+    "sphinxcontrib_django",
     "sphinx.ext.intersphinx",
 ]
+django_settings = "testapp.settings"
 
 intersphinx_mapping = {
     "django": (
