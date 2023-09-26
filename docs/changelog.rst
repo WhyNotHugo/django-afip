@@ -15,6 +15,12 @@ acá.
 - **BREAKING**: Change model field ``ReceiptEntry.quantity`` from
   ``PositiveSmallIntegerField`` to ``DecimalField`` to allow decimal quantities.
 - **BREAKING**: Drop support for Python 3.7.
+- **BREAKING**: :meth:`~.ReceiptPDFView.get_context_for_pk` has been deprecated
+  and will be removed in the next major release.
+- Introduce a new :class:`~.PdfBuilder` type which allows customising PDF
+  generation.
+- The :meth:`~.ReceiptPDF.save_pdf` method now optionally takes an instance of
+  the above :class:`~.PdfBuilder`.
 - Type hints have been added everywhere that is feasible.
 
 11.3.1

@@ -33,6 +33,12 @@ unless you intend to generate PDFs for receipts.
 .. autoclass:: django_afip.models.ReceiptPDF
     :members:
 
+PDF builder
+-----------
+
+.. autoclass:: django_afip.pdf.PdfBuilder
+    :members:
+
 .. _metadata-models:
 
 Metadata models

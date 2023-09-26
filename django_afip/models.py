@@ -32,7 +32,6 @@ from django.db.models import Q
 from django.db.models import Sum
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
-from django_renderpdf.helpers import render_pdf
 from lxml import etree
 from lxml.builder import E
 from OpenSSL.crypto import FILETYPE_PEM
@@ -41,6 +40,7 @@ from OpenSSL.crypto import load_certificate
 from zeep.exceptions import Fault
 
 from django_afip.clients import TZ_AR
+from django_afip.pdf import PdfBuilder
 
 from . import clients
 from . import crypto
@@ -1494,16 +1494,21 @@ class ReceiptPDF(models.Model):
 
     objects = ReceiptPDFManager()
 
-    def save_pdf(self, save_model: bool = True) -> None:
-        """
-        Save the receipt as a PDF related to this model.
+    def save_pdf(
+        self,
+        save_model: bool = True,
+        builder: PdfBuilder | None = None,
+    ) -> None:
+        """Save the receipt as a PDF related to this model.
 
         The related :class:`~.Receipt` should be validated first, of course.
         This model instance must have been saved prior to calling this method.
 
         :param save_model: If True, immediately save this model instance.
+        :param builder: A custom pdf builder to use. If ``None`` is provided, the
+            default :class:`~.PdfBuilder` is used.
         """
-        from django_afip.views import ReceiptPDFView
+        builder = builder or PdfBuilder()
 
         if not self.receipt.is_validated:
             raise exceptions.DjangoAfipException(
@@ -1511,11 +1516,7 @@ class ReceiptPDF(models.Model):
             )
 
         self.pdf_file = File(BytesIO(), name=f"{uuid4().hex}.pdf")
-        render_pdf(
-            template=ReceiptPDFView().get_template_names(self.receipt),
-            file_=self.pdf_file,
-            context=ReceiptPDFView.get_context_for_pk(self.receipt_id),
-        )
+        builder.render_pdf(self.receipt, self.pdf_file)
 
         if save_model:
             self.save()
