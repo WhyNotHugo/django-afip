@@ -44,7 +44,7 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 docs = [
-  "Sphinx",
+  "Sphinx>=3.4.0", # See: https://github.com/edoburu/sphinxcontrib-django/issues/49
   "sphinx_rtd_theme",
   "sphinxcontrib_django",
   "dj_database_url",
