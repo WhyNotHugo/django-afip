@@ -5,9 +5,9 @@ import json
 import logging
 from io import BytesIO
 from typing import TYPE_CHECKING
-from django.core.paginator import Paginator
 
 import qrcode
+from django.core.paginator import Paginator
 from django_renderpdf.helpers import render_pdf
 
 if TYPE_CHECKING:
@@ -86,19 +86,21 @@ TEMPLATE_NAMES = [
     "receipts/{code}.html",
 ]
 
-def create_entries_context_for_render(paginator:Paginator)-> dict:
+
+def create_entries_context_for_render(paginator: Paginator) -> dict:
     entries = {}
     subtotal = 0
     for i in paginator.page_range:
         entries[i] = {}
-        entries[i]['previous_subtotal'] = subtotal
+        entries[i]["previous_subtotal"] = subtotal
         page = paginator.get_page(i)
         for entry in page.object_list:
-            subtotal += round(entry.total_price,2)
+            subtotal += round(entry.total_price, 2)
 
-        entries[i]['subtotal'] = subtotal
-        entries[i]['entries'] = paginator.get_page(i).object_list
+        entries[i]["subtotal"] = subtotal
+        entries[i]["entries"] = paginator.get_page(i).object_list
     return entries
+
 
 class PdfBuilder:
     """Builds PDF files for Receipts.
@@ -109,7 +111,7 @@ class PdfBuilder:
     This type can be subclassed to add custom behaviour or data into PDF files.
     """
 
-    def __init__(self, entries_per_page:int = 15) -> None:
+    def __init__(self, entries_per_page: int = 15) -> None:
         self.entries_per_page = entries_per_page
 
     def get_template_names(self, receipt: Receipt) -> list[str]:
@@ -175,7 +177,7 @@ class PdfBuilder:
             )
         )
         taxpayer = receipt_pdf.receipt.point_of_sales.owner
-        paginator = Paginator(receipt_pdf.receipt.entries.all(),self.entries_per_page)
+        paginator = Paginator(receipt_pdf.receipt.entries.all(), self.entries_per_page)
 
         context["entries"] = create_entries_context_for_render(paginator)
         context["pdf"] = receipt_pdf
