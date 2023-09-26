@@ -9,9 +9,10 @@
     <link rel="stylesheet" href="{% static "receipts/receipt.css" %}">
   </head>
   <body>
+    {% for page,value in entries.items %}
     <div class="receipt">
 
-      <header>
+      <header class="page-header">
         <div class="taxpayer-details group">
           <address>
             {% if taxpayer.logo %}
@@ -80,7 +81,6 @@
       </header>
 
       <hr>
-
       <table>
         <thead>
           <tr>
@@ -91,21 +91,48 @@
           </tr>
         </thead>
         <tbody>
-          {% for entry in pdf.receipt.entries.all %}
-          <tr>
-            <td>{{ entry.description }}</td>
-            <td>{{ entry.quantity }}</td>
-            <td>{{ entry.unit_price }}</td>
-            <td>{{ entry.total_price }}</td>
-          </tr>
+          {% if page != 1 %}
+            {% for llave,valor in value.items %}
+              {% if llave == 'previous_subtotal' %}
+                <tr>
+                  <td></td>
+                  <td></td>
+                  <td> Subtotal anterior</td>
+                  <td>{{valor}}</td>
+                </tr>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+
+          {% for llave,valor in value.items %}
+            {% if llave == 'entries' %}
+              {% for entry in valor %}
+              <tr>
+                <td>{{ entry.description }}</td>
+                <td>{{ entry.quantity }}</td>
+                <td>{{ entry.unit_price }}</td>
+                <td>{{ entry.total_price|floatformat:2 }}</td>
+              </tr>
+              {% endfor %}
+            {% endif %}
           {% endfor %}
         </tbody>
         <tfoot>
           <tr>
             <td></td>
             <td></td>
-            <td></td>
-            <td>{{ pdf.receipt.total_amount }}</td>
+            {% if forloop.last %}
+              <td>Total</td>
+              <td>{{pdf.receipt.total_amount}}</td>
+            {% else %}
+              <td> Subtotal</td>
+                {% for llave,valor in value.items %}
+                  {% if llave == 'subtotal' %}
+                    <td>{{ valor }}</td>
+                  {% endif %}
+                {% endfor %}
+            {% endif %}
+
           </tr>
         </tfoot>
       </table>
@@ -129,8 +156,15 @@
         <br>
         Teléfono Gratuito CABA, Área de Defensa y Protección al Consumidor.
         Tel 147
+        <br>
+        {% with dict_keys=entries.keys %}
+        Hoja {{page}} de {{ dict_keys|length }}
+        {% endwith %}
       </footer>
-
+      <div style="page-break-after: always;" ></div>
     </div>
+    {% endfor %}
   </body>
+
+  
 </html>

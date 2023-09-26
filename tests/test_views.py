@@ -31,24 +31,33 @@ class ReceiptPDFTestCase(TestCase):
             )
         )
 
+        # with open("test.html", "w") as f:
+        #   f.write(response.content.decode())
+
         assertHTMLEqual(
             response.content.decode(),
             """
+
 <!DOCTYPE html>
+
+
+
 <html>
   <head>
     <meta charset="utf-8">
     <link rel="stylesheet" href="/static/receipts/receipt.css">
   </head>
   <body>
+    
     <div class="receipt">
 
-      <header>
+      <header class="page-header">
         <div class="taxpayer-details group">
           <address>
+            
             <strong>Alice Doe</strong><br>
             Happy Street 123, CABA<br>
-
+            
             Responsable Monotributo<br>
           </address>
 
@@ -86,16 +95,15 @@ class ReceiptPDFTestCase(TestCase):
             John Doe,
             DNI
             203012345<br>
-            La Rioja 123<br />X5000EVX Córdoba<br>
+            La Rioja 123<br>X5000EVX Córdoba<br>
           </div>
         </div>
 
-
+        
 
       </header>
 
       <hr>
-
       <table>
         <thead>
           <tr>
@@ -106,14 +114,27 @@ class ReceiptPDFTestCase(TestCase):
           </tr>
         </thead>
         <tbody>
+          
 
+          
+            
+          
+            
+          
+            
+              
+            
+          
         </tbody>
         <tfoot>
           <tr>
             <td></td>
             <td></td>
-            <td></td>
-            <td>130.00</td>
+            
+              <td>Total</td>
+              <td>130.00</td>
+            
+
           </tr>
         </tfoot>
       </table>
@@ -137,12 +158,19 @@ class ReceiptPDFTestCase(TestCase):
         <br>
         Teléfono Gratuito CABA, Área de Defensa y Protección al Consumidor.
         Tel 147
+        <br>
+        
+        Hoja 1 de 1
+        
       </footer>
-
+      <div style="page-break-after: always;" ></div>
     </div>
+    
   </body>
+
+  
 </html>
-            """,  # noqa: E501: It's just long stuff. :(
+""",  # noqa: E501: It's just long stuff. :(
         )
 
     def test_logo_in_html(self) -> None:
