@@ -45,7 +45,7 @@ class ReceiptPDFTestCase(TestCase):
     <link rel="stylesheet" href="/static/receipts/receipt.css">
   </head>
   <body>
-    
+
     <div class="receipt" style="page-break-after: always;">
 
       <header class="page-header">
