@@ -49,7 +49,7 @@ class ReceiptPDFTestCase(TestCase):
   </head>
   <body>
     
-    <div class="receipt">
+    <div class="receipt" style="page-break-after: always;">
 
       <header class="page-header">
         <div class="taxpayer-details group">
@@ -116,15 +116,7 @@ class ReceiptPDFTestCase(TestCase):
         <tbody>
           
 
-          
-            
-          
-            
-          
-            
               
-            
-          
         </tbody>
         <tfoot>
           <tr>
@@ -163,7 +155,6 @@ class ReceiptPDFTestCase(TestCase):
         Hoja 1 de 1
         
       </footer>
-      <div style="page-break-after: always;" ></div>
     </div>
     
   </body>

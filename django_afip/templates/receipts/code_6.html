@@ -9,8 +9,8 @@
     <link rel="stylesheet" href="{% static "receipts/receipt.css" %}">
   </head>
   <body>
-    {% for page,value in entries.items %}
-    <div class="receipt">
+    {% for page,page_entries in entries.items %}
+    <div class="receipt" style="page-break-after: always;">
 
       <header class="page-header">
         <div class="taxpayer-details group">
@@ -92,21 +92,15 @@
         </thead>
         <tbody>
           {% if page != 1 %}
-            {% for llave,valor in value.items %}
-              {% if llave == 'previous_subtotal' %}
-                <tr>
-                  <td></td>
-                  <td></td>
-                  <td> Subtotal anterior</td>
-                  <td>{{valor}}</td>
-                </tr>
-              {% endif %}
-            {% endfor %}
+          <tr>
+            <td></td>
+            <td></td>
+            <td> Subtotal anterior</td>
+            <td>{{page_entries.previous_subtotal}}</td>
+          </tr>
           {% endif %}
 
-          {% for llave,valor in value.items %}
-            {% if llave == 'entries' %}
-              {% for entry in valor %}
+              {% for entry in page_entries.entries %}
               <tr>
                 <td>{{ entry.description }}</td>
                 <td>{{ entry.quantity }}</td>
@@ -114,8 +108,6 @@
                 <td>{{ entry.total_price|floatformat:2 }}</td>
               </tr>
               {% endfor %}
-            {% endif %}
-          {% endfor %}
         </tbody>
         <tfoot>
           <tr>
@@ -125,12 +117,8 @@
               <td>Total</td>
               <td>{{pdf.receipt.total_amount}}</td>
             {% else %}
-              <td> Subtotal</td>
-                {% for llave,valor in value.items %}
-                  {% if llave == 'subtotal' %}
-                    <td>{{ valor }}</td>
-                  {% endif %}
-                {% endfor %}
+              <td> Subtotal</td>                
+              <td>{{ page_entries.subtotal }}</td>
             {% endif %}
 
           </tr>
@@ -161,7 +149,6 @@
         Hoja {{page}} de {{ dict_keys|length }}
         {% endwith %}
       </footer>
-      <div style="page-break-after: always;" ></div>
     </div>
     {% endfor %}
   </body>
