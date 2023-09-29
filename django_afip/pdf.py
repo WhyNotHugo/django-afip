@@ -87,7 +87,18 @@ TEMPLATE_NAMES = [
 ]
 
 
-def create_entries_context_for_render(paginator: Paginator) -> dict:
+
+from decimal import Decimal
+from typing import TypedDict, Sequence
+
+
+class EntiresForPage(TypedDict):
+    previous_subtotal: Decimal
+    subtotal: Decimal
+    entries: Sequence[Entry]
+
+
+def create_entries_context_for_render(paginator: Paginator) -> dict[int, EntriesForPage]:
     entries = {}
     subtotal = 0
     for i in paginator.page_range:
