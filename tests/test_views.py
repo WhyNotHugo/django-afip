@@ -31,9 +31,6 @@ class ReceiptPDFTestCase(TestCase):
             )
         )
 
-        # with open("test.html", "w") as f:
-        #   f.write(response.content.decode())
-
         assertHTMLEqual(
             response.content.decode(),
             """
