@@ -31,9 +31,6 @@ class ReceiptPDFTestCase(TestCase):
             )
         )
 
-        # with open("test.html", "w") as f:
-        #   f.write(response.content.decode())
-
         assertHTMLEqual(
             response.content.decode(),
             """
@@ -54,10 +51,10 @@ class ReceiptPDFTestCase(TestCase):
       <header class="page-header">
         <div class="taxpayer-details group">
           <address>
-            
+
             <strong>Alice Doe</strong><br>
             Happy Street 123, CABA<br>
-            
+
             Responsable Monotributo<br>
           </address>
 
@@ -99,7 +96,7 @@ class ReceiptPDFTestCase(TestCase):
           </div>
         </div>
 
-        
+
 
       </header>
 
@@ -114,18 +111,26 @@ class ReceiptPDFTestCase(TestCase):
           </tr>
         </thead>
         <tbody>
-          
 
-              
+
+
+
+
+
+
+
+
+
+
         </tbody>
         <tfoot>
           <tr>
             <td></td>
             <td></td>
-            
+
               <td>Total</td>
               <td>130.00</td>
-            
+
 
           </tr>
         </tfoot>
@@ -151,15 +156,15 @@ class ReceiptPDFTestCase(TestCase):
         Teléfono Gratuito CABA, Área de Defensa y Protección al Consumidor.
         Tel 147
         <br>
-        
+
         Hoja 1 de 1
-        
+
       </footer>
     </div>
-    
+
   </body>
 
-  
+
 </html>
 """,  # noqa: E501: It's just long stuff. :(
         )
