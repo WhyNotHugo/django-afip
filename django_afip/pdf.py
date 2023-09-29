@@ -11,6 +11,7 @@ from django.core.paginator import Paginator
 from django_renderpdf.helpers import render_pdf
 
 if TYPE_CHECKING:
+    from decimal import Decimal
     from typing import IO
 
     from PIL import Image
@@ -87,9 +88,8 @@ TEMPLATE_NAMES = [
 ]
 
 
-
-from decimal import Decimal
-from typing import TypedDict, Sequence
+from typing import Sequence
+from typing import TypedDict
 
 
 class EntiresForPage(TypedDict):
@@ -98,7 +98,9 @@ class EntiresForPage(TypedDict):
     entries: Sequence[Entry]
 
 
-def create_entries_context_for_render(paginator: Paginator) -> dict[int, EntriesForPage]:
+def create_entries_context_for_render(
+    paginator: Paginator,
+) -> dict[int, EntriesForPage]:
     entries = {}
     subtotal = 0
     for i in paginator.page_range:
