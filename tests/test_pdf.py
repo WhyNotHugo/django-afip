@@ -65,8 +65,6 @@ def test_signal_generation_for_not_validated_receipt() -> None:
     assert not (printable.pdf_file)
 
 
-
-
 @pytest.mark.django_db()
 def test_qrcode_data() -> None:
     pdf = factories.ReceiptPDFFactory(

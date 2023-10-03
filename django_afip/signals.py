@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django.db.models.signals import post_save
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
@@ -20,5 +19,3 @@ def update_certificate_expiration(
 ) -> None:
     if instance.certificate:
         instance.certificate_expiration = instance.get_certificate_expiration()
-
-
