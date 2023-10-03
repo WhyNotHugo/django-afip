@@ -65,13 +65,6 @@ def test_signal_generation_for_not_validated_receipt() -> None:
     assert not (printable.pdf_file)
 
 
-@pytest.mark.django_db()
-def test_signal_generation_for_validated_receipt() -> None:
-    validation = factories.ReceiptValidationFactory()
-    printable = factories.ReceiptPDFFactory(receipt=validation.receipt)
-
-    assert printable.pdf_file
-    assert printable.pdf_file.name.endswith(".pdf")
 
 
 @pytest.mark.django_db()
@@ -133,8 +126,9 @@ def test_receipt_pdf_modified_builder() -> None:
         )
 
     printable = factories.ReceiptPDFFactory(receipt=validation.receipt)
-    printable.save_pdf(builder=PdfBuilder(entries_per_page=5))
+    assert not printable.pdf_file
 
+    printable.save_pdf(builder=PdfBuilder(entries_per_page=5))
     assert printable.pdf_file
     assert printable.pdf_file.name.endswith(".pdf")
 

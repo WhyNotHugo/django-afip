@@ -22,11 +22,3 @@ def update_certificate_expiration(
         instance.certificate_expiration = instance.get_certificate_expiration()
 
 
-@receiver(post_save, sender=models.ReceiptPDF)
-def generate_receipt_pdf(
-    sender: type[Model],
-    instance: models.ReceiptPDF,
-    **kwargs,
-) -> None:
-    if not instance.pdf_file and instance.receipt.is_validated:
-        instance.save_pdf(save_model=True)
