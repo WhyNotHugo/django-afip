@@ -5,12 +5,12 @@ import json
 import logging
 from io import BytesIO
 from typing import TYPE_CHECKING
+from typing import Sequence
+from typing import TypedDict
 
 import qrcode
 from django.core.paginator import Paginator
 from django_renderpdf.helpers import render_pdf
-from typing import Sequence
-from typing import TypedDict
 
 if TYPE_CHECKING:
     from decimal import Decimal
@@ -19,8 +19,8 @@ if TYPE_CHECKING:
     from PIL import Image
 
     from django_afip.models import Receipt
-    from django_afip.models import ReceiptPDF
     from django_afip.models import ReceiptEntry
+    from django_afip.models import ReceiptPDF
 
 
 logger = logging.getLogger(__name__)
@@ -89,6 +89,7 @@ TEMPLATE_NAMES = [
     "receipts/code_{code}.html",
     "receipts/{code}.html",
 ]
+
 
 class EntriesForPage(TypedDict):
     previous_subtotal: Decimal
