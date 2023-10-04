@@ -246,7 +246,7 @@ class ReceiptPDFWithFileFactory(ReceiptPDFFactory):
     receipt = SubFactory(ReceiptWithApprovedValidation)
 
     @post_generation
-    def post(obj: models.ReceiptPDF, create, extracted, **kwargs):
+    def post(obj: models.ReceiptPDF, create: bool, extracted: None, **kwargs) -> None:
         obj.save_pdf(save_model=True)
 
 
