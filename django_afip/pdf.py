@@ -100,7 +100,7 @@ class EntriesForPage(TypedDict):
 def create_entries_context_for_render(
     paginator: Paginator,
 ) -> dict[int, EntriesForPage]:
-    entries = {}
+    entries:dict[int, EntriesForPage] = {}
     subtotal = 0
     for i in paginator.page_range:
         entries[i] = {}
