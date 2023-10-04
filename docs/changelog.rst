@@ -22,6 +22,9 @@ acá.
 - The :meth:`~.ReceiptPDF.save_pdf` method now optionally takes an instance of
   the above :class:`~.PdfBuilder`.
 - Type hints have been added everywhere that is feasible.
+- **BREAKING**: The signal that auto-generated receipt pdfs for validated
+  ReceiptPDFs  has been removed. Applications now need to explicitly call
+  :meth:`~.ReceiptPDF.save_pdf()`.
 
 11.3.1
 ------

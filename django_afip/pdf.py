@@ -9,6 +9,8 @@ from typing import TYPE_CHECKING
 import qrcode
 from django.core.paginator import Paginator
 from django_renderpdf.helpers import render_pdf
+from typing import Sequence
+from typing import TypedDict
 
 if TYPE_CHECKING:
     from decimal import Decimal
@@ -18,6 +20,7 @@ if TYPE_CHECKING:
 
     from django_afip.models import Receipt
     from django_afip.models import ReceiptPDF
+    from django_afip.models import ReceiptEntry
 
 
 logger = logging.getLogger(__name__)
@@ -87,15 +90,10 @@ TEMPLATE_NAMES = [
     "receipts/{code}.html",
 ]
 
-
-from typing import Sequence
-from typing import TypedDict
-
-
-class EntiresForPage(TypedDict):
+class EntriesForPage(TypedDict):
     previous_subtotal: Decimal
     subtotal: Decimal
-    entries: Sequence[Entry]
+    entries: Sequence[ReceiptEntry]
 
 
 def create_entries_context_for_render(
