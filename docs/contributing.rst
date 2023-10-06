@@ -8,22 +8,26 @@ muy similares.
 
 .. _GitHub: https://github.com/WhyNotHugo/django-afip
 
-Hacking
+Testing
 -------
 
-Para correr los tests usá `tox`. Tox crea un ambiente aislado con todas las
-dependencies y corre los tests en un ambiente determinístico y reproducible.
+We use `tox` for tests. `tox` sets up a dedicated virtual environment and runs
+tests inside of it. This keeps environments isolated and somewhat deterministic
+and reproducible.
 
-Usá `tox -l` para ver los distintos ambientes, y `tox -e AMBIENTE` para correr
-tests para ese ambiente.
+To list all possible test environments, use `tox -l`. To run tests in an
+environment, use `tox -e ENVIRONMENT`. A quick way to run all unit tests is to
+use `tox -e py-sqlite`.
 
-A la hora de solucionar un bug, lo ideal es escribir un tests que lo
-reproduzca, así una vez que tengas el fix es fácil determinar si está
-solucionado, y también evita que volvamos a introducir el mismo bug en futuro.
+If you find a bug, try and write a test that reproduces it. This will make
+finding a solution easier but also avoid regression on that same issue.
 
-Además de los tests comunes, hay tests de integración, que se pueden correr con
-`tox -e live`. Estos tests usan credenciales de prueba en el servidor de
-prueba, y asumen que existe al menos un punto de ventas para el contribuyente.
+There are also live tests. These are executed automatically on CI and test
+using AFIP's testing servers. These tests are somewhat flaky because
+authentication cannot be done too often. Skipping tests for authentication
+seems like a great way to break authentication-related code without noticing.
+
+Live tests are run only when using `tox -e live`.
 
 Bases de datos de testing
 -------------------------
