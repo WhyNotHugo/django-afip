@@ -118,7 +118,7 @@
               <td>{{pdf.receipt.total_amount}}</td>
             {% else %}
               <td> Subtotal</td>
-              <td>{{ page_entries.subtotal }}</td>
+              <td>{{ page_entries.subtotal|floatformat:2 }}</td>
             {% endif %}
 
           </tr>
