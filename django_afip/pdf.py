@@ -6,7 +6,7 @@ import logging
 from decimal import Decimal
 from io import BytesIO
 from typing import TYPE_CHECKING
-from typing import Sequence
+from typing import Iterable
 from typing import TypedDict
 
 import qrcode
@@ -94,7 +94,7 @@ TEMPLATE_NAMES = [
 class EntriesForPage(TypedDict):
     previous_subtotal: Decimal
     subtotal: Decimal
-    entries: Sequence[ReceiptEntry]
+    entries: Iterable[ReceiptEntry]
 
 
 def create_entries_context_for_render(
@@ -103,14 +103,17 @@ def create_entries_context_for_render(
     entries: dict[int, EntriesForPage] = {}
     subtotal = Decimal(0)
     for i in paginator.page_range:
-        entries[i] = {}
-        entries[i]["previous_subtotal"] = subtotal
+        previous_subtotal = subtotal
         page = paginator.get_page(i)
+
         for entry in page.object_list:
             subtotal += entry.total_price
 
-        entries[i]["subtotal"] = subtotal
-        entries[i]["entries"] = paginator.get_page(i).object_list
+        entries[i] = {
+            "previous_subtotal": previous_subtotal,
+            "subtotal": subtotal,
+            "entries": paginator.get_page(i).object_list,
+        }
     return entries
 
 
