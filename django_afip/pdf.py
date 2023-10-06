@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import json
 import logging
+from decimal import Decimal
 from io import BytesIO
 from typing import TYPE_CHECKING
 from typing import Sequence
@@ -13,7 +14,6 @@ from django.core.paginator import Paginator
 from django_renderpdf.helpers import render_pdf
 
 if TYPE_CHECKING:
-    from decimal import Decimal
     from typing import IO
 
     from PIL import Image
@@ -101,13 +101,13 @@ def create_entries_context_for_render(
     paginator: Paginator,
 ) -> dict[int, EntriesForPage]:
     entries: dict[int, EntriesForPage] = {}
-    subtotal = 0
+    subtotal = Decimal(0)
     for i in paginator.page_range:
         entries[i] = {}
         entries[i]["previous_subtotal"] = subtotal
         page = paginator.get_page(i)
         for entry in page.object_list:
-            subtotal += round(entry.total_price, 2)
+            subtotal += entry.total_price
 
         entries[i]["subtotal"] = subtotal
         entries[i]["entries"] = paginator.get_page(i).object_list
