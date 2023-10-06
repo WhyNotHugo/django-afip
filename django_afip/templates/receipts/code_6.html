@@ -9,9 +9,10 @@
     <link rel="stylesheet" href="{% static "receipts/receipt.css" %}">
   </head>
   <body>
-    <div class="receipt">
+    {% for page,page_entries in entries.items %}
+    <div class="receipt" style="page-break-after: always;">
 
-      <header>
+      <header class="page-header">
         <div class="taxpayer-details group">
           <address>
             {% if taxpayer.logo %}
@@ -80,7 +81,6 @@
       </header>
 
       <hr>
-
       <table>
         <thead>
           <tr>
@@ -91,21 +91,36 @@
           </tr>
         </thead>
         <tbody>
-          {% for entry in pdf.receipt.entries.all %}
+          {% if page != 1 %}
           <tr>
-            <td>{{ entry.description }}</td>
-            <td>{{ entry.quantity }}</td>
-            <td>{{ entry.unit_price }}</td>
-            <td>{{ entry.total_price }}</td>
+            <td></td>
+            <td></td>
+            <td> Subtotal anterior</td>
+            <td>{{page_entries.previous_subtotal}}</td>
           </tr>
-          {% endfor %}
+          {% endif %}
+
+              {% for entry in page_entries.entries %}
+              <tr>
+                <td>{{ entry.description }}</td>
+                <td>{{ entry.quantity }}</td>
+                <td>{{ entry.unit_price }}</td>
+                <td>{{ entry.total_price|floatformat:2 }}</td>
+              </tr>
+              {% endfor %}
         </tbody>
         <tfoot>
           <tr>
             <td></td>
             <td></td>
-            <td></td>
-            <td>{{ pdf.receipt.total_amount }}</td>
+            {% if forloop.last %}
+              <td>Total</td>
+              <td>{{pdf.receipt.total_amount}}</td>
+            {% else %}
+              <td> Subtotal</td>
+              <td>{{ page_entries.subtotal|floatformat:2 }}</td>
+            {% endif %}
+
           </tr>
         </tfoot>
       </table>
@@ -129,8 +144,14 @@
         <br>
         Teléfono Gratuito CABA, Área de Defensa y Protección al Consumidor.
         Tel 147
+        <br>
+        {% with dict_keys=entries.keys %}
+        Hoja {{page}} de {{ dict_keys|length }}
+        {% endwith %}
       </footer>
-
     </div>
+    {% endfor %}
   </body>
+
+
 </html>

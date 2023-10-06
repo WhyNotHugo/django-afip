@@ -1,13 +1,18 @@
 from __future__ import annotations
 
+import random
 import re
 from datetime import date
+from unittest.mock import patch
 
 import pytest
+from django.core.paginator import Paginator
 
 from django_afip import factories
 from django_afip import models
+from django_afip.pdf import PdfBuilder
 from django_afip.pdf import ReceiptQrCode
+from django_afip.pdf import create_entries_context_for_render
 
 
 @pytest.mark.django_db()
@@ -61,15 +66,6 @@ def test_signal_generation_for_not_validated_receipt() -> None:
 
 
 @pytest.mark.django_db()
-def test_signal_generation_for_validated_receipt() -> None:
-    validation = factories.ReceiptValidationFactory()
-    printable = factories.ReceiptPDFFactory(receipt=validation.receipt)
-
-    assert printable.pdf_file
-    assert printable.pdf_file.name.endswith(".pdf")
-
-
-@pytest.mark.django_db()
 def test_qrcode_data() -> None:
     pdf = factories.ReceiptPDFFactory(
         receipt__receipt_number=3,
@@ -93,3 +89,62 @@ def test_qrcode_data() -> None:
         "tipoDocRec": 96,
         "ver": 1,
     }
+
+
+@pytest.mark.django_db()
+def test_create_entries_for_render() -> None:
+    validation = factories.ReceiptValidationFactory()
+    for _i in range(10):
+        factories.ReceiptEntryFactory(
+            receipt=validation.receipt, unit_price=1, quantity=1
+        )
+    entries_queryset = models.ReceiptEntry.objects.all()
+    paginator = Paginator(entries_queryset, 5)
+    entries = create_entries_context_for_render(paginator)
+
+    assert [1, 2] == list(entries.keys())
+    assert entries[1]["previous_subtotal"] == 0
+    assert entries[1]["subtotal"] == 5
+    assert list(entries[1]["entries"]) == list(models.ReceiptEntry.objects.all()[:5])
+
+    assert entries[2]["previous_subtotal"] == 5
+    assert entries[2]["subtotal"] == 10
+    assert list(entries[2]["entries"]) == list(models.ReceiptEntry.objects.all()[5:10])
+
+
+@pytest.mark.django_db()
+def test_receipt_pdf_modified_builder() -> None:
+    validation = factories.ReceiptValidationFactory()
+    validation.receipt.total_amount = 20
+    validation.receipt.save()
+    for _i in range(10):
+        random.uniform(1.00, 12.5)
+        factories.ReceiptEntryFactory(
+            receipt=validation.receipt, unit_price=1, quantity=2
+        )
+
+    printable = factories.ReceiptPDFFactory(receipt=validation.receipt)
+    assert not printable.pdf_file
+
+    printable.save_pdf(builder=PdfBuilder(entries_per_page=5))
+    assert printable.pdf_file
+    assert printable.pdf_file.name.endswith(".pdf")
+
+
+@pytest.mark.django_db()
+def test_receipt_pdf_call_function() -> None:
+    validation = factories.ReceiptValidationFactory()
+    for _i in range(80):
+        price = random.uniform(1.00, 12.5)
+        factories.ReceiptEntryFactory(
+            receipt=validation.receipt, unit_price=price, quantity=2
+        )
+
+    printable = factories.ReceiptPDFFactory(receipt=validation.receipt)
+    with patch(
+        "django_afip.pdf.create_entries_context_for_render", spec=True
+    ) as mocked_call:
+        printable.save_pdf(builder=PdfBuilder(entries_per_page=5))
+
+    assert mocked_call.called
+    assert mocked_call.call_count == 1

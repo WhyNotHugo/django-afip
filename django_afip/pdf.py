@@ -3,10 +3,14 @@ from __future__ import annotations
 import base64
 import json
 import logging
+from decimal import Decimal
 from io import BytesIO
 from typing import TYPE_CHECKING
+from typing import Iterable
+from typing import TypedDict
 
 import qrcode
+from django.core.paginator import Paginator
 from django_renderpdf.helpers import render_pdf
 
 if TYPE_CHECKING:
@@ -15,6 +19,7 @@ if TYPE_CHECKING:
     from PIL import Image
 
     from django_afip.models import Receipt
+    from django_afip.models import ReceiptEntry
     from django_afip.models import ReceiptPDF
 
 
@@ -86,6 +91,32 @@ TEMPLATE_NAMES = [
 ]
 
 
+class EntriesForPage(TypedDict):
+    previous_subtotal: Decimal
+    subtotal: Decimal
+    entries: Iterable[ReceiptEntry]
+
+
+def create_entries_context_for_render(
+    paginator: Paginator,
+) -> dict[int, EntriesForPage]:
+    entries: dict[int, EntriesForPage] = {}
+    subtotal = Decimal(0)
+    for i in paginator.page_range:
+        previous_subtotal = subtotal
+        page = paginator.get_page(i)
+
+        for entry in page.object_list:
+            subtotal += entry.total_price
+
+        entries[i] = {
+            "previous_subtotal": previous_subtotal,
+            "subtotal": subtotal,
+            "entries": paginator.get_page(i).object_list,
+        }
+    return entries
+
+
 class PdfBuilder:
     """Builds PDF files for Receipts.
 
@@ -95,8 +126,8 @@ class PdfBuilder:
     This type can be subclassed to add custom behaviour or data into PDF files.
     """
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, entries_per_page: int = 15) -> None:
+        self.entries_per_page = entries_per_page
 
     def get_template_names(self, receipt: Receipt) -> list[str]:
         """Return the templates use to render the Receipt PDF.
@@ -161,7 +192,9 @@ class PdfBuilder:
             )
         )
         taxpayer = receipt_pdf.receipt.point_of_sales.owner
+        paginator = Paginator(receipt_pdf.receipt.entries.all(), self.entries_per_page)
 
+        context["entries"] = create_entries_context_for_render(paginator)
         context["pdf"] = receipt_pdf
         context["taxpayer"] = taxpayer
         context["qrcode"] = get_encoded_qrcode(receipt_pdf)
