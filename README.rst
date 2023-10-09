@@ -9,10 +9,6 @@ django-afip
   :target: https://github.com/WhyNotHugo/django-afip/actions/workflows/live.yml
   :alt: integrations tests
 
-.. image:: https://readthedocs.org/projects/django-afip/badge/?version=latest
-  :target: http://django-afip.readthedocs.io/en/latest/?badge=latest
-  :alt: Documentation Status
-
 .. image:: https://img.shields.io/pypi/v/django-afip.svg
   :target: https://pypi.python.org/pypi/django-afip
   :alt: version on pypi
@@ -24,10 +20,6 @@ django-afip
 .. image:: https://img.shields.io/pypi/l/django-afip.svg
   :target: https://github.com/WhyNotHugo/django-afip/blob/main/LICENCE
   :alt: licence
-
-.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
-  :target: https://github.com/WhyNotHugo/django-afip/
-  :alt: code style: black
 
 What's this?
 ------------
