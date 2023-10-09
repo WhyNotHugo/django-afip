@@ -59,13 +59,19 @@ factories = [
   "factory-boy",
 ]
 dev = [
+  "coverage",
+  "dj-database-url",
   "dj_database_url",
   "django-stubs[compatible-mypy]",
+  "factory-boy",
+  "freezegun",
+  "pytest-cov",
+  "pytest-django",
+  "types-backports",
   "types-freezegun",
   "types-pyOpenSSL",
   "types-pytz",
-  "types-requests",
-  "types-backports",
+  "types-requests"
 ]
 
 [project.urls]
