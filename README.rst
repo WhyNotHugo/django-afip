@@ -9,10 +9,6 @@ django-afip
   :target: https://github.com/WhyNotHugo/django-afip/actions/workflows/live.yml
   :alt: integrations tests
 
-.. image:: https://results.pre-commit.ci/badge/github/WhyNotHugo/django-afip/main.svg
-  :target: https://results.pre-commit.ci/latest/github/WhyNotHugo/django-afip/main
-  :alt: pre-commit.ci status
-
 .. image:: https://readthedocs.org/projects/django-afip/badge/?version=latest
   :target: http://django-afip.readthedocs.io/en/latest/?badge=latest
   :alt: Documentation Status
