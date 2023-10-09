@@ -54,10 +54,16 @@ Documentation
 
 The full documentation is available at https://django-afip.readthedocs.io/
 
+It is also possible to build the documentation from source using:
+
+.. code-block:: sh
+
+    tox -e docs
+
 Changelog
 ---------
 
-The changelog is published with the rest of the documentation:
+The changelog is included with the rest of the documentation:
 https://django-afip.readthedocs.io/en/stable/changelog.html
 
 Donate
