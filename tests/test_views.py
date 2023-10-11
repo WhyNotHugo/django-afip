@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import date
 
 import pytest
+from django.http import HttpResponse
 from django.test import Client
 from django.test import TestCase
 from django.urls import reverse
@@ -181,6 +182,7 @@ class ReceiptPDFTestCase(TestCase):
             )
         )
 
+        assert isinstance(response, HttpResponse)
         assertContains(
             response,
             """

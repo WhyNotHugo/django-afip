@@ -7,6 +7,7 @@ import pytest
 from django.contrib import messages
 from django.contrib.admin import site
 from django.http import HttpRequest
+from django.http import HttpResponse
 from django.test import Client
 from django.test import RequestFactory
 from django.utils.translation import gettext as _
@@ -91,6 +92,7 @@ def test_without_key(admin_client: Client) -> None:
     )
 
     assert response.status_code == 200
+    assert isinstance(response, HttpResponse)
     assertContains(response, "Key generated successfully.")
 
     taxpayer.refresh_from_db()
@@ -107,6 +109,7 @@ def test_with_key(admin_client: Client) -> None:
     )
 
     assert response.status_code == 200
+    assert isinstance(response, HttpResponse)
     assertContains(
         response,
         "No keys generated; Taxpayers already had keys.",
@@ -130,6 +133,7 @@ def test_admin_taxpayer_request_generation_with_csr(admin_client: Client) -> Non
     assert (
         b"Content-Type: application/pkcs10" in response.serialize_headers().splitlines()
     )
+    assert isinstance(response, HttpResponse)
     assertContains(response, "-----BEGIN CERTIFICATE REQUEST-----")
 
 
@@ -147,6 +151,7 @@ def test_admin_taxpayer_request_generation_without_key(admin_client: Client) -> 
     assert (
         b"Content-Type: application/pkcs10" in response.serialize_headers().splitlines()
     )
+    assert isinstance(response, HttpResponse)
     assertContains(response, "-----BEGIN CERTIFICATE REQUEST-----")
 
 
@@ -166,6 +171,7 @@ def test_admin_taxpayer_request_generation_multiple_taxpayers(
     )
 
     assert response.status_code == 200
+    assert isinstance(response, HttpResponse)
     assertContains(response, "Can only generate CSR for one taxpayer at a time")
 
 
@@ -186,6 +192,7 @@ def test_validation_filters(admin_client: Client) -> None:
 
     response = admin_client.get("/admin/afip/receipt/?status=validated")
 
+    assert isinstance(response, HttpResponse)
     assertContains(
         response,
         '<input class="action-select" name="_selected_action" value="{}" '
@@ -212,6 +219,7 @@ def test_validation_filters(admin_client: Client) -> None:
         'type="checkbox">'.format(validated_receipt.pk),
         html=True,
     )
+    assert isinstance(response, HttpResponse)
     assertContains(
         response,
         '<input class="action-select" name="_selected_action" value="{}" '
@@ -255,6 +263,7 @@ def test_has_file_filter_all(admin_client: Client) -> None:
     without_file = factories.ReceiptPDFFactory()
 
     response = admin_client.get("/admin/afip/receiptpdf/")
+    assert isinstance(response, HttpResponse)
     assertContains(response, f"/admin/afip/receiptpdf/{with_file.pk}/change/")
     assertContains(response, f"/admin/afip/receiptpdf/{without_file.pk}/change/")
 
@@ -264,6 +273,7 @@ def test_has_file_filter_with_file(admin_client: Client) -> None:
     without_file = factories.ReceiptPDFFactory()
 
     response = admin_client.get("/admin/afip/receiptpdf/?has_file=yes")
+    assert isinstance(response, HttpResponse)
     assertContains(response, f"/admin/afip/receiptpdf/{with_file.pk}/change/")
     assertNotContains(response, f"/admin/afip/receiptpdf/{without_file.pk}/change/")
 
@@ -273,6 +283,7 @@ def test_has_file_filter_without_file(admin_client: Client) -> None:
     without_file = factories.ReceiptPDFFactory()
 
     response = admin_client.get("/admin/afip/receiptpdf/?has_file=no")
+    assert isinstance(response, HttpResponse)
     assertNotContains(response, f"/admin/afip/receiptpdf/{with_file.pk}/change/")
     assertContains(response, f"/admin/afip/receiptpdf/{without_file.pk}/change/")
 
