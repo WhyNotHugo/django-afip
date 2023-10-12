@@ -60,7 +60,6 @@ factories = [
 ]
 dev = [
   "coverage",
-  "dj-database-url",
   "dj_database_url",
   "django-stubs[compatible-mypy]",
   "factory-boy",
