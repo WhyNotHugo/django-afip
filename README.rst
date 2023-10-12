@@ -1,14 +1,6 @@
 django-afip
 ===========
 
-.. image:: https://github.com/WhyNotHugo/django-afip/actions/workflows/tests.yml/badge.svg
-  :target: https://github.com/WhyNotHugo/django-afip/actions/workflows/tests.yml
-  :alt: unit tests
-
-.. image:: https://github.com/WhyNotHugo/django-afip/actions/workflows/live.yml/badge.svg
-  :target: https://github.com/WhyNotHugo/django-afip/actions/workflows/live.yml
-  :alt: integrations tests
-
 .. image:: https://img.shields.io/pypi/v/django-afip.svg
   :target: https://pypi.python.org/pypi/django-afip
   :alt: version on pypi
