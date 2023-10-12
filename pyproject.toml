@@ -79,6 +79,7 @@ documentation = "https://django-afip.readthedocs.io/"
 issues = "https://github.com/WhyNotHugo/django-afip/issues"
 changelog = "https://django-afip.readthedocs.io/en/latest/changelog.html"
 donate = "https://liberapay.com/WhyNotHugo/"
+funding = "https://github.com/sponsors/WhyNotHugo"
 
 [tool.setuptools]
 packages = ["django_afip"]
