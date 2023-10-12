@@ -123,3 +123,10 @@ Las vistas del admin incluídas actualmente están más orientadas a
 desarrolladores (para desarrollo, testeo manual, y inspeccionar producción), o
 para usuarios técnicos de bajo volúmen. **No** están diseñadas para el usuario
 final o usuarios no-técnicos.
+
+Type annotations
+----------------
+
+Most of this library's public interface includes type annotations. Applications
+using this library may use ``mypy`` and ``django-stubs`` to perform
+type-checking and find potential issues earlier in the development cycle.
