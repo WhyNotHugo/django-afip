@@ -1,15 +1,15 @@
 # django-afip
 # Copyright (C) 2015-2017 Hugo Osvaldo Barrera
 # This file is distributed under the same license as the django-afip package.
-# Hugo Osvaldo Barrera <hugo@barrera.io>, 2015-2017.
+# Hugo Osvaldo Barrera <hugo@whynothugo.nl>, 2015-2017.
 msgid ""
 msgstr ""
 "Project-Id-Version: django-afip\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-09-30 19:13+0200\n"
 "PO-Revision-Date: 2020-09-30 19:17+0200\n"
-"Last-Translator: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
-"Language-Team: Hugo Osvaldo Barrera <hugo@barrera.io>\n"
+"Last-Translator: Hugo Osvaldo Barrera <hugo@whynothugo.nl>\n"
+"Language-Team: Hugo Osvaldo Barrera <hugo@whynothugo.nl>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
