@@ -52,7 +52,7 @@ Donate
 While some of the work done here is done for clients, much of it is done in my
 free time. If you appreciate the work done here, please consider donating_.
 
-.. _donating: https://github.com/sponsors/WhyNotHugo
+.. _donating: https://whynothugo.nl/sponsor/
 
 Licence
 -------
