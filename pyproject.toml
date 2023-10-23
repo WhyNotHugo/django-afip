@@ -6,7 +6,7 @@ authors = [
 description = "AFIP integration for django"
 readme = "README.rst"
 requires-python = ">=3.8"
-# keywords = ["TODO"]
+keywords = ["argentina", "afip", "wsdl"]
 license = {text = "ISC"}
 classifiers = [
   "Development Status :: 5 - Production/Stable",
