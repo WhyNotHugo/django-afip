@@ -17,14 +17,14 @@ acá.
 - **BREAKING**: Drop support for Python 3.7.
 - **BREAKING**: :meth:`~.ReceiptPDFView.get_context_for_pk` has been deprecated
   and will be removed in the next major release.
+- **BREAKING**: The signal that auto-generated receipt pdfs for validated
+  ReceiptPDFs  has been removed. Applications now need to explicitly call
+  :meth:`~.ReceiptPDF.save_pdf()`.
 - Introduce a new :class:`~.PdfBuilder` type which allows customising PDF
   generation.
 - The :meth:`~.ReceiptPDF.save_pdf` method now optionally takes an instance of
   the above :class:`~.PdfBuilder`.
 - Type hints have been added everywhere that is feasible.
-- **BREAKING**: The signal that auto-generated receipt pdfs for validated
-  ReceiptPDFs  has been removed. Applications now need to explicitly call
-  :meth:`~.ReceiptPDF.save_pdf()`.
 - Add a new helper helper method :meth:`~.Receipt.approximate_date`. It is
   intended to be used to automatically approximate dates on systems which
   perform automatic or unattended receipt validation.
