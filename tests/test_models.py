@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from datetime import date
+from datetime import datetime
+from datetime import timedelta
 from decimal import Decimal
 from typing import TYPE_CHECKING
 from unittest.mock import MagicMock
@@ -8,11 +11,13 @@ from unittest.mock import patch
 
 import pytest
 from django.db.models import DecimalField
+from freezegun import freeze_time
 from pytest_django.asserts import assertQuerysetEqual
 
 from django_afip import exceptions
 from django_afip import factories
 from django_afip import models
+from django_afip.clients import TZ_AR
 from django_afip.factories import ReceiptFactory
 from django_afip.factories import ReceiptFCEAWithVatAndTaxFactory
 from django_afip.factories import ReceiptFCEAWithVatTaxAndOptionalsFactory
@@ -456,3 +461,101 @@ def test_receipt_entry_manage_decimal_quantities() -> None:
     last = models.ReceiptEntry.objects.last()
     assert last is not None
     assert last.quantity == Decimal("5.23")
+
+
+@pytest.mark.django_db()
+@freeze_time("2023-11-16 18:39:40")
+def test_approximate_noop_today() -> None:
+    today = datetime.now(TZ_AR).date()
+
+    factories.ReceiptWithApprovedValidation(issued_date=today - timedelta(days=20))
+
+    receipt = factories.ReceiptFactory(issued_date=today)
+    changed = receipt.approximate_date()
+
+    assert changed is False
+    assert receipt.issued_date == today
+
+
+@pytest.mark.django_db()
+@freeze_time("2023-11-16 18:39:40")
+def test_approximate_noop_two_days_ago() -> None:
+    today = datetime.now(TZ_AR).date()
+    two_days_ago = date(2023, 11, 14)
+
+    factories.ReceiptWithApprovedValidation(issued_date=today - timedelta(days=20))
+
+    receipt = factories.ReceiptFactory(issued_date=two_days_ago)
+    changed = receipt.approximate_date()
+
+    assert changed is False
+    assert receipt.issued_date == two_days_ago
+
+
+@pytest.mark.django_db()
+@freeze_time("2023-11-16 18:39:40")
+def test_approximate_date_today_with_most_recent() -> None:
+    today = datetime.now(TZ_AR).date()
+
+    factories.ReceiptWithApprovedValidation(issued_date=today)
+
+    receipt = factories.ReceiptFactory(issued_date=today - timedelta(days=30))
+    changed = receipt.approximate_date()
+
+    assert changed is True
+    assert receipt.issued_date == date(2023, 11, 16)
+
+
+@pytest.mark.django_db()
+@freeze_time("2023-11-16 18:39:40")
+def test_approximate_date_yesterday_with_most_recent() -> None:
+    today = datetime.now(TZ_AR).date()
+
+    factories.ReceiptWithApprovedValidation(issued_date=today - timedelta(days=1))
+
+    receipt = factories.ReceiptFactory(issued_date=today - timedelta(days=30))
+    changed = receipt.approximate_date()
+
+    assert changed is True
+    assert receipt.issued_date == date(2023, 11, 15)
+
+
+@pytest.mark.django_db()
+@freeze_time("2023-11-16 18:39:40")
+def test_approximate_date_30_days_ago_with_most_recent_20_days_ago() -> None:
+    today = datetime.now(TZ_AR).date()
+
+    factories.ReceiptWithApprovedValidation(issued_date=today - timedelta(days=20))
+
+    receipt = factories.ReceiptFactory(issued_date=today - timedelta(days=30))
+    changed = receipt.approximate_date()
+
+    assert changed is True
+    assert receipt.issued_date == date(2023, 11, 2)
+
+
+@pytest.mark.django_db()
+@freeze_time("2023-11-16 18:39:40")
+def test_approximate_date_2_days_ago_with_most_recent_20_days_ago() -> None:
+    today = datetime.now(TZ_AR).date()
+    two_days_ago = date(2023, 11, 14)
+
+    factories.ReceiptWithApprovedValidation(issued_date=today - timedelta(days=20))
+
+    receipt = factories.ReceiptFactory(issued_date=two_days_ago)
+    changed = receipt.approximate_date()
+
+    assert changed is False
+    assert receipt.issued_date == two_days_ago
+
+
+@pytest.mark.django_db()
+@freeze_time("2023-11-16 18:39:40")
+def test_approximate_date_two_days_ago_without_most_recent() -> None:
+    two_days_ago = date(2023, 11, 14)
+
+    receipt = factories.ReceiptFactory(issued_date=two_days_ago)
+    changed = receipt.approximate_date()
+
+    assert changed is False
+    assert receipt.issued_date == two_days_ago
