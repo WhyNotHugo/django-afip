@@ -25,6 +25,9 @@ acá.
 - **BREAKING**: The signal that auto-generated receipt pdfs for validated
   ReceiptPDFs  has been removed. Applications now need to explicitly call
   :meth:`~.ReceiptPDF.save_pdf()`.
+- Add a new helper helper method :meth:`~.Receipt.approximate_date`. It is
+  intended to be used to automatically approximate dates on systems which
+  perform automatic or unattended receipt validation.
 
 11.3.1
 ------
