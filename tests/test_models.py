@@ -559,3 +559,17 @@ def test_approximate_date_two_days_ago_without_most_recent() -> None:
 
     assert changed is False
     assert receipt.issued_date == two_days_ago
+
+
+@pytest.mark.django_db()
+@freeze_time("2023-11-16 18:39:40")
+def test_approximate_date_failure() -> None:
+    one_month_ago = date(2023, 10, 16)
+
+    receipt = factories.ReceiptWithApprovedValidation(issued_date=one_month_ago)
+
+    with pytest.raises(
+        exceptions.DjangoAfipException,
+        match="Expected to update one receipt, updated 0.",
+    ):
+        receipt.approximate_date()
