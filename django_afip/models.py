@@ -1195,7 +1195,8 @@ class Receipt(models.Model):
         default=1,
         help_text=_("The currency's quote on the day this receipt was issued."),
     )
-    related_receipts = models.ManyToManyField(
+    # TYPING: glicth in mypy or mypy_django_plugin.
+    related_receipts = models.ManyToManyField(  # type:ignore[var-annotated]
         "Receipt",
         verbose_name=_("related receipts"),
         blank=True,
