@@ -1336,6 +1336,59 @@ class Receipt(models.Model):
             return validation
         return None
 
+    def approximate_date(receipt: models.Receipt) -> bool:
+        """Approximate the date of the receipt as close as possible.
+
+        If a receipt should have been validated in a past date, adjust its date as close
+        as possible:
+
+            - Receipts can only be validated with dates as far as 14 days ago. If the
+              receipt date is older than that, set it to 14 days ago.
+            - If other receipts have been validated on a more recent date, the receipt
+              cannot be older than the most recent one.
+
+        If the ``issued_date`` needs to be changed, the field in the input receipt will
+        be updated and atomically saved to the database.
+
+        Returns ``True`` if the date has been changed.
+        """
+        today = datetime.now(TZ_AR).date()
+
+        if receipt.issued_date == today:
+            return False
+
+        most_recent = (
+            Receipt.objects.filter(
+                point_of_sales=receipt.point_of_sales,
+                receipt_type=receipt.receipt_type,
+                validation__result=ReceiptValidation.RESULT_APPROVED,
+            )
+            .order_by("issued_date")
+            .last()
+        )
+
+        fortnight_ago = today - timedelta(days=14)
+        if most_recent is not None:
+            oldest_possible = max(most_recent.issued_date, fortnight_ago)
+        else:
+            oldest_possible = fortnight_ago
+
+        if receipt.issued_date >= oldest_possible:
+            return False
+
+        # Commit this atomically to avoid race conditions.
+        Receipt.objects.filter(
+            pk=receipt.id,
+            receipt_number__isnull=True,
+        ).update(
+            issued_date=oldest_possible,
+        )
+
+        # Mutate the input object to avoid inconsistency issues.
+        receipt.issued_date = oldest_possible
+
+        return True
+
     def __repr__(self) -> str:
         return "<Receipt {}: {} {} for {}>".format(
             self.pk,
