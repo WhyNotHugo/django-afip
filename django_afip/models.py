@@ -1376,12 +1376,16 @@ class Receipt(models.Model):
             return False
 
         # Commit this atomically to avoid race conditions.
-        Receipt.objects.filter(
+        count = Receipt.objects.filter(
             pk=receipt.id,
             receipt_number__isnull=True,
         ).update(
             issued_date=oldest_possible,
         )
+        if count != 1:
+            raise exceptions.DjangoAfipException(
+                f"Expected to update one receipt, updated {count}."
+            )
 
         # Mutate the input object to avoid inconsistency issues.
         receipt.issued_date = oldest_possible
