@@ -3,11 +3,15 @@
 Changelog
 =========
 
-Este archivo tiene un resúmen de nuevas funcionalidades o cambios de
-dependencia en cada versión, en orden cronológicamente inverso.
+This is a summary of changes and new functionality introduced in each version.
 
-Todos los cambios que necesites tener en cuenta al actualizar están listados
-acá.
+Please note that this file may contain changes for yet-unreleased versions.
+Check the `latest tags`_ or `PyPI`_ for the latest stable release.
+
+.. _latest tags: https://github.com/WhyNotHugo/django-afip/tags
+.. _PyPI: https://pypi.org/project/django-afip/#history
+
+Any breaking changes which require intervention will be mentioned here.
 
 12.0.0
 ------
