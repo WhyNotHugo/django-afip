@@ -16,20 +16,25 @@ Any breaking changes which require intervention will be mentioned here.
 12.0.0
 ------
 
-- **BREAKING**: Change model field ``ReceiptEntry.quantity`` from
-  ``PositiveSmallIntegerField`` to ``DecimalField`` to allow decimal quantities.
+- **BREAKING**: Change model field :attr:`.ReceiptEntry.quantity` from
+  ``PositiveSmallIntegerField`` to ``DecimalField`` to allow decimal
+  quantities.
 - **BREAKING**: Drop support for Python 3.7.
-- **BREAKING**: :meth:`~.ReceiptPDFView.get_context_for_pk` has been deprecated
-  and will be removed in the next major release.
+- **BREAKING**: :meth:`.ReceiptPDFView.get_context_for_pk` has been deprecated
+  and will be removed in the next major release. The static method
+  :meth:`.PdfBuilder.get_context` should be used instead.
 - **BREAKING**: The signal that auto-generated receipt pdfs for validated
   ReceiptPDFs  has been removed. Applications now need to explicitly call
-  :meth:`~.ReceiptPDF.save_pdf()`.
+  :meth:`.ReceiptPDF.save_pdf()` to generate the PDF files.
+- **BREAKING**: Variables for HTML templates have changed to support
+  pagination. Check the included template for reference. Existing templates
+  **will not** work without being updated.
 - Introduce a new :class:`~.PdfBuilder` type which allows customising PDF
   generation.
-- The :meth:`~.ReceiptPDF.save_pdf` method now optionally takes an instance of
+- The :meth:`.ReceiptPDF.save_pdf` method now optionally takes an instance of
   the above :class:`~.PdfBuilder`.
 - Type hints have been added everywhere that is feasible.
-- Add a new helper helper method :meth:`~.Receipt.approximate_date`. It is
+- Add a new helper helper method :meth:`.Receipt.approximate_date`. It is
   intended to be used to automatically approximate dates on systems which
   perform automatic or unattended receipt validation.
 
