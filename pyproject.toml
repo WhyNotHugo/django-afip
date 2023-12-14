@@ -61,7 +61,7 @@ factories = [
 dev = [
   "coverage",
   "dj_database_url",
-  "django-stubs[compatible-mypy]==4.2.6", # See: https://github.com/typeddjango/django-stubs/issues/1872
+  "django-stubs[compatible-mypy]",
   "factory-boy",
   "freezegun",
   "pytest-cov",
