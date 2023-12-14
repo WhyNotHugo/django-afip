@@ -21,6 +21,7 @@ from django.utils.translation import gettext as _
 
 from django_afip import exceptions
 from django_afip import models
+from django_afip.models import ReceiptQuerySet
 
 if TYPE_CHECKING:
     from django_stubs_ext import WithAnnotations
@@ -274,8 +275,9 @@ class ReceiptAdmin(admin.ModelAdmin):
         request: HttpRequest,
         queryset: QuerySet[models.Receipt],
     ) -> None:
+        assert isinstance(queryset, ReceiptQuerySet)  # required for mypy
         with catch_errors(self, request):
-            errs = queryset.validate()  # type: ignore[attr-defined]
+            errs = queryset.validate()
 
         if errs:
             self.message_user(

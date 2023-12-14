@@ -1280,7 +1280,8 @@ class Receipt(models.Model):
         # TYPING: queryset method `validate` is not resolved.
         # See: https://github.com/typeddjango/django-stubs/issues/1067
         qs = Receipt.objects.filter(pk=self.pk)
-        rv = qs.validate(ticket)  # type: ignore[attr-defined]
+        assert isinstance(qs, ReceiptQuerySet)  # required for mypy
+        rv = qs.validate(ticket)
         # Since we're operating via a queryset, this instance isn't properly
         # updated:
         self.refresh_from_db()
