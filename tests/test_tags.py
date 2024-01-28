@@ -1,4 +1,5 @@
 """Tests for provided template tags."""
+
 from __future__ import annotations
 
 from django_afip.templatetags.django_afip import format_cuit
