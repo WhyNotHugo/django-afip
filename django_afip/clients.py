@@ -38,26 +38,18 @@ CIPHERS = ":".join([*_default_ciphers, "!DH"])
 
 # Each boolean field is True if the URL is a sandbox/testing URL.
 WSDLS = {
-    ("wsaa", False): "https://wsaa.afip.gov.ar/ws/services/LoginCms?wsdl",
-    ("wsfe", False): "https://servicios1.afip.gov.ar/wsfev1/service.asmx?WSDL",
-    (
-        "ws_sr_constancia_inscripcion",
-        False,
-    ): "https://aws.afip.gov.ar/sr-padron/webservices/personaServiceA5?WSDL",
-    (
-        "ws_sr_padron_a13",
-        False,
-    ): "https://aws.afip.gov.ar/sr-padron/webservices/personaServiceA13?WSDL",
-    ("wsaa", True): "https://wsaahomo.afip.gov.ar/ws/services/LoginCms?wsdl",
-    ("wsfe", True): "https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL",
-    (
-        "ws_sr_constancia_inscripcion",
-        True,
-    ): "https://awshomo.afip.gov.ar/sr-padron/webservices/personaServiceA5?WSDL",
-    (
-        "ws_sr_padron_a13",
-        True,
-    ): "https://awshomo.afip.gov.ar/sr-padron/webservices/personaServiceA13?WSDL",
+    "production": {
+        "wsaa": "https://wsaa.afip.gov.ar/ws/services/LoginCms?wsdl",
+        "wsfe": "https://servicios1.afip.gov.ar/wsfev1/service.asmx?WSDL",
+        "ws_sr_constancia_inscripcion": "https://aws.afip.gov.ar/sr-padron/webservices/personaServiceA5?WSDL",
+        "ws_sr_padron_a13": "https://aws.afip.gov.ar/sr-padron/webservices/personaServiceA13?WSDL",
+    },
+    "sandbox": {
+        "wsaa": "https://wsaahomo.afip.gov.ar/ws/services/LoginCms?wsdl",
+        "wsfe": "https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL",
+        "ws_sr_constancia_inscripcion": "https://awshomo.afip.gov.ar/sr-padron/webservices/personaServiceA5?WSDL",
+        "ws_sr_padron_a13": "https://awshomo.afip.gov.ar/sr-padron/webservices/personaServiceA13?WSDL",
+    },
 }
 
 
@@ -91,10 +83,11 @@ def get_or_create_transport() -> Transport:
     session = Session()
 
     # For each WSDL, extract the domain, and add it as an exception:
-    for url in WSDLS.values():
-        parsed = urlparse(url)
-        base_url = f"{parsed.scheme}://{parsed.netloc}"
-        session.mount(base_url, AFIPAdapter())
+    for environment in WSDLS.values():
+        for url in environment.values():
+            parsed = urlparse(url)
+            base_url = f"{parsed.scheme}://{parsed.netloc}"
+            session.mount(base_url, AFIPAdapter())
 
     return Transport(cache=SqliteCache(timeout=86400), session=session)
 
@@ -117,9 +110,10 @@ def get_client(service_name: str, sandbox: bool = False) -> Client:
         be used by the returned client.
     :returns: A zeep client to communicate with an AFIP web service.
     """
-    key = (service_name.lower(), sandbox)
+    environment = "sandbox" if sandbox else "production"
+    key = service_name.lower()
 
     try:
-        return Client(WSDLS[key], transport=get_or_create_transport())
+        return Client(WSDLS[environment][key], transport=get_or_create_transport())
     except KeyError:
         raise ValueError(f"Unknown service name, {service_name}") from None
