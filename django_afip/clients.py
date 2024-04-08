@@ -36,6 +36,7 @@ _default_ciphers = [c["name"] for c in _ctx.get_ciphers()]
 # willing to forward my request to their webservices/security team.
 CIPHERS = ":".join([*_default_ciphers, "!DH"])
 
+# Each boolean field is True if the URL is a sandbox/testing URL.
 WSDLS = {
     ("wsaa", False): "https://wsaa.afip.gov.ar/ws/services/LoginCms?wsdl",
     ("wsfe", False): "https://servicios1.afip.gov.ar/wsfev1/service.asmx?WSDL",
