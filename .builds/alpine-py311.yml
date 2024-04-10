@@ -1,0 +1,40 @@
+image: alpine/3.19
+packages:
+  - alpine-sdk
+  - font-dejavu # makedepends for wheels
+  - ghostscript # makedepends for wheels
+  - libpq-dev # makedepends for wheels
+  - mariadb # server itself
+  - mariadb-dev # lib for wheels
+  - mariadb-openrc
+  - pango # makedepends for wheels
+  - postgresql
+  - postgresql-common-openrc # tests
+  - py3-tox
+  - python3-dev
+sources:
+  - https://github.com/whyNotHugo/django-afip
+environment:
+  CI: true
+tasks:
+  - postgres: |
+      sudo service postgresql start
+  - mariadb: |
+      sudo sed -i 's/skip-networking/skip-grant-tables/' /etc/my.cnf.d/mariadb-server.cnf
+      sudo /etc/init.d/mariadb setup
+      sudo service mariadb start
+  - tox-mariadb: |
+      cd django-afip
+      tox -e py-mysql
+  - tox-postgres: |
+      cd django-afip
+      tox -e py-postgres
+  - tox-sqlite: |
+      cd django-afip
+      tox -e py-sqlite
+  - tox-mypy: |
+      cd django-afip
+      tox -e mypy
+  - tox-live: |
+      cd django-afip
+      tox -e live
