@@ -16,7 +16,7 @@ from django_renderpdf.helpers import render_pdf
 if TYPE_CHECKING:
     from typing import IO
 
-    from PIL import Image
+    from PIL.Image import Image
 
     from django_afip.models import Receipt
     from django_afip.models import ReceiptEntry
