@@ -431,11 +431,8 @@ def test_receipt_entry_gt_total_discount() -> None:
         factories.ReceiptEntryFactory(quantity=1, unit_price=1, discount=2)
 
 
-@pytest.mark.django_db()
 def test_receipt_entry_has_quantity_decimal_field() -> None:
-    """
-    Test that ReceiptEntry quantity now is a DecimalField
-    """
+    """Test that ReceiptEntry quantity now is a DecimalField"""
     field = models.ReceiptEntry._meta.get_field("quantity")
 
     # Verifica que el campo ahora es de tipo DecimalField
