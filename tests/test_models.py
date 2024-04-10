@@ -12,7 +12,7 @@ from unittest.mock import patch
 import pytest
 from django.db.models import DecimalField
 from freezegun import freeze_time
-from pytest_django.asserts import assertQuerysetEqual
+from pytest_django.asserts import assertQuerySetEqual
 
 from django_afip import exceptions
 from django_afip import factories
@@ -73,7 +73,7 @@ def test_validate_receipt() -> None:
     ticket._called = False
 
     def fake_validate(qs: QuerySet, ticket: MagicMock) -> None:
-        assertQuerysetEqual(qs, [receipt.pk], lambda r: r.pk)
+        assertQuerySetEqual(qs, [receipt.pk], lambda r: r.pk)
         ticket._called = True
 
     with patch(

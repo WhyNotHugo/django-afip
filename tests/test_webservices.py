@@ -9,7 +9,7 @@ from unittest.mock import patch
 import pytest
 from django.core import management
 from factory.django import FileField
-from pytest_django.asserts import assertQuerysetEqual
+from pytest_django.asserts import assertQuerySetEqual
 
 from django_afip import exceptions
 from django_afip import factories
@@ -204,7 +204,7 @@ def test_receipt_queryset_validation_mixed(populated_db: None) -> None:
         "de AFIP y no corresponde a una cuit pais."
     )
 
-    assertQuerysetEqual(
+    assertQuerySetEqual(
         models.ReceiptValidation.objects.all(),
         [r1.pk],
         lambda rv: rv.receipt_id,
