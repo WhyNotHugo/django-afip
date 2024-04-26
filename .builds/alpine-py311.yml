@@ -35,6 +35,9 @@ tasks:
   - tox-mypy: |
       cd django-afip
       tox -e mypy
+  - tox-docs: |
+      cd django-afip
+      tox -e docs
   - tox-live: |
       cd django-afip
       tox -e live
