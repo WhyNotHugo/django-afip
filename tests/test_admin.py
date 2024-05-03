@@ -190,46 +190,45 @@ def test_validation_filters(admin_client: Client) -> None:
         receipt=failed_validation_receipt,
     )
 
+    html = (
+        '<input class="action-select" name="_selected_action" value="{}" '
+        'type="checkbox" aria-label="Select this object for an action - {}">'
+    )
+
     response = admin_client.get("/admin/afip/receipt/?status=validated")
 
     assert isinstance(response, HttpResponse)
     assertContains(
         response,
-        '<input class="action-select" name="_selected_action" value="{}" '
-        'type="checkbox">'.format(validated_receipt.pk),
+        html.format(validated_receipt.pk, str(validated_receipt)),
         html=True,
     )
     assertNotContains(
         response,
-        '<input class="action-select" name="_selected_action" value="{}" '
-        'type="checkbox">'.format(not_validated_receipt.pk),
+        html.format(not_validated_receipt.pk, str(not_validated_receipt)),
         html=True,
     )
     assertNotContains(
         response,
-        '<input class="action-select" name="_selected_action" value="{}" '
-        'type="checkbox">'.format(failed_validation_receipt.pk),
+        html.format(failed_validation_receipt.pk, str(failed_validation_receipt)),
         html=True,
     )
 
     response = admin_client.get("/admin/afip/receipt/?status=not_validated")
     assertNotContains(
         response,
-        '<input class="action-select" name="_selected_action" value="{}" '
-        'type="checkbox">'.format(validated_receipt.pk),
+        html.format(validated_receipt.pk, str(validated_receipt)),
         html=True,
     )
     assert isinstance(response, HttpResponse)
     assertContains(
         response,
-        '<input class="action-select" name="_selected_action" value="{}" '
-        'type="checkbox">'.format(not_validated_receipt.pk),
+        html.format(not_validated_receipt.pk, str(not_validated_receipt)),
         html=True,
     )
     assertContains(
         response,
-        '<input class="action-select" name="_selected_action" value="{}" '
-        'type="checkbox">'.format(failed_validation_receipt.pk),
+        html.format(failed_validation_receipt.pk, str(failed_validation_receipt)),
         html=True,
     )
 
