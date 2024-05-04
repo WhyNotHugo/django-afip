@@ -16,7 +16,7 @@ from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.http import HttpResponse
 from django.urls import reverse
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from django.utils.translation import gettext as _
 
 from django_afip import exceptions
@@ -248,21 +248,19 @@ class ReceiptAdmin(admin.ModelAdmin):
     @admin.display(description=_("PDF"), ordering="receiptpdf__id")
     def pdf_link(self, obj: WithAnnotations[models.Receipt, Annotations]) -> str:
         if not obj.pdf_id:
-            return mark_safe(
-                '<a href="{}?receipt={}">{}</a>'.format(
-                    reverse(self.admin_site.name + ":afip_receiptpdf_add"),
-                    obj.id,
-                    _("Create"),
-                )
+            return format_html(
+                '<a href="{}?receipt={}">{}</a>',
+                reverse(self.admin_site.name + ":afip_receiptpdf_add"),
+                obj.id,
+                _("Create"),
             )
-        return mark_safe(
-            '<a href="{}">{}</a>'.format(
-                reverse(
-                    self.admin_site.name + ":afip_receiptpdf_change",
-                    args=(obj.pdf_id,),
-                ),
-                _("Edit"),
-            )
+        return format_html(
+            '<a href="{}">{}</a>',
+            reverse(
+                self.admin_site.name + ":afip_receiptpdf_change",
+                args=(obj.pdf_id,),
+            ),
+            _("Edit"),
         )
 
     @admin.display(description=_("cae"), ordering="validation__cae")
