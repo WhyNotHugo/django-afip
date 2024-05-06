@@ -4,6 +4,7 @@ from unittest import mock
 from unittest.mock import patch
 
 import pytest
+from django import VERSION as DJANGO_VERSION
 from django.contrib import messages
 from django.contrib.admin import site
 from django.http import HttpRequest
@@ -190,10 +191,9 @@ def test_validation_filters(admin_client: Client) -> None:
         receipt=failed_validation_receipt,
     )
 
-    html = (
-        '<input class="action-select" name="_selected_action" value="{}" '
-        'type="checkbox" aria-label="Select this object for an action - {}">'
-    )
+    html = '<input class="action-select" name="_selected_action" value="{}" type="checkbox">'
+    if DJANGO_VERSION[0] >= 5:
+        html = html.replace(">", ' aria-label="Select this object for an action - {}">')
 
     response = admin_client.get("/admin/afip/receipt/?status=validated")
 
