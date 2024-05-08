@@ -150,8 +150,8 @@ class ReceiptPDFTestCase(TestCase):
         </p>
 
         Consultas de validez:
-        <a href="http://www.afip.gob.ar/genericos/consultacae/">
-          http://www.afip.gob.ar/genericos/consultacae/
+        <a href="https://www.afip.gob.ar/genericos/consultacae/">
+          https://www.afip.gob.ar/genericos/consultacae/
         </a>
         <br>
         Teléfono Gratuito CABA, Área de Defensa y Protección al Consumidor.
