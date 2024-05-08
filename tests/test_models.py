@@ -10,9 +10,14 @@ from unittest.mock import call
 from unittest.mock import patch
 
 import pytest
+from django import VERSION as DJANGO_VERSION
 from django.db.models import DecimalField
 from freezegun import freeze_time
-from pytest_django.asserts import assertQuerySetEqual
+
+if DJANGO_VERSION[0] < 5:
+    from pytest_django.asserts import assertQuerysetEqual as assertQuerySetEqual
+else:
+    from pytest_django.asserts import assertQuerySetEqual
 
 from django_afip import exceptions
 from django_afip import factories
