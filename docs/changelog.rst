@@ -13,6 +13,11 @@ Check the `latest tags`_ or `PyPI`_ for the latest stable release.
 
 Any breaking changes which require intervention will be mentioned here.
 
+13.0.0
+------
+
+- **BREAKING**: Drop support for Django 3.2.
+
 12.0.0
 ------
 
