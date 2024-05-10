@@ -12,7 +12,6 @@ classifiers = [
   "Development Status :: 6 - Mature",
   "Environment :: Web Environment",
   "Framework :: Django",
-  "Framework :: Django :: 4.0",
   "Framework :: Django :: 4.1",
   "Framework :: Django :: 4.2",
   "Framework :: Django :: 5.0",
@@ -30,7 +29,7 @@ classifiers = [
 ]
 dependencies = [
   "cryptography>=3.2,<40",
-  "django>=4.0,<5.1",
+  "django>=4.2,<5.1",
   "django_renderpdf>=3.0.0,<5.0.0",
   "lxml>=3.4.4",
   "pyopenssl>=16.2.0",
