@@ -16,7 +16,7 @@ Any breaking changes which require intervention will be mentioned here.
 13.0.0
 ------
 
-- **BREAKING**: Drop support for Django 3.2 and 4.0.
+- **BREAKING**: Drop support for Django 3.2, 4.0 and 4.1.
 
 12.0.0
 ------
