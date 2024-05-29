@@ -58,11 +58,13 @@ class AFIPAdapter(HTTPAdapter):
 
     def init_poolmanager(self, *args, **kwargs) -> PoolManager:
         context = create_urllib3_context(ciphers=CIPHERS)
+        context.load_default_certs()
         kwargs["ssl_context"] = context
         return super().init_poolmanager(*args, **kwargs)
 
     def proxy_manager_for(self, *args, **kwargs) -> ProxyManager:
         context = create_urllib3_context(ciphers=CIPHERS)
+        context.load_default_certs()
         kwargs["ssl_context"] = context
         return super().proxy_manager_for(*args, **kwargs)
 
