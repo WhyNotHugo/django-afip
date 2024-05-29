@@ -24,18 +24,6 @@ except ImportError:
 
 TZ_AR = ZoneInfo("America/Argentina/Buenos_Aires")
 
-# _ctx = ssl.create_default_context()
-_ctx = create_urllib3_context()
-_default_ciphers = [c["name"] for c in _ctx.get_ciphers()]
-
-# SECURITY: These values are substandard and less secure that Python's default!
-#
-# They are required to talk to AFIP's servers which use insecure DH ciphers. I reported
-# this issue in 2020, but all the responses I got seemed to indicate that the people
-# responding to messages had no idea what I was talking about, nor did they seem to be
-# willing to forward my request to their webservices/security team.
-CIPHERS = ":".join([*_default_ciphers, "!DH"])
-
 # Each boolean field is True if the URL is a sandbox/testing URL.
 WSDLS = {
     "production": {
@@ -57,13 +45,13 @@ class AFIPAdapter(HTTPAdapter):
     """An adapter with reduced security so it'll work with AFIP."""
 
     def init_poolmanager(self, *args, **kwargs) -> PoolManager:
-        context = create_urllib3_context(ciphers=CIPHERS)
+        context = create_urllib3_context(ciphers="AES128-SHA")
         context.load_default_certs()
         kwargs["ssl_context"] = context
         return super().init_poolmanager(*args, **kwargs)
 
     def proxy_manager_for(self, *args, **kwargs) -> ProxyManager:
-        context = create_urllib3_context(ciphers=CIPHERS)
+        context = create_urllib3_context(ciphers="AES128-SHA")
         context.load_default_certs()
         kwargs["ssl_context"] = context
         return super().proxy_manager_for(*args, **kwargs)
