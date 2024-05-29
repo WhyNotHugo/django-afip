@@ -38,6 +38,9 @@ dependencies = [
   "zeep>=1.1.0,<5.0.0",
   "qrcode[pil]>=6.1,<8.0",
   "pyyaml>=5.3.1,<7.0.0",
+  # zeep depends on requests, but these specific version are incompatible.
+  # See: https://github.com/WhyNotHugo/django-afip/issues/211
+  "requests!=2.32.0,!=2.32.1,!=2.32.2",
 ]
 dynamic = ["version"]
 
