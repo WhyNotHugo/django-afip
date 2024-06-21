@@ -232,6 +232,24 @@ def test_validation_filters(admin_client: Client) -> None:
         html=True,
     )
 
+    response = admin_client.get("/admin/afip/receipt/")
+    assert isinstance(response, HttpResponse)
+    assertContains(
+        response,
+        html.format(validated_receipt.pk, str(validated_receipt)),
+        html=True,
+    )
+    assertContains(
+        response,
+        html.format(not_validated_receipt.pk, str(not_validated_receipt)),
+        html=True,
+    )
+    assertContains(
+        response,
+        html.format(failed_validation_receipt.pk, str(failed_validation_receipt)),
+        html=True,
+    )
+
 
 @pytest.mark.django_db()
 def test_receipt_admin_get_exclude() -> None:
