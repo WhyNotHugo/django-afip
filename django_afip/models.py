@@ -940,9 +940,6 @@ class ReceiptQuerySet(models.QuerySet):
             return []
         qs.order_by("issued_date", "id")._assign_numbers()
 
-        return qs._validate(ticket)
-
-    def _validate(self, ticket: AuthTicket | None = None) -> list[str]:
         first = self.first()
         assert first is not None  # should never happen; mostly a hint for mypy
         ticket = ticket or first.point_of_sales.owner.get_or_create_ticket("wsfe")

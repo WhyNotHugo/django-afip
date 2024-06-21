@@ -6,7 +6,6 @@ from datetime import timedelta
 from decimal import Decimal
 from typing import TYPE_CHECKING
 from unittest.mock import MagicMock
-from unittest.mock import call
 from unittest.mock import patch
 
 import pytest
@@ -42,9 +41,9 @@ def test_default_receipt_queryset() -> None:
 
 
 @pytest.mark.django_db()
-def test_validate() -> None:
-    receipt = ReceiptFactory()
-    # TYPING: mypy is wrong; it can't understand default querysets.
+def test_validate_validated() -> None:
+    receipt = ReceiptWithApprovedValidation()
+    # TYPING: mypy can't understand default querysets.
     qs: ReceiptQuerySet = models.Receipt.objects.filter(  # type: ignore[assignment]
         pk=receipt.pk,
     )
@@ -53,15 +52,10 @@ def test_validate() -> None:
     with patch(
         "django_afip.models.ReceiptQuerySet._assign_numbers",
         spec=True,
-    ) as mocked_assign_numbers, patch(
-        "django_afip.models.ReceiptQuerySet._validate",
-        spec=True,
-    ) as mocked__validate:
+    ) as mocked_assign_numbers:
         qs.validate(ticket)
 
-    assert mocked_assign_numbers.call_count == 1
-    assert mocked__validate.call_count == 1
-    assert mocked__validate.call_args == call(ticket)
+    assert mocked_assign_numbers.call_count == 0
 
 
 # TODO: Also another tests that checks that we only pass filtered-out receipts.
@@ -268,7 +262,7 @@ def test_receipt_is_validated_when_validated() -> None:
 
 
 @pytest.mark.django_db()
-def test_receipt_is_validted_when_failed_validation() -> None:
+def test_receipt_is_validated_when_failed_validation() -> None:
     # These should never really exist,but oh well:
     receipt = ReceiptFactory(receipt_number=None)
     ReceiptValidationFactory(

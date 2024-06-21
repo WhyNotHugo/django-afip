@@ -25,15 +25,8 @@ def test_raises() -> None:
     with patch(
         "django_afip.models.ReceiptQuerySet._assign_numbers",
         spec=True,
-    ) as mocked_assign_numbers, patch(
-        "django_afip.models.ReceiptQuerySet._validate",
-        spec=True,
-    ) as mocked__validate, pytest.raises(
-        RuntimeError
-    ):
+    ) as mocked_assign_numbers, pytest.raises(RuntimeError):
         # TYPING: django-stubs can't handle methods in querysets
         queryset.validate(ticket)  # type: ignore[attr-defined]
 
     assert mocked_assign_numbers.call_count == 0
-    assert mocked__validate.call_count == 0
-    assert mocked__validate.call_args is None
