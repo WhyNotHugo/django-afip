@@ -1298,7 +1298,7 @@ class Receipt(models.Model):
         returned instead.
 
         This should be used for verification purpose, for example, to fetch missing data
-        from AFIP's servers or to complete an incompelte validation (e.g.: after a power
+        from AFIP's servers or to complete an incomplete validation (e.g.: after a power
         failure).
 
         Any new validation data is persisted into the database before returning.
