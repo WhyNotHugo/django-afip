@@ -80,6 +80,7 @@ pasos de forma programatica:
         name='test taxpayer',
         cuit=20329642330,
         is_sandboxed=True,
+        active_since='2021-01-01',
     )
 
     # Add the key and certificate files to the TaxPayer:
