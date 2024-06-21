@@ -934,14 +934,17 @@ class ReceiptQuerySet(models.QuerySet):
         """
         if self._ensure_durability and connection.in_atomic_block:
             raise RuntimeError("This function cannot be called within a transaction")
+
         # Skip any already-validated ones:
         qs = self.filter(validation__isnull=True).check_groupable()
-        if qs.count() == 0:
+
+        # Return early if queryset is empty:
+        first = qs.first()
+        if first is None:
             return []
+
         qs.order_by("issued_date", "id")._assign_numbers()
 
-        first = self.first()
-        assert first is not None  # should never happen; mostly a hint for mypy
         ticket = ticket or first.point_of_sales.owner.get_or_create_ticket("wsfe")
         client = clients.get_client("wsfe", first.point_of_sales.owner.is_sandboxed)
         response = client.service.FECAESolicitar(
