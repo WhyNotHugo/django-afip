@@ -949,7 +949,7 @@ class ReceiptQuerySet(models.QuerySet):
         client = clients.get_client("wsfe", first.point_of_sales.owner.is_sandboxed)
         response = client.service.FECAESolicitar(
             serializers.serialize_ticket(ticket),
-            serializers.serialize_multiple_receipts(self),
+            serializers.serialize_multiple_receipts(qs),
         )
         check_response(response)
         errs = []
@@ -959,7 +959,7 @@ class ReceiptQuerySet(models.QuerySet):
                     result=cae_data.Resultado,
                     cae=cae_data.CAE,
                     cae_expiration=parsers.parse_date(cae_data.CAEFchVto),
-                    receipt=self.get(
+                    receipt=qs.get(
                         receipt_number=cae_data.CbteDesde,
                     ),
                     processed_date=parsers.parse_datetime(
@@ -978,7 +978,7 @@ class ReceiptQuerySet(models.QuerySet):
                     errs.append(f"Error {obs.Code}: {parsers.parse_string(obs.Msg)}")
 
         # Remove the number from ones that failed to validate:
-        self.filter(validation__isnull=True).update(receipt_number=None)
+        qs.filter(validation__isnull=True).update(receipt_number=None)
 
         return errs
 

@@ -96,6 +96,36 @@ def test_validate_invoice(populated_db: None) -> None:
     assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
     assert models.ReceiptValidation.objects.count() == 1
 
+@pytest.mark.django_db()
+@pytest.mark.live()
+def test_skip_validated_invoice(populated_db: None) -> None:
+    """
+    Test validating receipt that was already validated.
+
+    If a query set includes receipts that were already validated, those and only
+    those should be skipped.
+    """
+
+    receipt = ReceiptWithVatAndTaxFactory()
+    receipt2 = ReceiptWithVatAndTaxFactory()
+
+    # Validate only the first receipt
+    errs = receipt.validate()
+    assert len(errs) == 0
+    assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
+    assert models.ReceiptValidation.objects.count() == 1
+
+    # Validate them both together, the first one should be skipped
+    original_cae, original_receipt_number = receipt.validation.cae, receipt.receipt_number
+    qs = models.Receipt.objects.filter(pk__in=[receipt.pk, receipt2.pk])
+    errs = qs.validate()
+    assert len(errs) == 0
+    assert models.ReceiptValidation.objects.count() == 2
+    assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
+    assert receipt2.validation.result == models.ReceiptValidation.RESULT_APPROVED
+    assert original_cae == receipt.validation.cae
+    assert original_receipt_number == receipt.receipt_number
+
 
 @pytest.mark.django_db()
 @pytest.mark.live()
