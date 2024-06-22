@@ -8,10 +8,6 @@ repos:
       - id: check-toml
       - id: check-added-large-files
       - id: debug-statements
-  - repo: https://github.com/psf/black
-    rev: "24.1.1"
-    hooks:
-      - id: black
   - repo: local
     hooks:
       - id: mypy
@@ -19,11 +15,12 @@ repos:
         language: system
         entry: mypy
         types_or: [python, pyi]
-  - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: 'v0.1.14'
-    hooks:
       - id: ruff
-        args: [--fix, --exit-non-zero-on-fix]
+        name: ruff
+        language: system
+        entry: tox -e ruff
+        types_or: [python, pyi]
+        pass_filenames: false
   - repo: https://github.com/netromdk/vermin
     rev: v1.6.0
     hooks:
