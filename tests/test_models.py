@@ -117,7 +117,7 @@ def test_skip_validated_invoice(populated_db: None) -> None:
 
     # Validate them both together, the first one should be skipped
     original_cae, original_receipt_number = receipt.validation.cae, receipt.receipt_number
-    qs : ReceiptQuerySet = models.Receipt.objects.filter(pk__in=[receipt.pk, receipt2.pk])
+    qs: ReceiptQuerySet = models.Receipt.objects.filter(pk__in=[receipt.pk, receipt2.pk])  # type: ignore[assignment]
     errs = qs.validate()
     assert len(errs) == 0
     assert models.ReceiptValidation.objects.count() == 2
