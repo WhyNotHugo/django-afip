@@ -191,7 +191,10 @@ def test_validation_filters(admin_client: Client) -> None:
         receipt=failed_validation_receipt,
     )
 
-    html = '<input class="action-select" name="_selected_action" value="{}" type="checkbox">'
+    html = (
+        '<input class="action-select" name="_selected_action" '
+        'value="{}" type="checkbox">'
+    )
     if DJANGO_VERSION[0] >= 5:
         html = html.replace(">", ' aria-label="Select this object for an action - {}">')
 

@@ -10,14 +10,13 @@ class AfipException(DjangoAfipException):
 
     def __init__(self, response) -> None:  # noqa: ANN001
         if "Errors" in response:
-            message = "Error {}: {}".format(
-                response.Errors.Err[0].Code,
-                response.Errors.Err[0].Msg,
+            message = (
+                f"Error {response.Errors.Err[0].Code}: {response.Errors.Err[0].Msg}"
             )
         else:
-            message = "Error {}: {}".format(
-                response.errorConstancia.idPersona,
-                response.errorConstancia.error[0],
+            message = (
+                f"Error {response.errorConstancia.idPersona}: "
+                f"{response.errorConstancia.error[0]}"
             )
         Exception.__init__(self, message)
 

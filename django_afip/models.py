@@ -1394,11 +1394,9 @@ class Receipt(models.Model):
         return True
 
     def __repr__(self) -> str:
-        return "<Receipt {}: {} {} for {}>".format(
-            self.pk,
-            self.receipt_type,
-            self.receipt_number,
-            self.point_of_sales.owner,
+        return (
+            f"<Receipt {self.pk}: {self.receipt_type} {self.receipt_number} "
+            f"for {self.point_of_sales.owner}>"
         )
 
     def __str__(self) -> str:
@@ -1832,11 +1830,9 @@ class ReceiptValidation(models.Model):
         )
 
     def __repr__(self) -> str:
-        return "<{} {}: {} for Receipt {}>".format(
-            self.__class__.__name__,
-            self.pk,
-            self.result,
-            self.receipt_id,
+        return (
+            f"<{self.__class__.__name__} {self.pk}: "
+            f"{self.result} for Receipt {self.receipt_id}>"
         )
 
     class Meta:

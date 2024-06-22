@@ -4,6 +4,7 @@
 This script is used to generate the fixtures with AFIP metadata. It is only used to
 BUILD django_afip, and should not be used directly by third-party apps.
 """
+
 from __future__ import annotations
 
 import django
