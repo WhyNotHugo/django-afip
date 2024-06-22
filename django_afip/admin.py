@@ -142,7 +142,7 @@ class ReceiptStatusFilter(admin.SimpleListFilter):
             return queryset.exclude(
                 validation__result=models.ReceiptValidation.RESULT_APPROVED
             )
-        return queryset.none()
+        return queryset
 
 
 class ReceiptTypeFilter(admin.SimpleListFilter):
