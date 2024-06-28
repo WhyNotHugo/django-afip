@@ -25,6 +25,7 @@ from django.core.files import File
 from django.core.validators import MinValueValidator
 from django.db import connection
 from django.db import models
+from django.db import transaction
 from django.db.models import CheckConstraint
 from django.db.models import Count
 from django.db.models import F
@@ -944,41 +945,44 @@ class ReceiptQuerySet(models.QuerySet):
             return []
 
         qs.order_by("issued_date", "id")._assign_numbers()
+        ids = qs.values_list("id", flat=True)
 
-        ticket = ticket or first.point_of_sales.owner.get_or_create_ticket("wsfe")
-        client = clients.get_client("wsfe", first.point_of_sales.owner.is_sandboxed)
-        response = client.service.FECAESolicitar(
-            serializers.serialize_ticket(ticket),
-            serializers.serialize_multiple_receipts(qs),
-        )
-        check_response(response)
         errs = []
-        for cae_data in response.FeDetResp.FECAEDetResponse:
-            if cae_data.Resultado == ReceiptValidation.RESULT_APPROVED:
-                validation = ReceiptValidation.objects.create(
-                    result=cae_data.Resultado,
-                    cae=cae_data.CAE,
-                    cae_expiration=parsers.parse_date(cae_data.CAEFchVto),
-                    receipt=qs.get(
-                        receipt_number=cae_data.CbteDesde,
-                    ),
-                    processed_date=parsers.parse_datetime(
-                        response.FeCabResp.FchProceso,
-                    ),
-                )
-                if cae_data.Observaciones:
+        with transaction.atomic():
+            qs = Receipt.objects.filter(id__in=ids, receipt_number__isnull=False).select_for_update()
+            ticket = ticket or first.point_of_sales.owner.get_or_create_ticket("wsfe")
+            client = clients.get_client("wsfe", first.point_of_sales.owner.is_sandboxed)
+            response = client.service.FECAESolicitar(
+                serializers.serialize_ticket(ticket),
+                serializers.serialize_multiple_receipts(qs),
+            )
+            check_response(response)
+            for cae_data in response.FeDetResp.FECAEDetResponse:
+                if cae_data.Resultado == ReceiptValidation.RESULT_APPROVED:
+                    validation = ReceiptValidation.objects.create(
+                        result=cae_data.Resultado,
+                        cae=cae_data.CAE,
+                        cae_expiration=parsers.parse_date(cae_data.CAEFchVto),
+                        receipt=qs.get(
+                            receipt_number=cae_data.CbteDesde,
+                        ),
+                        processed_date=parsers.parse_datetime(
+                            response.FeCabResp.FchProceso,
+                        ),
+                    )
+                    if cae_data.Observaciones:
+                        for obs in cae_data.Observaciones.Obs:
+                            observation = Observation.objects.create(
+                                code=obs.Code,
+                                message=obs.Msg,
+                            )
+                        validation.observations.add(observation)
+                elif cae_data.Observaciones:
                     for obs in cae_data.Observaciones.Obs:
-                        observation = Observation.objects.create(
-                            code=obs.Code,
-                            message=obs.Msg,
-                        )
-                    validation.observations.add(observation)
-            elif cae_data.Observaciones:
-                for obs in cae_data.Observaciones.Obs:
-                    errs.append(f"Error {obs.Code}: {parsers.parse_string(obs.Msg)}")
+                        errs.append(f"Error {obs.Code}: {parsers.parse_string(obs.Msg)}")
 
         # Remove the number from ones that failed to validate:
-        qs.filter(validation__isnull=True).update(receipt_number=None)
+        Receipt.objects.filter(id__in=ids, validation__isnull=True).update(receipt_number=None)
 
         return errs
 
@@ -1334,6 +1338,11 @@ class Receipt(models.Model):
                     )
                 validation.observations.add(observation)
             return validation
+
+        # Update atomically, skip if it was just validated
+        Receipt.objects.filter(pk=self.pk, validation__isnull=True).update(
+            receipt_number=None,
+        )
         return None
 
     def approximate_date(receipt: Receipt) -> bool:
