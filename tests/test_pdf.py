@@ -102,7 +102,7 @@ def test_create_entries_for_render() -> None:
     paginator = Paginator(entries_queryset, 5)
     entries = create_entries_context_for_render(paginator)
 
-    assert [1, 2] == list(entries.keys())
+    assert list(entries.keys()) == [1, 2]
     assert entries[1]["previous_subtotal"] == 0
     assert entries[1]["subtotal"] == 5
     assert list(entries[1]["entries"]) == list(models.ReceiptEntry.objects.all()[:5])

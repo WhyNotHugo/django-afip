@@ -96,6 +96,7 @@ def test_validate_invoice(populated_db: None) -> None:
     assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
     assert models.ReceiptValidation.objects.count() == 1
 
+
 @pytest.mark.django_db()
 @pytest.mark.live()
 def test_skip_validated_invoice(populated_db: None) -> None:
@@ -116,8 +117,13 @@ def test_skip_validated_invoice(populated_db: None) -> None:
     assert models.ReceiptValidation.objects.count() == 1
 
     # Validate them both together, the first one should be skipped
-    original_cae, original_receipt_number = receipt.validation.cae, receipt.receipt_number
-    qs: ReceiptQuerySet = models.Receipt.objects.filter(pk__in=[receipt.pk, receipt2.pk])  # type: ignore[assignment]
+    original_cae, original_receipt_number = (
+        receipt.validation.cae,
+        receipt.receipt_number,
+    )
+    qs: ReceiptQuerySet = models.Receipt.objects.filter(
+        pk__in=[receipt.pk, receipt2.pk]
+    )  # type: ignore[assignment]
     errs = qs.validate()
     assert len(errs) == 0
     assert models.ReceiptValidation.objects.count() == 2
