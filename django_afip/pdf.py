@@ -192,7 +192,8 @@ class PdfBuilder:
             )
         )
         taxpayer = receipt_pdf.receipt.point_of_sales.owner
-        paginator = Paginator(receipt_pdf.receipt.entries.all(), self.entries_per_page)
+        entries = receipt_pdf.receipt.entries.order_by("id")
+        paginator = Paginator(entries, self.entries_per_page)
 
         context["entries"] = create_entries_context_for_render(paginator)
         context["pdf"] = receipt_pdf

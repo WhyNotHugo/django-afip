@@ -22,6 +22,7 @@ Any breaking changes which require intervention will be mentioned here.
   makes these unusable with django-afip.
 - Add support for ``requests`` >= 2.32.3.
 - Improve documentation on security considerations.
+- Ensure that entries are rendered in a consistent order.
 
 12.0.0
 ------
