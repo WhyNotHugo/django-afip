@@ -19,6 +19,7 @@ from typing import Generic
 from typing import TypeVar
 from uuid import uuid4
 
+from django import VERSION as DJANGO_VERSION
 from django.conf import settings
 from django.core import management
 from django.core.files import File
@@ -122,7 +123,11 @@ def first_currency() -> int | None:
 def _get_storage_from_settings(setting_name: str) -> Storage:
     path = getattr(settings, setting_name, None)
     if not path:
-        return import_string(settings.DEFAULT_FILE_STORAGE)()
+        if DJANGO_VERSION >= (4,2):
+            from django.core.files.storage import default_storage
+            return default_storage
+        else:
+            return import_string(settings.DEFAULT_FILE_STORAGE)()
     return import_string(path)
 
 
@@ -417,6 +422,8 @@ class TaxPayer(models.Model):
         help_text=_("A logo to use when generating printable receipts."),
     )
 
+    _old_files = {}
+
     @property
     def logo_as_data_uri(self) -> str:
         """This TaxPayer's logo as a data uri.
@@ -548,7 +555,7 @@ class TaxPayer(models.Model):
         Fetch all point of sales from the WS and store (or update) them
         locally.
 
-        Returns a list of tuples with the format ``(pos, created,)``.
+        Returns a list of `PointOfSales` objects that were either created or updated.
         """
         ticket = ticket or self.get_or_create_ticket("wsfe")
 
@@ -559,18 +566,43 @@ class TaxPayer(models.Model):
         check_response(response)
 
         results = []
+
+        existing_pos_dict = {
+            pos.number: pos
+            for pos in PointOfSales.objects.filter(owner=self)
+        }
+        
         for pos_data in response.ResultGet.PtoVenta:
-            results.append(
-                PointOfSales.objects.update_or_create(
-                    number=pos_data.Nro,
+            pos_number = pos_data.Nro
+            issuance_type = pos_data.EmisionTipo
+            is_blocked = pos_data.Bloqueado == "S"
+            drop_date = parsers.parse_date_maybe(pos_data.FchBaja) 
+            
+            if pos_number in existing_pos_dict:
+                pos = existing_pos_dict[pos_number]
+
+                is_modified = False
+                
+                if pos.issuance_type != issuance_type:
+                    pos.issuance_type = issuance_type
+                    is_modified = True
+                if pos.blocked != is_blocked:
+                    pos.blocked = is_blocked
+                    is_modified = True
+                elif pos.drop_date != drop_date:
+                    pos.drop_date = drop_date
+                    is_modified = True
+
+                if is_modified:
+                    pos.save()
+                    results.append(pos)
+            elif not is_blocked:
+                pos = PointOfSales.objects.create(
                     owner=self,
-                    defaults={
-                        "issuance_type": pos_data.EmisionTipo,
-                        "blocked": pos_data.Bloqueado == "S",
-                        "drop_date": parsers.parse_date_maybe(pos_data.FchBaja),
-                    },
+                    number=pos_data.Nro,
+                    issuance_type=issuance_type,
                 )
-            )
+                results.append(pos)
 
         return results
 
@@ -623,6 +655,7 @@ class PointOfSales(models.Model):
     )
     blocked = models.BooleanField(
         _("blocked"),
+        default=False,
     )
     drop_date = models.DateField(
         _("drop date"),
