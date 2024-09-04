@@ -1336,7 +1336,7 @@ class Receipt(models.Model):
             return validation
         return None
 
-    def approximate_date(receipt: Receipt) -> bool:
+    def approximate_date(self: Receipt) -> bool:
         """Approximate the date of the receipt as close as possible.
 
         If a receipt should have been validated in a past date, adjust its date as close
@@ -1354,13 +1354,13 @@ class Receipt(models.Model):
         """
         today = datetime.now(TZ_AR).date()
 
-        if receipt.issued_date == today:
+        if self.issued_date == today:
             return False
 
         most_recent = (
             Receipt.objects.filter(
-                point_of_sales=receipt.point_of_sales,
-                receipt_type=receipt.receipt_type,
+                point_of_sales=self.point_of_sales,
+                receipt_type=self.receipt_type,
                 validation__result=ReceiptValidation.RESULT_APPROVED,
             )
             .order_by("issued_date")
@@ -1373,12 +1373,12 @@ class Receipt(models.Model):
         else:
             oldest_possible = fortnight_ago
 
-        if receipt.issued_date >= oldest_possible:
+        if self.issued_date >= oldest_possible:
             return False
 
         # Commit this atomically to avoid race conditions.
         count = Receipt.objects.filter(
-            pk=receipt.id,
+            pk=self.id,
             receipt_number__isnull=True,
         ).update(
             issued_date=oldest_possible,
@@ -1389,7 +1389,7 @@ class Receipt(models.Model):
             )
 
         # Mutate the input object to avoid inconsistency issues.
-        receipt.issued_date = oldest_possible
+        self.issued_date = oldest_possible
 
         return True
 
