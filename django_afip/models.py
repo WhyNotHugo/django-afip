@@ -1368,10 +1368,10 @@ class Receipt(models.Model):
         )
 
         fortnight_ago = today - timedelta(days=14)
-        if most_recent is not None:
-            oldest_possible = max(most_recent.issued_date, fortnight_ago)
-        else:
+        if most_recent is None:
             oldest_possible = fortnight_ago
+        else:
+            oldest_possible = max(most_recent.issued_date, fortnight_ago)
 
         if self.issued_date >= oldest_possible:
             return False
