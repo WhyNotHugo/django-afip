@@ -27,7 +27,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ["3.8", "3.9", "3.10"]
+        # 3.11 is tested via /.builds/alpine-py311.yml
+        python: ["3.9", "3.10"]
     name: postgres, python${{ matrix.python }}
     steps:
       - uses: actions/checkout@v3
