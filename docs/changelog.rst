@@ -19,6 +19,7 @@ Any breaking changes which require intervention will be mentioned here.
 - **BREAKING**: Drop support for Django 3.2, 4.0 and 4.1.
 - **BREAKING**: Drop support for Python 3.8.
 - Add support for Django 5.0.
+- Add support for Python 3.12.
 - Mark ``requests`` 2.32.0, 2.32.1, and 2.32.2 as incompatible. An upstream bug
   makes these unusable with django-afip.
 - Add support for ``requests`` >= 2.32.3.
