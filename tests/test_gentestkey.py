@@ -8,7 +8,7 @@ from django_afip import factories
 
 
 @pytest.mark.skipif(os.environ.get("GENTESTCSR") is None, reason="not a test")
-@pytest.mark.django_db()
+@pytest.mark.django_db
 def test_generate_test_csr() -> None:
     """Generate a new test CSR (this is not really a test)
 

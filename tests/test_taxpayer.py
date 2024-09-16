@@ -10,7 +10,7 @@ from OpenSSL import crypto
 from django_afip import factories
 
 
-@pytest.mark.django_db()
+@pytest.mark.django_db
 def test_key_generation() -> None:
     taxpayer = factories.TaxPayerFactory.build(key=None)
     taxpayer.generate_key()
@@ -33,7 +33,7 @@ def test_dont_overwrite_keys() -> None:
     assert text == key
 
 
-@pytest.mark.django_db()
+@pytest.mark.django_db
 def test_overwrite_keys_force() -> None:
     text = b"Hello! I'm not really a key :D"
     taxpayer = factories.TaxPayerFactory.build(key__data=text)
@@ -50,7 +50,7 @@ def test_overwrite_keys_force() -> None:
 
 
 @freeze_time(datetime.fromtimestamp(1489537017))
-@pytest.mark.django_db()
+@pytest.mark.django_db
 def test_csr_generation() -> None:
     taxpayer = factories.TaxPayerFactory.build(key=None)
     taxpayer.generate_key()
@@ -102,7 +102,7 @@ def test_expiration_getter_no_cert() -> None:
     assert isinstance(expiration, datetime)
 
 
-@pytest.mark.django_db()
+@pytest.mark.django_db
 def test_expiration_signal_update() -> None:
     taxpayer = factories.TaxPayerFactory(certificate_expiration=None)
     taxpayer.save()

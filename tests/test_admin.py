@@ -254,7 +254,7 @@ def test_validation_filters(admin_client: Client) -> None:
     )
 
 
-@pytest.mark.django_db()
+@pytest.mark.django_db
 def test_receipt_admin_get_exclude() -> None:
     admin = ReceiptAdmin(models.Receipt, site)
     request = RequestFactory().get("/admin/afip/receipt")
@@ -263,7 +263,7 @@ def test_receipt_admin_get_exclude() -> None:
     assert "related_receipts" in admin.get_fields(request)
 
 
-@pytest.mark.django_db()
+@pytest.mark.django_db
 def test_receipt_pdf_factories_and_files() -> None:
     with_file = factories.ReceiptPDFWithFileFactory()
     without_file = factories.ReceiptPDFFactory()

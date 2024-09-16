@@ -39,25 +39,25 @@ def pytest_runtest_setup(item: pytest.Function) -> None:
         _live_mode = True
 
 
-@pytest.fixture()
+@pytest.fixture
 def expired_crt() -> bytes:
     with open(get_test_file("test_expired.crt"), "rb") as crt:
         return crt.read()
 
 
-@pytest.fixture()
+@pytest.fixture
 def expired_key() -> bytes:
     with open(get_test_file("test_expired.key"), "rb") as key:
         return key.read()
 
 
-@pytest.fixture()
+@pytest.fixture
 def live_taxpayer(db: None) -> models.TaxPayer:
     """Return a taxpayer usable with AFIP's test servers."""
     return TaxPayerFactory(pk=1)
 
 
-@pytest.fixture()
+@pytest.fixture
 def live_ticket(db: None, live_taxpayer: models.TaxPayer) -> models.AuthTicket:
     """Return an authentication ticket usable with AFIP's test servers.
 
@@ -102,7 +102,7 @@ def live_ticket(db: None, live_taxpayer: models.TaxPayer) -> models.AuthTicket:
     return ticket
 
 
-@pytest.fixture()
+@pytest.fixture
 def populated_db(
     live_ticket: models.AuthTicket,
     live_taxpayer: models.TaxPayer,
