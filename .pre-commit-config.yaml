@@ -21,8 +21,3 @@ repos:
         entry: tox -e ruff
         types_or: [python, pyi]
         pass_filenames: false
-  - repo: https://github.com/netromdk/vermin
-    rev: v1.6.0
-    hooks:
-      - id: vermin
-        args: ['-t=3.9-', '--backport', 'zoneinfo' , '--violations']
