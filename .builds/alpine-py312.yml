@@ -23,24 +23,28 @@ tasks:
       sudo sed -i 's/skip-networking/skip-grant-tables/' /etc/my.cnf.d/mariadb-server.cnf
       sudo /etc/init.d/mariadb setup
       sudo service mariadb start
-  - tox-mariadb: |
-      cd django-afip
-      tox -e py-mysql
-  - tox-django42-mariadb: |
-      cd django-afip
-      tox -e py-django42-mysql
-  - tox-postgres: |
-      cd django-afip
-      tox -e py-postgres
-  - tox-django42-postgres: |
-      cd django-afip
-      tox -e py-django42-postgres
   - tox-sqlite: |
       cd django-afip
-      tox -e py-sqlite
-  - tox-mypy: |
+      tox -e sqlite
+  - tox-django42-mariadb: |
       cd django-afip
-      tox -e mypy
+      tox -e django42-mysql
+  - tox-django50-mariadb: |
+      cd django-afip
+      tox -e django50-mysql
+  - tox-django42-postgres: |
+      cd django-afip
+      tox -e django42-postgres
+  - tox-django50-postgres: |
+      cd django-afip
+      tox -e django50-postgres
+  - lint: |
+      cd django-afip
+      tox -e mypy,ruff,vermin
   - tox-docs: |
       cd django-afip
       tox -e docs
+
+  - tox-live: |
+      cd django-afip
+      tox -e live
