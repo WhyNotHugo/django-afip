@@ -25,4 +25,4 @@ repos:
     rev: v1.6.0
     hooks:
       - id: vermin
-        args: ['-t=3.8-', '--backport', 'zoneinfo' , '--violations']
+        args: ['-t=3.9-', '--backport', 'zoneinfo' , '--violations']
