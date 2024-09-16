@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Generator
+from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 import pytest
@@ -12,6 +12,9 @@ from django_afip.exceptions import AuthenticationError
 from django_afip.factories import TaxPayerFactory
 from django_afip.factories import get_test_file
 from django_afip.models import AuthTicket
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 CACHED_TICKET_PATH = settings.BASE_DIR / "test_ticket.yaml"
 _live_mode = False

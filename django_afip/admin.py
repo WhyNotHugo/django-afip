@@ -4,9 +4,6 @@ import logging
 from contextlib import contextmanager
 from datetime import datetime
 from typing import TYPE_CHECKING
-from typing import Generator
-from typing import Iterable
-from typing import Sequence
 from typing import TypedDict
 
 from django.contrib import admin
@@ -24,6 +21,10 @@ from django_afip import models
 from django_afip.models import ReceiptQuerySet
 
 if TYPE_CHECKING:
+    from collections.abc import Generator
+    from collections.abc import Iterable
+    from collections.abc import Sequence
+
     from django_stubs_ext import WithAnnotations
 
 logger = logging.getLogger(__name__)

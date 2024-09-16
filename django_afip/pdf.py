@@ -6,7 +6,6 @@ import logging
 from decimal import Decimal
 from io import BytesIO
 from typing import TYPE_CHECKING
-from typing import Iterable
 from typing import TypedDict
 
 import qrcode
@@ -14,6 +13,7 @@ from django.core.paginator import Paginator
 from django_renderpdf.helpers import render_pdf
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
     from typing import IO
 
     from PIL.Image import Image
