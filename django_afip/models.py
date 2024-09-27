@@ -77,6 +77,8 @@ CLIENT_VAT_CONDITIONS = (
     "IVA no alcanzado",
 )
 
+RECEIPT_DATE_OFFSET = {"1": 5, "2": 14, "3": 14}
+
 
 def load_metadata() -> None:
     """Loads metadata from fixtures into the database."""
@@ -1367,7 +1369,9 @@ class Receipt(models.Model):
             .last()
         )
 
-        fortnight_ago = today - timedelta(days=14)
+        fortnight_ago = today - timedelta(
+            days=RECEIPT_DATE_OFFSET[str(self.concept.code)]
+        )
         if most_recent is None:
             oldest_possible = fortnight_ago
         else:
