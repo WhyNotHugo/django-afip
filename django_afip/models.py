@@ -77,6 +77,7 @@ CLIENT_VAT_CONDITIONS = (
     "IVA no alcanzado",
 )
 
+# Keys: ConceptType.code, Values: maximum days ago.
 RECEIPT_DATE_OFFSET = {"1": 5, "2": 14, "3": 14}
 
 
