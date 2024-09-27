@@ -1344,8 +1344,9 @@ class Receipt(models.Model):
         If a receipt should have been validated in a past date, adjust its date as close
         as possible:
 
-            - Receipts can only be validated with dates as far as 14 days ago. If the
-              receipt date is older than that, set it to 14 days ago.
+            - Receipts can only be validated with dates as far as 14 days ago for services
+              and 5 days ago for products. If the receipt date is older than that, set
+              it to 14 days ago.
             - If other receipts have been validated on a more recent date, the receipt
               cannot be older than the most recent one.
 
