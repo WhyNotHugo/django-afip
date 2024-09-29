@@ -77,6 +77,9 @@ CLIENT_VAT_CONDITIONS = (
     "IVA no alcanzado",
 )
 
+# Keys: ConceptType.code, Values: maximum days ago.
+RECEIPT_DATE_OFFSET = {"1": 5, "2": 14, "3": 14}
+
 
 def load_metadata() -> None:
     """Loads metadata from fixtures into the database."""
@@ -1342,8 +1345,9 @@ class Receipt(models.Model):
         If a receipt should have been validated in a past date, adjust its date as close
         as possible:
 
-            - Receipts can only be validated with dates as far as 14 days ago. If the
-              receipt date is older than that, set it to 14 days ago.
+            - Receipts can only be validated with dates as far as 14 days ago for 
+              services and 5 days ago for products. If the receipt date is older 
+              than that, set it to 14 or 5 days ago.
             - If other receipts have been validated on a more recent date, the receipt
               cannot be older than the most recent one.
 
@@ -1367,7 +1371,9 @@ class Receipt(models.Model):
             .last()
         )
 
-        fortnight_ago = today - timedelta(days=14)
+        fortnight_ago = today - timedelta(
+            days=RECEIPT_DATE_OFFSET[str(self.concept.code)]
+        )
         if most_recent is None:
             oldest_possible = fortnight_ago
         else:

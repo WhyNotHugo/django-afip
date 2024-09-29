@@ -530,7 +530,6 @@ def test_approximate_date_today_with_most_recent() -> None:
     today = datetime.now(TZ_AR).date()
 
     factories.ReceiptWithApprovedValidation(issued_date=today)
-
     receipt = factories.ReceiptFactory(issued_date=today - timedelta(days=30))
     changed = receipt.approximate_date()
 
@@ -563,7 +562,7 @@ def test_approximate_date_30_days_ago_with_most_recent_20_days_ago() -> None:
     changed = receipt.approximate_date()
 
     assert changed is True
-    assert receipt.issued_date == date(2023, 11, 2)
+    assert receipt.issued_date == date(2023, 11, 11)
 
 
 @pytest.mark.django_db
