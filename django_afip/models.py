@@ -17,8 +17,6 @@ from typing import BinaryIO
 from typing import ClassVar
 from typing import Generic
 from typing import TypeVar
-from typing import Dict
-from typing import Optional as TypeOptional
 from uuid import uuid4
 
 from django import VERSION as DJANGO_VERSION
@@ -33,7 +31,6 @@ from django.db.models import Count
 from django.db.models import F
 from django.db.models import Q
 from django.db.models import Sum
-from django.db.models.fields.files import FieldFile
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from lxml import etree
@@ -54,6 +51,7 @@ from . import serializers
 
 if TYPE_CHECKING:
     from django.core.files.storage import Storage
+    from django.db.models.fields.files import FieldFile
 
 logger = logging.getLogger(__name__)
 
@@ -129,11 +127,11 @@ def first_currency() -> int | None:
 def _get_storage_from_settings(setting_name: str) -> Storage:
     path = getattr(settings, setting_name, None)
     if not path:
-        if DJANGO_VERSION >= (4,2):
+        if DJANGO_VERSION >= (4, 2):
             from django.core.files.storage import default_storage
+
             return default_storage
-        else:
-            return import_string(settings.DEFAULT_FILE_STORAGE)()
+        return import_string(settings.DEFAULT_FILE_STORAGE)()
     return import_string(path)
 
 
@@ -428,7 +426,7 @@ class TaxPayer(models.Model):
         help_text=_("A logo to use when generating printable receipts."),
     )
 
-    _old_files: Dict[str, TypeOptional[FieldFile]] = {}
+    _old_files: dict[str, FieldFile | None]
 
     @property
     def logo_as_data_uri(self) -> str:
@@ -574,21 +572,20 @@ class TaxPayer(models.Model):
         results = []
 
         existing_pos_dict = {
-            pos.number: pos
-            for pos in PointOfSales.objects.filter(owner=self)
+            pos.number: pos for pos in PointOfSales.objects.filter(owner=self)
         }
-        
+
         for pos_data in response.ResultGet.PtoVenta:
             pos_number = pos_data.Nro
             issuance_type = pos_data.EmisionTipo
             is_blocked = pos_data.Bloqueado == "S"
-            drop_date = parsers.parse_date_maybe(pos_data.FchBaja) 
-            
+            drop_date = parsers.parse_date_maybe(pos_data.FchBaja)
+
             if pos_number in existing_pos_dict:
                 pos = existing_pos_dict[pos_number]
 
                 is_modified = False
-                
+
                 if pos.issuance_type != issuance_type:
                     pos.issuance_type = issuance_type
                     is_modified = True
@@ -1381,8 +1378,8 @@ class Receipt(models.Model):
         If a receipt should have been validated in a past date, adjust its date as close
         as possible:
 
-            - Receipts can only be validated with dates as far as 14 days ago for 
-              services and 5 days ago for products. If the receipt date is older 
+            - Receipts can only be validated with dates as far as 14 days ago for
+              services and 5 days ago for products. If the receipt date is older
               than that, set it to 14 or 5 days ago.
             - If other receipts have been validated on a more recent date, the receipt
               cannot be older than the most recent one.

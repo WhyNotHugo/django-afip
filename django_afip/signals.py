@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from django.db.models.signals import pre_save, post_save
+from django.db.models.signals import post_save
+from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
 from django_afip import models
@@ -21,7 +22,8 @@ def update_certificate_expiration(
         instance.certificate_expiration = instance.get_certificate_expiration()
 
 
-FILE_FIELDS = ['certificate', 'logo']
+FILE_FIELDS = ["certificate", "logo"]
+
 
 # Store old files before saving.
 @receiver(pre_save, sender=models.TaxPayer)
@@ -34,9 +36,12 @@ def store_old_files(
         try:
             old_instance = sender.objects.get(pk=instance.pk)
             # Save the reference of the old files in the model.
-            instance._old_files = {field: getattr(old_instance, field) for field in FILE_FIELDS}
+            instance._old_files = {
+                field: getattr(old_instance, field) for field in FILE_FIELDS
+            }
         except sender.DoesNotExist:
             instance._old_files = {}
+
 
 # Delete old files after saving.
 @receiver(post_save, sender=models.TaxPayer)
@@ -46,9 +51,9 @@ def delete_file_taxpayer(
     **kwargs,
 ) -> None:
     if not instance.pk:
-        return # The instance is new, there are no old files to delete.
-    
-    old_files = getattr(instance, '_old_files', {})
+        return  # The instance is new, there are no old files to delete.
+
+    old_files = getattr(instance, "_old_files", {})
 
     for field_name in FILE_FIELDS:
         old_file = old_files.get(field_name)
