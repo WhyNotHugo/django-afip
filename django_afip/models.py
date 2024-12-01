@@ -19,7 +19,6 @@ from typing import Generic
 from typing import TypeVar
 from uuid import uuid4
 
-from django import VERSION as DJANGO_VERSION
 from django.conf import settings
 from django.core import management
 from django.core.files import File
@@ -127,11 +126,9 @@ def first_currency() -> int | None:
 def _get_storage_from_settings(setting_name: str) -> Storage:
     path = getattr(settings, setting_name, None)
     if not path:
-        if DJANGO_VERSION >= (4, 2):
-            from django.core.files.storage import default_storage
+        from django.core.files.storage import default_storage
 
-            return default_storage
-        return import_string(settings.DEFAULT_FILE_STORAGE)()
+        return default_storage
     return import_string(path)
 
 
