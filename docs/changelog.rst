@@ -13,6 +13,12 @@ Check the `latest tags`_ or `PyPI`_ for the latest stable release.
 
 Any breaking changes which require intervention will be mentioned here.
 
+13.1.0
+------
+
+* Add support for Django 5.1.
+* Fix dynamic receipt date offset for non-service receipts.
+
 13.0.0
 ------
 
