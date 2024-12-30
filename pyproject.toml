@@ -152,10 +152,8 @@ select = [
     "RUF",
 ]
 ignore = [
-  "ANN101",  # Annotation for 'self'
   "ANN002",  # Annotations for *args
   "ANN003",  # Annotations for **kwargs
-  "PT004"
 ]
 
 [tool.ruff.lint.isort]
