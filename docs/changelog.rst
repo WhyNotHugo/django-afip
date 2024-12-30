@@ -13,6 +13,11 @@ Check the `latest tags`_ or `PyPI`_ for the latest stable release.
 
 Any breaking changes which require intervention will be mentioned here.
 
+13.2.0
+------
+
+- Add support for Python 3.13.
+
 13.1.0
 ------
 

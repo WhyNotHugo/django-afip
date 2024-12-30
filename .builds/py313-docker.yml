@@ -1,0 +1,19 @@
+image: alpine/3.21
+packages:
+  - alpine-sdk
+  - docker
+sources:
+  - https://github.com/whyNotHugo/django-afip
+environment:
+  CI: true
+tasks:
+  - docker: |
+      sudo service docker start
+      sudo addgroup $(whoami) docker
+  - tests: |
+      cd django-afip
+      docker run --rm -i -v $(pwd):/src -w /src python:3.13-alpine /bin/sh <<EOF
+      apk add git font-dejavu ghostscript mariadb-dev pango
+      pip install tox
+      tox -e sqlite,mypy,ruff,vermin
+      EOF
