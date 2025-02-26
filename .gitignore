@@ -21,3 +21,6 @@ test2.csr
 
 # Created by tests:
 /media/
+
+# venv
+.venv/
