@@ -1,0 +1,65 @@
+- model: afip.clientvatcondition
+  fields:
+    code: 16
+    description: "Monotributo Trabajador Independiente Promovido"
+    cmp_clase: "A/M/C"
+
+- model: afip.clientvatcondition
+  fields:
+    code: 15
+    description: "IVA No Alcanzado"
+    cmp_clase: "B/C"
+
+- model: afip.clientvatcondition
+  fields:
+    code: 13
+    description: "Monotributista Social"
+    cmp_clase: "A/M/C"
+
+- model: afip.clientvatcondition
+  fields:
+    code: 10
+    description: "IVA Liberado – Ley N° 19.640"
+    cmp_clase: "B/C"
+
+- model: afip.clientvatcondition
+  fields:
+    code: 9
+    description: "Cliente del Exterior"
+    cmp_clase: "B/C"
+
+- model: afip.clientvatcondition
+  fields:
+    code: 8
+    description: "Proveedor del Exterior"
+    cmp_clase: "B/C"
+
+- model: afip.clientvatcondition
+  fields:
+    code: 7
+    description: "Sujeto No Categorizado"
+    cmp_clase: "B/C"
+
+- model: afip.clientvatcondition
+  fields:
+    code: 6
+    description: "Responsable Monotributo"
+    cmp_clase: "A/M/C"
+
+- model: afip.clientvatcondition
+  fields:
+    code: 5
+    description: "Consumidor Final"
+    cmp_clase: "B/C"
+
+- model: afip.clientvatcondition
+  fields:
+    code: 4
+    description: "IVA Sujeto Exento"
+    cmp_clase: "B/C"
+
+- model: afip.clientvatcondition
+  fields:
+    code: 1
+    description: "IVA Responsable Inscripto"
+    cmp_clase: "A/M/C"

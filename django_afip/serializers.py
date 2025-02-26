@@ -94,6 +94,7 @@ def serialize_receipt(receipt: Receipt):  # noqa: ANN201
         ImpTrib=sum(tax.amount for tax in taxes),
         MonId=receipt.currency.code,
         MonCotiz=receipt.currency_quote,
+        CondicionIVAReceptorId=receipt.client_vat_condition.code,
     )
     if int(receipt.concept.code) in (2, 3):
         serialized.FchServDesde = serialize_date(receipt.service_start)

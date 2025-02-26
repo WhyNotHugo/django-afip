@@ -405,6 +405,11 @@ class PointOfSalesAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(models.ClientVatCondition)
+class ClientVatConditionAdmin(admin.ModelAdmin):
+    search_fields = ("code", "description", "cmp_clase")
+    list_display = ("code", "description", "cmp_clase")
+
 @admin.register(models.CurrencyType)
 class CurrencyTypeAdmin(admin.ModelAdmin):
     search_fields = (

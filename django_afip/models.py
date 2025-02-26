@@ -85,7 +85,7 @@ RECEIPT_DATE_OFFSET = {"1": 5, "2": 14, "3": 14}
 def load_metadata() -> None:
     """Loads metadata from fixtures into the database."""
 
-    for model in GenericAfipType.SUBCLASSES:
+    for model in GenericAfipType.SUBCLASSES + [ClientVatCondition]:
         label = model._meta.label.split(".")[1].lower()
         management.call_command("loaddata", label, app="afip")
 
@@ -349,6 +349,30 @@ class OptionalType(GenericAfipType):
     class Meta:
         verbose_name = _("optional type")
         verbose_name_plural = _("optional types")
+
+
+class ClientVatCondition(models.Model):
+    code = models.IntegerField(
+        _("code"),
+        primary_key=True,
+    )
+    description = models.CharField(
+        _("description"),
+        max_length=48,
+    )
+    cmp_clase = models.CharField(
+        _("cmp clase"),
+        max_length=5,
+        help_text=_("Receipt class this VAT condition applies to (A, B, C, or M)."),
+    )
+
+    def __str__(self) -> str:
+        return self.description
+
+    class Meta:
+        verbose_name = _("Client VAT condition")
+        verbose_name_plural = _("Client VAT conditions")
+        unique_together = ("code", "cmp_clase")  # Ensure unique combination
 
 
 class TaxPayer(models.Model):
@@ -1136,6 +1160,17 @@ class Receipt(models.Model):
         help_text=_("The document type of the recipient of this receipt."),
         on_delete=models.PROTECT,
     )
+    client_vat_condition = models.ForeignKey(
+        ClientVatCondition,
+        verbose_name=_("client vat condition"),
+        help_text=_(
+            "The VAT condition of the recipient of this receipt. It should match the receipt type."
+        ),
+        related_name="receipts",
+        on_delete=models.PROTECT,
+        null=True,
+    )
+
     document_number = models.BigIntegerField(
         _("document number"),
         help_text=_("The document number of the recipient of this receipt."),
