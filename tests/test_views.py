@@ -167,7 +167,7 @@ class ReceiptPDFTestCase(TestCase):
 
 
 </html>
-""",  # noqa: E501: It's just long stuff. :(
+""",  # noqa: E501 # It's just long stuff.
         )
 
     def test_logo_in_html(self) -> None:
@@ -193,7 +193,7 @@ class ReceiptPDFTestCase(TestCase):
 
             Responsable Monotributo<br>
             </address>
-            """,  # noqa: E501: It's just long stuff. :(
+            """,  # noqa: E501 # It's just long stuff. :(
             html=True,
         )
 
