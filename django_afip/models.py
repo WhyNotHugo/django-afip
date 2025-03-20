@@ -179,6 +179,9 @@ class GenericAfipTypeManager(models.Manager, Generic[_T]):
 class GenericAfipType(models.Model):
     """An abstract class for several of AFIP's metadata types.
 
+    This superclass is used to declare models which all share the exact same set of
+    fields and have corresponding WSDL methods with matching signatures.
+
     You should not use this class directly, only subclasses of it. You should
     not create subclasses of this model unless you really know what you're doing.
     """
