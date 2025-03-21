@@ -11,7 +11,7 @@
 - model: afip.clientvatcondition
   fields:
     code: '5'
-    description: Consumidor Final 
+    description: Consumidor Final
     cmp_clase: 'B,C,49'
 - model: afip.clientvatcondition
   fields:
