@@ -1935,10 +1935,10 @@ class ClientVatCondition(models.Model):
         Direct usage of this method is discouraged, use
         :func:`~.models.load_metadata` instead.
         """
-        if not ticket and not taxpayer:
-            raise ValueError("Either ticket or taxpayer must be provided")
 
         if not ticket:
+            if not taxpayer:
+                raise ValueError("Either ticket or taxpayer must be provided")
             ticket = taxpayer.get_or_create_ticket("wsfe")
 
         client = clients.get_client("wsfe", ticket.owner.is_sandboxed)
