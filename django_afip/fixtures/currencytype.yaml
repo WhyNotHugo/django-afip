@@ -18,12 +18,6 @@
     valid_to: null
 - model: afip.currencytype
   fields:
-    code: '007'
-    description: Florines Holandeses
-    valid_from: 2009-04-03
-    valid_to: null
-- model: afip.currencytype
-  fields:
     code: '010'
     description: Pesos Mejicanos
     valid_from: 2009-04-03
@@ -85,19 +79,13 @@
 - model: afip.currencytype
   fields:
     code: '025'
-    description: Dinar Yugoslavo
+    description: Dinar Serbio
     valid_from: 2009-04-03
     valid_to: null
 - model: afip.currencytype
   fields:
     code: '026'
     description: Dólar Australiano
-    valid_from: 2009-04-03
-    valid_to: null
-- model: afip.currencytype
-  fields:
-    code: '027'
-    description: Dracma Griego
     valid_from: 2009-04-03
     valid_to: null
 - model: afip.currencytype
@@ -134,12 +122,6 @@
   fields:
     code: '034'
     description: Rand Sudafricano
-    valid_from: 2009-04-03
-    valid_to: null
-- model: afip.currencytype
-  fields:
-    code: '036'
-    description: Sucre Ecuatoriano
     valid_from: 2009-04-03
     valid_to: null
 - model: afip.currencytype
@@ -217,7 +199,7 @@
 - model: afip.currencytype
   fields:
     code: '040'
-    description: Lei Rumano
+    description: Leu Rumano
     valid_from: 2009-04-15
     valid_to: null
 - model: afip.currencytype
@@ -297,4 +279,16 @@
     code: 049
     description: Gramos de Oro Fino
     valid_from: 2010-01-25
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: RUB
+    description: Rublo (Rusia)
+    valid_from: 2025-01-15
+    valid_to: null
+- model: afip.currencytype
+  fields:
+    code: NZD
+    description: Dólar Neozelandes
+    valid_from: 2025-01-15
     valid_to: null
