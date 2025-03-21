@@ -12,7 +12,7 @@ tasks:
       sudo addgroup $(whoami) docker
   - tests: |
       cd django-afip
-      docker run --rm -i -v $(pwd):/src -w /src python:3.13-alpine /bin/sh <<EOF
+      docker run --rm -i -v $(pwd):/src -w /src python:3.13-alpine /bin/sh -e <<EOF
       apk add git font-dejavu ghostscript mariadb-dev pango
       pip install tox
       tox -e sqlite,mypy,ruff,vermin
