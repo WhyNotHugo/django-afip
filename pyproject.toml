@@ -1,7 +1,7 @@
 [project]
 name = "django-afip"
 authors = [
-    {name = "Hugo Osvaldo Barrera", email = "hugo@whynothugo.ln"},
+    {name = "Hugo Osvaldo Barrera", email = "hugo@whynothugo.nl"},
 ]
 description = "AFIP integration for django"
 readme = "README.rst"
