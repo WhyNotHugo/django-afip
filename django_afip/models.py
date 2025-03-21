@@ -1891,15 +1891,11 @@ class ReceiptValidation(models.Model):
 
 
 class ClientVatCondition(models.Model):
-    """A client VAT condition for a specific Receipt.
+    """Client VAT condition for certain types of Receipts.
 
     This a class similar to :class:`~.GenericAfipType`, but it is a type which is
-    different from the Types returned by AFIP.
-
-    So a new class is created for it.
-
-    The difference is that no `valid_from` and `valid_to` are in the parameters,
-    and a new field `cmp_clase` was added.
+    different from the others returned by AFIP. All other metadata types share the same
+    set of fields. This one has different fields, so is modelled separately.
     """
 
     code = models.CharField(
