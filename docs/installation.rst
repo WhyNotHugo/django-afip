@@ -3,7 +3,7 @@ Instalación
 
 Podés instalar este paquete usando pip:
 
-.. code-block:: python
+.. code-block:: sh
 
     pip install django-afip
 
@@ -32,7 +32,7 @@ Vas a necesitar agregar la aplicación al ``settings.py`` de tu proyecto:
 
 Asegurate de correr todas las migraciones después de agregar la app:
 
-.. code-block:: python
+.. code-block:: sh
 
     python manage.py migrate afip
 
