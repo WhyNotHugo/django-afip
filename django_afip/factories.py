@@ -319,3 +319,23 @@ class ReceiptEntryFactory(DjangoModelFactory):
     receipt = SubFactory(ReceiptFactory)
     description = "Test Entry"
     vat = SubFactory(VatTypeFactory)
+
+class ClientVatConditionFactory(DjangoModelFactory):
+    class Meta:
+        model = models.ClientVatCondition
+        django_get_or_create = ("code",)
+
+    code = "5"
+    description = "Consumidor Final"
+    cmp_clase = "B,C"
+
+
+class ReceiptWithClientVatConditionFactory(ReceiptFactory):
+    """Receipt with a valid Client VAT Condition, ready to validate."""
+
+    client_vat_condition = SubFactory(ClientVatConditionFactory)
+    
+    @post_generation
+    def post(obj: models.Receipt, create: bool, extracted: None, **kwargs) -> None:
+        VatFactory(vat_type__code=5, receipt=obj)
+        TaxFactory(tax_type__code=3, receipt=obj)

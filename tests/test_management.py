@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 from django.core import management
 
-from django_afip.models import GenericAfipType
+from django_afip.models import GenericAfipType, ClientVatCondition
 
 
 @pytest.mark.django_db
@@ -19,3 +19,12 @@ def test_afip_metadata_command() -> None:
     for model in GenericAfipType.SUBCLASSES:
         # TYPING: mypy doesn't know about `.objects`.
         assert model.objects.count() > 0  # type: ignore[attr-defined]
+
+@pytest.mark.django_db
+def test_call_load_metadata_populate_client_vat_condition() -> None:
+    """Test that load_metadata and populate methods work correctly."""
+
+    assert ClientVatCondition.objects.count() == 0
+    management.call_command("afipmetadata")
+
+    assert ClientVatCondition.objects.count() == 11

@@ -112,6 +112,10 @@ def serialize_receipt(receipt: Receipt):  # noqa: ANN201
         serialized.Opcionales = f.ArrayOfOpcional(
             [serialize_optional(optional) for optional in optionals]
         )
+    
+    if receipt.client_vat_condition:
+        serialized.CondicionIVAReceptorId = receipt.client_vat_condition.code
+
 
     related_receipts = receipt.related_receipts.all()
     if related_receipts:
