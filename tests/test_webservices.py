@@ -327,12 +327,15 @@ def test_receipt_queryset_credit_note(populated_db: None) -> None:
     assert len(errs) == 0
     assert models.ReceiptValidation.objects.count() == 2
 
+
 @pytest.mark.django_db
 @pytest.mark.live
-def test_receipt_queryset_validation_good_with_client_vat_condition(populated_db: None) -> None:
+def test_receipt_queryset_validation_good_with_client_vat_condition(
+    populated_db: None,
+) -> None:
     """Test validating valid receipts."""
     receipt = factories.ReceiptWithClientVatConditionFactory()
-    
+
     errs = models.Receipt.objects.all().validate()  # type: ignore[attr-defined]
 
     assert len(errs) == 0

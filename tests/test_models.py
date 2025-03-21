@@ -605,6 +605,7 @@ def test_approximate_date_failure() -> None:
     ):
         receipt.approximate_date()
 
+
 @pytest.mark.django_db
 def test_client_vat_condition_fields() -> None:
     """Test that ClientVatCondition fields are properly set."""
@@ -623,7 +624,7 @@ def test_client_vat_condition_fields() -> None:
         models.ClientVatCondition._meta.get_field("description").__class__
         == django_models.CharField
     )
-    assert models.ClientVatCondition._meta.get_field("cmp_clase").max_length == 5
+    assert models.ClientVatCondition._meta.get_field("cmp_clase").max_length == 10
     assert (
         models.ClientVatCondition._meta.get_field("cmp_clase").__class__
         == django_models.CharField
@@ -636,9 +637,9 @@ def test_client_vat_condition_populate(live_ticket: models.AuthTicket) -> None:
     """Test populating client VAT conditions from AFIP."""
     # Ensure we start with no client VAT conditions
     assert models.ClientVatCondition.objects.count() == 0
-    results = models.ClientVatCondition.populate(ticket=live_ticket)
+    models.ClientVatCondition.populate(ticket=live_ticket)
     assert models.ClientVatCondition.objects.count() == 11
 
     initial_count = models.ClientVatCondition.objects.count()
-    second_results = models.ClientVatCondition.populate(ticket=live_ticket)
+    models.ClientVatCondition.populate(ticket=live_ticket)
     assert models.ClientVatCondition.objects.count() == initial_count

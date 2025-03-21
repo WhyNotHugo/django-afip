@@ -88,7 +88,7 @@ def load_metadata() -> None:
     for model in GenericAfipType.SUBCLASSES:
         label = model._meta.label.split(".")[1].lower()
         management.call_command("loaddata", label, app="afip")
-    
+
     label = ClientVatCondition._meta.label.split(".")[1].lower()
     management.call_command("loaddata", label, app="afip")
 
@@ -1889,13 +1889,17 @@ class ReceiptValidation(models.Model):
         verbose_name = _("receipt validation")
         verbose_name_plural = _("receipt validations")
 
+
 class ClientVatCondition(models.Model):
     """A client VAT condition for a specific Receipt.
 
-    This a class similar to :class:`~.GenericAfipType`, but it is a type which is different from the
-    Types returned by AFIP, so a new class is created for it.
+    This a class similar to :class:`~.GenericAfipType`, but it is a type which is
+    different from the Types returned by AFIP.
 
-    The difference is that no `valid_from` and `valid_to` are in the parameters, and a new field `cmp_clase` was added.
+    So a new class is created for it.
+
+    The difference is that no `valid_from` and `valid_to` are in the parameters,
+    and a new field `cmp_clase` was added.
     """
 
     code = models.CharField(
@@ -1908,7 +1912,7 @@ class ClientVatCondition(models.Model):
     )
     cmp_clase = models.CharField(
         _("cmp clase"),
-        max_length=5,
+        max_length=10,
         help_text=_("The class of the client VAT condition."),
     )
 
@@ -1922,8 +1926,8 @@ class ClientVatCondition(models.Model):
     ) -> None:
         """Fetch and save client VAT condition data from AFIP's WS.
 
-        Fetches all client VAT conditions from the AFIP web service and stores or updates them
-        in the database.
+        Fetches all client VAT conditions from the AFIP web service,
+        and stores or updates them in the database.
 
         Either a ticket or a taxpayer must be provided. If a taxpayer is provided but no
         ticket, a new ticket will be created for the taxpayer.
