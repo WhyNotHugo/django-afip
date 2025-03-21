@@ -17,6 +17,7 @@ Any breaking changes which require intervention will be mentioned here.
 ------
 
 - Add support for Python 3.13.
+- Add support for new ``FEParamGetCondicionIvaReceptor`` field.
 
 13.1.0
 ------
