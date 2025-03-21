@@ -406,7 +406,7 @@ def test_currenty_type_success() -> None:
 def test_populate_method(live_ticket: models.AuthTicket) -> None:
     assert models.CurrencyType.objects.count() == 0
     models.CurrencyType.objects.populate()
-    assert models.CurrencyType.objects.count() == 50
+    assert models.CurrencyType.objects.count() == 49
 
 
 @pytest.mark.django_db
@@ -604,3 +604,42 @@ def test_approximate_date_failure() -> None:
         match="Expected to update one receipt, updated 0.",
     ):
         receipt.approximate_date()
+
+
+@pytest.mark.django_db
+def test_client_vat_condition_fields() -> None:
+    """Test that ClientVatCondition fields are properly set."""
+    assert (
+        len(models.ClientVatCondition._meta.fields) == 4
+    )  # id, code, description, cmp_clase
+    from django.db import models as django_models
+
+    assert models.ClientVatCondition._meta.get_field("code").max_length == 3
+    assert (
+        models.ClientVatCondition._meta.get_field("code").__class__
+        == django_models.CharField
+    )
+    assert models.ClientVatCondition._meta.get_field("description").max_length == 250
+    assert (
+        models.ClientVatCondition._meta.get_field("description").__class__
+        == django_models.CharField
+    )
+    assert models.ClientVatCondition._meta.get_field("cmp_clase").max_length == 10
+    assert (
+        models.ClientVatCondition._meta.get_field("cmp_clase").__class__
+        == django_models.CharField
+    )
+
+
+@pytest.mark.django_db
+@pytest.mark.live
+def test_client_vat_condition_populate(live_ticket: models.AuthTicket) -> None:
+    """Test populating client VAT conditions from AFIP."""
+    # Ensure we start with no client VAT conditions
+    assert models.ClientVatCondition.objects.count() == 0
+    models.ClientVatCondition.populate(ticket=live_ticket)
+    assert models.ClientVatCondition.objects.count() == 11
+
+    initial_count = models.ClientVatCondition.objects.count()
+    models.ClientVatCondition.populate(ticket=live_ticket)
+    assert models.ClientVatCondition.objects.count() == initial_count

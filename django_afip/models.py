@@ -89,6 +89,9 @@ def load_metadata() -> None:
         label = model._meta.label.split(".")[1].lower()
         management.call_command("loaddata", label, app="afip")
 
+    label = ClientVatCondition._meta.label.split(".")[1].lower()
+    management.call_command("loaddata", label, app="afip")
+
 
 def check_response(response) -> None:  # noqa: ANN001
     """Check that a response is not an error.
@@ -1236,6 +1239,14 @@ class Receipt(models.Model):
         verbose_name=_("related receipts"),
         blank=True,
     )
+    client_vat_condition = models.ForeignKey(
+        "afip.ClientVatCondition",
+        verbose_name=_("client VAT condition"),
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        help_text=_("The client VAT condition of the recipient of this receipt."),
+    )
 
     #: The default manager includes extra methods including helpers for validation.
     #:
@@ -1877,3 +1888,73 @@ class ReceiptValidation(models.Model):
     class Meta:
         verbose_name = _("receipt validation")
         verbose_name_plural = _("receipt validations")
+
+
+class ClientVatCondition(models.Model):
+    """A client VAT condition for a specific Receipt.
+
+    This a class similar to :class:`~.GenericAfipType`, but it is a type which is
+    different from the Types returned by AFIP.
+
+    So a new class is created for it.
+
+    The difference is that no `valid_from` and `valid_to` are in the parameters,
+    and a new field `cmp_clase` was added.
+    """
+
+    code = models.CharField(
+        _("code"),
+        max_length=3,
+    )
+    description = models.CharField(
+        _("description"),
+        max_length=250,
+    )
+    cmp_clase = models.CharField(
+        _("cmp clase"),
+        max_length=10,
+        help_text=_("The class of the client VAT condition."),
+    )
+
+    class Meta:
+        verbose_name = _("client VAT condition")
+        verbose_name_plural = _("client VAT conditions")
+
+    @classmethod
+    def populate(
+        cls, ticket: AuthTicket | None = None, taxpayer: TaxPayer | None = None
+    ) -> None:
+        """Fetch and save client VAT condition data from AFIP's WS.
+
+        Fetches all client VAT conditions from the AFIP web service,
+        and stores or updates them in the database.
+
+        Either a ticket or a taxpayer must be provided. If a taxpayer is provided but no
+        ticket, a new ticket will be created for the taxpayer.
+
+        Direct usage of this method is discouraged, use
+        :func:`~.models.load_metadata` instead.
+        """
+        if not ticket and not taxpayer:
+            raise ValueError("Either ticket or taxpayer must be provided")
+
+        if not ticket:
+            ticket = taxpayer.get_or_create_ticket("wsfe")
+
+        client = clients.get_client("wsfe", ticket.owner.is_sandboxed)
+        response = client.service.FEParamGetCondicionIvaReceptor(
+            serializers.serialize_ticket(ticket),
+        )
+        check_response(response)
+
+        for condition_data in response.ResultGet.CondicionIvaReceptor:
+            condition, created = cls.objects.update_or_create(
+                code=condition_data.Id,
+                defaults={
+                    "description": condition_data.Desc,
+                    "cmp_clase": condition_data.Cmp_Clase,
+                },
+            )
+
+    def __str__(self) -> str:
+        return f"{self.description} ({self.code})"
