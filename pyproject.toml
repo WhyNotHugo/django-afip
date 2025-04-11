@@ -7,7 +7,8 @@ description = "AFIP integration for django"
 readme = "README.rst"
 requires-python = ">=3.9"
 keywords = ["argentina", "afip", "wsdl"]
-license = {text = "ISC"}
+license = "ISC"
+license-files = ["LICENCE"]
 classifiers = [
   "Development Status :: 6 - Mature",
   "Environment :: Web Environment",
@@ -16,7 +17,6 @@ classifiers = [
   "Framework :: Django :: 5.0",
   "Framework :: Django :: 5.1",
   "Intended Audience :: Developers",
-  "License :: OSI Approved :: ISC License (ISCL)",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.9",
