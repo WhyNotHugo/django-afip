@@ -85,8 +85,8 @@ changelog = "https://django-afip.readthedocs.io/en/latest/changelog.html"
 donate = "https://liberapay.com/WhyNotHugo/"
 funding = "https://github.com/sponsors/WhyNotHugo"
 
-[tool.setuptools]
-packages = ["django_afip"]
+[tool.setuptools.packages.find]
+include = ["django_afip*"]
 
 [build-system]
 requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
