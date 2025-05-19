@@ -643,3 +643,34 @@ def test_client_vat_condition_populate(live_ticket: models.AuthTicket) -> None:
     initial_count = models.ClientVatCondition.objects.count()
     models.ClientVatCondition.populate(ticket=live_ticket)
     assert models.ClientVatCondition.objects.count() == initial_count
+
+
+@pytest.mark.django_db
+def test_load_metadata() -> None:
+    """Test populating AFIP models from fixtures."""
+    fetched_models = [
+        models.ClientVatCondition,
+        models.ConceptType,
+        models.CurrencyType,
+        models.DocumentType,
+        models.OptionalType,
+        models.ReceiptType,
+        models.TaxType,
+        models.VatType,
+    ]
+
+    # At first we have no data
+    for m in fetched_models:
+        assert m.objects.count() == 0
+
+    # Load data and expect data
+    models.load_metadata()
+    counts = []
+    for m in fetched_models:
+        assert m.objects.count() > 0
+        counts.append(m.objects.count())
+
+    # Load data again and expect no change
+    models.load_metadata()
+    for i, m in enumerate(fetched_models):
+        assert m.objects.count() == counts[i]

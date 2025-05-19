@@ -1890,6 +1890,20 @@ class ReceiptValidation(models.Model):
         verbose_name_plural = _("receipt validations")
 
 
+class ClientVatConditionManager(models.Manager):
+    """Manager for ClientVatCondition.
+
+    This class is only used to provide natural key support for the
+    :class:`~.ClientVatCondition` class.
+    """
+
+    def get_by_natural_key(self, code: str) -> ClientVatCondition:
+        return self.get(code=code)
+
+    def exists_by_natural_key(self, code: str) -> bool:
+        return self.filter(code=code).exists()
+
+
 class ClientVatCondition(models.Model):
     """Client VAT condition for certain types of Receipts.
 
@@ -1897,6 +1911,8 @@ class ClientVatCondition(models.Model):
     different from the others returned by AFIP. All other metadata types share the same
     set of fields. This one has different fields, so is modelled separately.
     """
+
+    objects = ClientVatConditionManager()
 
     code = models.CharField(
         _("code"),
@@ -1951,6 +1967,9 @@ class ClientVatCondition(models.Model):
                     "cmp_clase": condition_data.Cmp_Clase,
                 },
             )
+
+    def natural_key(self) -> tuple[str]:
+        return (self.code,)
 
     def __str__(self) -> str:
         return f"{self.description}"
