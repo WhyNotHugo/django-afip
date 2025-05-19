@@ -1953,4 +1953,4 @@ class ClientVatCondition(models.Model):
             )
 
     def __str__(self) -> str:
-        return f"{self.description} ({self.code})"
+        return f"{self.description}"
