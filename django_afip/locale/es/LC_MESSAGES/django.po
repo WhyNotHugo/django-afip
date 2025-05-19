@@ -416,6 +416,12 @@ msgstr "La cotización de la moneda en el día que fue emitido este comprobante.
 msgid "related receipts"
 msgstr "comprobantes relacionados"
 
+msgid "client VAT condition"
+msgstr "condición IVA del cliente"
+
+msgid "The client VAT condition of the recipient of this receipt."
+msgstr "La condición frente al IVA del cliente para el cual este comprobante es emitido."
+
 #, python-format
 msgid "Unnumbered %s"
 msgstr "%s sin número"
