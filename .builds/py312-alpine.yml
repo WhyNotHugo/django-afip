@@ -41,6 +41,9 @@ tasks:
   - tox-django51-postgres: |
       cd django-afip
       tox -e django51-postgres
+  - tox-django52-postgres: |
+      cd django-afip
+      tox -e django52-postgres
   - lint: |
       cd django-afip
       tox -e mypy,ruff,vermin
