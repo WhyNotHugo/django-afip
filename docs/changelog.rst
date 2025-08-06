@@ -13,6 +13,12 @@ Check the `latest tags`_ or `PyPI`_ for the latest stable release.
 
 Any breaking changes which require intervention will be mentioned here.
 
+13.2.2
+------
+
+- Properly add support for Django 5.2. The previous release still included a
+  specified for ``Django<5.2``.
+
 13.2.1
 ------
 
