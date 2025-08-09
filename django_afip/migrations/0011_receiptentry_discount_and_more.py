@@ -29,14 +29,14 @@ class Migration(migrations.Migration):
         migrations.AddConstraint(
             model_name="receiptentry",
             constraint=models.CheckConstraint(
-                check=models.Q(("discount__gte", Decimal("0.0"))),
+                condition=models.Q(("discount__gte", Decimal("0.0"))),
                 name="discount_positive_value",
             ),
         ),
         migrations.AddConstraint(
             model_name="receiptentry",
             constraint=models.CheckConstraint(
-                check=models.Q(
+                condition=models.Q(
                     (
                         "discount__lte",
                         django.db.models.expressions.CombinedExpression(
