@@ -26,15 +26,9 @@ tasks:
   - tox-sqlite: |
       cd django-afip
       tox -e sqlite
-  - tox-django42-mariadb: |
-      cd django-afip
-      tox -e django42-mysql
   - tox-django50-mariadb: |
       cd django-afip
       tox -e django50-mysql
-  - tox-django42-postgres: |
-      cd django-afip
-      tox -e django42-postgres
   - tox-django50-postgres: |
       cd django-afip
       tox -e django50-postgres
