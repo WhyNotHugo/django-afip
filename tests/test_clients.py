@@ -25,5 +25,5 @@ def test_inexisting_service() -> None:
 
 @pytest.mark.live
 def test_insecure_dh_hack_required() -> None:
-    with pytest.raises(SSLError, match="SSL: DH_KEY_TOO_SMALL. dh key too small"):
+    with pytest.raises(SSLError, match="SSL: DH_KEY_TOO_SMALL\\] dh key too small"):
         requests.get("https://servicios1.afip.gov.ar/wsfev1/service.asmx?WSDL")

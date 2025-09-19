@@ -601,7 +601,7 @@ def test_approximate_date_failure() -> None:
 
     with pytest.raises(
         exceptions.DjangoAfipException,
-        match="Expected to update one receipt, updated 0.",
+        match="Expected to update one receipt, updated 0\\.",
     ):
         receipt.approximate_date()
 

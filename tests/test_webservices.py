@@ -32,7 +32,7 @@ def test_authentication_with_bad_cuit() -> None:
     with pytest.raises(
         exceptions.AfipException,
         # Note: AFIP apparently edited this message and added a typo:
-        match="ValidacionDeToken: No apareci[oó] CUIT en lista de relaciones:",
+        match=r"ValidacionDeToken: No apareci[oó] CUIT en lista de relaciones:",
     ):
         taxpayer.fetch_points_of_sales()
 
@@ -67,7 +67,7 @@ def test_authentication_with_no_active_taxpayer() -> None:
     """Test that no TaxPayers raises an understandable error."""
     with pytest.raises(
         exceptions.AuthenticationError,
-        match="There are no taxpayers to generate a ticket.",
+        match="There are no taxpayers to generate a ticket\\.",
     ):
         models.AuthTicket.objects.get_any_active("wsfe")
 
