@@ -90,7 +90,7 @@ funding = "https://github.com/sponsors/WhyNotHugo"
 include = ["django_afip*"]
 
 [build-system]
-requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
+requires = ["setuptools>=77", "wheel", "setuptools_scm>=6.2"]
 
 [tool.setuptools_scm]
 write_to = "django_afip/version.py"
