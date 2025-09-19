@@ -1960,7 +1960,7 @@ class ClientVatCondition(models.Model):
         check_response(response)
 
         for condition_data in response.ResultGet.CondicionIvaReceptor:
-            condition, created = cls.objects.update_or_create(
+            cls.objects.update_or_create(
                 code=condition_data.Id,
                 defaults={
                     "description": condition_data.Desc,
