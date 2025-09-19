@@ -18,6 +18,8 @@ Any breaking changes which require intervention will be mentioned here.
 
 - ``setuptools>=77`` is required. Previous versions would often fail to
   properly parse the ``licence`` field.
+- Extend supported versions of ``django-renderpdf``, ``qrcode`` and
+  ``cryptography``.
 
 13.2.2
 ------
