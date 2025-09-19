@@ -124,6 +124,16 @@ class PointOfSalesFactory(DjangoModelFactory):
     sales_terms = "Credit Card"
 
 
+class ClientVatConditionFactory(DjangoModelFactory):
+    class Meta:
+        model = models.ClientVatCondition
+        django_get_or_create = ("code",)
+
+    code = "5"
+    description = "Consumidor Final"
+    cmp_clase = "B,C"
+
+
 class ReceiptFactory(DjangoModelFactory):
     class Meta:
         model = models.Receipt
@@ -146,6 +156,7 @@ class ReceiptWithVatAndTaxFactory(ReceiptFactory):
     """Receipt with a valid Vat and Tax, ready to validate."""
 
     point_of_sales = LazyFunction(lambda: models.PointOfSales.objects.first())
+    client_vat_condition = SubFactory(ClientVatConditionFactory)
 
     @post_generation
     def post(obj: models.Receipt, create: bool, extracted: None, **kwargs) -> None:
@@ -153,19 +164,14 @@ class ReceiptWithVatAndTaxFactory(ReceiptFactory):
         TaxFactory(tax_type__code=3, receipt=obj)
 
 
-class ReceiptFCEAWithVatAndTaxFactory(ReceiptFactory):
+class ReceiptFCEAWithVatAndTaxFactory(ReceiptWithVatAndTaxFactory):
     """Receipt FCEA with a valid Vat and Tax, ready to validate."""
 
     document_number = 20111111112
-    point_of_sales = LazyFunction(lambda: models.PointOfSales.objects.first())
     receipt_type = SubFactory(ReceiptTypeFactory, code=201)
     document_type = SubFactory(DocumentTypeFactory, code=80)
     expiration_date = LazyFunction(date.today)
-
-    @post_generation
-    def post(obj: models.Receipt, create: bool, extracted: None, **kwargs) -> None:
-        VatFactory(vat_type__code=5, receipt=obj)
-        TaxFactory(tax_type__code=3, receipt=obj)
+    client_vat_condition = SubFactory(ClientVatConditionFactory, code="1")
 
 
 class ReceiptFCEAWithVatTaxAndOptionalsFactory(ReceiptFCEAWithVatAndTaxFactory):
@@ -319,16 +325,6 @@ class ReceiptEntryFactory(DjangoModelFactory):
     receipt = SubFactory(ReceiptFactory)
     description = "Test Entry"
     vat = SubFactory(VatTypeFactory)
-
-
-class ClientVatConditionFactory(DjangoModelFactory):
-    class Meta:
-        model = models.ClientVatCondition
-        django_get_or_create = ("code",)
-
-    code = "5"
-    description = "Consumidor Final"
-    cmp_clase = "B,C"
 
 
 class ReceiptWithClientVatConditionFactory(ReceiptFactory):

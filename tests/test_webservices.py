@@ -253,6 +253,7 @@ def test_receipt_queryset_validation_good_without_tax(populated_db: None) -> Non
     receipt = factories.ReceiptFactory(
         point_of_sales=models.PointOfSales.objects.first(),
         total_amount=121,
+        client_vat_condition=factories.ClientVatConditionFactory(),
     )
     factories.VatFactory(vat_type__code=5, receipt=receipt)
 
@@ -271,6 +272,7 @@ def test_receipt_queryset_validation_good_without_vat(populated_db: None) -> Non
         point_of_sales=models.PointOfSales.objects.first(),
         receipt_type__code=11,
         total_amount=109,
+        client_vat_condition=factories.ClientVatConditionFactory(),
     )
     factories.TaxFactory(tax_type__code=3, receipt=receipt)
 
