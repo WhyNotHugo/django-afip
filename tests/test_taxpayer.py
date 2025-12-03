@@ -3,9 +3,12 @@ from __future__ import annotations
 from datetime import datetime
 
 import pytest
+from cryptography import x509
+from cryptography.hazmat.primitives.serialization import load_pem_private_key
+from cryptography.x509.oid import NameOID
 from factory.django import FileField
 from freezegun import freeze_time
-from OpenSSL import crypto
+from OpenSSL.crypto import X509
 
 from django_afip import factories
 
@@ -19,8 +22,8 @@ def test_key_generation() -> None:
     assert key.splitlines()[0] == "-----BEGIN PRIVATE KEY-----"
     assert key.splitlines()[-1] == "-----END PRIVATE KEY-----"
 
-    loaded_key = crypto.load_privatekey(crypto.FILETYPE_PEM, key)
-    assert isinstance(loaded_key, crypto.PKey)
+    loaded_key = load_pem_private_key(key, password=None)
+    assert loaded_key is not None
 
 
 def test_dont_overwrite_keys() -> None:
@@ -45,8 +48,8 @@ def test_overwrite_keys_force() -> None:
     assert key.splitlines()[0] == "-----BEGIN PRIVATE KEY-----"
     assert key.splitlines()[-1] == "-----END PRIVATE KEY-----"
 
-    loaded_key = crypto.load_privatekey(crypto.FILETYPE_PEM, key)
-    assert isinstance(loaded_key, crypto.PKey)
+    loaded_key = load_pem_private_key(key, password=None)
+    assert loaded_key is not None
 
 
 @freeze_time(datetime.fromtimestamp(1489537017))
@@ -62,23 +65,29 @@ def test_csr_generation() -> None:
 
     assert csr.splitlines()[-1] == "-----END CERTIFICATE REQUEST-----"
 
-    loaded_csr = crypto.load_certificate_request(crypto.FILETYPE_PEM, csr)
-    assert isinstance(loaded_csr, crypto.X509Req)
+    loaded_csr = x509.load_pem_x509_csr(csr)
+    assert isinstance(loaded_csr, x509.CertificateSigningRequest)
 
-    expected_components = [
-        (b"O", b"John Smith"),
-        (b"CN", b"djangoafip1489537017"),
-        (b"serialNumber", b"CUIT 20329642330"),
-    ]
-
-    assert expected_components == loaded_csr.get_subject().get_components()
+    subject = loaded_csr.subject
+    assert (
+        subject.get_attributes_for_oid(NameOID.ORGANIZATION_NAME)[0].value
+        == "John Smith"
+    )
+    assert (
+        subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value
+        == "djangoafip1489537017"
+    )
+    assert (
+        subject.get_attributes_for_oid(NameOID.SERIAL_NUMBER)[0].value
+        == "CUIT 20329642330"
+    )
 
 
 def test_certificate_object() -> None:
     taxpayer = factories.TaxPayerFactory.build()
     cert = taxpayer.certificate_object
 
-    assert isinstance(cert, crypto.X509)
+    assert isinstance(cert, X509)
 
 
 def test_null_certificate_object() -> None:

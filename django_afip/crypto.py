@@ -2,14 +2,18 @@ from __future__ import annotations
 
 from typing import IO
 
+from cryptography import x509
 from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPrivateKey
 from cryptography.hazmat.primitives.serialization import Encoding
+from cryptography.hazmat.primitives.serialization import NoEncryption
+from cryptography.hazmat.primitives.serialization import PrivateFormat
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 from cryptography.hazmat.primitives.serialization.pkcs7 import PKCS7Options
 from cryptography.hazmat.primitives.serialization.pkcs7 import PKCS7SignatureBuilder
 from cryptography.x509 import load_pem_x509_certificate
-from OpenSSL import crypto
+from cryptography.x509.oid import NameOID
 
 from django_afip import exceptions
 
@@ -41,10 +45,18 @@ def create_embeded_pkcs7_signature(data: bytes, cert: bytes, key: bytes) -> byte
 
 def create_key(file_: IO[bytes]) -> None:
     """Create a key and write it into ``file_``."""
-    pkey = crypto.PKey()
-    pkey.generate_key(crypto.TYPE_RSA, 2048)
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048,
+    )
 
-    file_.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, pkey))
+    file_.write(
+        private_key.private_bytes(
+            encoding=Encoding.PEM,
+            format=PrivateFormat.PKCS8,
+            encryption_algorithm=NoEncryption(),
+        )
+    )
     file_.flush()
 
 
@@ -56,16 +68,20 @@ def create_csr(
     file_: IO[bytes],
 ) -> None:
     """Create a certificate signing request and write it into ``file_``."""
-    key = crypto.load_privatekey(crypto.FILETYPE_PEM, key_file.read())
+    private_key = load_pem_private_key(key_file.read(), password=None)
 
-    req = crypto.X509Req()
-    subj = req.get_subject()
+    csr = (
+        x509.CertificateSigningRequestBuilder()
+        .subject_name(
+            x509.Name(
+                [
+                    x509.NameAttribute(NameOID.ORGANIZATION_NAME, organization_name),
+                    x509.NameAttribute(NameOID.COMMON_NAME, common_name),
+                    x509.NameAttribute(NameOID.SERIAL_NUMBER, serial_number),
+                ]
+            )
+        )
+        .sign(private_key, hashes.SHA256())  # type: ignore[arg-type]
+    )
 
-    subj.O = organization_name
-    subj.CN = common_name
-    subj.serialNumber = serial_number  # type: ignore[attr-defined]
-
-    req.set_pubkey(key)
-    req.sign(key, "md5")
-
-    file_.write(crypto.dump_certificate_request(crypto.FILETYPE_PEM, req))
+    file_.write(csr.public_bytes(Encoding.PEM))
