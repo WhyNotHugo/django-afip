@@ -5,7 +5,7 @@ authors = [
 ]
 description = "AFIP integration for django"
 readme = "README.rst"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 keywords = ["argentina", "afip", "wsdl"]
 license = "ISC"
 license-files = ["LICENCE"]
@@ -20,7 +20,6 @@ classifiers = [
   "Intended Audience :: Developers",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",

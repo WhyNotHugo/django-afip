@@ -13,13 +13,14 @@ Check the `latest tags`_ or `PyPI`_ for the latest stable release.
 
 Any breaking changes which require intervention will be mentioned here.
 
-13.3.0
+14.0.0
 ------
 
 - ``setuptools>=77`` is required. Previous versions would often fail to
   properly parse the ``licence`` field.
 - Extend supported versions of ``django-renderpdf``, ``qrcode`` and
   ``cryptography``.
+- Drop support for Python 3.9.
 
 13.2.2
 ------
