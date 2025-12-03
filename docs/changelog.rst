@@ -21,6 +21,7 @@ Any breaking changes which require intervention will be mentioned here.
 - Extend supported versions of ``django-renderpdf``, ``qrcode`` and
   ``cryptography``.
 - Drop support for Python 3.9.
+* Dropped support for Django 4.2.
 
 13.2.2
 ------

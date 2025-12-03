@@ -1693,10 +1693,11 @@ class ReceiptEntry(models.Model):
         verbose_name_plural = _("receipt entries")
         constraints = (
             CheckConstraint(
-                check=Q(discount__gte=Decimal("0.0")), name="discount_positive_value"
+                condition=Q(discount__gte=Decimal("0.0")),
+                name="discount_positive_value",
             ),
             CheckConstraint(
-                check=Q(discount__lte=F("quantity") * F("unit_price")),
+                condition=Q(discount__lte=F("quantity") * F("unit_price")),
                 name="discount_less_than_total",
             ),
         )
