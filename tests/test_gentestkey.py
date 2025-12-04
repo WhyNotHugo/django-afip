@@ -18,14 +18,14 @@ def test_generate_test_csr() -> None:
     """
 
     # This one is used for most tests.
-    taxpayer = factories.TaxPayerFactory(is_sandboxed=True)
+    taxpayer = factories.TaxPayerFactory.create(is_sandboxed=True)
 
     csr = taxpayer.generate_csr("wsfe")
     with open("test.csr", "wb") as f:
         f.write(csr.read())
 
     # This one is used for the `test_authentication_with_bad` test.
-    taxpayer = factories.AlternateTaxpayerFactory(is_sandboxed=True)
+    taxpayer = factories.AlternateTaxpayerFactory.create(is_sandboxed=True)
 
     csr = taxpayer.generate_csr("wsfe")
     with open("test2.csr", "wb") as f:

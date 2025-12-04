@@ -24,8 +24,7 @@ _live_mode = False
 def disable_durability_check() -> Generator[None, None, None]:
     with patch(
         "django_afip.models.ReceiptQuerySet._ensure_durability",
-        False,
-        spec=True,
+        new=False,
     ):
         yield
 
@@ -54,7 +53,7 @@ def expired_key() -> bytes:
 @pytest.fixture
 def live_taxpayer(db: None) -> models.TaxPayer:
     """Return a taxpayer usable with AFIP's test servers."""
-    return TaxPayerFactory(pk=1)
+    return TaxPayerFactory.create(pk=1)
 
 
 @pytest.fixture

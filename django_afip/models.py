@@ -1890,7 +1890,7 @@ class ReceiptValidation(models.Model):
         verbose_name_plural = _("receipt validations")
 
 
-class ClientVatConditionManager(models.Manager):
+class ClientVatConditionManager(models.Manager["ClientVatCondition"]):
     """Manager for ClientVatCondition.
 
     This class is only used to provide natural key support for the

@@ -23,7 +23,7 @@ def get_test_file(filename: str, mode: str = "r") -> Path:
     return Path(__file__).parent / "testing" / filename
 
 
-class UserFactory(DjangoModelFactory):
+class UserFactory(DjangoModelFactory[User]):
     class Meta:
         model = User
 
@@ -37,7 +37,7 @@ class SuperUserFactory(UserFactory):
     is_superuser = True
 
 
-class ConceptTypeFactory(DjangoModelFactory):
+class ConceptTypeFactory(DjangoModelFactory[models.ConceptType]):
     class Meta:
         model = models.ConceptType
         django_get_or_create = ("code",)
@@ -47,7 +47,7 @@ class ConceptTypeFactory(DjangoModelFactory):
     valid_from = date(2010, 9, 17)
 
 
-class DocumentTypeFactory(DjangoModelFactory):
+class DocumentTypeFactory(DjangoModelFactory[models.DocumentType]):
     class Meta:
         model = models.DocumentType
 
@@ -56,7 +56,7 @@ class DocumentTypeFactory(DjangoModelFactory):
     valid_from = date(2008, 7, 25)
 
 
-class CurrencyTypeFactory(DjangoModelFactory):
+class CurrencyTypeFactory(DjangoModelFactory[models.CurrencyType]):
     class Meta:
         model = models.CurrencyType
 
@@ -65,7 +65,7 @@ class CurrencyTypeFactory(DjangoModelFactory):
     valid_from = date(2009, 4, 3)
 
 
-class ReceiptTypeFactory(DjangoModelFactory):
+class ReceiptTypeFactory(DjangoModelFactory[models.ReceiptType]):
     class Meta:
         model = models.ReceiptType
         django_get_or_create = ("code",)
@@ -75,7 +75,7 @@ class ReceiptTypeFactory(DjangoModelFactory):
     valid_from = date(2011, 3, 30)
 
 
-class TaxPayerFactory(DjangoModelFactory):
+class TaxPayerFactory(DjangoModelFactory[models.TaxPayer]):
     class Meta:
         model = models.TaxPayer
         django_get_or_create = ("cuit",)
@@ -89,7 +89,7 @@ class TaxPayerFactory(DjangoModelFactory):
     logo = ImageField(from_path=get_test_file("tiny.png", "rb"))
 
 
-class AlternateTaxpayerFactory(DjangoModelFactory):
+class AlternateTaxpayerFactory(DjangoModelFactory[models.TaxPayer]):
     """A taxpayer with an alternate (valid) keypair."""
 
     class Meta:
@@ -103,7 +103,7 @@ class AlternateTaxpayerFactory(DjangoModelFactory):
     active_since = datetime(2011, 10, 3)
 
 
-class PointOfSalesFactory(DjangoModelFactory):
+class PointOfSalesFactory(DjangoModelFactory[models.PointOfSales]):
     class Meta:
         model = models.PointOfSales
         django_get_or_create = (
@@ -124,7 +124,7 @@ class PointOfSalesFactory(DjangoModelFactory):
     sales_terms = "Credit Card"
 
 
-class ClientVatConditionFactory(DjangoModelFactory):
+class ClientVatConditionFactory(DjangoModelFactory[models.ClientVatCondition]):
     class Meta:
         model = models.ClientVatCondition
         django_get_or_create = ("code",)
@@ -134,7 +134,7 @@ class ClientVatConditionFactory(DjangoModelFactory):
     cmp_clase = "B,C"
 
 
-class ReceiptFactory(DjangoModelFactory):
+class ReceiptFactory(DjangoModelFactory[models.Receipt]):
     class Meta:
         model = models.Receipt
 
@@ -155,7 +155,7 @@ class ReceiptFactory(DjangoModelFactory):
 class ReceiptWithVatAndTaxFactory(ReceiptFactory):
     """Receipt with a valid Vat and Tax, ready to validate."""
 
-    point_of_sales = LazyFunction(lambda: models.PointOfSales.objects.first())
+    point_of_sales = LazyFunction(lambda: models.PointOfSales.objects.first())  # type: ignore[assignment]
     client_vat_condition = SubFactory(ClientVatConditionFactory)
 
     @post_generation
@@ -222,7 +222,7 @@ class ReceiptWithApprovedValidation(ReceiptFactory):
         ReceiptValidationFactory(receipt=obj)
 
 
-class ReceiptValidationFactory(DjangoModelFactory):
+class ReceiptValidationFactory(DjangoModelFactory[models.ReceiptValidation]):
     class Meta:
         model = models.ReceiptValidation
 
@@ -233,7 +233,7 @@ class ReceiptValidationFactory(DjangoModelFactory):
     receipt = SubFactory(ReceiptFactory, receipt_number=17)
 
 
-class ReceiptPDFFactory(DjangoModelFactory):
+class ReceiptPDFFactory(DjangoModelFactory[models.ReceiptPDF]):
     class Meta:
         model = models.ReceiptPDF
 
@@ -256,7 +256,7 @@ class ReceiptPDFWithFileFactory(ReceiptPDFFactory):
         obj.save_pdf(save_model=True)
 
 
-class GenericAfipTypeFactory(DjangoModelFactory):
+class GenericAfipTypeFactory(DjangoModelFactory[models.GenericAfipType]):
     class Meta:
         model = models.GenericAfipType
 
@@ -265,28 +265,34 @@ class GenericAfipTypeFactory(DjangoModelFactory):
     valid_from = datetime(2017, 8, 10)
 
 
-class VatTypeFactory(GenericAfipTypeFactory):
+class VatTypeFactory(DjangoModelFactory[models.VatType]):
     class Meta:
         model = models.VatType
 
     code = 5
     description = "21%"
+    valid_from = datetime(2017, 8, 10)
 
 
-class TaxTypeFactory(GenericAfipTypeFactory):
+class TaxTypeFactory(DjangoModelFactory[models.TaxType]):
     class Meta:
         model = models.TaxType
 
+    code = 80
+    description = "CUIT"
+    valid_from = datetime(2017, 8, 10)
 
-class OptionalTypeFactory(GenericAfipTypeFactory):
+
+class OptionalTypeFactory(DjangoModelFactory[models.OptionalType]):
     class Meta:
         model = models.OptionalType
 
     code = 2101
     description = "Excepcion computo IVA Credito Fiscal"
+    valid_from = datetime(2017, 8, 10)
 
 
-class VatFactory(DjangoModelFactory):
+class VatFactory(DjangoModelFactory[models.Vat]):
     class Meta:
         model = models.Vat
 
@@ -296,7 +302,7 @@ class VatFactory(DjangoModelFactory):
     vat_type = SubFactory(VatTypeFactory)
 
 
-class TaxFactory(DjangoModelFactory):
+class TaxFactory(DjangoModelFactory[models.Tax]):
     class Meta:
         model = models.Tax
 
@@ -308,7 +314,7 @@ class TaxFactory(DjangoModelFactory):
     tax_type = SubFactory(TaxTypeFactory)
 
 
-class OptionalFactory(DjangoModelFactory):
+class OptionalFactory(DjangoModelFactory[models.Optional]):
     class Meta:
         model = models.Optional
 
@@ -318,7 +324,7 @@ class OptionalFactory(DjangoModelFactory):
     optional_type = SubFactory(OptionalTypeFactory)
 
 
-class ReceiptEntryFactory(DjangoModelFactory):
+class ReceiptEntryFactory(DjangoModelFactory[models.ReceiptEntry]):
     class Meta:
         model = models.ReceiptEntry
 

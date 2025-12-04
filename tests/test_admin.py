@@ -84,7 +84,7 @@ def test_certificate_auth_error() -> None:
 
 
 def test_without_key(admin_client: Client) -> None:
-    taxpayer = factories.TaxPayerFactory(key=None)
+    taxpayer = factories.TaxPayerFactory.create(key=None)
 
     response = admin_client.post(
         "/admin/afip/taxpayer/",
@@ -101,7 +101,7 @@ def test_without_key(admin_client: Client) -> None:
 
 
 def test_with_key(admin_client: Client) -> None:
-    taxpayer = factories.TaxPayerFactory(key=FileField(data=b"Blah"))
+    taxpayer = factories.TaxPayerFactory.create(key=FileField(data=b"Blah"))
 
     response = admin_client.post(
         "/admin/afip/taxpayer/",
@@ -121,7 +121,7 @@ def test_with_key(admin_client: Client) -> None:
 
 
 def test_admin_taxpayer_request_generation_with_csr(admin_client: Client) -> None:
-    taxpayer = factories.TaxPayerFactory(key=None)
+    taxpayer = factories.TaxPayerFactory.create(key=None)
     taxpayer.generate_key()
 
     response = admin_client.post(
@@ -139,7 +139,7 @@ def test_admin_taxpayer_request_generation_with_csr(admin_client: Client) -> Non
 
 
 def test_admin_taxpayer_request_generation_without_key(admin_client: Client) -> None:
-    taxpayer = factories.TaxPayerFactory(key=None)
+    taxpayer = factories.TaxPayerFactory.create(key=None)
     taxpayer.generate_key()
 
     response = admin_client.post(
@@ -159,8 +159,8 @@ def test_admin_taxpayer_request_generation_without_key(admin_client: Client) -> 
 def test_admin_taxpayer_request_generation_multiple_taxpayers(
     admin_client: Client,
 ) -> None:
-    taxpayer1 = factories.TaxPayerFactory(key__data=b"Blah")
-    taxpayer2 = factories.TaxPayerFactory(key__data=b"Blah", cuit="20401231230")
+    taxpayer1 = factories.TaxPayerFactory.create(key__data=b"Blah")
+    taxpayer2 = factories.TaxPayerFactory.create(key__data=b"Blah", cuit="20401231230")
 
     response = admin_client.post(
         "/admin/afip/taxpayer/",
@@ -181,12 +181,12 @@ def test_validation_filters(admin_client: Client) -> None:
 
     This filters receipts by the validation status.
     """
-    validated_receipt = factories.ReceiptFactory()
-    failed_validation_receipt = factories.ReceiptFactory()
-    not_validated_receipt = factories.ReceiptFactory()
+    validated_receipt = factories.ReceiptFactory.create()
+    failed_validation_receipt = factories.ReceiptFactory.create()
+    not_validated_receipt = factories.ReceiptFactory.create()
 
-    factories.ReceiptValidationFactory(receipt=validated_receipt)
-    factories.ReceiptValidationFactory(
+    factories.ReceiptValidationFactory.create(receipt=validated_receipt)
+    factories.ReceiptValidationFactory.create(
         result=models.ReceiptValidation.RESULT_REJECTED,
         receipt=failed_validation_receipt,
     )
@@ -258,15 +258,15 @@ def test_validation_filters(admin_client: Client) -> None:
 def test_receipt_admin_get_exclude() -> None:
     admin = ReceiptAdmin(models.Receipt, site)
     request = RequestFactory().get("/admin/afip/receipt")
-    request.user = factories.UserFactory()
+    request.user = factories.UserFactory.create()
 
     assert "related_receipts" in admin.get_fields(request)
 
 
 @pytest.mark.django_db
 def test_receipt_pdf_factories_and_files() -> None:
-    with_file = factories.ReceiptPDFWithFileFactory()
-    without_file = factories.ReceiptPDFFactory()
+    with_file = factories.ReceiptPDFWithFileFactory.create()
+    without_file = factories.ReceiptPDFFactory.create()
 
     assert not without_file.pdf_file
     assert with_file.pdf_file
@@ -279,8 +279,8 @@ def test_has_file_filter_all(admin_client: Client) -> None:
     object's change page is present, since no matter how we reformat the rows,
     this will always be present as long as the object is listed.
     """
-    with_file = factories.ReceiptPDFWithFileFactory()
-    without_file = factories.ReceiptPDFFactory()
+    with_file = factories.ReceiptPDFWithFileFactory.create()
+    without_file = factories.ReceiptPDFFactory.create()
 
     response = admin_client.get("/admin/afip/receiptpdf/")
     assert isinstance(response, HttpResponse)
@@ -289,8 +289,8 @@ def test_has_file_filter_all(admin_client: Client) -> None:
 
 
 def test_has_file_filter_with_file(admin_client: Client) -> None:
-    with_file = factories.ReceiptPDFWithFileFactory()
-    without_file = factories.ReceiptPDFFactory()
+    with_file = factories.ReceiptPDFWithFileFactory.create()
+    without_file = factories.ReceiptPDFFactory.create()
 
     response = admin_client.get("/admin/afip/receiptpdf/?has_file=yes")
     assert isinstance(response, HttpResponse)
@@ -299,8 +299,8 @@ def test_has_file_filter_with_file(admin_client: Client) -> None:
 
 
 def test_has_file_filter_without_file(admin_client: Client) -> None:
-    with_file = factories.ReceiptPDFWithFileFactory()
-    without_file = factories.ReceiptPDFFactory()
+    with_file = factories.ReceiptPDFWithFileFactory.create()
+    without_file = factories.ReceiptPDFFactory.create()
 
     response = admin_client.get("/admin/afip/receiptpdf/?has_file=no")
     assert isinstance(response, HttpResponse)
@@ -309,7 +309,7 @@ def test_has_file_filter_without_file(admin_client: Client) -> None:
 
 
 def test_validate_certs_action_success(admin_client: Client) -> None:
-    receipt = factories.ReceiptFactory()
+    receipt = factories.ReceiptFactory.create()
 
     with patch(
         "django_afip.models.ReceiptQuerySet.validate", spec=True, return_value=[]
@@ -326,7 +326,7 @@ def test_validate_certs_action_success(admin_client: Client) -> None:
 
 
 def test_validate_certs_action_errors(admin_client: Client) -> None:
-    receipt = factories.ReceiptFactory()
+    receipt = factories.ReceiptFactory.create()
 
     with patch(
         "django_afip.models.ReceiptQuerySet.validate",
@@ -350,8 +350,8 @@ def test_validate_certs_action_errors(admin_client: Client) -> None:
 
 
 def test_admin_fetch_points_of_sales(admin_client: Client) -> None:
-    taxpayer1 = factories.TaxPayerFactory()
-    taxpayer2 = factories.TaxPayerFactory(cuit="20401231230")
+    taxpayer1 = factories.TaxPayerFactory.create()
+    taxpayer2 = factories.TaxPayerFactory.create(cuit="20401231230")
     with patch(
         "django_afip.models.TaxPayer.fetch_points_of_sales",
         spec=True,

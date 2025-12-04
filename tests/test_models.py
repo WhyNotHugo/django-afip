@@ -42,7 +42,7 @@ def test_default_receipt_queryset() -> None:
 
 @pytest.mark.django_db
 def test_validate_validated() -> None:
-    receipt = ReceiptWithApprovedValidation()
+    receipt = ReceiptWithApprovedValidation.create()
     # TYPING: mypy can't understand default querysets.
     qs: ReceiptQuerySet = models.Receipt.objects.filter(  # type: ignore[assignment]
         pk=receipt.pk,
@@ -67,7 +67,7 @@ def test_default_receipt_manager() -> None:
 
 @pytest.mark.django_db
 def test_validate_receipt() -> None:
-    receipt = ReceiptFactory()
+    receipt = ReceiptFactory.create()
     ticket = MagicMock()
     ticket._called = False
 
@@ -89,7 +89,7 @@ def test_validate_receipt() -> None:
 def test_validate_invoice(populated_db: None) -> None:
     """Test validating valid receipts."""
 
-    receipt = ReceiptWithVatAndTaxFactory()
+    receipt = ReceiptWithVatAndTaxFactory.create()
     errs = receipt.validate()
 
     assert len(errs) == 0
@@ -107,8 +107,8 @@ def test_skip_validated_invoice(populated_db: None) -> None:
     those should be skipped.
     """
 
-    receipt = ReceiptWithVatAndTaxFactory()
-    receipt2 = ReceiptWithVatAndTaxFactory()
+    receipt = ReceiptWithVatAndTaxFactory.create()
+    receipt2 = ReceiptWithVatAndTaxFactory.create()
 
     # Validate only the first receipt
     errs = receipt.validate()
@@ -137,7 +137,9 @@ def test_skip_validated_invoice(populated_db: None) -> None:
 @pytest.mark.live
 def test_validate_fcea_invoice(populated_db: None) -> None:
     """Test validating valid receipts."""
-    receipt = ReceiptFCEAWithVatTaxAndOptionalsFactory(document_number=20054100605)
+    receipt = ReceiptFCEAWithVatTaxAndOptionalsFactory.create(
+        document_number=20054100605
+    )
     errs = receipt.validate()
 
     assert len(errs) == 0
@@ -150,7 +152,7 @@ def test_validate_fcea_invoice(populated_db: None) -> None:
 def test_fail_validate_fcea_invoice(populated_db: None) -> None:
     """Test case to ensure that an invalid FCEA invoice fails."""
 
-    receipt = ReceiptFCEAWithVatAndTaxFactory()
+    receipt = ReceiptFCEAWithVatAndTaxFactory.create()
     errs = receipt.validate()
 
     assert len(errs) == 1
@@ -163,12 +165,14 @@ def test_validate_credit_note(populated_db: None) -> None:
     """Test validating valid receipts."""
 
     # Create a receipt (this credit note relates to it):
-    receipt = ReceiptWithVatAndTaxFactory()
+    receipt = ReceiptWithVatAndTaxFactory.create()
     errs = receipt.validate()
     assert len(errs) == 0
 
     # Create a credit note for the above receipt:
-    credit_note = ReceiptWithVatAndTaxFactory(receipt_type__code=8)  # Nota de Crédito B
+    credit_note = ReceiptWithVatAndTaxFactory.create(
+        receipt_type__code=8
+    )  # Nota de Crédito B
     credit_note.related_receipts.add(receipt)
     credit_note.save()
 
@@ -180,7 +184,7 @@ def test_validate_credit_note(populated_db: None) -> None:
 @pytest.mark.live
 def test_failed_validation(populated_db: None) -> None:
     """Test validating valid receipts."""
-    receipt = ReceiptWithInconsistentVatAndTaxFactory()
+    receipt = ReceiptWithInconsistentVatAndTaxFactory.create()
 
     errs = receipt.validate()
 
@@ -194,7 +198,7 @@ def test_failed_validation(populated_db: None) -> None:
 @pytest.mark.live
 def test_raising_failed_validation(populated_db: None) -> None:
     """Test validating valid receipts."""
-    receipt = ReceiptWithInconsistentVatAndTaxFactory()
+    receipt = ReceiptWithInconsistentVatAndTaxFactory.create()
 
     with pytest.raises(
         exceptions.ValidationError,
@@ -231,7 +235,7 @@ def test_fetch_existing_data(populated_db: None) -> None:
 @pytest.mark.live
 def test_revalidation_valid_receipt(populated_db: None) -> None:
     """Test revalidation process of a valid receipt."""
-    receipt = factories.ReceiptWithVatAndTaxFactory()
+    receipt = factories.ReceiptWithVatAndTaxFactory.create()
     receipt.validate()
     receipt.refresh_from_db()
 
@@ -254,7 +258,7 @@ def test_revalidation_valid_receipt(populated_db: None) -> None:
 @pytest.mark.live
 def test_revalidation_invalid_receipt(populated_db: None) -> None:
     """Test revalidation process of an invalid receipt. (Unexistent receipt)"""
-    receipt = factories.ReceiptWithVatAndTaxFactory()
+    receipt = factories.ReceiptWithVatAndTaxFactory.create()
     next_num = (
         models.Receipt.objects.fetch_last_receipt_number(
             receipt.point_of_sales,
@@ -276,8 +280,8 @@ def test_revalidation_invalid_receipt(populated_db: None) -> None:
 @pytest.mark.django_db
 def test_receipt_revalidate_without_receipt_number() -> None:
     """Test revalidation process of an invalid receipt. (Receipt without number)"""
-    factories.PointOfSalesFactory()
-    receipt = factories.ReceiptWithVatAndTaxFactory()
+    factories.PointOfSalesFactory.create()
+    receipt = factories.ReceiptWithVatAndTaxFactory.create()
     receipt.refresh_from_db()
 
     validation = receipt.revalidate()
@@ -287,28 +291,28 @@ def test_receipt_revalidate_without_receipt_number() -> None:
 
 @pytest.mark.django_db
 def test_receipt_is_validated_when_not_validated() -> None:
-    receipt = ReceiptFactory()
+    receipt = ReceiptFactory.create()
     assert not receipt.is_validated
 
 
 @pytest.mark.django_db
 def test_receipt_is_validated_when_validated() -> None:
-    receipt = ReceiptWithApprovedValidation()
+    receipt = ReceiptWithApprovedValidation.create()
     assert receipt.is_validated
 
 
 @pytest.mark.django_db
 def test_receipt_is_validated_when_failed_validation() -> None:
     # These should never really exist,but oh well:
-    receipt = ReceiptFactory(receipt_number=None)
-    ReceiptValidationFactory(
+    receipt = ReceiptFactory.create(receipt_number=None)
+    ReceiptValidationFactory.create(
         receipt=receipt,
         result=models.ReceiptValidation.RESULT_REJECTED,
     )
     assert not receipt.is_validated
 
-    receipt = ReceiptFactory(receipt_number=1)
-    ReceiptValidationFactory(
+    receipt = ReceiptFactory.create(receipt_number=1)
+    ReceiptValidationFactory.create(
         receipt=receipt,
         result=models.ReceiptValidation.RESULT_REJECTED,
     )
@@ -324,9 +328,9 @@ def test_default_currency_no_currencies() -> None:
 
 @pytest.mark.django_db
 def test_default_currency_multieple_currencies() -> None:
-    c1 = factories.CurrencyTypeFactory(pk=2)
-    c2 = factories.CurrencyTypeFactory(pk=1)
-    c3 = factories.CurrencyTypeFactory(pk=3)
+    c1 = factories.CurrencyTypeFactory.create(pk=2)
+    c2 = factories.CurrencyTypeFactory.create(pk=1)
+    c3 = factories.CurrencyTypeFactory.create(pk=3)
 
     receipt = models.Receipt()
 
@@ -337,16 +341,16 @@ def test_default_currency_multieple_currencies() -> None:
 
 @pytest.mark.django_db
 def test_total_vat_no_vat() -> None:
-    receipt = ReceiptFactory()
+    receipt = ReceiptFactory.create()
 
     assert receipt.total_vat == 0
 
 
 @pytest.mark.django_db
 def test_total_vat_multiple_vats() -> None:
-    receipt = ReceiptFactory()
-    factories.VatFactory(receipt=receipt)
-    factories.VatFactory(receipt=receipt)
+    receipt = ReceiptFactory.create()
+    factories.VatFactory.create(receipt=receipt)
+    factories.VatFactory.create(receipt=receipt)
 
     assert receipt.total_vat == 42
 
@@ -354,7 +358,7 @@ def test_total_vat_multiple_vats() -> None:
 @pytest.mark.live
 def test_revalidation_validated_receipt(populated_db: None) -> None:
     """Test revalidation process of a validated receipt."""
-    receipt_validation = factories.ReceiptValidationFactory()
+    receipt_validation = factories.ReceiptValidationFactory.create()
 
     revalidation = receipt_validation.receipt.revalidate()
 
@@ -364,34 +368,34 @@ def test_revalidation_validated_receipt(populated_db: None) -> None:
 
 @pytest.mark.django_db
 def test_total_vat_proper_filtering() -> None:
-    receipt = ReceiptFactory()
-    factories.VatFactory(receipt=receipt)
-    factories.VatFactory()
+    receipt = ReceiptFactory.create()
+    factories.VatFactory.create(receipt=receipt)
+    factories.VatFactory.create()
 
     assert receipt.total_vat == 21
 
 
 @pytest.mark.django_db
 def test_total_tax_no_tax() -> None:
-    receipt = ReceiptFactory()
+    receipt = ReceiptFactory.create()
 
     assert receipt.total_tax == 0
 
 
 @pytest.mark.django_db
 def test_total_tax_multiple_taxes() -> None:
-    receipt = ReceiptFactory()
-    factories.TaxFactory(receipt=receipt)
-    factories.TaxFactory(receipt=receipt)
+    receipt = ReceiptFactory.create()
+    factories.TaxFactory.create(receipt=receipt)
+    factories.TaxFactory.create(receipt=receipt)
 
     assert receipt.total_tax == 18
 
 
 @pytest.mark.django_db
 def test_total_tax_proper_filtering() -> None:
-    receipt = ReceiptFactory()
-    factories.TaxFactory(receipt=receipt)
-    factories.TaxFactory()
+    receipt = ReceiptFactory.create()
+    factories.TaxFactory.create(receipt=receipt)
+    factories.TaxFactory.create()
 
     assert receipt.total_tax == 9
 
@@ -418,7 +422,7 @@ def test_receipt_entry_without_discount() -> None:
     works correctly.
     """
 
-    receipt_entry = factories.ReceiptEntryFactory(
+    receipt_entry = factories.ReceiptEntryFactory.create(
         quantity=1,
         unit_price=50,
     )
@@ -434,7 +438,7 @@ def test_receipt_entry_with_valid_discount() -> None:
     discount works correctly.
     """
 
-    receipt_entry = factories.ReceiptEntryFactory(
+    receipt_entry = factories.ReceiptEntryFactory.create(
         quantity=1, unit_price=50, discount=10
     )
     assert receipt_entry.total_price == 40
@@ -450,7 +454,7 @@ def test_receipt_entry_negative_discount() -> None:
     """
 
     with pytest.raises(Exception, match=r"\bdiscount_positive_value\b"):
-        factories.ReceiptEntryFactory(quantity=5, unit_price=10, discount=-3)
+        factories.ReceiptEntryFactory.create(quantity=5, unit_price=10, discount=-3)
 
 
 @pytest.mark.django_db
@@ -463,7 +467,7 @@ def test_receipt_entry_gt_total_discount() -> None:
     """
 
     with pytest.raises(Exception, match=r"\bdiscount_less_than_total\b"):
-        factories.ReceiptEntryFactory(quantity=1, unit_price=1, discount=2)
+        factories.ReceiptEntryFactory.create(quantity=1, unit_price=1, discount=2)
 
 
 def test_receipt_entry_has_quantity_decimal_field() -> None:
@@ -481,8 +485,8 @@ def test_receipt_entry_manage_decimal_quantities() -> None:
     """
     Test that ReceiptEntry can manage a decimal quantity
     """
-    factories.ReceiptEntryFactory(quantity=Decimal("2"), unit_price=3.33)
-    factories.ReceiptEntryFactory(quantity=Decimal("5.23"), unit_price=3.33)
+    factories.ReceiptEntryFactory.create(quantity=Decimal("2"), unit_price=3.33)
+    factories.ReceiptEntryFactory.create(quantity=Decimal("5.23"), unit_price=3.33)
 
     assert models.ReceiptEntry.objects.all().count() == 2
 
@@ -502,7 +506,7 @@ def test_approximate_noop_today() -> None:
 
     factories.ReceiptWithApprovedValidation(issued_date=today - timedelta(days=20))
 
-    receipt = factories.ReceiptFactory(issued_date=today)
+    receipt = factories.ReceiptFactory.create(issued_date=today)
     changed = receipt.approximate_date()
 
     assert changed is False
@@ -517,7 +521,7 @@ def test_approximate_noop_two_days_ago() -> None:
 
     factories.ReceiptWithApprovedValidation(issued_date=today - timedelta(days=20))
 
-    receipt = factories.ReceiptFactory(issued_date=two_days_ago)
+    receipt = factories.ReceiptFactory.create(issued_date=two_days_ago)
     changed = receipt.approximate_date()
 
     assert changed is False
@@ -530,7 +534,7 @@ def test_approximate_date_today_with_most_recent() -> None:
     today = datetime.now(TZ_AR).date()
 
     factories.ReceiptWithApprovedValidation(issued_date=today)
-    receipt = factories.ReceiptFactory(issued_date=today - timedelta(days=30))
+    receipt = factories.ReceiptFactory.create(issued_date=today - timedelta(days=30))
     changed = receipt.approximate_date()
 
     assert changed is True
@@ -544,7 +548,7 @@ def test_approximate_date_yesterday_with_most_recent() -> None:
 
     factories.ReceiptWithApprovedValidation(issued_date=today - timedelta(days=1))
 
-    receipt = factories.ReceiptFactory(issued_date=today - timedelta(days=30))
+    receipt = factories.ReceiptFactory.create(issued_date=today - timedelta(days=30))
     changed = receipt.approximate_date()
 
     assert changed is True
@@ -558,7 +562,7 @@ def test_approximate_date_30_days_ago_with_most_recent_20_days_ago() -> None:
 
     factories.ReceiptWithApprovedValidation(issued_date=today - timedelta(days=20))
 
-    receipt = factories.ReceiptFactory(issued_date=today - timedelta(days=30))
+    receipt = factories.ReceiptFactory.create(issued_date=today - timedelta(days=30))
     changed = receipt.approximate_date()
 
     assert changed is True
@@ -573,7 +577,7 @@ def test_approximate_date_2_days_ago_with_most_recent_20_days_ago() -> None:
 
     factories.ReceiptWithApprovedValidation(issued_date=today - timedelta(days=20))
 
-    receipt = factories.ReceiptFactory(issued_date=two_days_ago)
+    receipt = factories.ReceiptFactory.create(issued_date=two_days_ago)
     changed = receipt.approximate_date()
 
     assert changed is False
@@ -585,7 +589,7 @@ def test_approximate_date_2_days_ago_with_most_recent_20_days_ago() -> None:
 def test_approximate_date_two_days_ago_without_most_recent() -> None:
     two_days_ago = date(2023, 11, 14)
 
-    receipt = factories.ReceiptFactory(issued_date=two_days_ago)
+    receipt = factories.ReceiptFactory.create(issued_date=two_days_ago)
     changed = receipt.approximate_date()
 
     assert changed is False
@@ -597,7 +601,7 @@ def test_approximate_date_two_days_ago_without_most_recent() -> None:
 def test_approximate_date_failure() -> None:
     one_month_ago = date(2023, 10, 16)
 
-    receipt = factories.ReceiptWithApprovedValidation(issued_date=one_month_ago)
+    receipt = factories.ReceiptWithApprovedValidation.create(issued_date=one_month_ago)
 
     with pytest.raises(
         exceptions.DjangoAfipException,
@@ -648,7 +652,8 @@ def test_client_vat_condition_populate(live_ticket: models.AuthTicket) -> None:
 @pytest.mark.django_db
 def test_load_metadata() -> None:
     """Test populating AFIP models from fixtures."""
-    fetched_models = [
+    # TYPING: Union of model types with objects managers can't be cleanly typed.
+    fetched_models: list = [
         models.ClientVatCondition,
         models.ConceptType,
         models.CurrencyType,
