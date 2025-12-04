@@ -1,0 +1,49 @@
+image: debian/trixie
+packages:
+  - build-essential
+  - fonts-dejavu # makedepends for wheels
+  - ghostscript # makedepends for wheels
+  - libmariadb-dev # lib for wheels
+  - libpango1.0-dev # makedepends for wheels
+  - libpq-dev # makedepends for wheels
+  - mariadb-server # server itself
+  - postgresql
+  - python3-dev
+  - tox
+sources:
+  - https://github.com/whyNotHugo/django-afip
+environment:
+  CI: true
+tasks:
+  - check-python: |
+      python3 --version | grep 'Python 3.13'
+  - postgres: |
+      sudo service postgresql start
+      sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
+  - mariadb: |
+      sudo service mariadb start
+      sudo mariadb -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'mysql'; FLUSH PRIVILEGES;"
+  - tox-sqlite: |
+      cd django-afip
+      tox -e sqlite
+  - tox-django42-mariadb: |
+      cd django-afip
+      tox -e django42-mysql
+  - tox-django50-mariadb: |
+      cd django-afip
+      tox -e django50-mysql
+  - tox-django42-postgres: |
+      cd django-afip
+      tox -e django42-postgres
+  - tox-django50-postgres: |
+      cd django-afip
+      tox -e django50-postgres
+  - tox-django51-postgres: |
+      cd django-afip
+      tox -e django51-postgres
+  - lint: |
+      cd django-afip
+      tox -e mypy,ruff,vermin
+  - tox-docs: |
+      cd django-afip
+      tox -e docs
