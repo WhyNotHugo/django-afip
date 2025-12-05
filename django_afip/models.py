@@ -191,11 +191,6 @@ class GenericAfipType(models.Model):
 
     SUBCLASSES: ClassVar[list[type[GenericAfipType]]] = []
 
-    def __init_subclass__(cls, **kwargs) -> None:
-        """Keeps a registry of known subclasses."""
-        super().__init_subclass__(**kwargs)
-        GenericAfipType.SUBCLASSES.append(cls)
-
     code = models.CharField(
         _("code"),
         max_length=3,
@@ -215,14 +210,19 @@ class GenericAfipType(models.Model):
         blank=True,
     )
 
-    def natural_key(self) -> tuple[str]:
-        return (self.code,)
+    class Meta:
+        abstract = True
+
+    def __init_subclass__(cls, **kwargs) -> None:
+        """Keeps a registry of known subclasses."""
+        super().__init_subclass__(**kwargs)
+        GenericAfipType.SUBCLASSES.append(cls)
 
     def __str__(self) -> str:
         return self.description
 
-    class Meta:
-        abstract = True
+    def natural_key(self) -> tuple[str]:
+        return (self.code,)
 
 
 class ReceiptType(GenericAfipType):
@@ -270,6 +270,12 @@ class VatType(GenericAfipType):
     See the AFIP's documentation for details on each VAT type.
     """
 
+    objects = GenericAfipTypeManager("FEParamGetTiposIva", "IvaTipo")
+
+    class Meta:
+        verbose_name = _("vat type")
+        verbose_name_plural = _("vat types")
+
     @property
     def as_decimal(self) -> Decimal:
         """Return this VatType as a Decimal.
@@ -299,12 +305,6 @@ class VatType(GenericAfipType):
             raise ValueError("The description for this VatType is not a percentage.")
         return Decimal(match.groups()[0]) / 100
 
-    objects = GenericAfipTypeManager("FEParamGetTiposIva", "IvaTipo")
-
-    class Meta:
-        verbose_name = _("vat type")
-        verbose_name_plural = _("vat types")
-
 
 class TaxType(GenericAfipType):
     """An AFIP tax type.
@@ -327,12 +327,12 @@ class CurrencyType(GenericAfipType):
 
     objects = GenericAfipTypeManager("FEParamGetTiposMonedas", "Moneda")
 
-    def __str__(self) -> str:
-        return f"{self.description} ({self.code})"
-
     class Meta:
         verbose_name = _("currency type")
         verbose_name_plural = _("currency types")
+
+    def __str__(self) -> str:
+        return f"{self.description} ({self.code})"
 
 
 class OptionalType(GenericAfipType):
@@ -349,12 +349,12 @@ class OptionalType(GenericAfipType):
 
     objects = GenericAfipTypeManager("FEParamGetTiposOpcional", "OpcionalTipo")
 
-    def __str__(self) -> str:
-        return f"{self.description} ({self.code})"
-
     class Meta:
         verbose_name = _("optional type")
         verbose_name_plural = _("optional types")
+
+    def __str__(self) -> str:
+        return f"{self.description} ({self.code})"
 
 
 class TaxPayer(models.Model):
@@ -430,6 +430,16 @@ class TaxPayer(models.Model):
     )
 
     _old_files: dict[str, FieldFile | None]
+
+    class Meta:
+        verbose_name = _("taxpayer")
+        verbose_name_plural = _("taxpayers")
+
+    def __repr__(self) -> str:
+        return f"<TaxPayer {self.pk}: {self.name}, CUIT {self.cuit}>"
+
+    def __str__(self) -> str:
+        return str(self.name)
 
     @property
     def logo_as_data_uri(self) -> str:
@@ -612,16 +622,6 @@ class TaxPayer(models.Model):
 
         return results
 
-    def __repr__(self) -> str:
-        return f"<TaxPayer {self.pk}: {self.name}, CUIT {self.cuit}>"
-
-    def __str__(self) -> str:
-        return str(self.name)
-
-    class Meta:
-        verbose_name = _("taxpayer")
-        verbose_name_plural = _("taxpayers")
-
 
 class PointOfSales(models.Model):
     """
@@ -679,20 +679,22 @@ class PointOfSales(models.Model):
     # The following fields are only used for PDF generation.
     issuing_name = models.CharField(
         max_length=128,
-        null=True,
+        blank=True,
+        default="",
         verbose_name=_("issuing name"),
         help_text=_("The name of the issuing entity as shown on receipts."),
     )
     issuing_address = models.TextField(
         _("issuing address"),
-        null=True,
+        blank=True,
+        default="",
         help_text=_("The address of the issuing entity as shown on receipts."),
     )
     issuing_email = models.CharField(
         max_length=128,
         verbose_name=_("issuing email"),
         blank=True,
-        null=True,
+        default="",
         help_text=_("The email of the issuing entity as shown on receipts."),
     )
     vat_condition = models.CharField(
@@ -704,17 +706,20 @@ class PointOfSales(models.Model):
             )
             for condition in VAT_CONDITIONS
         ),
-        null=True,
+        blank=True,
+        default="",
         verbose_name=_("vat condition"),
     )
     gross_income_condition = models.CharField(
         max_length=48,
-        null=True,
+        blank=True,
+        default="",
         verbose_name=_("gross income condition"),
     )
     sales_terms = models.CharField(
         max_length=48,
-        null=True,
+        blank=True,
+        default="",
         verbose_name=_("sales terms"),
         help_text=_(
             "The terms of the sale printed onto receipts by default "
@@ -722,13 +727,13 @@ class PointOfSales(models.Model):
         ),
     )
 
-    def __str__(self) -> str:
-        return str(self.number)
-
     class Meta:
         unique_together = (("number", "owner"),)
         verbose_name = _("point of sales")
         verbose_name_plural = _("points of sales")
+
+    def __str__(self) -> str:
+        return str(self.number)
 
 
 class AuthTicketManager(models.Manager["AuthTicket"]):
@@ -815,6 +820,13 @@ class AuthTicket(models.Model):
     TOKEN_XPATH = "/loginTicketResponse/credentials/token"
     SIGN_XPATH = "/loginTicketResponse/credentials/sign"
 
+    class Meta:
+        verbose_name = _("authorization ticket")
+        verbose_name_plural = _("authorization tickets")
+
+    def __str__(self) -> str:
+        return str(self.unique_id)
+
     def __create_request_xml(self) -> bytes:
         """Create a new ticket request XML
 
@@ -864,13 +876,6 @@ class AuthTicket(models.Model):
 
     def natural_key(self) -> tuple[int]:
         return (self.unique_id,)
-
-    def __str__(self) -> str:
-        return str(self.unique_id)
-
-    class Meta:
-        verbose_name = _("authorization ticket")
-        verbose_name_plural = _("authorization tickets")
 
 
 class ReceiptQuerySet(models.QuerySet):
@@ -1253,6 +1258,25 @@ class Receipt(models.Model):
     #: See :class:`~.ReceiptManager` and also :class:`~.ReceiptQuerySet`.
     objects = ReceiptManager()
 
+    class Meta:
+        ordering = ("issued_date",)
+        verbose_name = _("receipt")
+        verbose_name_plural = _("receipts")
+        unique_together = ("point_of_sales", "receipt_type", "receipt_number")
+        # TODO: index_together...
+
+    def __repr__(self) -> str:
+        return (
+            f"<Receipt {self.pk}: {self.receipt_type} {self.receipt_number} "
+            f"for {self.point_of_sales.owner}>"
+        )
+
+    def __str__(self) -> str:
+        if self.receipt_number:
+            return f"{self.receipt_type} {self.formatted_number}"
+
+        return _("Unnumbered %s") % self.receipt_type
+
     # TODO: methods to validate totals
 
     @property
@@ -1443,25 +1467,6 @@ class Receipt(models.Model):
 
         return True
 
-    def __repr__(self) -> str:
-        return (
-            f"<Receipt {self.pk}: {self.receipt_type} {self.receipt_number} "
-            f"for {self.point_of_sales.owner}>"
-        )
-
-    def __str__(self) -> str:
-        if self.receipt_number:
-            return f"{self.receipt_type} {self.formatted_number}"
-
-        return _("Unnumbered %s") % self.receipt_type
-
-    class Meta:
-        ordering = ("issued_date",)
-        verbose_name = _("receipt")
-        verbose_name_plural = _("receipts")
-        unique_together = ("point_of_sales", "receipt_type", "receipt_number")
-        # TODO: index_together...
-
 
 class ReceiptPDFManager(models.Manager):
     def create_for_receipt(self, receipt: Receipt, **kwargs) -> ReceiptPDF:
@@ -1496,6 +1501,21 @@ class ReceiptPDFManager(models.Manager):
         )
 
 
+def _receipt_pdf_upload_to(instance: ReceiptPDF, filename: str = "untitled") -> str:
+    """Returns the full path for generated receipts.
+
+    These are bucketed inside nested directories, to avoid hundreds of
+    thousands of children in single directories (which can make reading
+    them excessively slow).
+    """
+    _, extension = os.path.splitext(os.path.basename(filename))
+    uuid = uuid4().hex
+    buckets = uuid[0:2], uuid[2:4]
+    filename = "".join([uuid, extension])
+
+    return os.path.join("afip/receipts", buckets[0], buckets[1], filename)
+
+
 class ReceiptPDF(models.Model):
     """Printable version of a receipt.
 
@@ -1513,24 +1533,8 @@ class ReceiptPDF(models.Model):
     PDF generation is skipped if the receipt has not been validated.
     """
 
-    def upload_to(
-        self,
-        filename: str = "untitled",
-        instance: ReceiptPDF | None = None,
-    ) -> str:
-        """
-        Returns the full path for generated receipts.
-
-        These are bucketed inside nested directories, to avoid hundreds of
-        thousands of children in single directories (which can make reading
-        them excessively slow).
-        """
-        _, extension = os.path.splitext(os.path.basename(filename))
-        uuid = uuid4().hex
-        buckets = uuid[0:2], uuid[2:4]
-        filename = "".join([uuid, extension])
-
-        return os.path.join("afip/receipts", buckets[0], buckets[1], filename)
+    #: Backwards compatibility alias for the upload_to function.
+    upload_to = staticmethod(_receipt_pdf_upload_to)
 
     receipt = models.OneToOneField(
         Receipt,
@@ -1539,7 +1543,7 @@ class ReceiptPDF(models.Model):
     )
     pdf_file = models.FileField(
         verbose_name=_("pdf file"),
-        upload_to=upload_to,
+        upload_to=_receipt_pdf_upload_to,
         storage=_get_storage_from_settings("AFIP_PDF_STORAGE"),
         blank=True,
         null=True,
@@ -1556,7 +1560,7 @@ class ReceiptPDF(models.Model):
         max_length=128,
         verbose_name=_("issuing email"),
         blank=True,
-        null=True,
+        default="",
     )
     vat_condition = models.CharField(
         max_length=48,
@@ -1600,6 +1604,13 @@ class ReceiptPDF(models.Model):
 
     objects = ReceiptPDFManager()
 
+    class Meta:
+        verbose_name = _("receipt pdf")
+        verbose_name_plural = _("receipt pdfs")
+
+    def __str__(self) -> str:
+        return _("Receipt PDF for %s") % self.receipt_id
+
     def save_pdf(
         self,
         save_model: bool = True,
@@ -1626,13 +1637,6 @@ class ReceiptPDF(models.Model):
 
         if save_model:
             self.save()
-
-    def __str__(self) -> str:
-        return _("Receipt PDF for %s") % self.receipt_id
-
-    class Meta:
-        verbose_name = _("receipt pdf")
-        verbose_name_plural = _("receipt pdfs")
 
 
 class ReceiptEntry(models.Model):
@@ -1683,11 +1687,6 @@ class ReceiptEntry(models.Model):
         on_delete=models.PROTECT,
     )
 
-    @property
-    def total_price(self) -> Decimal:
-        """The total price for this entry is: ``quantity * price - discount``."""
-        return self.quantity * self.unit_price - self.discount
-
     class Meta:
         verbose_name = _("receipt entry")
         verbose_name_plural = _("receipt entries")
@@ -1700,6 +1699,14 @@ class ReceiptEntry(models.Model):
                 name="discount_less_than_total",
             ),
         )
+
+    def __str__(self) -> str:
+        return self.description
+
+    @property
+    def total_price(self) -> Decimal:
+        """The total price for this entry is: ``quantity * price - discount``."""
+        return self.quantity * self.unit_price - self.discount
 
 
 class Tax(models.Model):
@@ -1736,14 +1743,17 @@ class Tax(models.Model):
         on_delete=models.PROTECT,
     )
 
+    class Meta:
+        verbose_name = _("tax")
+        verbose_name_plural = _("taxes")
+
+    def __str__(self) -> str:
+        return self.description
+
     def compute_amount(self) -> Decimal:
         """Auto-assign and return the total amount for this tax."""
         self.amount = self.base_amount * self.aliquot / 100
         return self.amount
-
-    class Meta:
-        verbose_name = _("tax")
-        verbose_name_plural = _("taxes")
 
 
 class Vat(models.Model):
@@ -1775,6 +1785,9 @@ class Vat(models.Model):
         verbose_name = _("vat")
         verbose_name_plural = _("vat")
 
+    def __str__(self) -> str:
+        return f"{self.vat_type}: {self.amount}"
+
 
 class Optional(models.Model):
     """A optional (type+value) for a specific Receipt."""
@@ -1799,6 +1812,9 @@ class Optional(models.Model):
         verbose_name = _("optional")
         verbose_name_plural = _("optionals")
 
+    def __str__(self) -> str:
+        return f"{self.optional_type}: {self.value}"
+
 
 class Observation(models.Model):
     """An observation returned by AFIP.
@@ -1818,6 +1834,9 @@ class Observation(models.Model):
     class Meta:
         verbose_name = _("observation")
         verbose_name_plural = _("observations")
+
+    def __str__(self) -> str:
+        return f"{self.code}: {self.message}"
 
 
 class ReceiptValidation(models.Model):
@@ -1873,6 +1892,10 @@ class ReceiptValidation(models.Model):
         on_delete=models.PROTECT,
     )
 
+    class Meta:
+        verbose_name = _("receipt validation")
+        verbose_name_plural = _("receipt validations")
+
     def __str__(self) -> str:
         return _("Validation for %s. Result: %s") % (
             self.receipt,
@@ -1884,10 +1907,6 @@ class ReceiptValidation(models.Model):
             f"<{self.__class__.__name__} {self.pk}: "
             f"{self.result} for Receipt {self.receipt_id}>"
         )
-
-    class Meta:
-        verbose_name = _("receipt validation")
-        verbose_name_plural = _("receipt validations")
 
 
 class ClientVatConditionManager(models.Manager["ClientVatCondition"]):
@@ -1912,8 +1931,6 @@ class ClientVatCondition(models.Model):
     set of fields. This one has different fields, so is modelled separately.
     """
 
-    objects = ClientVatConditionManager()
-
     code = models.CharField(
         _("code"),
         max_length=3,
@@ -1928,9 +1945,17 @@ class ClientVatCondition(models.Model):
         help_text=_("The class of the client VAT condition."),
     )
 
+    objects = ClientVatConditionManager()
+
     class Meta:
         verbose_name = _("client VAT condition")
         verbose_name_plural = _("client VAT conditions")
+
+    def __str__(self) -> str:
+        return self.description
+
+    def natural_key(self) -> tuple[str]:
+        return (self.code,)
 
     @classmethod
     def populate(
@@ -1967,9 +1992,3 @@ class ClientVatCondition(models.Model):
                     "cmp_clase": condition_data.Cmp_Clase,
                 },
             )
-
-    def natural_key(self) -> tuple[str]:
-        return (self.code,)
-
-    def __str__(self) -> str:
-        return self.description

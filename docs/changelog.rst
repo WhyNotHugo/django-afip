@@ -21,6 +21,15 @@ Any breaking changes which require intervention will be mentioned here.
 - Extend supported versions of ``django-renderpdf``, ``qrcode`` and
   ``cryptography``.
 - Drop support for Python 3.9.
+- In order to align with Django's coding style conventions, the following
+  fields no longer support ``NULL`` values. Use an empty string instead:
+   - ``PointOfSales.issuing_name``
+   - ``PointOfSales.issuing_address``
+   - ``PointOfSales.issuing_email``
+   - ``PointOfSales.vat_condition``
+   - ``PointOfSales.gross_income_condition``
+   - ``PointOfSales.sales_terms``
+   - ``ReceiptPDF.issuing_email``
 
 13.2.2
 ------
