@@ -6,6 +6,7 @@ import os
 import random
 import re
 import warnings
+from contextlib import suppress
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
@@ -16,12 +17,16 @@ from typing import TYPE_CHECKING
 from typing import BinaryIO
 from typing import ClassVar
 from typing import Generic
+from typing import Literal
 from typing import TypeVar
 from uuid import uuid4
 
 from django.conf import settings
 from django.core import management
 from django.core.files import File
+from django.core.files.storage import InvalidStorageError
+from django.core.files.storage import default_storage
+from django.core.files.storage import storages
 from django.core.validators import MinValueValidator
 from django.db import connection
 from django.db import models
@@ -126,13 +131,30 @@ def first_currency() -> int | None:
     return None
 
 
-def _get_storage_from_settings(setting_name: str) -> Storage:
-    path = getattr(settings, setting_name, None)
-    if not path:
-        from django.core.files.storage import default_storage
+_DEPRECATED_STORAGE_SETTINGS = {
+    "afip_keys": "AFIP_KEY_STORAGE",
+    "afip_certs": "AFIP_CERT_STORAGE",
+    "afip_pdfs": "AFIP_PDF_STORAGE",
+    "afip_logos": "AFIP_LOGO_STORAGE",
+}
 
-        return default_storage
-    return import_string(path)
+
+def _get_storage_from_settings(
+    alias: Literal["afip_keys" | "afip_certs" | "afip_pdfs" | "afip_logos"],
+) -> Storage:
+    with suppress(InvalidStorageError):
+        return storages[alias]
+
+    old_setting = _DEPRECATED_STORAGE_SETTINGS[alias]
+    if path := getattr(settings, old_setting, None):
+        warnings.warn(
+            f"{old_setting} is deprecated. Use STORAGES['{alias}'] instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return import_string(path)
+
+    return default_storage
 
 
 _T = TypeVar("_T", bound="GenericAfipType", covariant=True)
@@ -386,14 +408,14 @@ class TaxPayer(models.Model):
     key = models.FileField(
         verbose_name=_("key"),
         upload_to="afip/taxpayers/keys/",
-        storage=_get_storage_from_settings("AFIP_KEY_STORAGE"),
+        storage=_get_storage_from_settings("afip_keys"),
         blank=True,
         null=True,
     )
     certificate = models.FileField(
         verbose_name=_("certificate"),
         upload_to="afip/taxpayers/certs/",
-        storage=_get_storage_from_settings("AFIP_CERT_STORAGE"),
+        storage=_get_storage_from_settings("afip_certs"),
         blank=True,
         null=True,
     )
@@ -423,7 +445,7 @@ class TaxPayer(models.Model):
     logo = models.ImageField(
         verbose_name=_("logo"),
         upload_to="afip/taxpayers/logos/",
-        storage=_get_storage_from_settings("AFIP_LOGO_STORAGE"),
+        storage=_get_storage_from_settings("afip_logos"),
         blank=True,
         null=True,
         help_text=_("A logo to use when generating printable receipts."),
@@ -1542,7 +1564,7 @@ class ReceiptPDF(models.Model):
     pdf_file = models.FileField(
         verbose_name=_("pdf file"),
         upload_to=_receipt_pdf_upload_to,
-        storage=_get_storage_from_settings("AFIP_PDF_STORAGE"),
+        storage=_get_storage_from_settings("afip_pdfs"),
         blank=True,
         null=True,
         help_text=_("The actual file which contains the PDF data."),
