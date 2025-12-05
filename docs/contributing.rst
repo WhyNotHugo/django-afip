@@ -42,9 +42,9 @@ docker:
 .. code-block:: bash
 
     # Para postgres:
-    docker run --env=POSTGRES_PASSWORD=postgres --publish=5432:5432 --rm postgres:13
+    docker run --env=POSTGRES_PASSWORD=postgres --publish=5432:5432 --rm postgres:alpine
     # Para mysql / mariadb:
-    docker run --env=MYSQL_ROOT_PASSWORD=mysql --publish=3306:3306 --rm -it mariadb:10
+    docker run --env=MYSQL_ROOT_PASSWORD=mysql --publish=3306:3306 --rm -it mariadb:alpine
 
 Tené en cuenta que los servidores pueden tardar un par de segundos en
 arrancar. Si estás corriendo tests a mano no es un problema, pero si estás
