@@ -182,14 +182,9 @@ def test_validation_filters(admin_client: Client) -> None:
     This filters receipts by the validation status.
     """
     validated_receipt = factories.ReceiptFactory.create()
-    failed_validation_receipt = factories.ReceiptFactory.create()
     not_validated_receipt = factories.ReceiptFactory.create()
 
     factories.ReceiptValidationFactory.create(receipt=validated_receipt)
-    factories.ReceiptValidationFactory.create(
-        result=models.ReceiptValidation.RESULT_REJECTED,
-        receipt=failed_validation_receipt,
-    )
 
     html = (
         '<input class="action-select" name="_selected_action" '
@@ -211,11 +206,6 @@ def test_validation_filters(admin_client: Client) -> None:
         html.format(not_validated_receipt.pk, str(not_validated_receipt)),
         html=True,
     )
-    assertNotContains(
-        response,
-        html.format(failed_validation_receipt.pk, str(failed_validation_receipt)),
-        html=True,
-    )
 
     response = admin_client.get("/admin/afip/receipt/?status=not_validated")
     assertNotContains(
@@ -229,11 +219,6 @@ def test_validation_filters(admin_client: Client) -> None:
         html.format(not_validated_receipt.pk, str(not_validated_receipt)),
         html=True,
     )
-    assertContains(
-        response,
-        html.format(failed_validation_receipt.pk, str(failed_validation_receipt)),
-        html=True,
-    )
 
     response = admin_client.get("/admin/afip/receipt/")
     assert isinstance(response, HttpResponse)
@@ -245,11 +230,6 @@ def test_validation_filters(admin_client: Client) -> None:
     assertContains(
         response,
         html.format(not_validated_receipt.pk, str(not_validated_receipt)),
-        html=True,
-    )
-    assertContains(
-        response,
-        html.format(failed_validation_receipt.pk, str(failed_validation_receipt)),
         html=True,
     )
 

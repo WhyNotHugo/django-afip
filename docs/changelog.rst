@@ -30,6 +30,10 @@ Any breaking changes which require intervention will be mentioned here.
    - ``PointOfSales.gross_income_condition``
    - ``PointOfSales.sales_terms``
    - ``ReceiptPDF.issuing_email``
+- Remove ``ReceiptValidation.result``, ``ReceiptValidation.RESULT_APPROVED``
+  and ``ReceiptValidation.RESULT_REJECTED``. Rejected validation requests were
+  never saved. All validations created were of type ``RESULT_APPROVED``,
+  making this field completely redundant.
 
 13.2.2
 ------

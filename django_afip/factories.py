@@ -226,7 +226,6 @@ class ReceiptValidationFactory(DjangoModelFactory[models.ReceiptValidation]):
     class Meta:
         model = models.ReceiptValidation
 
-    result = models.ReceiptValidation.RESULT_APPROVED
     processed_date = make_aware(datetime(2017, 7, 2, 21, 6, 4))
     cae = "67190616790549"
     cae_expiration = make_aware(datetime(2017, 7, 12))

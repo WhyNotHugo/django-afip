@@ -25,7 +25,6 @@ from django_afip.clients import TZ_AR
 from django_afip.factories import ReceiptFactory
 from django_afip.factories import ReceiptFCEAWithVatAndTaxFactory
 from django_afip.factories import ReceiptFCEAWithVatTaxAndOptionalsFactory
-from django_afip.factories import ReceiptValidationFactory
 from django_afip.factories import ReceiptWithApprovedValidation
 from django_afip.factories import ReceiptWithInconsistentVatAndTaxFactory
 from django_afip.factories import ReceiptWithVatAndTaxFactory
@@ -93,7 +92,7 @@ def test_validate_invoice(populated_db: None) -> None:
     errs = receipt.validate()
 
     assert len(errs) == 0
-    assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
+    assert receipt.validation is not None
     assert models.ReceiptValidation.objects.count() == 1
 
 
@@ -113,7 +112,7 @@ def test_skip_validated_invoice(populated_db: None) -> None:
     # Validate only the first receipt
     errs = receipt.validate()
     assert len(errs) == 0
-    assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
+    assert receipt.validation is not None
     assert models.ReceiptValidation.objects.count() == 1
 
     # Validate them both together, the first one should be skipped
@@ -127,8 +126,8 @@ def test_skip_validated_invoice(populated_db: None) -> None:
     errs = qs.validate()
     assert len(errs) == 0
     assert models.ReceiptValidation.objects.count() == 2
-    assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
-    assert receipt2.validation.result == models.ReceiptValidation.RESULT_APPROVED
+    assert receipt.validation is not None
+    assert receipt2.validation is not None
     assert original_cae == receipt.validation.cae
     assert original_receipt_number == receipt.receipt_number
 
@@ -143,7 +142,7 @@ def test_validate_fcea_invoice(populated_db: None) -> None:
     errs = receipt.validate()
 
     assert len(errs) == 0
-    assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
+    assert receipt.validation is not None
     assert models.ReceiptValidation.objects.count() == 1
 
 
@@ -189,8 +188,6 @@ def test_failed_validation(populated_db: None) -> None:
     errs = receipt.validate()
 
     assert len(errs) == 1
-    # FIXME: We're not creating rejection entries
-    # assert receipt.validation.result == models.ReceiptValidation.RESULT_REJECTED
     assert models.ReceiptValidation.objects.count() == 0
 
 
@@ -207,8 +204,6 @@ def test_raising_failed_validation(populated_db: None) -> None:
     ):
         receipt.validate(raise_=True)
 
-    # FIXME: We're not creating rejection entries
-    # assert receipt.validation.result == models.ReceiptValidation.RESULT_REJECTED
     assert models.ReceiptValidation.objects.count() == 0
 
 
@@ -294,29 +289,17 @@ def test_receipt_is_validated_when_not_validated() -> None:
     receipt = ReceiptFactory.create()
     assert not receipt.is_validated
 
+    receipt = ReceiptFactory.create(receipt_number=None)
+    assert not receipt.is_validated
+
+    receipt = ReceiptFactory.create(receipt_number=1)
+    assert not receipt.is_validated
+
 
 @pytest.mark.django_db
 def test_receipt_is_validated_when_validated() -> None:
     receipt = ReceiptWithApprovedValidation.create()
     assert receipt.is_validated
-
-
-@pytest.mark.django_db
-def test_receipt_is_validated_when_failed_validation() -> None:
-    # These should never really exist,but oh well:
-    receipt = ReceiptFactory.create(receipt_number=None)
-    ReceiptValidationFactory.create(
-        receipt=receipt,
-        result=models.ReceiptValidation.RESULT_REJECTED,
-    )
-    assert not receipt.is_validated
-
-    receipt = ReceiptFactory.create(receipt_number=1)
-    ReceiptValidationFactory.create(
-        receipt=receipt,
-        result=models.ReceiptValidation.RESULT_REJECTED,
-    )
-    assert not receipt.is_validated
 
 
 @pytest.mark.django_db

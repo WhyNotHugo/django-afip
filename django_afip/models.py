@@ -998,9 +998,8 @@ class ReceiptQuerySet(models.QuerySet):
         check_response(response)
         errs = []
         for cae_data in response.FeDetResp.FECAEDetResponse:
-            if cae_data.Resultado == ReceiptValidation.RESULT_APPROVED:
+            if cae_data.Resultado == "A":
                 validation = ReceiptValidation.objects.create(
-                    result=cae_data.Resultado,
                     cae=cae_data.CAE,
                     cae_expiration=parsers.parse_date(cae_data.CAEFchVto),
                     receipt=qs.get(
@@ -1310,14 +1309,14 @@ class Receipt(models.Model):
         If you need a large list of validated receipts, you should actually
         filter them via a QuerySet::
 
-            Receipt.objects.filter(validation__result==RESULT_APPROVED)
+            Receipt.objects.filter(validation__isnull=False)
         """
         # Avoid the DB lookup if possible:
         if not self.receipt_number:
             return False
 
         try:
-            return self.validation.result == ReceiptValidation.RESULT_APPROVED
+            return self.validation is not None
         except ReceiptValidation.DoesNotExist:
             return False
 
@@ -1387,9 +1386,8 @@ class Receipt(models.Model):
         if not receipt_data:
             return None
 
-        if receipt_data.Resultado == ReceiptValidation.RESULT_APPROVED:
+        if receipt_data.Resultado == "A":
             validation = ReceiptValidation.objects.create(
-                result=receipt_data.Resultado,
                 cae=receipt_data.CodAutorizacion,
                 cae_expiration=parsers.parse_date(receipt_data.FchVto),
                 receipt=self,
@@ -1433,7 +1431,7 @@ class Receipt(models.Model):
             Receipt.objects.filter(
                 point_of_sales=self.point_of_sales,
                 receipt_type=self.receipt_type,
-                validation__result=ReceiptValidation.RESULT_APPROVED,
+                validation__isnull=False,
             )
             .order_by("issued_date")
             .last()
@@ -1849,19 +1847,6 @@ class ReceiptValidation(models.Model):
     validation failure.
     """
 
-    RESULT_APPROVED = "A"
-    RESULT_REJECTED = "R"
-
-    # TODO: replace this with a `successful` boolean field.
-    result = models.CharField(
-        _("result"),
-        max_length=1,
-        choices=(
-            (RESULT_APPROVED, _("approved")),
-            (RESULT_REJECTED, _("rejected")),
-        ),
-        help_text=_("Indicates whether the validation was succesful or not."),
-    )
     processed_date = models.DateTimeField(
         _("processed date"),
     )
@@ -1897,16 +1882,10 @@ class ReceiptValidation(models.Model):
         verbose_name_plural = _("receipt validations")
 
     def __str__(self) -> str:
-        return _("Validation for %s. Result: %s") % (
-            self.receipt,
-            self.get_result_display(),
-        )
+        return _("Validation for %s") % self.receipt
 
     def __repr__(self) -> str:
-        return (
-            f"<{self.__class__.__name__} {self.pk}: "
-            f"{self.result} for Receipt {self.receipt_id}>"
-        )
+        return f"<{self.__class__.__name__} {self.pk}: for Receipt {self.receipt_id}>"
 
 
 class ClientVatConditionManager(models.Manager["ClientVatCondition"]):

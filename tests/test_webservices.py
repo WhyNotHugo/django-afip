@@ -160,9 +160,9 @@ def test_receipt_queryset_validation_good(populated_db: None) -> None:
     errs = models.Receipt.objects.all().validate()  # type: ignore[attr-defined]
 
     assert len(errs) == 0
-    assert r1.validation.result == models.ReceiptValidation.RESULT_APPROVED
-    assert r2.validation.result == models.ReceiptValidation.RESULT_APPROVED
-    assert r3.validation.result == models.ReceiptValidation.RESULT_APPROVED
+    assert r1.validation is not None
+    assert r2.validation is not None
+    assert r3.validation is not None
     assert models.ReceiptValidation.objects.count() == 3
 
 
@@ -242,7 +242,7 @@ def test_receipt_queryset_validation_good_service(populated_db: None) -> None:
     errs = models.Receipt.objects.all().validate()  # type: ignore[attr-defined]
 
     assert len(errs) == 0
-    assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
+    assert receipt.validation is not None
     assert models.ReceiptValidation.objects.count() == 1
 
 
@@ -260,7 +260,7 @@ def test_receipt_queryset_validation_good_without_tax(populated_db: None) -> Non
     errs = models.Receipt.objects.all().validate()  # type: ignore[attr-defined]
 
     assert len(errs) == 0
-    assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
+    assert receipt.validation is not None
     assert models.ReceiptValidation.objects.count() == 1
 
 
@@ -279,7 +279,7 @@ def test_receipt_queryset_validation_good_without_vat(populated_db: None) -> Non
     errs = models.Receipt.objects.all().validate()  # type: ignore[attr-defined]
 
     assert len(errs) == 0
-    assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
+    assert receipt.validation is not None
     assert models.ReceiptValidation.objects.count() == 1
 
 
@@ -299,7 +299,7 @@ def test_receipt_queryset_validation_with_observations(populated_db: None) -> No
     errs = models.Receipt.objects.all().validate()  # type: ignore[attr-defined]
 
     assert len(errs) == 0
-    assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
+    assert receipt.validation is not None
     assert models.ReceiptValidation.objects.count() == 1
     assert models.Observation.objects.count() == 1
     assert receipt.validation.observations.count() == 1
@@ -341,5 +341,5 @@ def test_receipt_queryset_validation_good_with_client_vat_condition(
     errs = models.Receipt.objects.all().validate()  # type: ignore[attr-defined]
 
     assert len(errs) == 0
-    assert receipt.validation.result == models.ReceiptValidation.RESULT_APPROVED
+    assert receipt.validation is not None
     assert models.ReceiptValidation.objects.count() == 1
