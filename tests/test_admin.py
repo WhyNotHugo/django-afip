@@ -7,6 +7,7 @@ import pytest
 from django import VERSION as DJANGO_VERSION
 from django.contrib import messages
 from django.contrib.admin import site
+from django.contrib.messages import Message
 from django.http import HttpRequest
 from django.http import HttpResponse
 from django.test import Client
@@ -14,6 +15,7 @@ from django.test import RequestFactory
 from django.utils.translation import gettext as _
 from factory.django import FileField
 from pytest_django.asserts import assertContains
+from pytest_django.asserts import assertMessages
 from pytest_django.asserts import assertNotContains
 
 from django_afip import exceptions
@@ -94,7 +96,7 @@ def test_without_key(admin_client: Client) -> None:
 
     assert response.status_code == 200
     assert isinstance(response, HttpResponse)
-    assertContains(response, "Key generated successfully.")
+    assertMessages(response, [Message(messages.SUCCESS, "Key generated successfully.")])
 
     taxpayer.refresh_from_db()
     assert "-----BEGIN PRIVATE KEY-----" in taxpayer.key.file.read().decode()
@@ -111,9 +113,9 @@ def test_with_key(admin_client: Client) -> None:
 
     assert response.status_code == 200
     assert isinstance(response, HttpResponse)
-    assertContains(
+    assertMessages(
         response,
-        "No keys generated; Taxpayers already had keys.",
+        [Message(messages.ERROR, "No keys generated; Taxpayers already had keys.")],
     )
 
     taxpayer.refresh_from_db()
@@ -173,7 +175,10 @@ def test_admin_taxpayer_request_generation_multiple_taxpayers(
 
     assert response.status_code == 200
     assert isinstance(response, HttpResponse)
-    assertContains(response, "Can only generate CSR for one taxpayer at a time")
+    assertMessages(
+        response,
+        [Message(messages.ERROR, "Can only generate CSR for one taxpayer at a time.")],
+    )
 
 
 def test_validation_filters(admin_client: Client) -> None:
@@ -302,7 +307,7 @@ def test_validate_certs_action_success(admin_client: Client) -> None:
 
     assert response.status_code == 200
     assert validate.call_count == 1
-    assert list(response.context["messages"]) == []
+    assertMessages(response, [])
 
 
 def test_validate_certs_action_errors(admin_client: Client) -> None:
@@ -321,12 +326,10 @@ def test_validate_certs_action_errors(admin_client: Client) -> None:
 
     assert response.status_code == 200
     assert validate.call_count == 1
-
-    messages = list(response.context["messages"])
-    assert len(messages) == 1
-
-    message = messages[0].message
-    assert message == "Receipt validation failed: ['Something went wrong']."
+    assertMessages(
+        response,
+        [Message(messages.ERROR, "Receipt validation failed: ['Something went wrong'].")],
+    )
 
 
 def test_admin_fetch_points_of_sales(admin_client: Client) -> None:
@@ -347,9 +350,10 @@ def test_admin_fetch_points_of_sales(admin_client: Client) -> None:
         )
 
     assert response.status_code == 200
-
-    messages = [msg.message for msg in list(response.context["messages"])]
-    assert len(messages) == 2
-
-    assert "2 points of sales already existed." in messages
-    assert "2 points of sales created." in messages
+    assertMessages(
+        response,
+        [
+            Message(messages.SUCCESS, "2 points of sales created."),
+            Message(messages.WARNING, "2 points of sales already existed."),
+        ],
+    )
