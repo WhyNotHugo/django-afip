@@ -12,7 +12,6 @@ from datetime import timedelta
 from datetime import timezone
 from decimal import Decimal
 from io import BytesIO
-from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING
 from typing import BinaryIO
 from typing import ClassVar
@@ -24,6 +23,7 @@ from uuid import uuid4
 from django.conf import settings
 from django.core import management
 from django.core.files import File
+from django.core.files.base import ContentFile
 from django.core.files.storage import InvalidStorageError
 from django.core.files.storage import default_storage
 from django.core.files.storage import storages
@@ -522,10 +522,10 @@ class TaxPayer(models.Model):
             logger.warning("Tried to generate key for a taxpayer that already had one")
             return False
 
-        with NamedTemporaryFile(suffix=".key") as file_:
-            crypto.create_key(file_)
-            self.key = File(file_, name=f"{uuid4().hex}.key")
-            self.save()
+        buffer = BytesIO()
+        crypto.create_key(buffer)
+        self.key = ContentFile(buffer.getvalue(), name=f"{uuid4().hex}.key")
+        self.save()
 
         return True
 
