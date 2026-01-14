@@ -1,28 +1,28 @@
-image: alpine/3.19
+image: debian/bookworm
 packages:
-  - alpine-sdk
-  - font-dejavu # makedepends for wheels
+  - build-essential
+  - fonts-dejavu # makedepends for wheels
   - ghostscript # makedepends for wheels
+  - libmariadb-dev # makedepends for wheels
+  - libpango1.0-dev # makedepends for wheels
   - libpq-dev # makedepends for wheels
-  - mariadb # server itself
-  - mariadb-dev # lib for wheels
-  - mariadb-openrc
-  - pango # makedepends for wheels
+  - mariadb-server
   - postgresql
-  - postgresql-common-openrc # tests
-  - py3-tox
   - python3-dev
+  - tox
 sources:
-  - https://github.com/whyNotHugo/django-afip
+  - https://github.com/WhyNotHugo/django-afip
 environment:
   CI: true
 tasks:
+  - check-python: |
+      python3 --version | grep 'Python 3.11'
   - postgres: |
       sudo service postgresql start
+      sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
   - mariadb: |
-      sudo sed -i 's/skip-networking/skip-grant-tables/' /etc/my.cnf.d/mariadb-server.cnf
-      sudo /etc/init.d/mariadb setup
       sudo service mariadb start
+      sudo mariadb -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'mysql'; FLUSH PRIVILEGES;"
   - tox-sqlite: |
       cd django-afip
       tox -e sqlite
