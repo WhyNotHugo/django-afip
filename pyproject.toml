@@ -5,7 +5,7 @@ authors = [
 ]
 description = "AFIP integration for django"
 readme = "README.rst"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 keywords = ["argentina", "afip", "wsdl"]
 license = "ISC"
 license-files = ["LICENCE"]
@@ -16,10 +16,10 @@ classifiers = [
   "Framework :: Django :: 4.2",
   "Framework :: Django :: 5.0",
   "Framework :: Django :: 5.1",
+  "Framework :: Django :: 5.2",
   "Intended Audience :: Developers",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
@@ -29,16 +29,15 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = [
-  "cryptography>=3.2,<40",
-  "django>=4.2,<5.2",
-  "django_renderpdf>=3.0.0,<5.0.0",
+  "cryptography>=3.2,<47",
+  "django>=4.2,<5.3",
+  "django_renderpdf>=6.0.0,<7.0.0",
   "lxml>=3.4.4",
   "pyopenssl>=16.2.0",
-  'backports.zoneinfo;python_version<"3.9"',
   "setuptools-git>=1.1",
   "wheel>=0.24.0",
   "zeep>=1.1.0,<5.0.0",
-  "qrcode[pil]>=6.1,<8.0",
+  "qrcode[pil]>=6.1,<9.0",
   "pyyaml>=5.3.1,<7.0.0",
   # zeep depends on requests, but these specific version are incompatible.
   # See: https://github.com/WhyNotHugo/django-afip/issues/211
@@ -89,7 +88,8 @@ funding = "https://github.com/sponsors/WhyNotHugo"
 include = ["django_afip*"]
 
 [build-system]
-requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
+requires = ["setuptools>=77", "wheel", "setuptools_scm>=6.2"]
+build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
 write_to = "django_afip/version.py"
@@ -120,36 +120,35 @@ source = ["django_afip"]
 
 [tool.ruff.lint]
 select = [
-    "F",
-    "E",
-    "W",
-    "I",
-    # "N",
-    "UP",
-    "YTT",
+    "A",
     "ANN",
     "B",
-    "A",
     "C4",
-
-    "ISC",
-    "ICN",
+    "DJ",
+    "E",
+    "F",
     "G",
+    "I",
+    "ICN",
     "INP",
-    "PIE",
-    "PYI",
-
-    "PT",
-    "Q",
-    "RSE",
-    "RET",
-    "SIM",
-    "TID",
-    "TCH",
     "INT",
+    "ISC",
+    # "N",
     "PGH",
+    "PIE",
     "PLE",
+    "PT",
+    "PYI",
+    "Q",
+    "RET",
+    "RSE",
     "RUF",
+    "SIM",
+    "TCH",
+    "TID",
+    "UP",
+    "W",
+    "YTT",
 ]
 ignore = [
   "ANN002",  # Annotations for *args

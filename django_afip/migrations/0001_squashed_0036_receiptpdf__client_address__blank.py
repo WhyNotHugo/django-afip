@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import ClassVar
+
 import django.db.models.deletion
 from django.db import migrations
 from django.db import models
@@ -49,7 +51,7 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies: list = []
+    dependencies: ClassVar[list] = []
 
     operations = [
         migrations.CreateModel(

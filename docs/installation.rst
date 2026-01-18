@@ -76,21 +76,40 @@ También es posible (y opcional) definir varios :doc:`Storage
 <django:ref/files/storage>` para los archivos de la app. Si no están definidos,
 se usará el Storage predeterminado.
 
-El valor de estos ajustes debería ser un ``str`` con el path a una instancia
-del storage a usar. (eg: ``'myapp.storages.my_private_storage'``). Tanto S3
-como el storage predeterminado han sido testeados ampliamente, aunque cualquier
-storage compatible con django debería funcionar sin dramas.
+Podés configurar storages personalizados usando el setting :setting:`STORAGES`
+de Django con los siguientes alias:
 
 .. code-block:: python
 
-    AFIP_KEY_STORAGE  # Clave para autenticación con el AFIP. (TaxPayer.key)
-    AFIP_CERT_STORAGE  # Certificados para autenticación con el AFIP (TaxPayer.certificate)
-    AFIP_PDF_STORAGE  # PDFs generados para comprobantes (ReceiptPDF.pdf_file)
-    AFIP_LOGO_STORAGE  # Logos usados para comprobantes (TaxPayer.logo)
+    STORAGES = {
+        # …default storages…
+        "afip_keys": {  # Clave para autenticación con el AFIP. (TaxPayer.key)
+            "BACKEND": "myapp.storages.PrivateStorage",
+        },
+        "afip_certs": {  # Certificados para autenticación con el AFIP (TaxPayer.certificate)
+            "BACKEND": "myapp.storages.PrivateStorage",
+        },
+        "afip_pdfs": {  # PDFs generados para comprobantes (ReceiptPDF.pdf_file)
+            "BACKEND": "myapp.storages.ClientStorage",
+        },
+        "afip_logos": {  # Logos usados para comprobantes (TaxPayer.logo)
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+    }
 
 Si estás exponiendo tu Storage predeterminado a la web (que suele ser el caso
-en muchas aplicaciones), es recomendable, como mínimo, redefinir
-``AFIP_KEY_STORAGE`` para evitar exponer tu claves a la web.
+en muchas aplicaciones), es importante, como mínimo, redefinir ``afip_keys``
+para evitar exponer tu claves a la web.
+
+.. deprecated:: 14.0
+
+    Los siguientes settings están deprecados y serán removidos en una versión
+    futura. Usá :setting:`STORAGES` de Django en su lugar:
+
+    - ``AFIP_KEY_STORAGE`` → ``STORAGES["afip_keys"]``
+    - ``AFIP_CERT_STORAGE`` → ``STORAGES["afip_certs"]``
+    - ``AFIP_PDF_STORAGE`` → ``STORAGES["afip_pdfs"]``
+    - ``AFIP_LOGO_STORAGE`` → ``STORAGES["afip_logos"]``
 
 Versionado
 ----------

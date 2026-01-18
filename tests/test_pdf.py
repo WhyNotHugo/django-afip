@@ -25,8 +25,8 @@ def test_pdf_generation() -> None:
     Running this locally *will* yield the file itself, which is useful for
     manual inspection.
     """
-    pdf = factories.ReceiptPDFFactory(receipt__receipt_number=3)
-    factories.ReceiptValidationFactory(receipt=pdf.receipt)
+    pdf = factories.ReceiptPDFFactory.create(receipt__receipt_number=3)
+    factories.ReceiptValidationFactory.create(receipt=pdf.receipt)
     pdf.save_pdf()
     regex = r"afip/receipts/[a-f0-9]{2}/[a-f0-9]{2}/[a-f0-9]{32}.pdf"
 
@@ -42,8 +42,8 @@ def test_unauthorized_receipt_generation() -> None:
     Confirm that attempting to generate a PDF for an unauthorized receipt
     raises.
     """
-    taxpayer = factories.TaxPayerFactory()
-    receipt = factories.ReceiptFactory(
+    taxpayer = factories.TaxPayerFactory.create()
+    receipt = factories.ReceiptFactory.create(
         receipt_number=None,
         point_of_sales__owner=taxpayer,
     )
@@ -60,18 +60,18 @@ def test_unauthorized_receipt_generation() -> None:
 
 @pytest.mark.django_db
 def test_signal_generation_for_not_validated_receipt() -> None:
-    printable = factories.ReceiptPDFFactory()
+    printable = factories.ReceiptPDFFactory.create()
 
     assert not (printable.pdf_file)
 
 
 @pytest.mark.django_db
 def test_qrcode_data() -> None:
-    pdf = factories.ReceiptPDFFactory(
+    pdf = factories.ReceiptPDFFactory.create(
         receipt__receipt_number=3,
         receipt__issued_date=date(2021, 3, 2),
     )
-    factories.ReceiptValidationFactory(receipt=pdf.receipt)
+    factories.ReceiptValidationFactory.create(receipt=pdf.receipt)
 
     qrcode = ReceiptQrCode(pdf.receipt)
     assert qrcode._data == {
@@ -93,9 +93,9 @@ def test_qrcode_data() -> None:
 
 @pytest.mark.django_db
 def test_create_entries_for_render() -> None:
-    validation = factories.ReceiptValidationFactory()
+    validation = factories.ReceiptValidationFactory.create()
     for _i in range(10):
-        factories.ReceiptEntryFactory(
+        factories.ReceiptEntryFactory.create(
             receipt=validation.receipt, unit_price=1, quantity=1
         )
     entries_queryset = models.ReceiptEntry.objects.all()
@@ -114,16 +114,16 @@ def test_create_entries_for_render() -> None:
 
 @pytest.mark.django_db
 def test_receipt_pdf_modified_builder() -> None:
-    validation = factories.ReceiptValidationFactory()
+    validation = factories.ReceiptValidationFactory.create()
     validation.receipt.total_amount = 20
     validation.receipt.save()
     for _i in range(10):
         random.uniform(1.00, 12.5)
-        factories.ReceiptEntryFactory(
+        factories.ReceiptEntryFactory.create(
             receipt=validation.receipt, unit_price=1, quantity=2
         )
 
-    printable = factories.ReceiptPDFFactory(receipt=validation.receipt)
+    printable = factories.ReceiptPDFFactory.create(receipt=validation.receipt)
     assert not printable.pdf_file
 
     printable.save_pdf(builder=PdfBuilder(entries_per_page=5))
@@ -133,14 +133,14 @@ def test_receipt_pdf_modified_builder() -> None:
 
 @pytest.mark.django_db
 def test_receipt_pdf_call_function() -> None:
-    validation = factories.ReceiptValidationFactory()
+    validation = factories.ReceiptValidationFactory.create()
     for _i in range(80):
         price = random.uniform(1.00, 12.5)
-        factories.ReceiptEntryFactory(
+        factories.ReceiptEntryFactory.create(
             receipt=validation.receipt, unit_price=price, quantity=2
         )
 
-    printable = factories.ReceiptPDFFactory(receipt=validation.receipt)
+    printable = factories.ReceiptPDFFactory.create(receipt=validation.receipt)
     with patch(
         "django_afip.pdf.create_entries_context_for_render", spec=True
     ) as mocked_call:

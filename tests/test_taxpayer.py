@@ -62,7 +62,7 @@ def test_csr_generation() -> None:
 
     assert csr.splitlines()[-1] == "-----END CERTIFICATE REQUEST-----"
 
-    loaded_csr = crypto.load_certificate_request(crypto.FILETYPE_PEM, csr)
+    loaded_csr = crypto.load_certificate_request(crypto.FILETYPE_PEM, csr.encode())
     assert isinstance(loaded_csr, crypto.X509Req)
 
     expected_components = [
@@ -104,7 +104,7 @@ def test_expiration_getter_no_cert() -> None:
 
 @pytest.mark.django_db
 def test_expiration_signal_update() -> None:
-    taxpayer = factories.TaxPayerFactory(certificate_expiration=None)
+    taxpayer = factories.TaxPayerFactory.create(certificate_expiration=None)
     taxpayer.save()
     expiration = taxpayer.certificate_expiration
 

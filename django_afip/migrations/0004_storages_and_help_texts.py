@@ -19,9 +19,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 help_text="The actual file which contains the PDF data.",
                 null=True,
-                storage=django_afip.models._get_storage_from_settings(
-                    "AFIP_PDF_STORAGE"
-                ),
+                storage=django_afip.models._get_storage_from_settings("afip_pdfs"),
                 upload_to=django_afip.models.ReceiptPDF.upload_to,
                 verbose_name="pdf file",
             ),
@@ -32,9 +30,7 @@ class Migration(migrations.Migration):
             field=models.FileField(
                 blank=True,
                 null=True,
-                storage=django_afip.models._get_storage_from_settings(
-                    "AFIP_CERT_STORAGE"
-                ),
+                storage=django_afip.models._get_storage_from_settings("afip_certs"),
                 upload_to="afip/taxpayers/certs/",
                 verbose_name="certificate",
             ),
@@ -45,9 +41,7 @@ class Migration(migrations.Migration):
             field=models.FileField(
                 blank=True,
                 null=True,
-                storage=django_afip.models._get_storage_from_settings(
-                    "AFIP_KEY_STORAGE"
-                ),
+                storage=django_afip.models._get_storage_from_settings("afip_keys"),
                 upload_to="afip/taxpayers/keys/",
                 verbose_name="key",
             ),
@@ -59,9 +53,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 help_text="A logo to use when generating printable receipts.",
                 null=True,
-                storage=django_afip.models._get_storage_from_settings(
-                    "AFIP_LOGO_STORAGE"
-                ),
+                storage=django_afip.models._get_storage_from_settings("afip_logos"),
                 upload_to="afip/taxpayers/logos/",
                 verbose_name="logo",
             ),

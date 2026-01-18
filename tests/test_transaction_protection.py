@@ -18,7 +18,7 @@ def disable_durability_check() -> None:
 def test_raises() -> None:
     """Calling ``validate`` inside a transaction should raise."""
 
-    receipt = ReceiptFactory()
+    receipt = ReceiptFactory.create()
     queryset = models.Receipt.objects.filter(pk=receipt.pk)
     ticket = MagicMock()
 

@@ -29,39 +29,12 @@ jobs:
       matrix:
         # 3.11 is tested via /.builds/alpine-py311.yml
         # TODO: move these oldest pythons to sr.ht job in docker
-        python: ["3.9", "3.10"]
-    name: postgres, python${{ matrix.python }}
+    name: postgres, python3.10
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python }}
+          python-version: "3.10"
       - run: pip install tox
       - run: sudo apt-get update && sudo apt-get install libpq-dev
       - run: tox -e py-postgres
-  mysql:
-    runs-on: ubuntu-latest
-    services:
-      mysql:
-        image: mariadb
-        env:
-          MARIADB_PASSWORD: mysql
-          MARIADB_ROOT_PASSWORD: mysql
-        options: >-
-          --health-cmd="healthcheck.sh --connect --innodb_initialized"
-          --health-interval=5s
-          --health-timeout=2s
-          --health-retries=3
-        ports:
-          - 3306:3306
-    strategy:
-      fail-fast: false
-    name: mysql
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.9
-      - run: pip install tox
-      - run: sudo apt-get update && sudo apt-get install libmysqlclient-dev
-      - run: tox -e py-mysql

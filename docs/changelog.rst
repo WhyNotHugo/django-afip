@@ -13,6 +13,50 @@ Check the `latest tags`_ or `PyPI`_ for the latest stable release.
 
 Any breaking changes which require intervention will be mentioned here.
 
+14.0.0
+------
+
+- ``setuptools>=77`` is required. Previous versions would often fail to
+  properly parse the ``licence`` field.
+- Extend supported versions of ``django-renderpdf``, ``qrcode`` and
+  ``cryptography``.
+- Drop support for Python 3.9.
+- In order to align with Django's coding style conventions, the following
+  fields no longer support ``NULL`` values. Use an empty string instead:
+
+   - ``PointOfSales.issuing_name``
+   - ``PointOfSales.issuing_address``
+   - ``PointOfSales.issuing_email``
+   - ``PointOfSales.vat_condition``
+   - ``PointOfSales.gross_income_condition``
+   - ``PointOfSales.sales_terms``
+   - ``ReceiptPDF.issuing_email``
+
+- Remove ``ReceiptValidation.result``, ``ReceiptValidation.RESULT_APPROVED``
+  and ``ReceiptValidation.RESULT_REJECTED``. Rejected validation requests were
+  never saved. All validations created were of type ``RESULT_APPROVED``,
+  making this field completely redundant.
+- Migrate to Django's :setting:`STORAGES` setting (introduced in Django 4.2)
+  for custom storage backends. The old names are deprecated and will be removed
+  in a future version. Use the following settings:
+
+   - ``AFIP_KEY_STORAGE`` → ``STORAGES["afip_keys"]``
+   - ``AFIP_CERT_STORAGE`` → ``STORAGES["afip_certs"]``
+   - ``AFIP_PDF_STORAGE`` → ``STORAGES["afip_pdfs"]``
+   - ``AFIP_LOGO_STORAGE``  → ``STORAGES["afip_logos"]``
+
+
+13.2.2
+------
+
+- Properly add support for Django 5.2. The previous release still included a
+  specified for ``Django<5.2``.
+
+13.2.1
+------
+
+- Add support for Django 5.2.
+
 13.2.0
 ------
 

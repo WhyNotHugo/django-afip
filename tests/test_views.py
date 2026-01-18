@@ -17,13 +17,13 @@ from django_afip import views
 class ReceiptPDFTestCase(TestCase):
     def test_html_view(self) -> None:
         """Test the HTML generation view."""
-        pdf = factories.ReceiptPDFFactory(
+        pdf = factories.ReceiptPDFFactory.create(
             receipt__concept__code=1,
             receipt__issued_date=date(2017, 5, 15),
             receipt__receipt_type__code=11,
             receipt__point_of_sales__owner__logo=None,
         )
-        factories.ReceiptValidationFactory(receipt=pdf.receipt)
+        factories.ReceiptValidationFactory.create(receipt=pdf.receipt)
 
         client = Client()
         response = client.get(
@@ -172,8 +172,8 @@ class ReceiptPDFTestCase(TestCase):
 
     def test_logo_in_html(self) -> None:
         """Test the HTML generation view."""
-        pdf = factories.ReceiptPDFFactory()
-        factories.ReceiptValidationFactory(receipt=pdf.receipt)
+        pdf = factories.ReceiptPDFFactory.create()
+        factories.ReceiptValidationFactory.create(receipt=pdf.receipt)
 
         client = Client()
         response = client.get(
@@ -201,12 +201,12 @@ class ReceiptPDFTestCase(TestCase):
         """
         Test the PDF generation view.
         """
-        taxpayer = factories.TaxPayerFactory()
+        taxpayer = factories.TaxPayerFactory.create()
 
-        pdf = factories.ReceiptPDFFactory(
+        pdf = factories.ReceiptPDFFactory.create(
             receipt__point_of_sales__owner=taxpayer,
         )
-        factories.ReceiptValidationFactory(receipt=pdf.receipt)
+        factories.ReceiptValidationFactory.create(receipt=pdf.receipt)
 
         client = Client()
         response = client.get(reverse("receipt_pdf_view", args=(pdf.receipt.pk,)))
@@ -220,13 +220,13 @@ class ReceiptPDFTestCase(TestCase):
 
 @pytest.mark.django_db
 def test_template_discovery(client: Client) -> None:
-    taxpayer = factories.TaxPayerFactory(cuit="20329642330")
-    pdf = factories.ReceiptPDFFactory(
+    taxpayer = factories.TaxPayerFactory.create(cuit="20329642330")
+    pdf = factories.ReceiptPDFFactory.create(
         receipt__point_of_sales__owner=taxpayer,
         receipt__point_of_sales__number=9999,
         receipt__receipt_type__code=6,
     )
-    factories.ReceiptValidationFactory(receipt=pdf.receipt)
+    factories.ReceiptValidationFactory.create(receipt=pdf.receipt)
 
     client = Client()
     response = client.get(
@@ -240,7 +240,7 @@ def test_template_discovery(client: Client) -> None:
 
 class ReceiptPDFViewDownloadNameTestCase(TestCase):
     def test_download_name(self) -> None:
-        factories.ReceiptFactory(pk=9, receipt_number=32)
+        factories.ReceiptFactory.create(pk=9, receipt_number=32)
 
         view = views.ReceiptPDFView()
         view.kwargs = {"pk": 9}

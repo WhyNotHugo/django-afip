@@ -9,6 +9,7 @@ from typing import TypedDict
 from django.contrib import admin
 from django.contrib import messages
 from django.db.models import F
+from django.db.models import Q
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.http import HttpResponse
@@ -107,7 +108,6 @@ class ReceiptEntryInline(admin.TabularInline):
 class ReceiptValidationInline(admin.StackedInline):
     model = models.ReceiptValidation
     readonly_fields = (
-        "result",
         "processed_date",
         "cae",
         "cae_expiration",
@@ -136,13 +136,9 @@ class ReceiptStatusFilter(admin.SimpleListFilter):
     # TODO: generics
     def queryset(self, request: HttpRequest, queryset: QuerySet) -> QuerySet:
         if self.value() == self.VALIDATED:
-            return queryset.filter(
-                validation__result=models.ReceiptValidation.RESULT_APPROVED
-            )
+            return queryset.filter(validation__isnull=False)
         if self.value() == self.NOT_VALIDATED:
-            return queryset.exclude(
-                validation__result=models.ReceiptValidation.RESULT_APPROVED
-            )
+            return queryset.filter(validation__isnull=True)
         return queryset
 
 
@@ -210,7 +206,7 @@ class ReceiptAdmin(admin.ModelAdmin):
 
     class Annotations(TypedDict):
         pdf_id: int
-        validation_result: str
+        has_validation: bool
 
     def get_queryset(self, request: HttpRequest) -> QuerySet:
         return (
@@ -222,7 +218,7 @@ class ReceiptAdmin(admin.ModelAdmin):
             )
             .annotate(
                 pdf_id=F("receiptpdf__id"),
-                validation_result=F("validation__result"),
+                has_validation=Q(validation__isnull=False),
             )
         )
 
@@ -240,11 +236,10 @@ class ReceiptAdmin(admin.ModelAdmin):
     @admin.display(
         boolean=True,
         description=_("validated"),
-        ordering="validation__result",
+        ordering="validation",
     )
     def validated(self, obj: WithAnnotations[models.Receipt, Annotations]) -> bool:
-        validation_result = obj.validation_result
-        return validation_result == models.ReceiptValidation.RESULT_APPROVED
+        return obj.has_validation
 
     @admin.display(description=_("PDF"), ordering="receiptpdf__id")
     def pdf_link(self, obj: WithAnnotations[models.Receipt, Annotations]) -> str:
@@ -514,7 +509,6 @@ class ReceiptValidationAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "receipt_number",
-        "successful",
         "cae",
         "processed_date",
     )
@@ -524,10 +518,6 @@ class ReceiptValidationAdmin(admin.ModelAdmin):
     @admin.display(description=_("receipt number"), ordering="receipt_id")
     def receipt_number(self, obj: models.ReceiptValidation) -> str | None:
         return obj.receipt.formatted_number
-
-    @admin.display(boolean=True, description=_("result"), ordering="result")
-    def successful(self, obj: models.ReceiptValidation) -> bool:
-        return obj.result == models.ReceiptValidation.RESULT_APPROVED
 
 
 admin.site.register(models.ConceptType)
