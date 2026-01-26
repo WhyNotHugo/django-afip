@@ -142,7 +142,7 @@ class PdfBuilder:
         To override, for example, the "Factura C" template for point of sales 0002 for
         Taxpayer 20-32964233-0, use::
 
-            receipts/20329642330/pos_2/code_6.html
+            receipts / 20329642330 / pos_2 / code_6.html
         """
         return [
             template.format(

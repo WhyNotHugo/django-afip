@@ -118,6 +118,9 @@ django_settings_module = "testapp.settings"
 [tool.coverage.run]
 source = ["django_afip"]
 
+[tool.ruff.format]
+docstring-code-format = true
+
 [tool.ruff.lint]
 select = [
     "A",
