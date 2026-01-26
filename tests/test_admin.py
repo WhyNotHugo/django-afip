@@ -328,7 +328,11 @@ def test_validate_certs_action_errors(admin_client: Client) -> None:
     assert validate.call_count == 1
     assertMessages(
         response,
-        [Message(messages.ERROR, "Receipt validation failed: ['Something went wrong'].")],
+        [
+            Message(
+                messages.ERROR, "Receipt validation failed: ['Something went wrong']."
+            )
+        ],
     )
 
 
