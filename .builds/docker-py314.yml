@@ -1,0 +1,24 @@
+image: alpine/3.23
+packages:
+  - alpine-sdk
+  - docker
+  - mariadb
+  - postgresql
+sources:
+  - https://github.com/whyNotHugo/django-afip
+environment:
+  CI: true
+tasks:
+  - postgres: |
+      sudo service postgresql start
+  - mariadb: |
+      sudo sed -i 's/skip-networking/skip-grant-tables/' /etc/my.cnf.d/mariadb-server.cnf
+      sudo /etc/init.d/mariadb setup
+      sudo service mariadb start
+  - docker: |
+      sudo service docker start
+      sudo addgroup $(whoami) docker
+  - tox: |
+      cd django-afip
+      docker run --rm --network=host -v $(pwd):/src -w /src python:3.14-alpine \
+        .builds/test.sh
