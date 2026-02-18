@@ -47,4 +47,4 @@ Licence
 
 This software is distributed under the ISC licence. See LICENCE for details.
 
-Copyright (c) 2015-2023 Hugo Osvaldo Barrera <hugo@whynothugo.nl>
+Copyright (c) 2015-2026 Hugo Osvaldo Barrera <hugo@whynothugo.nl>

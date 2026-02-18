@@ -33,7 +33,7 @@ django.setup()
 # -- Project information -----------------------------------------------------
 
 project = "django-afip"
-copyright = "2015-2023, Hugo Osvaldo Barrera"  # noqa: A001
+copyright = "2015-2026, Hugo Osvaldo Barrera"  # noqa: A001
 author = "Hugo Osvaldo Barrera"
 
 # The short X.Y version.
