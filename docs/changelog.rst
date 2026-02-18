@@ -45,7 +45,7 @@ Any breaking changes which require intervention will be mentioned here.
    - ``AFIP_PDF_STORAGE`` → ``STORAGES["afip_pdfs"]``
    - ``AFIP_LOGO_STORAGE``  → ``STORAGES["afip_logos"]``
 
-- Add support for Python 3.14.
+- Add support for Python 3.14 and Django 6.0.
 
 
 13.2.2
