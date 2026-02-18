@@ -7,7 +7,7 @@ import pytest
 from django import VERSION as DJANGO_VERSION
 from django.contrib import messages
 from django.contrib.admin import site
-from django.contrib.messages import Message
+from django.contrib.messages.storage.base import Message
 from django.http import HttpRequest
 from django.http import HttpResponse
 from django.test import Client

@@ -212,7 +212,7 @@ def test_receipt_queryset_validation_mixed(populated_db: None) -> None:
     assertQuerySetEqual(
         models.ReceiptValidation.objects.all(),
         [r1.pk],
-        lambda rv: rv.receipt_id,
+        lambda rv: rv.receipt_id,  # type: ignore[attr-defined]
     )
 
 
