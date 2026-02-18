@@ -11,7 +11,7 @@ packages:
   - python3-dev
   - tox
 sources:
-  - https://github.com/whyNotHugo/django-afip
+  - https://github.com/WhyNotHugo/django-afip
 environment:
   CI: true
 tasks:
