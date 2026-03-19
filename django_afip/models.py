@@ -20,6 +20,7 @@ from typing import Literal
 from typing import TypeVar
 from uuid import uuid4
 
+from django import VERSION as DJANGO_VERSION
 from django.conf import settings
 from django.core import management
 from django.core.files import File
@@ -1658,6 +1659,7 @@ class ReceiptPDF(models.Model):
         if save_model:
             self.save()
 
+KWARG_CHECK = "condition" if DJANGO_VERSION >= (5, 1) else "check"
 
 class ReceiptEntry(models.Model):
     """An entry in a receipt.
@@ -1712,12 +1714,13 @@ class ReceiptEntry(models.Model):
         verbose_name_plural = _("receipt entries")
         constraints = (
             CheckConstraint(
-                check=Q(discount__gte=Decimal("0.0")), name="discount_positive_value"
+                **{KWARG_CHECK: Q(discount__gte=Decimal("0.0"))},
+                name="discount_positive_value"
             ),
             CheckConstraint(
-                check=Q(discount__lte=F("quantity") * F("unit_price")),
+                **{KWARG_CHECK: Q(discount__lte=F("quantity") * F("unit_price"))},
                 name="discount_less_than_total",
-            ),
+            )
         )
 
     def __str__(self) -> str:
