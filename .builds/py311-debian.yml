@@ -26,21 +26,18 @@ tasks:
   - tox-sqlite: |
       cd django-afip
       tox -e sqlite
-  - tox-django42-mariadb: |
+  - tox-django52-mariadb: |
       cd django-afip
-      tox -e django42-mysql
-  - tox-django50-mariadb: |
+      tox -e py311-django52-mysql
+  - tox-django60-mariadb: |
       cd django-afip
-      tox -e django50-mysql
-  - tox-django42-postgres: |
+      tox -e py311-django60-mysql
+  - tox-django52-postgres: |
       cd django-afip
-      tox -e django42-postgres
-  - tox-django50-postgres: |
+      tox -e py311-django52-postgres
+  - tox-django60-postgres: |
       cd django-afip
-      tox -e django50-postgres
-  - tox-django51-postgres: |
-      cd django-afip
-      tox -e django51-postgres
+      tox -e py311-django60-postgres
   - lint: |
       cd django-afip
       tox -e mypy,ruff,vermin

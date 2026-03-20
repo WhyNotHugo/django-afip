@@ -46,6 +46,7 @@ Any breaking changes which require intervention will be mentioned here.
    - ``AFIP_LOGO_STORAGE``  → ``STORAGES["afip_logos"]``
 
 - Add support for Python 3.14 and Django 6.0.
+- **BREAKING**: Drop support for Django 4.2 and 5.1. Minimum supported version is now 5.2.
 
 
 13.2.2

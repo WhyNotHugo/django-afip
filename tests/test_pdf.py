@@ -30,6 +30,7 @@ def test_pdf_generation() -> None:
     pdf.save_pdf()
     regex = r"afip/receipts/[a-f0-9]{2}/[a-f0-9]{2}/[a-f0-9]{32}.pdf"
 
+    assert pdf.pdf_file.name is not None
     assert re.match(regex, pdf.pdf_file.name)
     assert pdf.pdf_file.name.endswith(".pdf")
 
@@ -98,7 +99,7 @@ def test_create_entries_for_render() -> None:
         factories.ReceiptEntryFactory.create(
             receipt=validation.receipt, unit_price=1, quantity=1
         )
-    entries_queryset = models.ReceiptEntry.objects.all()
+    entries_queryset = models.ReceiptEntry.objects.all().order_by("id")
     paginator = Paginator(entries_queryset, 5)
     entries = create_entries_context_for_render(paginator)
 
@@ -128,6 +129,7 @@ def test_receipt_pdf_modified_builder() -> None:
 
     printable.save_pdf(builder=PdfBuilder(entries_per_page=5))
     assert printable.pdf_file
+    assert printable.pdf_file.name is not None
     assert printable.pdf_file.name.endswith(".pdf")
 
 
