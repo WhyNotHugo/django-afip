@@ -29,15 +29,9 @@ tasks:
   - tox-django52-mariadb: |
       cd django-afip
       tox -e py311-django52-mysql
-  - tox-django60-mariadb: |
-      cd django-afip
-      tox -e py311-django60-mysql
   - tox-django52-postgres: |
       cd django-afip
       tox -e py311-django52-postgres
-  - tox-django60-postgres: |
-      cd django-afip
-      tox -e py311-django60-postgres
   - lint: |
       cd django-afip
       tox -e mypy,ruff,vermin
