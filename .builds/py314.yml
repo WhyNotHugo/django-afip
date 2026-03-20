@@ -1,13 +1,10 @@
 image: alpine/3.23
 packages:
-  - alpine-sdk
   - docker
   - mariadb
   - postgresql
 sources:
   - https://github.com/WhyNotHugo/django-afip
-environment:
-  CI: true
 tasks:
   - postgres: |
       sudo service postgresql start

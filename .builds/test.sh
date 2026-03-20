@@ -1,14 +1,15 @@
 #!/bin/sh
 set -e
 
-apk add git \
+apk add \
 	alpine-sdk \
 	font-dejavu \
 	ghostscript \
-	libpq-dev \
+	git \
+	libxslt-dev \
 	mariadb-dev \
-	pango \
-	py3-tox \
-	python3-dev
+	pango
+pip install tox
 
-tox "$@"
+export CI=true
+tox --colored=yes "$@"
