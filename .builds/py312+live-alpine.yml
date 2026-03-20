@@ -16,6 +16,8 @@ sources:
   - https://github.com/WhyNotHugo/django-afip
 environment:
   CI: true
+  # Forzamos la compilación de estas librerías para evitar el SegFault (error -11)
+  PIP_NO_BINARY: mysqlclient,cryptography,lxml
 tasks:
   - postgres: |
       sudo service postgresql start
