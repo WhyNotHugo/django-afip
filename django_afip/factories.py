@@ -155,6 +155,10 @@ class ReceiptFactory(DjangoModelFactory[models.Receipt]):
 class ReceiptWithVatAndTaxFactory(ReceiptFactory):
     """Receipt with a valid Vat and Tax, ready to validate."""
 
+    class Meta:
+        model = models.Receipt
+        skip_postgeneration_save = True  # Remove on pytest >= 10.0
+
     point_of_sales = LazyFunction(lambda: models.PointOfSales.objects.first())  # type: ignore[assignment]
     client_vat_condition = SubFactory(ClientVatConditionFactory)
 
@@ -176,6 +180,10 @@ class ReceiptFCEAWithVatAndTaxFactory(ReceiptWithVatAndTaxFactory):
 
 class ReceiptFCEAWithVatTaxAndOptionalsFactory(ReceiptFCEAWithVatAndTaxFactory):
     """Receipt FCEA with a valid Vat, Tax and Optionals, ready to validate."""
+
+    class Meta:
+        model = models.Receipt
+        skip_postgeneration_save = True  # Remove on pytest >= 10.0
 
     total_amount = 13_000_000
     net_untaxed = 0
@@ -204,6 +212,10 @@ class ReceiptFCEAWithVatTaxAndOptionalsFactory(ReceiptFCEAWithVatAndTaxFactory):
 class ReceiptWithInconsistentVatAndTaxFactory(ReceiptWithVatAndTaxFactory):
     """Receipt with a valid Vat and Tax, ready to validate."""
 
+    class Meta:
+        model = models.Receipt
+        skip_postgeneration_save = True  # Remove on pytest >= 10.0
+
     document_type = SubFactory(DocumentTypeFactory, code=80)
 
     @post_generation
@@ -214,6 +226,10 @@ class ReceiptWithInconsistentVatAndTaxFactory(ReceiptWithVatAndTaxFactory):
 
 class ReceiptWithApprovedValidation(ReceiptFactory):
     """Receipt with fake (e.g.: not live) approved validation."""
+
+    class Meta:
+        model = models.Receipt
+        skip_postgeneration_save = True  # Remove on pytest >= 10.0
 
     receipt_number = Sequence(lambda n: n + 1)
 
@@ -248,6 +264,12 @@ class ReceiptPDFFactory(DjangoModelFactory[models.ReceiptPDF]):
 
 
 class ReceiptPDFWithFileFactory(ReceiptPDFFactory):
+    """ReceiptPDF with an actual PDF file generated."""
+
+    class Meta:
+        model = models.ReceiptPDF
+        skip_postgeneration_save = True  # Remove on pytest >= 10.0
+
     receipt = SubFactory(ReceiptWithApprovedValidation)
 
     @post_generation
@@ -334,6 +356,10 @@ class ReceiptEntryFactory(DjangoModelFactory[models.ReceiptEntry]):
 
 class ReceiptWithClientVatConditionFactory(ReceiptFactory):
     """Receipt with a valid Client VAT Condition, ready to validate."""
+
+    class Meta:
+        model = models.Receipt
+        skip_postgeneration_save = True  # Remove on pytest >= 10.0
 
     client_vat_condition = SubFactory(ClientVatConditionFactory)
 
