@@ -7,7 +7,6 @@ from pathlib import Path
 from django.contrib.auth.models import User
 from django.utils.timezone import make_aware
 from factory import LazyFunction
-from factory import PostGenerationMethodCall
 from factory import Sequence
 from factory import SubFactory
 from factory import post_generation
@@ -26,10 +25,16 @@ def get_test_file(filename: str, mode: str = "r") -> Path:
 class UserFactory(DjangoModelFactory[User]):
     class Meta:
         model = User
+        skip_postgeneration_save = True
 
     username = "john doe"
     email = "john@doe.co"
-    password = PostGenerationMethodCall("set_password", "123")
+
+    @post_generation
+    def password(obj: User, create: bool, extracted: None, **kwargs) -> None:
+        obj.set_password("123")
+        if create:
+            obj.save()
 
 
 class SuperUserFactory(UserFactory):
