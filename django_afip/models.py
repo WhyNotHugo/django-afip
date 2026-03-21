@@ -1658,6 +1658,7 @@ class ReceiptPDF(models.Model):
         if save_model:
             self.save()
 
+
 class ReceiptEntry(models.Model):
     """An entry in a receipt.
 
@@ -1712,12 +1713,12 @@ class ReceiptEntry(models.Model):
         constraints = (
             CheckConstraint(
                 condition=Q(discount__gte=Decimal("0.0")),
-                name="discount_positive_value"
+                name="discount_positive_value",
             ),
             CheckConstraint(
                 condition=Q(discount__lte=F("quantity") * F("unit_price")),
                 name="discount_less_than_total",
-            )
+            ),
         )
 
     def __str__(self) -> str:
