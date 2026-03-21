@@ -162,7 +162,7 @@ class ReceiptWithVatAndTaxFactory(ReceiptFactory):
 
     class Meta:
         model = models.Receipt
-        skip_postgeneration_save = True  # Remove on pytest >= 10.0
+        skip_postgeneration_save = True  # Remove on factory_boy >= 4.0
 
     point_of_sales = LazyFunction(lambda: models.PointOfSales.objects.first())  # type: ignore[assignment]
     client_vat_condition = SubFactory(ClientVatConditionFactory)
@@ -188,7 +188,7 @@ class ReceiptFCEAWithVatTaxAndOptionalsFactory(ReceiptFCEAWithVatAndTaxFactory):
 
     class Meta:
         model = models.Receipt
-        skip_postgeneration_save = True  # Remove on pytest >= 10.0
+        skip_postgeneration_save = True  # Remove on factory_boy >= 4.0
 
     total_amount = 13_000_000
     net_untaxed = 0
@@ -219,7 +219,7 @@ class ReceiptWithInconsistentVatAndTaxFactory(ReceiptWithVatAndTaxFactory):
 
     class Meta:
         model = models.Receipt
-        skip_postgeneration_save = True  # Remove on pytest >= 10.0
+        skip_postgeneration_save = True  # Remove on factory_boy >= 4.0
 
     document_type = SubFactory(DocumentTypeFactory, code=80)
 
@@ -234,7 +234,7 @@ class ReceiptWithApprovedValidation(ReceiptFactory):
 
     class Meta:
         model = models.Receipt
-        skip_postgeneration_save = True  # Remove on pytest >= 10.0
+        skip_postgeneration_save = True  # Remove on factory_boy >= 4.0
 
     receipt_number = Sequence(lambda n: n + 1)
 
@@ -273,7 +273,7 @@ class ReceiptPDFWithFileFactory(ReceiptPDFFactory):
 
     class Meta:
         model = models.ReceiptPDF
-        skip_postgeneration_save = True  # Remove on pytest >= 10.0
+        skip_postgeneration_save = True  # Remove on factory_boy >= 4.0
 
     receipt = SubFactory(ReceiptWithApprovedValidation)
 
@@ -364,7 +364,7 @@ class ReceiptWithClientVatConditionFactory(ReceiptFactory):
 
     class Meta:
         model = models.Receipt
-        skip_postgeneration_save = True  # Remove on pytest >= 10.0
+        skip_postgeneration_save = True  # Remove on factory_boy >= 4.0
 
     client_vat_condition = SubFactory(ClientVatConditionFactory)
 
