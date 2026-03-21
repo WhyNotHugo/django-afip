@@ -15,7 +15,8 @@ def test_key_generation() -> None:
     taxpayer = factories.TaxPayerFactory.build(key=None)
     taxpayer.generate_key()
 
-    key = taxpayer.key.file.read().decode()
+    with taxpayer.key.file.open("rb") as f:
+        key = f.read().decode()
     assert key.splitlines()[0] == "-----BEGIN PRIVATE KEY-----"
     assert key.splitlines()[-1] == "-----END PRIVATE KEY-----"
 
@@ -28,7 +29,8 @@ def test_dont_overwrite_keys() -> None:
     taxpayer = factories.TaxPayerFactory.build(key=FileField(data=text))
 
     taxpayer.generate_key()
-    key = taxpayer.key.read()
+    with taxpayer.key.file.open("rb") as f:
+        key = f.read()
 
     assert text == key
 
@@ -39,7 +41,8 @@ def test_overwrite_keys_force() -> None:
     taxpayer = factories.TaxPayerFactory.build(key__data=text)
 
     taxpayer.generate_key(force=True)
-    key = taxpayer.key.file.read().decode()
+    with taxpayer.key.file.open("rb") as f:
+        key = f.read().decode()
 
     assert text != key
     assert key.splitlines()[0] == "-----BEGIN PRIVATE KEY-----"

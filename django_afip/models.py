@@ -486,8 +486,11 @@ class TaxPayer(models.Model):
 
         if not self.certificate:
             return None
-        self.certificate.seek(0)
-        return load_certificate(FILETYPE_PEM, self.certificate.read())
+        if not self.certificate.closed:
+            self.certificate.seek(0)
+            return load_certificate(FILETYPE_PEM, self.certificate.read())
+        with self.certificate.storage.open(self.certificate.name, "rb") as f:
+            return load_certificate(FILETYPE_PEM, f.read())
 
     def get_certificate_expiration(self) -> datetime | None:
         """Return the certificate expiration from the current certificate
@@ -541,13 +544,14 @@ class TaxPayer(models.Model):
         systems.
         """
         csr = BytesIO()
-        crypto.create_csr(
-            self.key.file,
-            self.name,
-            f"{basename}{int(datetime.now().timestamp())}",
-            f"CUIT {self.cuit}",
-            csr,
-        )
+        with self.key.file.open("rb") as key_file:
+            crypto.create_csr(
+                key_file,
+                self.name,
+                f"{basename}{int(datetime.now().timestamp())}",
+                f"CUIT {self.cuit}",
+                csr,
+            )
         csr.seek(0)
         return csr
 

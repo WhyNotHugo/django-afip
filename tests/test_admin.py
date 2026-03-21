@@ -99,7 +99,8 @@ def test_without_key(admin_client: Client) -> None:
     assertMessages(response, [Message(messages.SUCCESS, "Key generated successfully.")])
 
     taxpayer.refresh_from_db()
-    assert "-----BEGIN PRIVATE KEY-----" in taxpayer.key.file.read().decode()
+    with taxpayer.key.file.open("rb") as f:
+        assert "-----BEGIN PRIVATE KEY-----" in f.read().decode()
 
 
 def test_with_key(admin_client: Client) -> None:
@@ -119,7 +120,8 @@ def test_with_key(admin_client: Client) -> None:
     )
 
     taxpayer.refresh_from_db()
-    assert taxpayer.key.file.read().decode() == "Blah"
+    with taxpayer.key.file.open("rb") as f:
+        assert f.read().decode() == "Blah"
 
 
 def test_admin_taxpayer_request_generation_with_csr(admin_client: Client) -> None:
