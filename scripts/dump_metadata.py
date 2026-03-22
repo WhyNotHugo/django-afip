@@ -16,6 +16,7 @@ if __name__ == "__main__":
     management.call_command("migrate")
 
     from django_afip.factories import TaxPayerFactory
+    from django_afip.models import ClientVatCondition
     from django_afip.models import GenericAfipType
 
     # Initialise (uses test credentials).
@@ -37,3 +38,15 @@ if __name__ == "__main__":
             use_natural_primary_keys=True,
             output=f"django_afip/fixtures/{label}.json",
         )
+
+    ClientVatCondition.objects.populate()
+    label = ClientVatCondition._meta.label.split(".")[1].lower()
+
+    management.call_command(
+        "dumpdata",
+        f"afip.{label}",
+        format="json",
+        indent=4,
+        use_natural_primary_keys=True,
+        output=f"django_afip/fixtures/{label}.json",
+    )
