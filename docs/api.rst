@@ -67,6 +67,8 @@ command, or the ``load_metadata`` function:
     :members:
 .. autoclass:: django_afip.models.OptionalType
     :members:
+.. autoclass:: django_afip.models.ClientVatCondition
+    :members:
 
 Managers
 --------

@@ -624,11 +624,11 @@ def test_client_vat_condition_populate(live_ticket: models.AuthTicket) -> None:
     """Test populating client VAT conditions from AFIP."""
     # Ensure we start with no client VAT conditions
     assert models.ClientVatCondition.objects.count() == 0
-    models.ClientVatCondition.populate(ticket=live_ticket)
+    models.ClientVatCondition.objects.populate(ticket=live_ticket)
     assert models.ClientVatCondition.objects.count() == 11
 
     initial_count = models.ClientVatCondition.objects.count()
-    models.ClientVatCondition.populate(ticket=live_ticket)
+    models.ClientVatCondition.objects.populate(ticket=live_ticket)
     assert models.ClientVatCondition.objects.count() == initial_count
 
 

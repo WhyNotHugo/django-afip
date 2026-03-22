@@ -53,6 +53,9 @@ Any breaking changes which require intervention will be mentioned here.
   the provided ``afipmetadata`` management command.
 - Drop dependency ``pyyaml``; rely on the Python's built-in ``json`` module
   instead.
+- **BREAKING**: Replace the ``ClientVatCondition.populate`` class method with
+  ``ClientVatCondition.objects.populate``, maintaining consistency with other
+  metadata models.
 
 
 13.2.2

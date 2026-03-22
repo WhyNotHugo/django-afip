@@ -1928,6 +1928,32 @@ class ClientVatConditionManager(models.Manager["ClientVatCondition"]):
     def exists_by_natural_key(self, code: str) -> bool:
         return self.filter(code=code).exists()
 
+    def populate(self, ticket: AuthTicket | None = None) -> None:
+        """Fetch and save client VAT condition data from AFIP's WS.
+
+        Fetches all client VAT conditions from the AFIP web service,
+        and stores or updates them in the database.
+
+        Direct usage of this method is discouraged, use
+        :func:`~.models.load_metadata` instead.
+        """
+
+        ticket = ticket or AuthTicket.objects.get_any_active("wsfe")
+        client = clients.get_client("wsfe", ticket.owner.is_sandboxed)
+        response = client.service.FEParamGetCondicionIvaReceptor(
+            serializers.serialize_ticket(ticket),
+        )
+        check_response(response)
+
+        for condition_data in response.ResultGet.CondicionIvaReceptor:
+            self.update_or_create(
+                code=condition_data.Id,
+                defaults={
+                    "description": condition_data.Desc,
+                    "cmp_clase": condition_data.Cmp_Clase,
+                },
+            )
+
 
 class ClientVatCondition(models.Model):
     """Client VAT condition for certain types of Receipts.
@@ -1962,39 +1988,3 @@ class ClientVatCondition(models.Model):
 
     def natural_key(self) -> tuple[str]:
         return (self.code,)
-
-    @classmethod
-    def populate(
-        cls, ticket: AuthTicket | None = None, taxpayer: TaxPayer | None = None
-    ) -> None:
-        """Fetch and save client VAT condition data from AFIP's WS.
-
-        Fetches all client VAT conditions from the AFIP web service,
-        and stores or updates them in the database.
-
-        Either a ticket or a taxpayer must be provided. If a taxpayer is provided but no
-        ticket, a new ticket will be created for the taxpayer.
-
-        Direct usage of this method is discouraged, use
-        :func:`~.models.load_metadata` instead.
-        """
-
-        if not ticket:
-            if not taxpayer:
-                raise ValueError("Either ticket or taxpayer must be provided")
-            ticket = taxpayer.get_or_create_ticket("wsfe")
-
-        client = clients.get_client("wsfe", ticket.owner.is_sandboxed)
-        response = client.service.FEParamGetCondicionIvaReceptor(
-            serializers.serialize_ticket(ticket),
-        )
-        check_response(response)
-
-        for condition_data in response.ResultGet.CondicionIvaReceptor:
-            cls.objects.update_or_create(
-                code=condition_data.Id,
-                defaults={
-                    "description": condition_data.Desc,
-                    "cmp_clase": condition_data.Cmp_Clase,
-                },
-            )
