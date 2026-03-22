@@ -17,6 +17,9 @@ tasks:
       sudo addgroup $(whoami) docker
   - tox: |
       cd django-afip
-      docker run --rm --network=host -v $(pwd):/src -w /src python:3.12-alpine \
+      # ALL includes live.
+      # Disable fixtures target; it requests a second auth ticket.
+      docker run --rm --network=host -v $(pwd):/src -w /src \
+        -e TOX_SKIP_ENV=fixtures \
+        python:3.12-alpine \
         .builds/test.sh -e ALL
-      # ALL includes live tests!
