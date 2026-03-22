@@ -29,6 +29,18 @@ def disable_durability_check() -> Generator[None, None, None]:
         yield
 
 
+@pytest.fixture(autouse=True)
+def force_gc_between_tests() -> Generator[None, None, None]:
+    """Force garbage collection after each test."""
+    # HACK: pytest segfaults at shutdown, due to causes not fully understood.
+    #       this prevents such crash.
+    #  See: https://github.com/WhyNotHugo/django-afip/pull/252
+    yield
+    import gc
+
+    gc.collect()
+
+
 def pytest_runtest_setup(item: pytest.Function) -> None:
     """Set live mode if the marker has been passed to pytest.
 
