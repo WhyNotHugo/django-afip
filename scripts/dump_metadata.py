@@ -32,7 +32,8 @@ if __name__ == "__main__":
         management.call_command(
             "dumpdata",
             f"afip.{label}",
-            format="yaml",
+            format="json",
+            indent=4,
             use_natural_primary_keys=True,
-            output=f"django_afip/fixtures/{label}.yaml",
+            output=f"django_afip/fixtures/{label}.json",
         )

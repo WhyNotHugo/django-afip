@@ -16,7 +16,7 @@ from django_afip.models import AuthTicket
 if TYPE_CHECKING:
     from collections.abc import Generator
 
-CACHED_TICKET_PATH = settings.BASE_DIR / "test_ticket.yaml"
+CACHED_TICKET_PATH = settings.BASE_DIR / "test_ticket.json"
 _live_mode = False
 
 
@@ -90,7 +90,7 @@ def live_ticket(db: None, live_taxpayer: models.TaxPayer) -> models.AuthTicket:
     # Try reading a cached ticket from disk:
     try:
         with open(CACHED_TICKET_PATH) as f:
-            [obj] = serializers.deserialize("yaml", f.read())
+            [obj] = serializers.deserialize("json", f.read())
             obj.save()
     except FileNotFoundError:
         # If something failed, we should still have no tickets in the DB:
@@ -106,7 +106,7 @@ def live_ticket(db: None, live_taxpayer: models.TaxPayer) -> models.AuthTicket:
     # No matter how we go it, we must have at least one ticket in the DB:
     assert models.AuthTicket.objects.count() >= 1
 
-    data = serializers.serialize("yaml", [ticket], use_natural_primary_keys=True)
+    data = serializers.serialize("json", [ticket], use_natural_primary_keys=True)
     with open(CACHED_TICKET_PATH, "w") as f:
         f.write(data)
 

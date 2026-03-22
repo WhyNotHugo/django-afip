@@ -46,7 +46,13 @@ Any breaking changes which require intervention will be mentioned here.
    - ``AFIP_LOGO_STORAGE``  → ``STORAGES["afip_logos"]``
 
 - Add support for Python 3.14 and Django 6.0.
-- **BREAKING**: Drop support for Django 4.2 and 5.1. Minimum supported version is now 5.2.
+- **BREAKING**: Drop support for Django 4.2 and 5.1. Minimum supported version
+  is now 5.2.
+- **BREAKING**: Fixtures are now provided as JSON files. For typical usages,
+  this requires no changes; fixtures are typically only accessed internally by
+  the provided ``afipmetadata`` management command.
+- Drop dependency ``pyyaml``; rely on the Python's built-in ``json`` module
+  instead.
 
 
 13.2.2
