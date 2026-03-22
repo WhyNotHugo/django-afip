@@ -82,7 +82,7 @@ Tabla de contenidos
    usage
    printables
    api
-   seguridad
+   security
    contributing
    changelog
 
