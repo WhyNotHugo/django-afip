@@ -26,9 +26,8 @@ jobs:
           - 5432:5432
     strategy:
       fail-fast: false
-      matrix:
-        # 3.11 is tested via /.builds/alpine-py311.yml
-        # TODO: move these oldest pythons to sr.ht job in docker
+      # 3.11 is tested via /.builds/alpine-py311.yml
+      # TODO: move these oldest pythons to sr.ht job in docker
     name: postgres, python3.10
     steps:
       - uses: actions/checkout@v3
