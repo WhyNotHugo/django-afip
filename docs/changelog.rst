@@ -56,6 +56,9 @@ Any breaking changes which require intervention will be mentioned here.
 - **BREAKING**: Replace the ``ClientVatCondition.populate`` class method with
   ``ClientVatCondition.objects.populate``, maintaining consistency with other
   metadata models.
+- **BREAKING**: The ``postgres`` and and ``mysql`` extras have been removed.
+  They provided no added value and just installed the appropriate database
+  driver for Django. Most projects handle this themselves already.
 
 
 13.2.2

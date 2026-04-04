@@ -48,12 +48,6 @@ docs = [
   "sphinxcontrib_django",
   "dj_database_url",
 ]
-postgres = [
-  "psycopg[binary]",
-]
-mysql = [
-  "mysqlclient",
-]
 factories = [
   "factory-boy",
 ]
