@@ -21,11 +21,19 @@ class ReceiptPDFView(PDFView):
 
         Returns the same in-memory instance during the whole request."""
 
-        return models.Receipt.objects.select_related(
-            "receipt_type",
-            "point_of_sales",
-        ).get(
-            pk=self.kwargs["pk"],
+        return (
+            models.Receipt.objects.select_related(
+                "receipt_type",
+                "document_type",
+                "validation",
+                "concept",
+                "point_of_sales",
+                "point_of_sales__owner",
+                "currency",
+                "receiptpdf",
+            )
+            .prefetch_related("entries")
+            .get(pk=self.kwargs["pk"])
         )
 
     @cached_property
