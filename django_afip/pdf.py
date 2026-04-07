@@ -20,7 +20,6 @@ if TYPE_CHECKING:
 
     from django_afip.models import Receipt
     from django_afip.models import ReceiptEntry
-    from django_afip.models import ReceiptPDF
 
 
 logger = logging.getLogger(__name__)
@@ -71,11 +70,11 @@ class ReceiptQrCode:
         return qr.make_image()
 
 
-def get_encoded_qrcode(receipt_pdf: ReceiptPDF) -> str:
+def get_encoded_qrcode(receipt: Receipt) -> str:
     """Return a QRCode encoded for embeding in HTML."""
 
     img_data = BytesIO()
-    qr_img = ReceiptQrCode(receipt_pdf.receipt).as_png()
+    qr_img = ReceiptQrCode(receipt).as_png()
     qr_img.save(img_data, format="PNG")
 
     return base64.b64encode(img_data.getvalue()).decode()
@@ -104,7 +103,7 @@ def create_entries_context_for_render(
     subtotal = Decimal(0)
     for i in paginator.page_range:
         previous_subtotal = subtotal
-        page = paginator.get_page(i)
+        page = paginator.page(i)
 
         for entry in page.object_list:
             subtotal += entry.total_price
@@ -112,7 +111,7 @@ def create_entries_context_for_render(
         entries[i] = {
             "previous_subtotal": previous_subtotal,
             "subtotal": subtotal,
-            "entries": paginator.get_page(i).object_list,
+            "entries": page.object_list,
         }
     return entries
 
@@ -155,50 +154,15 @@ class PdfBuilder:
 
     def get_context(self, receipt: Receipt) -> dict:
         """Returns the context used to render the PDF file."""
-        from django_afip.models import Receipt
-        from django_afip.models import ReceiptPDF
 
         context: dict = {}
 
-        receipt_pdf = (
-            ReceiptPDF.objects.select_related(
-                "receipt",
-                "receipt__receipt_type",
-                "receipt__document_type",
-                "receipt__validation",
-                "receipt__point_of_sales",
-                "receipt__point_of_sales__owner",
-            )
-            .prefetch_related(
-                "receipt__entries",
-            )
-            .get(receipt=receipt)
+        context["entries"] = create_entries_context_for_render(
+            Paginator(receipt.entries.all(), self.entries_per_page)
         )
-
-        # Prefetch required data in a single query:
-        receipt_pdf.receipt = (
-            Receipt.objects.select_related(
-                "receipt_type",
-                "document_type",
-                "validation",
-                "point_of_sales",
-                "point_of_sales__owner",
-            )
-            .prefetch_related(
-                "entries",
-            )
-            .get(
-                pk=receipt_pdf.receipt_id,
-            )
-        )
-        taxpayer = receipt_pdf.receipt.point_of_sales.owner
-        entries = receipt_pdf.receipt.entries.order_by("id")
-        paginator = Paginator(entries, self.entries_per_page)
-
-        context["entries"] = create_entries_context_for_render(paginator)
-        context["pdf"] = receipt_pdf
-        context["taxpayer"] = taxpayer
-        context["qrcode"] = get_encoded_qrcode(receipt_pdf)
+        context["pdf"] = receipt.receiptpdf
+        context["taxpayer"] = receipt.point_of_sales.owner
+        context["qrcode"] = get_encoded_qrcode(receipt)
 
         return context
 
