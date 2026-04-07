@@ -1714,6 +1714,7 @@ class ReceiptEntry(models.Model):
     class Meta:
         verbose_name = _("receipt entry")
         verbose_name_plural = _("receipt entries")
+        ordering = ["id"]
         constraints = (
             CheckConstraint(
                 condition=Q(discount__gte=Decimal("0.0")),
