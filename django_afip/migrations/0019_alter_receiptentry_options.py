@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AlterModelOptions(
             name="receiptentry",
             options={
-                "ordering": ["id"],
+                "ordering": ("pk",),
                 "verbose_name": "receipt entry",
                 "verbose_name_plural": "receipt entries",
             },
