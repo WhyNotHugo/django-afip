@@ -13,6 +13,11 @@ Check the `latest tags`_ or `PyPI`_ for the latest stable release.
 
 Any breaking changes which require intervention will be mentioned here.
 
+14.1.0
+------
+
+- Add support for Django 6.1.
+
 14.0.0
 ------
 
