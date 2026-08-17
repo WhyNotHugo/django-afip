@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 def catch_errors(
     self: admin.ModelAdmin,
     request: HttpRequest,
-) -> Generator[None, None, None]:
+) -> Generator[None]:
     """Catches specific errors in admin actions and shows a friendly error."""
     try:
         yield

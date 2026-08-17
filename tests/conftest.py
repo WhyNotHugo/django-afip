@@ -21,7 +21,7 @@ _live_mode = False
 
 
 @pytest.fixture(autouse=True)
-def disable_durability_check() -> Generator[None, None, None]:
+def disable_durability_check() -> Generator[None]:
     with patch(
         "django_afip.models.ReceiptQuerySet._ensure_durability",
         new=False,
@@ -30,7 +30,7 @@ def disable_durability_check() -> Generator[None, None, None]:
 
 
 @pytest.fixture(autouse=True)
-def force_gc_between_tests() -> Generator[None, None, None]:
+def force_gc_between_tests() -> Generator[None]:
     """Force garbage collection after each test."""
     # HACK: pytest segfaults at shutdown, due to causes not fully understood.
     #       this prevents such crash.
