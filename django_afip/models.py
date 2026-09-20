@@ -904,7 +904,7 @@ class AuthTicket(models.Model):
         return (self.unique_id,)
 
 
-class ReceiptQuerySet(models.QuerySet):
+class ReceiptQuerySet(models.QuerySet["Receipt"]):
     """The default queryset obtains when querying via :class:`~.ReceiptManager`."""
 
     # This private flag is provided only to disable the durability checks in tests.
@@ -931,7 +931,7 @@ class ReceiptQuerySet(models.QuerySet):
         for receipt in self.filter(receipt_number__isnull=True):
             # Atomically update receipt number
             Receipt.objects.filter(
-                pk=receipt.id,
+                pk=receipt.pk,
                 receipt_number__isnull=True,
             ).update(
                 receipt_number=next_num,
@@ -1052,7 +1052,7 @@ class ReceiptQuerySet(models.QuerySet):
         return errs
 
 
-class ReceiptManager(models.Manager):
+class ReceiptManager(models.Manager["Receipt"]):
     """Default manager for the :class:`~.Receipt` class.
 
     This should be accessed using ``Receipt.objects``.
