@@ -12,7 +12,6 @@ from zeep.cache import SqliteCache
 from zeep.transports import Transport
 
 if TYPE_CHECKING:
-    from urllib3 import PoolManager
     from urllib3 import ProxyManager
 
 __all__ = ("get_client",)
@@ -72,11 +71,11 @@ WSDLS = {
 class AFIPAdapter(HTTPAdapter):
     """An adapter with reduced security so it'll work with AFIP."""
 
-    def init_poolmanager(self, *args, **kwargs) -> PoolManager:
+    def init_poolmanager(self, *args, **kwargs) -> None:
         context = create_urllib3_context(ciphers="AES128-SHA")
         context.load_default_certs()
         kwargs["ssl_context"] = context
-        return super().init_poolmanager(*args, **kwargs)
+        super().init_poolmanager(*args, **kwargs)
 
     def proxy_manager_for(self, *args, **kwargs) -> ProxyManager:
         context = create_urllib3_context(ciphers="AES128-SHA")

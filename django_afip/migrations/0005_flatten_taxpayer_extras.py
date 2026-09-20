@@ -7,11 +7,14 @@ from django.db import migrations
 from django.db import models
 
 if TYPE_CHECKING:
-    from django.apps.registry import Apps
     from django.db.backends.base.schema import BaseDatabaseSchemaEditor
+    from django.db.migrations.state import StateApps
 
 
-def merge_taxpayer_extras(apps: Apps, schema_editor: BaseDatabaseSchemaEditor) -> None:
+def merge_taxpayer_extras(
+    apps: StateApps,
+    schema_editor: BaseDatabaseSchemaEditor,
+) -> None:
     TaxPayerExtras = apps.get_model("afip", "TaxPayerExtras")
 
     for extras in TaxPayerExtras.objects.all():  # pragma: no cover

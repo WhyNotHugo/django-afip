@@ -7,15 +7,14 @@ import random
 import re
 import warnings
 from contextlib import suppress
+from datetime import UTC
 from datetime import datetime
 from datetime import timedelta
-from datetime import timezone
 from decimal import Decimal
 from io import BytesIO
 from typing import TYPE_CHECKING
 from typing import BinaryIO
 from typing import ClassVar
-from typing import Generic
 from typing import Literal
 from typing import TypeVar
 from uuid import uuid4
@@ -160,7 +159,7 @@ def _get_storage_from_settings(
 _T = TypeVar("_T", bound="GenericAfipType", covariant=True)
 
 
-class GenericAfipTypeManager(models.Manager, Generic[_T]):
+class GenericAfipTypeManager(models.Manager[_T]):
     """Default Manager for GenericAfipType."""
 
     def __init__(self, service_name: str, type_name: str) -> None:
@@ -489,7 +488,9 @@ class TaxPayer(models.Model):
         if not self.certificate.closed:
             self.certificate.seek(0)
             return load_certificate(FILETYPE_PEM, self.certificate.read())
-        with self.certificate.storage.open(self.certificate.name, "rb") as f:
+        name = self.certificate.name
+        assert name is not None
+        with self.certificate.storage.open(name, "rb") as f:
             return load_certificate(FILETYPE_PEM, f.read())
 
     def get_certificate_expiration(self) -> datetime | None:
@@ -508,7 +509,7 @@ class TaxPayer(models.Model):
             return None
         datestring = not_after.decode()
         dt = datetime.strptime(datestring, "%Y%m%d%H%M%SZ")
-        return dt.replace(tzinfo=timezone.utc)
+        return dt.replace(tzinfo=UTC)
 
     def generate_key(self, force: bool = False) -> bool:
         """Creates a key file for this TaxPayer
@@ -572,7 +573,7 @@ class TaxPayer(models.Model):
         instead.
         """
         return self.auth_tickets.filter(
-            expires__gt=datetime.now(timezone.utc),
+            expires__gt=datetime.now(UTC),
             service=service,
         ).last()
 
@@ -767,7 +768,7 @@ class AuthTicketManager(models.Manager["AuthTicket"]):
         """Return a valid, active ticket for a given service."""
         ticket = AuthTicket.objects.filter(
             token__isnull=False,
-            expires__gt=datetime.now(timezone.utc),
+            expires__gt=datetime.now(UTC),
             service=service,
         ).first()
         if ticket:
@@ -904,7 +905,7 @@ class AuthTicket(models.Model):
         return (self.unique_id,)
 
 
-class ReceiptQuerySet(models.QuerySet):
+class ReceiptQuerySet(models.QuerySet["Receipt"]):
     """The default queryset obtains when querying via :class:`~.ReceiptManager`."""
 
     # This private flag is provided only to disable the durability checks in tests.
@@ -931,7 +932,7 @@ class ReceiptQuerySet(models.QuerySet):
         for receipt in self.filter(receipt_number__isnull=True):
             # Atomically update receipt number
             Receipt.objects.filter(
-                pk=receipt.id,
+                pk=receipt.pk,
                 receipt_number__isnull=True,
             ).update(
                 receipt_number=next_num,
@@ -1052,7 +1053,7 @@ class ReceiptQuerySet(models.QuerySet):
         return errs
 
 
-class ReceiptManager(models.Manager):
+class ReceiptManager(models.Manager["Receipt"]):
     """Default manager for the :class:`~.Receipt` class.
 
     This should be accessed using ``Receipt.objects``.
