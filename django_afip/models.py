@@ -489,7 +489,9 @@ class TaxPayer(models.Model):
         if not self.certificate.closed:
             self.certificate.seek(0)
             return load_certificate(FILETYPE_PEM, self.certificate.read())
-        with self.certificate.storage.open(self.certificate.name, "rb") as f:
+        name = self.certificate.name
+        assert name is not None
+        with self.certificate.storage.open(name, "rb") as f:
             return load_certificate(FILETYPE_PEM, f.read())
 
     def get_certificate_expiration(self) -> datetime | None:
